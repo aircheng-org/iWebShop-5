@@ -1,0 +1,71 @@
+<div class="position"> <span>您当前的位置：</span> <a href="{url:}"> 首页</a> » <a href="{url:/site/products/id/$this->goods['goods_id']}">评论</a> </div>
+<div class="wrapper clearfix">
+	<div class="sidebar f_l">
+		<div class="box_2 m_10">
+			<div class="title">商品信息</div>
+			<div class="content">
+				<ul class="prolist clearfix">
+					<li>
+						<a href="{url:/site/products/id/$this->goods['goods_id']}"><img src="{url:/pic/thumb/img/$this->goods['img']/w/167/h/212}" title="{$this->goods['name']}" alt="{$this->goods['name']}" height="212px" width="167px"></a>
+						<p class="pro_title">商品名称：<a class="blue" href="{url:/site/products/id/$this->goods['goods_id']}">{$this->goods['name']}</a></p>
+						<p>优惠价：<b>{$this->goods['sell_price']}</b></p>
+						<p>评价得分：<span class="grade-star g-star{$this->commentCount['average_point']}"></span>({$this->commentCount['average_point']}分)</p>
+						<p>评论数：{$this->commentCount['comment_total']}条</p>
+					</li>
+					<input type="submit" onclick="joinCart_list({$this->goods['goods_id']});" value="加入购物车" class="submit_join m_10">
+				</ul>
+			</div>
+		</div>
+	</div>
+
+	<div class="main comment_list f_r">
+		<div class="tabs">
+			<div class="tabs_menu uc_title">
+				<label name="tips"><span><a href="{url:/site/comments_list/id/$this->goods['goods_id']}">全部评论({$this->commentCount['comment_total']}条)</a></span></label>
+				<label name="tipsgood"><span><a href="{url:/site/comments_list/id/$this->goods['goods_id']/type/good}">好评({$this->commentCount['point_grade']['good']}条)</a></span></label>
+				<label name="tipsmiddle"><span><a href="{url:/site/comments_list/id/$this->goods['goods_id']/type/middle}">中评({$this->commentCount['point_grade']['middle']}条)</a></span></label>
+				<label name="tipsbad"><span><a href="{url:/site/comments_list/id/$this->goods['goods_id']/type/bad}">差评({$this->commentCount['point_grade']['bad']}条)</a></span></label>
+			</div>
+
+			<div class="tabs_content">
+				{foreach:items=$this->commentQuery->find()}
+				<div class="node item">
+					<div class="user">
+						<div class="ico"><img src="{url:$item['head_ico']}" width="70px" height="70px" onerror="this.src='{skin:images/front/user_ico.gif}'" /></div>
+						<a class="blue">{$item['username']}</a>
+						<p class="gray"></p>
+					</div>
+					<dl class="desc">
+						<p class="clearfix">
+							<b>评分：</b>
+							<span class="grade-star g-star{$item['point']}"></span>
+							<span class="light_gray">{$item['time']}</span>
+							<label></label>
+						</p>
+						<hr />
+						{if:$item['img_list']}
+						<p class="clearfix">
+                            {foreach:items=JSON::decode($item['img_list']) item=$itemImg}
+                            <a href="{url:$itemImg}" target="_blank"><img class="img-thumbnail" style="width:100px;height:100px;border:1px solid #ccc;" src="{url:$itemImg}" /></a>
+                            {/foreach}
+                        </p>
+						<hr />
+						{/if}
+						<p><b>评语：</b><span class="gray">{$item['contents']}</span></p>
+					</dl>
+					<div class="corner b"></div>
+					<div class="corner tl"></div>
+				</div>
+				<hr />
+				{/foreach}
+			</div>
+			{$this->commentQuery->getPageBar()}
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	{set:$type=IFilter::act(IReq::get('type'))}
+	var tipsName = "tips{$type}";
+	$('[name="'+tipsName+'"]').addClass('current');
+</script>

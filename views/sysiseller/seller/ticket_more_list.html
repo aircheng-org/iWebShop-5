@@ -1,0 +1,76 @@
+<article class="col-lg-12">
+    <div class="card forms">
+        <div class="card-header d-flex align-items-center justify-content-between">
+            <h3>优惠券详情</h3>
+            <div>
+                <input type="button" class="btn btn-primary" onclick="window.location.href='{url:/seller/ticket_list}';" value="优惠券列表" />
+                <input type="button" class="btn btn-primary" onclick="selectAll('id[]')" value="全选" />
+                <input type="button" class="btn btn-primary" onclick="delModel({msg:'是否修改删除？',form:'searchForm',link:'{url:/seller/ticket_more_del}'});" value="批量删除" />
+                <input type="button" class="btn btn-primary" onclick="delModel({msg:'是否修改发放状态？',form:'searchForm',link:'{url:/seller/ticket_status/status/is_send}'});" value="批量发放" />
+                <input type="button" class="btn btn-primary" onclick="delModel({msg:'是否修改禁用状态？',link:'{url:/seller/ticket_status/status/is_close}',form:'searchForm'});" value="批量禁用" />
+            </div>
+        </div>
+
+        <div class="card-body">
+            <form method='post' action='#' name='searchForm' class="form-horizontal">
+                <input type='hidden' name='ticket_id' value='{$this->ticket_id}' />
+                <table class="table">
+                    <colgroup>
+                        <col width="40px" />
+                        <col width="90px" />
+                        <col width="90px" />
+                        <col width="100px" />
+                        <col />
+                        <col width="90px" />
+                        <col width="90px" />
+                        <col width="80px" />
+                        <col width="120px" />
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>卡号</th>
+                            <th>密码</th>
+                            <th>面值</th>
+                            <th>有效期</th>
+                            <th>已被使用</th>
+                            <th>是否发放</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {set:$queryObj=Api::run('getListByProp',array('ticket_id'=>$this->ticket_id));$resultData=$queryObj->find()}
+                        {foreach:items=$resultData}
+                        <tr>
+                            <td><input type='checkbox' name='id[]' class="checkbox-template" value='{$item['id']}' /></td>
+                            <td>{$item['card_name']}</td>
+                            <td>{$item['card_pwd']}</td>
+                            <td>{$item['value']} 元</td>
+                            <td>{$item['start_time']}~{$item['end_time']}</td>
+                            <td>{if:$item['is_userd']==1}<span class="text-green">是</span>{else:}<span class="text-red">否</span>{/if}</td>
+                            <td>{if:$item['is_send']==1}<span class="text-green">是</span>{else:}<span class="text-red">否</span>{/if}</td>
+                            <td>
+                                {if:$item['is_close'] == 1}
+                                <span class="text-red">禁用</span>
+                                {elseif:$item['is_close'] == 2}
+                                <span class="text-red">被占用</span>
+                                {else:}
+                                <span class="text-green">正常</span>
+                                {/if}
+                            </td>
+                            <td>
+                                <a href='{url:/seller/ticket_status/ticket_id/$this->ticket_id/status/is_close/id/$item['id']}' title="修改禁用状态"><i class='fa-lg fa fa-minus-circle'></i></a>
+                                <a href='{url:/seller/ticket_status/ticket_id/$this->ticket_id/status/is_send/id/$item['id']}' title="修改发放状态"><i class='fa-lg fa fa-share-square-o'></i></a>
+                                <a href="javascript:delModel({link:'{url:/seller/ticket_more_del/ticket_id/$this->ticket_id/id/$item['id']}'});" title="删除"><i class='fa-lg fa fa-close'></i></a>
+                            </td>
+                        </tr>
+                        {/foreach}
+                    </tbody>
+                </table>
+            </form>
+            {$queryObj->getPageBar()}
+        </div>
+    </div>
+</article>

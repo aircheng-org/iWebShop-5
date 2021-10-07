@@ -1,0 +1,255 @@
+{set:$data=$this->data_info}
+{js:artTemplate}
+
+<article class="col-lg-12">
+	<div class="card forms">
+		<div class="card-header">
+			<h3>拼团编辑</h3>
+		</div>
+
+		<div class="card-body">
+        	<form action='{url:/seller/delivery_update}' method='post' name='form' class="form-horizontal">
+        		<input type="hidden" name="deliveryId" value="{echo:IFilter::act(IReq::get('id'),'int')}" />
+
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label">重量设置</label>
+					<div class="col-sm-10">
+					    <div class="row">
+    					    <div class="col">
+            					首重重量
+            					<select name="first_weight" pattern='int' class='form-control'>
+            						<option label="500克" value="500">500克</option>
+            						<option label="1公斤" value="1000" selected="selected">1公斤</option>
+            						<option label="1.2公斤" value="1200">1.2公斤</option>
+            						<option label="2公斤" value="2000">2公斤</option>
+            						<option label="5公斤" value="5000">5公斤</option>
+            						<option label="10公斤" value="10000">10公斤</option>
+            						<option label="20公斤" value="20000">20公斤</option>
+            						<option label="50公斤" value="50000">50公斤</option>
+            					</select>
+            				</div>
+                            <div class="col">
+                                首重费用(元)
+                                <div class="input-group">
+        				            <input class='form-control' name="first_price" pattern="float" alt="该项必填且只允许填写数字金额" type="text">
+                                    <div class="input-group-append"><span class="input-group-text">元</span></div>
+                                </div>
+                            </div>
+        				    <div class="col">
+            					续重重量
+            					<select name="second_weight" pattern='int' class='form-control'>
+            						<option label="500克" value="500">500克</option>
+            						<option label="1公斤" value="1000" selected="selected">1公斤</option>
+            						<option label="1.2公斤" value="1200">1.2公斤</option>
+            						<option label="2公斤" value="2000">2公斤</option>
+            						<option label="5公斤" value="5000">5公斤</option>
+            						<option label="10公斤" value="10000">10公斤</option>
+            						<option label="20公斤" value="20000">20公斤</option>
+            						<option label="50公斤" value="50000">50公斤</option>
+            					</select>
+            				</div>
+            				<div class="col">
+            					续重费用(元)
+            					<div class="input-group">
+            					    <input class='form-control' name="second_price" value="" pattern="float" alt="该项必填且只允许填写数字金额" type="text">
+    					            <div class="input-group-append"><span class="input-group-text">元</span></div>
+    					        </div>
+    					    </div>
+    					</div>
+
+					    <small class="help-block-none">根据重量来计算运费，当物品不足《首重重量》时，按照《首重费用》计算，超过部分按照《续重重量》和《续重费用》乘积来计算</small>
+					</div>
+				</div>
+
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label">支持保价</label>
+					<div class="col-sm-10">
+					    <label><input name="is_save_price" value="1" type="checkbox" onclick="$('#protectBox').toggle();" class="checkbox-template"> 支持物流保价</label>
+
+    					<!--支持保价隐藏域-->
+    					<div class='row' id='protectBox' style='display:none'>
+    					    <div class="col">
+        					    费率
+        					    <div class="input-group">
+        					        <input name="save_rate" class='form-control' pattern="float" type="text" />
+        					        <div class="input-group-append"><span class="input-group-text">%</span></div>
+        					    </div>
+    					    </div>
+
+    					    <div class="col">
+        						最低保价费
+        						<div class="input-group">
+        						    <input name="low_price" class='form-control' pattern="float" type="text" />
+        					        <div class="input-group-append"><span class="input-group-text">元</span></div>
+        					    </div>
+    					    </div>
+    					</div>
+    					<small class="help-block-none">当用户需要保价后，一般是按照货物总金额的<费率>计算，但是保价金额最低不低于<最低保价费></small>
+					</div>
+			    </div>
+
+
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label">设置地区运费</label>
+					<div class="col-sm-10">
+					    <div class="form-check form-check-inline">
+					        <label  class="form-check-label"><input name="price_type" value="0" type="radio" onclick="$('#areaBox').hide();" checked="checked" class="radio-template form-check-input">统一地区运费</label>
+					    </div>
+
+					    <div class="form-check form-check-inline">
+					        <label  class="form-check-label"><input name="price_type" value="1" type="radio" onclick="$('#areaBox').show();" class="radio-template form-check-input">指定地区运费</label>
+					    </div>
+
+        				<small class="help-block-none">《统一地区运费》：全部的地区都使用默认的《重量设置》中的计费方式。《指定地区运费》：单独指定部分地区的运费</small>
+					</div>
+				</div>
+
+                <!--按照地区设置-->
+				<div class="form-group row" id="areaBox" style='display:none'>
+					<label class="col-sm-2 col-form-label">支持的配送地区</label>
+					<div class="col-sm-10">
+    					<label><input name="open_default" value="1" type='checkbox' class="checkbox-template" /> 其他地区默认运费</label>
+    					<small class="help-block-none">注意：如果不开启此项，那么未设置的地区将无法送达！</small>
+
+                        <div id="deliveryAreaBox"></div>
+
+                        <!--地域设定模板-->
+                        <script type='text/html' id='areaTemplate'>
+    					<div name="areaItem" class="border-bottom mb-2">
+    					    <input type='hidden' name='area_groupid[]' value='<%=area_groupid%>' />
+                            <div class="row form-group">
+                                <div class="col">
+            						<select class="form-control form-control-sm">
+            							{foreach:items = $this->areaList}
+            							<option value="{$item['area_id']}">{$item['area_name']}</option>
+            							{/foreach}
+            						</select>
+            				    </div>
+
+            				    <div class="col">
+            						<div class="input-group input-group-sm">
+            						    <input class="form-control" name="firstprice[]" value="<%=firstprice%>" pattern="float" type="text" placeholder="首重费用(元)" />
+            					        <div class="input-group-append"><span class="input-group-text">元</span></div>
+            					    </div>
+            					</div>
+
+            					<div class="col">
+            						<div class="input-group input-group-sm">
+            						    <input class="form-control" name="secondprice[]" value="<%=secondprice%>" pattern="float" type="text" placeholder="续重费用(元)" />
+            					        <div class="input-group-append"><span class="input-group-text">元</span></div>
+            					    </div>
+            					</div>
+
+            					<div class="col">
+            						<button type="button" class="btn btn-success btn-sm" onclick='addProvince(this);'>确认</button>
+            						<button type="button" class="btn btn-danger btn-sm" onclick='$(this).parent().parent().parent().remove();'>删除</button>
+                                </div>
+                            </div>
+
+                            <div class="row form-group">
+    					        <div class="col"><input class="form-control" name="areaName" readonly="readonly" disabled='disabled' value='<%=areaname%>' /></div>
+    					    </div>
+    					</div>
+                        </script>
+    				    <button type="button" class="btn btn-info btn-sm" onclick='addArea()'><span class="add">添加规则</span></button>
+					</div>
+				</div>
+
+				<div class="form-group row">
+					<div class="col-sm-4 offset-sm-2">
+						<input type="submit" class="btn btn-primary" value="确 定" />
+						<input type="reset" class="btn btn-secondary" value="重 置" />
+					</div>
+				</div>
+        	</form>
+		</div>
+	</div>
+</article>
+
+<script type='text/javascript'>
+//DOM加载完毕
+$(function()
+{
+	//初始化表单
+	var formInstance = new Form('form');
+	formInstance.init({echo:JSON::encode($data)});
+
+	//设置隐藏域等部分
+	{if:isset($data['is_save_price']) && $data['is_save_price'] == 1}
+	$('#protectBox').show();
+	{/if}
+
+	//设置统一费用
+	{if:isset($data['price_type']) && $data['price_type'] == 1}
+	$('#areaBox').show();
+	{/if}
+
+	//具有特殊省份设置
+	{if:isset($data['area_groupid']) && $data['area_groupid']!=''}
+	var area_groupid = {echo:JSON::encode(unserialize($data['area_groupid']))};
+	var firstprice   = {echo:JSON::encode(unserialize($data['firstprice']))};
+	var secondprice  = {echo:JSON::encode(unserialize($data['secondprice']))};
+
+    for(var index in area_groupid)
+    {
+    	var areaname = [];
+    	var idArray  = area_groupid[index].split(';');
+    	for(var i in idArray)
+    	{
+    		if(idArray[i])
+    		{
+    			areaname.push(getAreaName(idArray[i]));
+    		}
+    	}
+		var areaHtml = template.render('areaTemplate',{"area_groupid":area_groupid[index],"areaname":areaname.join(','),"firstprice":firstprice[index],"secondprice":secondprice[index]});
+		$('#deliveryAreaBox').append(areaHtml);
+    }
+	{/if}
+});
+
+//添加地域项
+function addArea()
+{
+	var areaHtml = template.render('areaTemplate',{});
+	$('#deliveryAreaBox').append(areaHtml);
+}
+
+//获取省份名称
+function getAreaName(provinceId)
+{
+	var areaNameList = {echo:JSON::encode($this->area)};
+	return areaNameList[provinceId];
+}
+
+//添加省份
+function addProvince(_self)
+{
+	var parentObject = $(_self).parents("div[name='areaItem']");
+	var selectObj    = parentObject.find('select');
+
+	//当前选中的地区ID
+	var areaGroupId = parentObject.find('input[name="area_groupid[]"]').val();
+
+	//当前选中的地区NAME
+	var areaGroupName = parentObject.find('input[name="areaName"]').val();
+
+	//填写areaId
+	if(areaGroupId == '')
+	{
+		parentObject.find('input[name="area_groupid[]"]').val(";" + selectObj.val() + ";");
+	}
+	else if(areaGroupId.indexOf(";" + selectObj.val() + ";") == -1)
+	{
+		parentObject.find('input[name="area_groupid[]"]').val(areaGroupId + selectObj.val() + ";");
+	}
+	else
+	{
+		alert('省份已经添加，不要重复添加');
+		return;
+	}
+
+	//添加areaName
+	areaGroupName = areaGroupName == '' ? selectObj.find('option:selected').text() : areaGroupName + "," + selectObj.find('option:selected').text();
+	parentObject.find('input[name="areaName"]').val(areaGroupName);
+}
+</script>

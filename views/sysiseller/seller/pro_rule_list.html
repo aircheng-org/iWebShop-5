@@ -1,0 +1,56 @@
+<article class="col-lg-12">
+	<div class="card forms">
+		<div class="card-header d-flex align-items-center justify-content-between">
+			<h3>促销活动列表</h3>
+			<div>
+				<input type="button" class="btn btn-primary" onclick="window.location.href='{url:/seller/pro_rule_edit}';" value="添加活动" />
+				<input type="button" class="btn btn-primary" onclick="selectAll('id[]')" value="全选" />
+				<input type="button" class="btn btn-primary" onclick="delModel();" value="批量删除" />
+			</div>
+		</div>
+
+		<div class="card-body">
+			<form method='post' action='{url:/seller/pro_rule_del}' class="form-horizontal">
+				<table class="table">
+					<colgroup>
+						<col width="30px" />
+						<col width="150px" />
+						<col width="320px" />
+						<col width="70px" />
+						<col />
+						<col width="90px" />
+					</colgroup>
+
+					<thead>
+						<tr>
+							<th></th>
+							<th>名称</th>
+							<th>活动时间</th>
+							<th>状态</th>
+							<th>介绍</th>
+							<th>操作</th>
+						</tr>
+					</thead>
+
+					<tbody>
+						{set:$queryObj=Api::run('getSellerListRule');$resultData=$queryObj->find()}
+						{foreach:items=$resultData}
+						<tr>
+							<td><input type='checkbox' class='checkbox-template' name='id[]' value='{$item['id']}' /></td>
+							<td>{$item['name']}</td>
+							<td>{$item['start_time']} ～ {$item['end_time']}</td>
+							<td>{echo:($item['is_close']==1) ? '关闭':'开启'}</td>
+							<td>{$item['intro']}</td>
+							<td>
+								<a href='{url:/seller/pro_rule_edit/id/$item['id']}'><i class="fa fa-edit fa-lg" title="编辑"></i></a>
+								<a href='javascript:void(0)' onclick="delModel({link:'{url:/seller/pro_rule_del/id/$item['id']}'});"><i class="fa fa-close fa-lg" title="删除"></i></a>
+							</td>
+						</tr>
+						{/foreach}
+					</tbody>
+				</table>
+			</form>
+			{$queryObj->getPageBar()}
+		</div>
+	</div>
+</article>

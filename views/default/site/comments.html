@@ -1,0 +1,113 @@
+{js:fileUpload}
+<div class="position"> <span>您当前的位置：</span> <a href="{url:}"> 首页</a> » <a href="{url:/site/products/id/$this->goods['goods_id']}">{$this->goods['name']}</a> </div>
+<div class="clearfix">
+	<div class="sidebar f_l">
+		<div class="box_2 m_10">
+			<div class="title">商品信息</div>
+			<div class="content">
+				<ul class="prolist clearfix">
+					<li>
+						<a href="{url:/site/products/id/$this->goods['goods_id']}"><img src="{url:/pic/thumb/img/$this->goods['img']/w/167/h/212}" alt="{$this->goods['name']}" height="212px" width="167px"></a>
+						<p class="pro_title">商品名称：<a class="blue" href="{url:/site/products/id/$this->goods['goods_id']}">{$this->goods['name']}</a></p>
+						<p>优惠价：<b>￥{$this->goods['sell_price']}</b></p>
+						<p>评价得分：<span class="grade-star g-star{$this->commentCount['average_point']}"></span>({$this->commentCount['average_point']}分)</p>
+						<p>评论数：{$this->commentCount['comment_total']}条</p>
+					</li>
+					<input type="submit" onclick="joinCart_list({$this->goods['goods_id']});" value="加入购物车" class="submit_join m_10">
+				</ul>
+			</div>
+		</div>
+	</div>
+
+	<div class="wrapper main f_r">
+		<div class="wrap_box">
+			<form method="post" action="{url:/site/comment_add}">
+			<input type="hidden" name="id" value="{$this->comment['id']}" />
+			<table class="form_table f_l">
+				<caption><img src="{skin:images/front/comments.gif}" width="88" height="23" alt="我要评论" /></caption>
+
+				<colgroup>
+    				<col width="120px" />
+    				<col />
+				</colgroup>
+
+				<tr>
+					<th>评论等级：</th>
+					<td>
+						<label><input name="point" class="radio" type="radio" value="5" checked="checked" /><span class="grade-star g-star5"></span></label>
+						<label><input name="point" class="radio" type="radio" value="4" /><span class="grade-star g-star4"></span></label>
+						<label><input name="point" class="radio" type="radio" value="3" /><span class="grade-star g-star3"></span></label>
+						<label><input name="point" class="radio" type="radio" value="2" /><span class="grade-star g-star2"></span></label>
+						<label><input name="point" class="radio" type="radio" value="1" /><span class="grade-star g-star1"></span></label>
+					</td>
+				</tr>
+				<tr>
+					<th>评论内容：</th><td valign="top"><textarea name="contents" id="contents"></textarea></td>
+				</tr>
+				<tr>
+                    <th>上传图片：</th>
+                    <td>
+                        <input type='hidden' name="_imgList" value="" />
+                        <input id="fileUpload" type="file" accept="image/*" name="_goodsFile" data-url="{url:/ucenter/comment_img_upload}" />
+                        <p>可以上传5张图片，3K分辨率以下并且每张不得超过{echo:IUpload::getMaxSize()}</p>
+
+                        <div id="thumbnails"></div>
+
+                        <!--图片模板-->
+                        <script type='text/html' id='picTemplate'>
+                        <div class="pic" style='float:left;'>
+                            <img class="img-thumbnail" style="width:100px;height:100px;border:1px solid #ccc;margin-right:10px;" src="<%=webroot(picRoot)%>" alt="<%=picRoot%>" />
+                            <p style="text-align:center;">
+                                <a href='javascript:;' onclick="$(this).parents('.pic').remove();">删除</a>
+                            </p>
+                        </div>
+                        </script>
+                    </td>
+                </tr>
+				<tr><td></td><td><label class="btn"><input type="submit" value="我要评价" /></label></td></tr>
+			</table>
+			</form>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+//jquery图片上传
+$('[name="_goodsFile"]').fileupload({
+    dataType: 'json',
+    done: function (e, data)
+    {
+    	if(data.result && data.result.flag == 1)
+    	{
+    	    var picJson = data.result;
+        	var picHtml = template.render('picTemplate',{'picRoot':picJson.img});
+        	$('#thumbnails').append(picHtml);
+    	}
+    	else
+    	{
+    		alert(data.result.error);
+    	}
+    },
+    add:function(e, data)
+    {
+        if($('#thumbnails .img-thumbnail').length >= 5)
+        {
+             alert("最多上传5张图片");
+             return false;
+        }
+        data.submit();
+    }
+});
+
+//合并图片地址信息
+$("form").submit(function()
+{
+    var goodsPhoto = [];
+    $('#thumbnails .img-thumbnail').each(function(){
+        goodsPhoto.push(this.alt);
+    });
+
+    $('input[name="_imgList"]').val(goodsPhoto.join(','));
+    return true;
+});
+</script>

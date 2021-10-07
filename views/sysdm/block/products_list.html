@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>货品列表</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+{js:jquery}
+{js:dialog}
+<link rel="stylesheet" href="{webroot:public/css/twitter-bootstrap/3.3.7/css/bootstrap.min.css}">
+</head>
+
+<body>
+<div class="container" style="overflow-y:scroll">
+	<table class="table table-bordered">
+		<colgroup>
+			<col />
+			<col width="120px" />
+		</colgroup>
+		<thead>
+			<tr><th>规格值</th><th>价格</th></tr>
+		</thead>
+		<tbody>
+			{if:$this->data}
+			{foreach:items = $this->data}
+			<tr>
+				<td>
+				    <div class="radio" style="margin:0">
+    				    <label>
+    				        <input type='radio' name='id[]' value="{$item['id']}" id="goods{$key}" checked="checked" />
+        					{set:$spec_array=goods_class::show_spec($item['spec_array']);}
+        					{foreach:items=$spec_array item=$specValue key=$specName}
+        						{$specName}：{$specValue} &nbsp;&nbsp;
+        					{/foreach}
+    				    </label>
+				    </div>
+				    <script>$("#goods{$key}").attr('data',JSON.stringify({echo:JSON::encode($item)}));</script>
+				</td>
+				<td>￥{$item['sell_price']}</td>
+			</tr>
+			{/foreach}
+			{else:}
+			<tr>
+				<td colspan="3">对不起，没有找到相关商品</td>
+			</tr>
+			{/if}
+		</tbody>
+	</table>
+</div>
+</body>
+</html>

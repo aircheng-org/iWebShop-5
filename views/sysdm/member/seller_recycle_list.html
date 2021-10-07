@@ -1,0 +1,80 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">会员</a>
+		</li>
+		<li>
+			<a href="#">商户管理</a>
+		</li>
+		<li class="active">商户回收站</li>
+	</ul>
+</div>
+<form action="{url:/member/seller_recycle_del}" method="post" name="seller_list" onsubmit="return checkboxCheck('id[]','尚未选中任何记录！')">
+	<div class="content">
+		<table class="table list-table">
+			<colgroup>
+				<col width="35px" />
+				<col width="120px" />
+				<col />
+				<col width="120px" />
+				<col width="120px" />
+				<col width="80px" />
+				<col width="80px" />
+				<col width="80px" />
+				<col width="110px"/>
+				<col width="90px" />
+			</colgroup>
+			<caption>
+                <a class="btn btn-default" href='{url:/member/seller_list}'>
+                    <i class="fa fa-reply"></i>返回列表
+                </a>
+                <a class="btn btn-default" onclick="selectAll('id[]')">
+                    <i class="fa fa-check"></i>全选
+                </a>
+                <a class="btn btn-default" onclick="delModel({'form':'seller_list','link':'{url:/member/seller_recycle_del}','name':'id[]'})">
+                    <i class="fa fa-close"></i>永久删除
+                </a>
+                <a class="btn btn-default" onclick="delModel({'form':'seller_list','link':'{url:/member/seller_recycle_restore}','name':'id[]','msg':'恢复选择的商家？'})">
+                    <i class="fa fa-recycle"></i>还原
+                </a>
+			</caption>
+			<thead>
+				<tr>
+					<th></th>
+					<th>登录用户名</th>
+					<th>真实名称</th>
+					<th>座机</th>
+					<th>移动电话</th>
+					<th>销量</th>
+					<th>VIP</th>
+					<th>状态</th>
+					<th>注册日期</th>
+					<th>操作</th>
+				</tr>
+			</thead>
+
+		    {set:$queryObj=Api::run('getRecycleSellerList');$resultData=$queryObj->find()}
+			<tbody>
+			    {foreach:items=$resultData}
+				<tr>
+					<td><input name="id[]" type="checkbox" value="{$item['id']}" /></td>
+					<td title="{$item['seller_name']}">{$item['seller_name']}</td>
+					<td title="{$item['true_name']}">{$item['true_name']}</td>
+					<td title="{$item['phone']}">{$item['phone']}</td>
+					<td title="{$item['mobile']}">{$item['mobile']}</td>
+					<td title="{$item['sale']}">{$item['sale']}</td>
+					<td>{echo:$item['is_vip'] == 0 ? '否':'是'}</td>
+					<td>{echo:$item['is_lock'] == 0 ? '正常':'锁定'}</td>
+					<td title="{$item['create_time']}">{$item['create_time']}</td>
+					<td>
+						<a href="{url:/member/seller_recycle_restore/id/$item['id']}"><i class='operator fa fa-recycle'></i></a>
+						<a onclick="delModel({link:'{url:/member/seller_recycle_del/id/$item['id']}'})"><i class='operator fa fa-close'></i></a>
+					</td>
+				</tr>
+				{/foreach}
+			</tbody>
+		</table>
+	</div>
+	{$queryObj->getPageBar()}
+</form>

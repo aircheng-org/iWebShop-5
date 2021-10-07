@@ -1,0 +1,83 @@
+<article class="col-lg-12">
+    <div class="card forms">
+        <div class="card-header d-flex align-items-center justify-content-between">
+            <h3>优惠券列表</h3>
+            <div>
+                <input type="button" class="btn btn-primary" onclick="window.location.href='{url:/seller/ticket_edit}';" value="添加优惠券" />
+                <input type="submit" class="btn btn-primary" value="生成EXCEL" onclick="$('form').submit();">
+            </div>
+        </div>
+
+        <div class="card-body">
+            <form method='post' action='{url:/seller/ticket_excel}' class="form-horizontal">
+                <table class="table">
+                    <colgroup>
+                        <col width="30px" />
+                        <col width="130px" />
+                        <col width="70px" />
+                        <col width="80px" />
+                        <col width="310px" />
+                        <col />
+                        <col width="150px" />
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>名称</th>
+                            <th>面值</th>
+                            <th>数量</th>
+                            <th>有效期</th>
+                            <th>限制说明</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {set:$queryObj=Api::run('getListByTicket');$resultData=$queryObj->find()}
+                        {foreach:items=$resultData}
+                        {set:$ticket_num = statistics::getTicketCount($item['id'])}
+                        <tr>
+                            <td><input type='checkbox' name='id[]' class="checkbox-template" value='{$item['id']}' /></td>
+                            <td>{$item['name']}</td>
+                            <td>￥{$item['value']}</td>
+                            <td>{$ticket_num} 张</td>
+                            <td>{$item['start_time']}~{$item['end_time']}</td>
+                            <td>{echo:ticket::noteFull($item['id'],false)}</td>
+                            <td>
+                                <a href='{url:/seller/ticket_edit/id/$item['id']}'><i class="fa fa-edit fa-lg" title="编辑"></i></a>
+                                <a href='{url:/seller/ticket_more_list/ticket_id/$item['id']}'><i class="fa fa-eye fa-lg" title="查看"></i></a>
+                                <a href='javascript:create_dialog("{$item['id']}");'><i class="fa fa-plus fa-lg" title="生成优惠券"></i></a>
+                                {if:$ticket_num > 0}
+                                <a href='javascript:void(0)' title="生成EXCEL" onclick="delModel({msg:'是否要生成excel表格？',link:'{url:/seller/ticket_excel/id/$item['id']}'});"><i class="fa fa-file-excel-o fa-lg" title="生成EXCEL"></i></a>
+                                {/if}
+                                <a href='javascript:void(0)' onclick="delModel({link:'{url:/seller/ticket_del/id/$item['id']}'});"><i class="fa fa-close fa-lg" title="删除"></i></a>
+                            </td>
+                        </tr>
+                        {/foreach}
+                    </tbody>
+                </table>
+            </form>
+            {$queryObj->getPageBar()}
+        </div>
+    </div>
+</article>
+
+<script type='text/javascript'>
+//创建优惠券
+function create_dialog(ticket_id)
+{
+    art.dialog.prompt('请输入生成线下实体优惠券数量：',function(num)
+    {
+        var num = parseInt(num);
+        if(isNaN(num) || num <= 0)
+        {
+            alert('请填写正确的数量');
+            return false;
+        }
+
+        var url = '{url:/seller/ticket_create/ticket_id/@ticket_id@/num/@num@}';
+        url = url.replace('@ticket_id@',ticket_id).replace('@num@',num);
+        window.location.href = url;
+    });
+}
+</script>

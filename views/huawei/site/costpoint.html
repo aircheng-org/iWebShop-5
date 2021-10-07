@@ -1,0 +1,34 @@
+<div class="bigweb">
+	<section class="breadcrumb">
+		<span>您当前的位置：</span> 
+		<a href="{url:}"> 首页</a> » 积分兑换
+	</section>
+	<section class="web">
+		<section class="prolist_main">
+			<!-- 商品列表 -->
+			<section class="goods_list">
+				{set:$costpointDB = Api::run('getCostPointList');$costpointData = $costpointDB->find();} {if:$costpointData}
+				<ul>
+					{foreach:items=$costpointData}
+					<li>
+						<a target="_blank" href="{url:/site/products/id/$item['goods_id']}">
+							<img alt="{$item['name']}" src="{url:/pic/thumb/img/$item[img]/w/180/h/180}">
+							<p class="goods_title"><span>{$item['name']}</span></p>
+							<p class="goods_sell_price">{$item['point']}积分</p>
+							<p class="goods_market_price">￥{$item['sell_price']}</p>
+						</a>
+					</li>
+					{/foreach}
+				</ul>
+				{$costpointDB->getPageBar()}
+
+				{else:}
+				<p class="no_tip">
+					对不起，没有找到相关商品
+				</p>
+				{/if}
+			</section>
+			<!-- 商品列表 -->
+		</section>
+	</section>
+</div>	

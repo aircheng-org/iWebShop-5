@@ -1,0 +1,198 @@
+{set:$countData = statistics::sellerAmount($this->seller['seller_id']);}
+{js:chart}
+<article class="module width_full">
+	<div class="module_content dashboard-counts">
+		<div class="container-fluid">
+			<div class="card-header d-flex align-items-center">
+				<h3>概要信息</h3>
+			</div>
+			<div class="row bg-white has-shadow">
+				<div class="col-xl-3 col-sm-3">
+					<div class="item d-flex align-items-center">
+						<div class="statistic d-flex align-items-center">
+							<div class="icon bg-violet"><i class="fa fa-inbox fa-2x"></i></div>
+							<div class="text">
+							    <strong><a href="{url:/seller/goods_list}">{echo:Api::run('goodsCount')}</a></strong><br><small>商品总数量</small>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-xl-3 col-sm-3">
+					<div class="item d-flex align-items-center">
+						<div class="statistic d-flex align-items-center">
+							<div class="icon bg-red"><i class="fa fa-comments fa-2x"></i></div>
+							<div class="text">
+							    <strong><a href="{url:/seller/refer_list}">{echo:Api::run('referWaitCount')}</a></strong><br><small>待回复咨询</small>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-xl-3 col-sm-3">
+					<div class="item d-flex align-items-center">
+						<div class="statistic d-flex align-items-center">
+							<div class="icon bg-yellow"><i class="fa fa-comments-o fa-2x"></i></div>
+							<div class="text">
+							    <strong><a href="{url:/seller/comment_list}">{echo:Api::run('commentWaitCount')}</a></strong><br><small>待回复评论</small>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-xl-3 col-sm-3">
+					<div class="item d-flex align-items-center">
+						<div class="statistic d-flex align-items-center">
+							<div class="icon bg-green"><i class="fa fa-truck fa-2x"></i></div>
+							<div class="text">
+								<strong><a href="{url:/seller/order_list/search[distribution_status]/0/search[pay_status]/1/search[status]/2}">{echo:Api::run('orderWaitCount')}</a></strong><br><small>待发货订单</small>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-xl-3 col-sm-3">
+					<div class="item d-flex align-items-center">
+						<div class="statistic d-flex align-items-center">
+							<div class="icon bg-green"><i class="fa fa-address-card fa-2x"></i></div>
+							<div class="text">
+								<strong>{echo:statistics::gradeSeller($this->seller['seller_id'])}</strong><br><small>信用评分</small>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-xl-3 col-sm-3">
+					<div class="item d-flex align-items-center">
+						<div class="statistic d-flex align-items-center">
+							<div class="icon bg-yellow"><i class="fa fa-thumbs-o-down fa-2x"></i></div>
+							<div class="text">
+							    <strong><a href="{url:/seller/refundment_list}">{echo:Api::run('refundsCount')}</a></strong><br><small>退款申请</small>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-xl-3 col-sm-3">
+					<div class="item d-flex align-items-center">
+						<div class="statistic d-flex align-items-center">
+							<div class="icon bg-red"><i class="fa fa-cog fa-2x"></i></div>
+							<div class="text">
+							    <strong><a href="{url:/seller/fix_list}">{echo:Api::run('fixWaitCount')}</a></strong><br><small>维修申请</small>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-xl-3 col-sm-3">
+					<div class="item d-flex align-items-center">
+						<div class="statistic d-flex align-items-center">
+							<div class="icon bg-violet"><i class="fa fa-retweet fa-2x"></i></div>
+							<div class="text">
+							    <strong><a href="{url:/seller/exchange_list}">{echo:Api::run('exchangeWaitCount')}</a></strong><br><small>换货申请</small>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</article>
+
+<article class="module width_full">
+	<div class="module_content dashboard-counts">
+		<div class="container-fluid">
+			<div class="card-header d-flex align-items-center">
+				<h3>资金统计</h3>
+			</div>
+			<div class="row bg-white has-shadow">
+				<div class="col-xl-3 col-sm-3">
+					<div class="item d-flex align-items-center">
+						<div class="statistic d-flex align-items-center">
+							<div class="icon bg-red"><i class="fa fa-diamond fa-2x"></i></div>
+							<div class="text">
+								<strong>{echo:Api::run('getSellerSellAmount',$this->seller['seller_id'])} 元</strong><br><small>累计订单总额</small>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-xl-3 col-sm-3">
+					<div class="item d-flex align-items-center">
+						<div class="statistic d-flex align-items-center">
+							<div class="icon bg-violet"><i class="fa fa-calendar-check-o fa-2x"></i></div>
+							<div class="text">
+								<strong>{echo:Api::run('getSellerSellAmount',$this->seller['seller_id'],date('Y-m-01'),date('Y-m-d').' 23:59:59')} 元</strong><br><small>本月订单总额</small>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-xl-3 col-sm-3">
+					<div class="item d-flex align-items-center">
+						<div class="statistic d-flex align-items-center">
+							<div class="icon bg-green"><i class="fa fa-cubes fa-2x"></i></div>
+							<div class="text">
+								<strong>{echo:Api::run('getSellerOrderNumCheckout',$this->seller['seller_id'])} 单</strong><br><small>可提现订单数</small>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-xl-3 col-sm-3">
+					<div class="item d-flex align-items-center">
+						<div class="statistic d-flex align-items-center">
+							<div class="icon bg-yellow"><i class="fa fa-credit-card fa-2x"></i></div>
+							<div class="text">
+								<strong>{echo:Api::run('getSellerBillPay',['#seller_id#',$this->seller['seller_id']])} 元</strong><br><small>累计提现金额</small>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</article>
+
+<article class="module width_full">
+	<div class="module_content dashboard-counts">
+		<div class="container-fluid">
+			<div class="card-header d-flex align-items-center">
+				<h3>销售统计</h3>
+			</div>
+			<div class="row bg-white has-shadow">
+				<div class="col-xl-12 col-sm-12">
+					<div class="item d-flex align-items-center">
+						<div id="myChart" style="width:100%;min-height:320px;"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</article>
+
+<script type='text/javascript'>
+//图表生成
+$(function()
+{
+	//图标模板
+	var option = {
+		title:
+		{
+			text:''
+		},
+		xAxis:
+		{
+			name:'时间',
+			data:{echo:JSON::encode(array_keys($countData))},
+		},
+		yAxis:
+		{
+			name:'销售额(元)'
+		},
+		series:
+		[
+			{
+				name:'销售额',
+				type: 'line',
+				data:{echo:JSON::encode(array_values($countData))}
+			}
+		],
+		tooltip:
+		{
+			show:true
+		}
+	};
+	echarts.init(document.getElementById('myChart')).setOption(option);
+})
+</script>

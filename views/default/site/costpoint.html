@@ -1,0 +1,43 @@
+<div class="position"> <span>您当前的位置：</span> <a href="{url:}"> 首页</a> » 积分兑换 </div>
+<div class="wrapper clearfix container_2">
+<div class="sidebar f_l">
+	<div class="box m_10">
+		<div class="title">热门兑换商品</div>
+		<div class="content">
+			<ul class="ranklist">
+				{foreach:items=Api::run('getCostPointHot',10)}
+				<li class='current'>
+					<a href="{url:/site/products/id/$item['goods_id']}"><img src="{url:/pic/thumb/img/$item['img']/w/58/h/58}" width="58" height="58" title="{$item['goods_name']}" /></a>
+					<a title="{$item['name']}" class="p_name" href="{url:/site/products/id/$item['goods_id']}">{$item['goods_name']}</a>
+					<label class="brown">{$item['point']}积分</label>
+				</li>
+				{/foreach}
+			</ul>
+		</div>
+	</div>
+</div>
+<div class="main f_r">
+	<div class="box">
+		<div class="title">积分兑换列表</div>
+		{set:$costpointDB = Api::run('getCostPointList');$costpointData = $costpointDB->find();}
+	    {if:$costpointData}
+		<div class="cont">
+			<ul class="prolist">
+				{foreach:items=$costpointData}
+				<li>
+					<a href="{url:/site/products/id/$item['goods_id']}"><img src="{url:/pic/thumb/img/$item['img']/w/175/h/175}" width="175" height="175" alt="{$item['goods_name']}" title="{$item['goods_name']}" class="img_border" /></a>
+					<p class="pro_title"><a title="{$item['name']}" href="{url:/site/products/id/$item['id']}">{$item['name']}</a></p>
+					<p class="brown"><b>{$item['point']}</b>积分</p>
+				</li>
+				{/foreach}
+			</ul>
+		</div>
+	    {$costpointDB->getPageBar()}
+	    {else:}
+		<p class="display_list mt_10" style='margin-top:50px;margin-bottom:50px'>
+			<strong class="gray f14">对不起，没有找到相关积分兑换商品</strong>
+		</p>
+		{/if}
+	</div>
+</div>
+</div>

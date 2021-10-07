@@ -1,0 +1,50 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">系统</a>
+		</li>
+		<li>
+			<a href="#">配送管理</a>
+		</li>
+		<li class="active">物流公司修改</li>
+	</ul>
+</div>
+<div class="content">
+	<form action='{url:/system/freight_update}' method='post'>
+		<input type="hidden" name="id" value="" />
+		<table class="table form-table">
+			<colgroup>
+				<col width="130px" />
+				<col />
+			</colgroup>
+
+			<tr>
+				<th>物流公司代号：</th>
+				<td>
+					<input type="text" class="form-control" name="freight_type" pattern="required" />
+					<p class="help-block">物流代号编码 <a href="https://www.kuaidi100.com/download/api_kuaidi100_com(20140729).doc" target="_blank">下载物流公司代码</a> </p>
+				</td>
+			</tr>
+			<tr>
+				<th>物流公司全称：</th>
+				<td><input type="text" name="freight_name" class="form-control" value="" pattern="required" /></td>
+			</tr>
+			<tr>
+				<th>物流公司网址：</th>
+				<td><input class="form-control" type="text" name="url" value="" empty pattern="url" /></td>
+			</tr>
+			<tr>
+				<th>排序：</th>
+				<td><input class="form-control" type="text" name="sort" value="" empty pattern="int"  /></td>
+			</tr>
+			<tr>
+				<td></td><td><button class='btn btn-primary' type="submit">保存</button></td>
+			</tr>
+		</table>
+	</form>
+</div>
+<script type='text/javascript'>
+	var formObj = new Form();
+	formObj.init({echo:JSON::encode($this->data)});
+</script>

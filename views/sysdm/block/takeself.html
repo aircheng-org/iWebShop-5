@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>选择自提点</title>
+	{js:jquery}
+	{js:dialog}
+	{js:artTemplate}
+	{js:form}
+	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+	<link rel="stylesheet" href="{webroot:public/css/twitter-bootstrap/3.3.7/css/bootstrap.min.css}">
+	<style>#takeselfBox{border:1px solid #ddd;height:230px;width:100%;overflow-x: hidden;overflow-y: auto;}</style>
+</head>
+
+<body>
+    <div class="container" style="margin-top:15px">
+        <form class="form-inline">
+        <div class="form-group">
+        	<select class="form-control input-sm" style="width:auto;display:inline" name="province" onchange="getData('province');">
+        		<option value="">选省份</option>
+        		{foreach:items=Api::run('getTakeselfProvince')}
+        		<option value="{$item['area_id']}">{$item['area_name']}</option>
+        		{/foreach}
+        	</select>
+
+        	<select class="form-control input-sm" style="width:auto;display:inline" name="city" onchange="getData('city');">
+        		<option value="">选城市</option>
+        	</select>
+
+        	<select class="form-control input-sm" style="width:auto;display:inline" name="area" onchange="getData('area');">
+        		<option value="">选区域</option>
+        	</select>
+        </div>
+
+        <ul class="list-group" id="takeselfBox"></ul>
+
+        <div class="row">
+            <div class="col-xs-6"><input type='text' pattern='require' class='form-control input-sm' placeholder='填写收货人' name='accept_name' /></div>
+            <div class="col-xs-6"><input type='text' pattern='mobi' class='form-control input-sm' placeholder='填写手机号' name='accept_mobile' /></div>
+        </div>
+        </form>
+    </div>
+
+	<!--自提点模板-->
+	<script type="text/html" id="takeselfRowTemplate">
+	<li class="list-group-item">
+        <h4 class="list-group-item-heading">
+            <label class="radio-inline"><input type='radio' value='<%=item['id']%>' data='<%=JSON().stringify(item)%>' name='takeselfItem' /><%=item['name']%></label>
+        </h4>
+        <p class="list-group-item-text">
+            <%=item['address']%><br>
+			<%if(item['phone']){%>电话：<%=item['phone']%><%}%>
+			<%if(item['mobile']){%>手机：<%=item['mobile']%><%}%>
+        </p>
+	</li>
+	</script>
+</body>
+
+<script type='text/javascript'>
+data = {echo:JSON::encode($this->takeselfRow)};
+var formObj = new Form();
+formObj.init(data);
+$('[name="province"]').trigger('change');
+
+//获取数据
+function getData(typeVal)
+{
+	var selectedVal = $('[name="'+typeVal+'"] option:selected').val();
+	$.getJSON("{url:/block/getTakeselfList}",{"id":selectedVal,"type":typeVal},function(jsonData)
+	{
+		switch(typeVal)
+		{
+			case "province":
+			{
+				$('[name="city"] option:gt(0)').remove();
+				$('[name="area"] option:gt(0)').remove();
+				for(var index in jsonData)
+				{
+					var item = jsonData[index];
+					$('[name="city"]').append('<option value="'+item['city']+'">'+item['city_str']+'</option>');
+				}
+
+				formObj.setValue("city",data['city']);
+				$('[name="city"]').trigger('change');
+			}
+			break;
+
+			case "city":
+			{
+				$('[name="area"] option:gt(0)').remove();
+				for(var index in jsonData)
+				{
+					var item = jsonData[index];
+					$('[name="area"]').append('<option value="'+item['area']+'">'+item['area_str']+'</option>');
+				}
+				formObj.setValue("area",data['area']);
+				$('[name="area"]').trigger('change');
+			}
+			break;
+
+			case "area":
+			{
+				$('#takeselfBox').empty();
+				for(var index in jsonData)
+				{
+					var item = jsonData[index];
+					var takeselfHtml = template.render('takeselfRowTemplate',{"item":item});
+					$('#takeselfBox').append(takeselfHtml);
+				}
+				formObj.setValue("takeselfItem",data['id']);
+			}
+			break;
+		}
+	});
+}
+</script>
+</html>

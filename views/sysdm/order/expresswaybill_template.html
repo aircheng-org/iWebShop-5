@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>订单发货和快递单打印</title>
+{js:jquery}
+{js:dialog}
+{js:validate}
+<link rel="shortcut icon" href="{webroot:favicon.ico}" />
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="{webroot:public/css/twitter-bootstrap/3.3.7/css/bootstrap.min.css}">
+</head>
+<body>
+	<div class="container">
+		<div class="alert alert-info">
+			<p>流程提示：订单进行批量发货和快递单（热敏电子面单）打印，利用云端技术把订单数据发送给相应的物流公司，成功后会返回快递单号和快递单模板数据，
+			管理员通过打印机进行自助打印，并把快递单贴到相应的货品上并投递到最近的营业网点（电话通知快递公司上门取件也可）。</p>
+			<p><a class="text-danger" href="{url:/order/print_template}"><strong>快递单打印配置</strong></a></p>
+		</div>
+
+		<div class="alert alert-warning">{echo:expresswaybill::notice()}</div>
+
+		<form>
+		<div class="panel panel-primary">
+			<div class="panel-heading">待发货和打印的订单</div>
+
+			<div class="panel-body">
+				<table class="table">
+					<colgroup>
+						<col width="50px" />
+						<col width="180px" />
+						<col width="90px" />
+						<col  />
+						<col width="90px" />
+						<col width="130px" />
+						<col width="130px" />
+					</colgroup>
+
+					<thead>
+						<tr><th>序号</th><th>订单号</th><th>支付状态</th><th>邮寄地址</th><th>收件人</th><th>联系方式</th><th>发货状态</th></tr>
+					</thead>
+
+					<tbody>
+						{foreach:items=$this->orderList}
+						<input type="hidden" name="id[]" value="{$item['id']}" />
+						<tr>
+							<td>{echo:$key+1}</td>
+							<td>{$item['order_no']}</td>
+							<td>{echo:Order_Class::getOrderPayStatusText($item)}</td>
+							<td>{$item['province_str']} {$item['city_str']} {$item['area_str']} {$item['address']}</td>
+							<td>{$item['accept_name']}</td>
+							<td>{$item['mobile']}</td>
+							<td name="disStatusColor{$item['distribution_status']}">
+								<strong>{echo:Order_Class::getOrderDistributionStatusText($item)}</strong>
+								<span id="status{$item['id']}" style="font-size:16px;"></span>
+							</td>
+						</tr>
+						{/foreach}
+					</tbody>
+				</table>
+			</div>
+
+			<div class="panel-footer">
+				<div class="row">
+					<div class="col-xs-3">
+						<select class="form-control" name="expressId" pattern="required">
+							<option value="" selected="selected">请选择物流公司</option>
+							{foreach:items=$this->expressList}
+							<option value="{$item['id']}">{$item['freight_name']}</option>
+							{/foreach}
+						</select>
+
+						{if:IReq::get('seller_id')}
+						<a href="{url:/seller/expresswaybill_list}">配置物流公司</a>
+						{else:}
+						<a href="{url:/order/print_template}">配置物流公司</a>
+						{/if}
+					</div>
+
+					<div class="col-xs-3">
+						<select class="form-control" name="shipId" pattern="required">
+							<option value="" selected="selected">请选择发货地址</option>
+							{foreach:items=$this->shipList}
+							<option value="{$item['id']}">{$item['ship_name']}</option>
+							{/foreach}
+						</select>
+
+						{if:IReq::get('seller_id')}
+						<a href="{url:/seller/ship_info_list}">添加发货地址</a>
+						{else:}
+						<a href="{url:/order/ship_info_list}">添加发货地址</a>
+						{/if}
+					</div>
+
+					<div class="col-xs-3">
+					    <input type="text" class="form-control" placeholder="打印机名称" name="printSet" />
+					</div>
+
+					<div class="col-xs-3">
+						<input type="button" class="btn btn-success" onclick="expressApi(this);" value="全部发货" />
+						<a href="javascript:window.close();" class="btn btn-danger">关 闭</a>
+					</div>
+				</div>
+			</div>
+		</div>
+		</form>
+	</div>
+</body>
+<script>
+$('[name^="disStatusColor1"]').addClass("text-success");
+
+//快递单下单API
+function expressApi(obj)
+{
+	//完成的订单ID
+	var printOrderId = [];
+	var expressId    = $('[name="expressId"]').val();
+	var shipId       = $('[name="shipId"]').val();
+	if(!expressId || !shipId)
+	{
+		alert("物流公司和发货地址不能为空");
+		return;
+	}
+
+	//锁定按钮
+	$(obj).attr("disabled",true);
+
+	//根据订单ID开始发送物流API请求
+	var count = $('[name="id[]"]').length;
+	$('[name="id[]"]').each(function(i)
+	{
+		var id = $(this).val();
+		$('#status'+id).addClass('glyphicon glyphicon-repeat');
+		$.getJSON('{url:/order/expresswaybill_ajax}',{"expressId":expressId,"shipId":shipId,"id":id},function(json)
+		{
+			for(var orderId in json)
+			{
+				if(json[orderId].status == "success")
+				{
+					printOrderId.push(orderId);
+					$('#status'+id).addClass('glyphicon-ok');
+				}
+				else
+				{
+					$('#status'+id).addClass('text-danger');
+					$('#status'+id).addClass('glyphicon-remove');
+					$('#status'+id).attr('title',json[orderId].error);
+					alert(json[orderId].error);
+				}
+				$('#status'+id).removeClass('glyphicon-repeat');
+			}
+
+			count--;
+			if(count <= 0)
+			{
+				$(obj).attr("disabled",false);
+
+				//请求的ID数量与完成正确的ID数量一致,表示完美
+				if(printOrderId.length == $('[name="id[]"]').length)
+				{
+				    var printSet = $('[name="printSet"]').val();
+				    if(!printSet)
+				    {
+				        alert("打印必须输入打印机名称");
+				        return;
+				    }
+					var jumpUrl = "{url:/order/expresswaybill_print/id/@id@/printSet/@printSet@}";
+						jumpUrl = jumpUrl.replace("@id@",printOrderId.join('_')).replace("@printSet@",printSet);
+					window.location.href = jumpUrl;
+				}
+			}
+		});
+	});
+}
+</script>
+</html>

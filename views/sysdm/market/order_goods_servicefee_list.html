@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>商户订单手续费明细</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+	<link rel="stylesheet" href="{webroot:public/css/twitter-bootstrap/3.3.7/css/bootstrap.min.css}">
+</head>
+<body>
+	<div class="container-fluid table-responsive">
+        <table class="table table-condensed">
+            <colgroup>
+                <col  />
+                <col width="100px" />
+                <col width="100px" />
+                <col width="100px" />
+                <col width="100px" />
+                <col width="100px" />
+                <col width="100px" />
+                <col width="100px" />
+            </colgroup>
+            <thead>
+                <tr>
+                    <th>商品名称</th>
+                    <th>实际价格</th>
+                    <th>商品数量</th>
+                    <th>商品总额</th>
+                    <th>手续费类型</th>
+                    <th>手续费率</th>
+                    <th>商户折扣率</th>
+                    <th>手续费总额</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {set:$order_id = IFilter::act(IReq::get('id'),'int');}
+                {foreach:items=Api::run('getOrderGoodsServicefeeRowByOrderId',array('id'=>$order_id))}
+                <tr>
+                    <td>
+                        {set:$goodsRow = JSON::decode($item['goods_array'])}
+                        <a href="{url:/site/products/id/$item['goods_id']}" target="_blank">
+                            {$goodsRow['name']} &nbsp;
+                            {$goodsRow['value']} &nbsp;
+                            {$goodsRow['goodsno']} &nbsp;
+                            {foreach:items=Api::run('getBrandByGoodsId',array('id'=>$item["goods_id"])) item=$brandRow}
+                            【{$brandRow['name']}】
+                            {/foreach}
+                        </a>
+                    </td>
+                    <td>￥{$item['real_price']}</td>
+                    <td>{$item['goods_nums']}</td>
+                    <td>￥{echo:$item['real_price'] * $item['goods_nums']}</td>
+                    <td>{echo:CountSum::servicefeeTypeText($item['type'])}</td>
+                    <td>{$item['rate']}%</td>
+                    <td>{echo:$item['discount']==100 ? "无" : $item['discount']."%"}</td>
+                    <td>￥{$item['amount']}</td>
+                </tr>
+                {/foreach}
+            </tbody>
+        </table>
+	</div>
+</body>
+</html>

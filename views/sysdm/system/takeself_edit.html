@@ -1,0 +1,102 @@
+{js:artTemplate}
+{js:areaSelect}
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">系统</a>
+		</li>
+		<li>
+			<a href="#">配送管理</a>
+		</li>
+		<li class="active">自提点编辑</li>
+	</ul>
+</div>
+
+<div class="content">
+	<form action='{url:/system/takeself_update}' method='post' name='takeself' enctype='multipart/form-data'>
+		<input type='hidden' name='id' value=""/>
+		<table class="table form-table">
+			<colgroup>
+				<col width="130px" />
+				<col />
+			</colgroup>
+
+			<tr>
+				<th>名称：</th>
+				<td>
+					<input type='text' class='form-control' name='name' value='' pattern='required' alt="填写名称" />
+				</td>
+			</tr>
+			<tr>
+				<th>LOGO图片：</th>
+				<td>
+					<input type='file' name='logo' />
+					{if:isset($this->takeselfRow['logo']) && $this->takeselfRow['logo']}
+					<p><img src='{url:$this->takeselfRow['logo']}' style='width:220px;border:1px solid #ccc' /></p>
+					{/if}
+				</td>
+			</tr>
+			<tr>
+				<th>地区：</th>
+				<td>
+					<div class="row">
+						<div class="col-md-3">
+							<select name="province" child="city,area" class="form-control"></select>
+						</div>
+						<div class="col-md-3">
+							<select name="city" child="area" class="form-control"></select>
+						</div>
+						<div class="col-md-3">
+							<select name="area" class="form-control"></select>
+						</div>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<th>地址：</th>
+				<td>
+					<input type='text' class='form-control' name='address' value='' pattern='required'  />
+				</td>
+			</tr>
+			<tr>
+				<th>固定电话：</th>
+				<td>
+					<input type='text' class='form-control' name='phone' value='' pattern='phone' />
+				</td>
+			</tr>
+			<tr>
+				<th>手机：</th>
+				<td>
+					<input type='text' class='form-control' name='mobile' value='' pattern='mobi'  />
+				</td>
+			</tr>
+			<tr>
+				<th>排序：</th>
+				<td>
+					<input type='text' class='form-control' name='sort' value='' pattern='int' />
+					<p class="help-block">数据排序,数字越小越靠前</p>
+				</td>
+			</tr>
+			<tr>
+				<th></th>
+				<td>
+					<button class='btn btn-primary' type='submit'>确 定</button>
+				</td>
+			</tr>
+		</table>
+	</form>
+</div>
+
+<script type='text/javascript'>
+//DOM加载完毕
+$(function(){
+	//修改模式
+	var formObj = new Form('takeself');
+	formObj.init({echo:JSON::encode($this->takeselfRow)});
+
+	//地区联动插件
+	var areaInstance = new areaSelect('province');
+	areaInstance.init({echo:JSON::encode($this->takeselfRow)});
+});
+</script>

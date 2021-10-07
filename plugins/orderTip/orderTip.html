@@ -1,0 +1,63 @@
+<script>
+//播放音乐函数
+function playSound()
+{
+    var borswer = window.navigator.userAgent.toLowerCase();
+    if (borswer.indexOf("ie") >= 0)
+    {
+        var strEmbed = '<embed name="embedPlay" src="{$mp3}" autostart="true" hidden="true" loop="false"></embed>';
+        if ($("body").find("embed").length <= 0)
+        {
+            $("body").append(strEmbed);
+        }
+        var embed = document.embedPlay;
+        embed.volume = 100;
+    }
+    else
+    {
+        var strAudio = "<audio id='audioPlay' src='{$mp3}' hidden='true'>";
+        if ($("body").find("audio").length <= 0)
+        {
+            $("body").append(strAudio);
+        }
+        var audio = document.getElementById("audioPlay");
+        audio.play();
+    }
+}
+
+setInterval('refreshQuery()', {$loopTime});
+
+/* 刷新查询 */
+function refreshQuery()
+{
+    $.getJSON("{$ajaxUrl}",{"seller_id":"{$seller_id}","nowTime":"{$nowTime}"},function (json)
+    {
+        if(json == '')
+        {
+        	return;
+        }
+
+		art.dialog(
+		{
+			id: 'newOrderTip',
+			title: '新订单提醒',
+			content: json.text,
+			left: '100%',
+			top: '100%',
+			fixed: true,
+			drag: false,
+			resize: false,
+            init: function ()
+            {
+            	//播放音乐
+                playSound();
+            },
+            ok: function ()
+            {
+            	window.location.href=json.jumpUrl;
+            },
+            okVal: '立即查看',
+		})
+    })
+}
+</script>

@@ -1,0 +1,71 @@
+<!--商品条件检索-->
+<div class="box m_10">
+	<div class="cont">
+		<!--品牌展示-->
+		{if:search_goods::$brandSearch}
+		<dl class="sorting">
+			<dt>品牌：</dt>
+			<dd>
+				<a class="nolimit current" href="javascript:searchObj.link({'brand':''});" id='filter-brand'>不限</a>
+				{foreach:items=search_goods::$brandSearch}
+				<a href="javascript:searchObj.link({'brand':{$item['id']}});" id='filter-brand{$item['id']}'>{$item['name']}</a>
+				{/foreach}
+			</dd>
+		</dl>
+		{/if}
+		<!--品牌展示-->
+
+		<!--商品属性-->
+		{foreach:items = search_goods::$attrSearch}
+		<dl class="sorting">
+			<dt>{$item['name']}：</dt>
+			<dd>
+				<a class="nolimit current" href="javascript:searchObj.link({'attr[{$item["id"]}]':''});" id="filter-attr{$item['id']}">不限</a>
+				{foreach:items=$item['value'] item=$attr}
+				<a href="javascript:searchObj.link({'attr[{$item["id"]}]':'{$attr}'});" id="filter-attr{$item['id']}{$attr}">{$attr}</a>
+				{/foreach}
+			</dd>
+		</dl>
+		{/foreach}
+		<!--商品属性-->
+
+		<!--商品价格-->
+		{if:search_goods::$priceSearch}
+		<dl class="sorting">
+			<dt>价格：</dt>
+			<dd>
+				<p class="f_r"><input type="text" class="mini" name="min_price" value="" /> 至 <input type="text" class="mini" name="max_price" value="" /> 元
+				<label class="btn_gray_s"><input type="button" onclick="searchObj.link({'min_price':$('[name="min_price"]').val(),'max_price':$('[name="max_price"]').val()});" value="确定"></label></p>
+				<a class="nolimit current" href="javascript:searchObj.link({'min_price':'','max_price':''});" id="filter-price">不限</a>
+				{foreach:items=search_goods::$priceSearch}
+				{set:$priceZone = explode('-',$item)}
+				<a href="javascript:searchObj.link({'min_price':'{$priceZone[0]}','max_price':'{$priceZone[1]}'});" id="filter-price{$item}">{$item}</a>
+				{/foreach}
+			</dd>
+		</dl>
+		{/if}
+		<!--商品价格-->
+	</div>
+</div>
+<!--商品条件检索-->
+
+<!--商品排序展示-->
+<div class="display_title">
+	<span class="l"></span>
+	<span class="r"></span>
+	<span class="f_l">排序：</span>
+	<ul>
+		{foreach:items=search_goods::getOrderType()}
+		<li id="filter-order{$key}">
+			<span class="l"></span><span class="r"></span>
+			<a href='javascript:searchObj.link({"order":"{$key}"});'>{$item}<span id="filter-by{$key}">&nbsp;</span></a>
+		</li>
+		{/foreach}
+	</ul>
+</div>
+<!--商品排序展示-->
+
+<script type='text/javascript' src='{webroot:public/javascript/searchFilter.js}'></script>
+<script type='text/javascript'>
+var searchObj = new searchFilter();
+</script>

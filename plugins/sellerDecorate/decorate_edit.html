@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="UTF-8">
+	{js:jquery}
+	{js:validate}
+	{js:dialog}
+	{js:artTemplate}
+	{js:form}
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<link href="{webroot:public/css/twitter-bootstrap/3.3.7/css/bootstrap.min.css}" rel="stylesheet">
+</head>
+
+<body>
+<div class="container">
+	<div class="form-group">
+		<label>选择主题模板：</label>
+		<p class="form-control-static">选择当前系统支持的商家主题模板，对商家主页进行个性化的显示</p>
+	</div>
+
+	<div class="form-group">
+		<label>主题模板：</label>
+		<select name="sellerTheme" onchange="changeTheme();" class="form-control" style="width:30%">
+			<option value="">无</option>
+			{foreach:items=$themeData key=$theme}
+			<option value="{$theme}" {if:$sellerDeRow && $theme==$sellerDeRow['theme']}selected="selected"{/if}>{$theme}</option>
+			{/foreach}
+		</select>
+	</div>
+
+	<div class="form-group" name="adInfo">
+		<label>模板广告位：</label>
+		<div class="row" id="adList"></div>
+	</div>
+
+	<div class="form-group" name="adInfo">
+		<label>模板文件：</label>
+		<div class="row" id="pageList"></div>
+	</div>
+
+	<div class="form-group" name="adInfo">
+		<label>模板介绍：</label>
+		<div class="row">
+		    <div class="col-xs-12" id="infoText"></div>
+		</div>
+	</div>
+
+	<div class="form-group">
+		<input type="button" class="btn btn-success" value="确 定" onclick="art.dialog.close();" />
+	</div>
+</div>
+
+<!--广告位-->
+<script type='text/html' id='adListTemplate'>
+	<%for(var item in templateData){%>
+	<%var ad = templateData[item]%>
+	<div class="col-xs-4">
+		<a href="{url:/seller/ad_position_edit/name/<%=ad%>}">【<%=ad%>】</a>
+	</div>
+	<%}%>
+</script>
+
+<!--模板文件-->
+<script type='text/html' id='fileListTemplate'>
+	<%for(var file in templateData){%>
+	<%var info = templateData[file]%>
+	<div class="col-xs-4">
+	    【<%=file%>】<%=info%>
+	</div>
+	<%}%>
+</script>
+
+<script type="text/javascript">
+//选择主题
+function changeTheme()
+{
+	var theme = $('[name="sellerTheme"]').val();
+	$.getJSON("{url:/seller/decorate_setting}",{"theme":theme});
+    changeAdvShow(theme);
+}
+
+//主题数据显示
+function changeAdvShow(theme)
+{
+    var themeData = {echo:JSON::encode($themeData)};
+    if (themeData.hasOwnProperty(theme))
+    {
+        $('#adList').html(template.render('adListTemplate',{'templateData':themeData[theme]['ad']}));
+        $('#pageList').html(template.render('fileListTemplate',{'templateData':themeData[theme]['page']}));
+        $('#infoText').html(themeData[theme]['info']);
+
+        $('[name="adInfo"]').show();
+    }
+    else
+    {
+        $('[name="adInfo"]').hide();
+    }
+}
+
+//初始化广告位
+changeAdvShow("{$sellerDeRow['theme']}");
+</script>
+</body>
+</html>

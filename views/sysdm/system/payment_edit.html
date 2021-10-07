@@ -1,0 +1,97 @@
+{set:$paymentInstance = Payment::createPaymentInstance($this->paymentRow['id']);$paramData = JSON::decode($this->paymentRow['config_param'])}
+{js:kindeditor}
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">系统</a>
+		</li>
+		<li>
+			<a href="#">支付管理</a>
+		</li>
+		<li class="active">支付插件配置</li>
+	</ul>
+</div>
+<div class="content">
+	<form action="{url:/system/payment_update}" method="post">
+		<input type='hidden' name='id' value='' />
+		<table class="table form-table">
+			<colgroup>
+				<col width="130px" />
+				<col />
+			</colgroup>
+			<tr>
+				<th>支付方式名称：</th>
+				<td>
+					<input class="form-control" name="name" type="text" value="" pattern="required" />
+				</td>
+			</tr>
+
+			{set:$configParam = $paymentInstance->configParam()}
+			{foreach:items = $configParam}
+			<tr>
+				<th>{$item}：</th>
+				<td><input class="form-control" name="{$key}" type="text" value="{$paramData[$key]}" /></td>
+			</tr>
+			{/foreach}
+
+			<tr>
+				<th>简述：</th>
+				<td>{$this->paymentRow['description']}</td>
+			</tr>
+			<tr>
+				<th>应用客户端：</th>
+				<td>
+                    <label class="radio-inline">
+                        <input type="radio" name="client_type" value="1" checked=checked >PC电脑
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="client_type" value="2">MOBILE移动端
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="client_type" value="3">通用
+                    </label>
+                    <p class="help-block">在不同的客户端访问时，会显示不同的支付方式</p>
+				</td>
+			</tr>
+			<tr>
+				<th>排序：</th><td><input class="form-control" name="order" type="text" value="" pattern="required" alt="排序不能为空！" /></td>
+			</tr>
+			<tr>
+				<th>支付说明：</th>
+				<td>
+					<textarea id="note" name="note" style="width:100%;height:280px;">{$this->paymentRow['note']}</textarea>
+					<p class="help-block">此信息会展示在用户的支付页面</p>
+				</td>
+			</tr>
+			<tr>
+				<th>开启：</th>
+				<td>
+                    <label class="radio-inline">
+                        <input type="radio" name="status" value="0" checked=checked >开启
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="status" value="1">关闭
+                    </label>
+                    <p class="help-block">只有开启后，用户才能从前台进行支付选择</p>
+				</td>
+			</tr>
+			<tr>
+				<th></th>
+				<td>
+					<button class='btn btn-primary' type='submit'>确 定</button>
+				</td>
+			</tr>
+		</table>
+	</form>
+</div>
+
+<script language="javascript">
+//DOM加载完毕
+$(function(){
+	var formInstance = new Form();
+	formInstance.init({echo:JSON::encode($this->paymentRow)});
+
+	KindEditor.create('#note');
+});
+</script>

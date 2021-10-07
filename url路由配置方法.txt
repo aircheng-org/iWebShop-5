@@ -1,0 +1,63 @@
+(一),环境检测和开启伪静态
+	要使用url路由，以下条件是必备的，缺一不可:
+	1,服务器环境本身支持url rewrite重写功能，能正确识别出以路径符号 "/" 为间隔的url地址,这是必要的条件。
+	以apache为例说明如可开启伪静态:iWebShop系统默认是通过根目录下的.htaccess文件对apache进行伪静态修改的，所以必须保证根目录下
+	要有.htaccess文件，其次打开apache的配置文件找到对应的web目录配置项,修改为如下：
+    <Directory "YourDocumentRoot">
+      Options Indexes FollowSymLinks ExecCGI Includes
+      AllowOverride All
+      Order allow,deny
+      Allow from all
+    </Directory>
+    注意：确保 AllowOverride 为 All
+    重启服务即可。
+
+	简单的测试方法：直接在你iwebshop主域名后追加 /simple/cart ,看能否正确进入购物车页面,如网站: http://shop.aircheng.com/simple/cart ，
+	如果通过了上面的测试那么恭喜你，你的服务器环境可以支持更个性化，更美观，更利于seo收录的url访问方式了。
+
+	如果之前的测试依然没有成功那么你的服务器环境就仅能使用原生态的 url方式了，千万不要强制开启iwebshop的 伪静态设置,否则整站将无法访问！
+
+	2,设置iwebshop的url访问方式为pathinfo格式(以"/"分割各个参数的路径格式)。
+	这里提供2种修改方法：
+		1，登录后台进入 <网站设置> 页面，点选 <系统设置> 选项卡，修改最后一项 <伪静态> 选择开启即可;
+		2, 打开程序根目录下的 config/config.php 文件,把 rewriteRule 这项的参数修改为 pathinfo 即可,像这样：'rewriteRule' => 'pathinfo'
+		注意：如果设置了pathinfo参数后，网站出现了异常，如页面无法正常显示,则说明你的服务器环境不支持这种url访问方式，
+		此时需要立即把 rewriteRule 项还原为 url 参数,像这样：'rewriteRule' => 'url'
+
+(二),路由配置方法及实例：
+	进行路由配置还是需要一些最基本的编程知识，当然也可以直接用教程提供的例子。
+	所有的路由规则都放置在程序根目录下的 config/config.php 文件中，键名为：urlRoute 的数组里面。
+	默认情况下config.php文件中是没有 urlRoute 配置的，可以在文件中的合适位置上键入:
+	'urlRoute' => array(),
+	此后的所有规则都必须填写到 array() 里面才能生效,多条路由规则以逗号分隔。
+	每条路由规则包括 键和值 二部分，如：'goods_<id:\d+>.html' => 'site/products'
+	键的部分(左边部分) 表示要生成的url格式;值的部分(右边部分) 表示实际要访问的url地址,也就是映射到哪个controller或action去执行,且分割符号必须为 '/' 。
+	路由中的 <id:\d> 是对于路径中动态参数的一种引用，并且数据带有正则校验性质。
+	上面所举例的路由规则表述为：所有 goods_<id:\d+>.html 格式的url,且存在数据类型为数字的 id 参数，都由 site/products 来执行处理，并且页面中原来为 site/products 的地址都被
+	自动改写成了 goods_<id:\d+>.html 这种格式。
+	在iwebshop中 "site/products/id/商品ID" 这个路径是商品详情页面的地址,设置了此路由后所有商品详情页面都会以静态页面的url形式进行展现。
+
+	下面介绍一些实用的路由规则：
+	'<action:.*>'      => 'site/<action>'            让前台所有site控制器的url直接变成动作名称
+	'admin'            => 'admin/index'              直接输入admin即可进入后台
+	'new<id:\d+>.html' => 'site/article_detail'      美化商城资讯模块，如id为16的咨询url为：new16.html
+
+	案例：
+	'urlRoute' => array (
+	  'article.html' => 'site/article',
+	  'article-<id:\\d+>.html' => 'site/article_detail',
+	  'item-<id:\\d+>.html' => 'site/products',
+	  'list-<cat:\\d+>.html' => 'site/pro_list',
+	  'tuan.html' => 'site/groupon',
+	  'brand.html' => 'site/brand',
+	  'brand-zone.html' => 'site/brand_zone',
+	  'cart.html' => 'simple/cart',
+	  'login.html' => 'simple/login',
+	  'help.html' => 'site/help',
+	  'help-index.html' => 'site/help_list',
+	  'notice.html' => 'site/notice',
+	  'tuan-list.html' => 'site/groupon_list',
+	  'search.html' => 'site/search_list',
+	  'error.html' => 'errors/error',
+	  'notice-<id:\\d+>.html' => 'site/notice_detail',
+	),

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>商品批量修改</title>
+{js:jquery}
+{js:dialog}
+{js:validate}
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="{webroot:public/css/twitter-bootstrap/3.3.7/css/bootstrap.min.css}">
+<script type='text/javascript' src="{webroot:public/javascript/twitter-bootstrap/3.3.7/js/bootstrap.min.js}"></script>
+</head>
+
+<body>
+<div class="container" style="min-width:620px;margin-top:10px;height:550px;overflow-y:auto">
+	<form action='{url:/goods/goods_setting_save}' method='post'>
+		<input type="hidden" name="goods_id" value="{$goods_id}" />
+		<input type="hidden" name="seller_id" value="{$seller_id}" />
+		<table class="table">
+			<colgroup>
+				<col width="100px" />
+				<col />
+			</colgroup>
+
+			<tbody>
+				<tr>
+					<td>商品分类：</td>
+					<td>
+						<span id="__categoryBox"></span>
+						<button class="btn btn-default" type="button" name="_goodsCategoryButton"><span class="add">设置分类</span></button>
+						{set:plugin::trigger('goodsCategoryWidget',array("type" => "checkbox","name" => "category[]"))}
+					</td>
+				</tr>
+
+                {if:$seller_id}
+				<tr>
+					<td>店内分类：</td>
+					<td>
+						<span id="_goods_category_seller"></span>
+						<button class="btn btn-default" type="button" name="_goods_category_seller"><span class="add">设置分类</span></button>
+						{set:plugin::trigger('goodsCategoryWidget',array("seller_id" => $seller_id,"type" => "checkbox","name" => "_goods_category_seller[]","table" => "category_seller","id" => "_goods_category_seller"))}
+					</td>
+				</tr>
+				{/if}
+
+                {if:!$seller_id}
+				<tr>
+					<td>所属商户：</td>
+					<td>
+						<select class="form-control" name="sellerid" style="width:auto;">
+							<option value="-1" selected="selected">保持不变 </option>
+                            <option value="0">商城平台自营 </option>
+							{foreach:items=Api::run('getSellerListAll')}
+							<option value="{$item['id']}">{$item['true_name']}-{$item['seller_name']}</option>
+							{/foreach}
+						</select>
+					</td>
+				</tr>
+                {/if}
+
+				<tr>
+					<td>商品品牌：</td>
+					<td>
+						<select class="form-control" style="width:auto;" name="brand_id">
+                            <option value="-1" selected="selected">保持不变 </option>
+							{foreach:items=Api::run('getBrandListAllOnce')}
+							<option value="{$item['id']}">{$item['name']}</option>
+							{/foreach}
+						</select>
+					</td>
+				</tr>
+
+                <tr>
+					<td>市场价格：</td>
+					<td>
+						<label class="radio-inline">
+                        	<input type="radio" value="1" name="market_price_type" id="market_price_type_1" checked="checked" />增加
+						</label>
+
+						<label class="radio-inline">
+							<input type="radio" value="2" name="market_price_type" id="market_price_type_2" />减少
+						</label>
+
+						<input type="text" class="form-control" style="width:auto;display:inline;" name="market_price" pattern="float" empty value="" />
+                        <select class="form-control" style="width:auto;display:inline;" name="market_price_unit">
+                            <option value="0">按数字</option>
+                            <option value="1">按百分比%</option>
+                        </select>
+					</td>
+				</tr>
+				<tr>
+					<td>销售价格：</td>
+					<td>
+						<label class="radio-inline">
+                        	<input type="radio" value="1" name="sell_price_type" id="sell_price_type_1" checked="checked" />增加
+						</label>
+
+						<label class="radio-inline">
+                        	<input type="radio" value="2" name="sell_price_type" id="sell_price_type_2" />减少
+						</label>
+
+                        <input type="text" class="form-control" style="width:auto;display:inline;" name="sell_price" pattern="float" value="" empty />
+                        <select class="form-control" style="width:auto;display:inline;" name="sell_price_unit">
+                            <option value="0">按数字</option>
+                            <option value="1">按百分比%</option>
+                        </select>
+					</td>
+				</tr>
+				<tr>
+					<td>成本价格：</td>
+					<td>
+						<label class="radio-inline">
+                        	<input type="radio" value="1" name="cost_price_type" id="cost_price_type_1" checked="checked" />增加
+                    	</label>
+
+                        <label class="radio-inline">
+                        	<input type="radio" value="2" name="cost_price_type" id="cost_price_type_2" />减少
+                        </label>
+
+                        <input type="text" class="form-control" style="width:auto;display:inline;" name="cost_price" pattern="float" value="" empty />
+                        <select class="form-control" style="width:auto;display:inline;" name="cost_price_unit">
+                            <option value="0">按数字</option>
+                            <option value="1">按百分比%</option>
+                        </select>
+					</td>
+				</tr>
+				<tr>
+					<td>库存：</td>
+					<td>
+						<label class="radio-inline">
+                        	<input type="radio" value="1" name="store_nums_type" checked="checked" id="store_nums_type_1" />增加
+                        </label>
+
+                        <label class="radio-inline">
+                        	<input type="radio" value="2" name="store_nums_type" id="store_nums_type_2" />减少
+                        </label>
+
+                        <input type="text" class="form-control" style="width:auto;display:inline;" name="store_nums" pattern="int" value="" empty />
+                        <select class="form-control" style="width:auto;display:inline;" name="store_nums_unit">
+                            <option value="0">按数字</option>
+                            <option value="1">按百分比%</option>
+                        </select>
+					</td>
+				</tr>
+
+				{if:$seller_id == 0}
+				<tr>
+					<td>积分：</td>
+					<td>
+						<label class="radio-inline">
+                    		<input type="radio" value="1" name="point_type" id="point_type_1" checked="checked" />增加
+						</label>
+
+                        <label class="radio-inline">
+                        	<input type="radio" value="2" name="point_type" id="point_type_2" />减少
+                        </label>
+
+                        <input type="text" class="form-control" style="width:auto;display:inline;" name="point" pattern="int" value="" empty />
+                        <select class="form-control" style="width:auto;display:inline;" name="point_unit">
+                            <option value="0">按数字</option>
+                            <option value="1">按百分比%</option>
+                        </select>
+					</td>
+				</tr>
+				<tr>
+					<td>经验：</td>
+					<td>
+						<label class="radio-inline">
+                        	<input type="radio" value="1" name="exp_type" id="exp_type_1" checked="checked" />增加
+                    	</label>
+
+                        <label class="radio-inline">
+                        	<input type="radio" value="2" name="exp_type" id="exp_type_2" />减少
+                        </label>
+
+                        <input type="text" class="form-control" style="width:auto;display:inline;" name="exp" pattern="int" value="" empty />
+                        <select class="form-control" style="width:auto;display:inline;" name="exp_unit">
+                            <option value="0">按数字</option>
+                            <option value="1">按百分比%</option>
+                        </select>
+					</td>
+				</tr>
+				{/if}
+			</tbody>
+		</table>
+	</form>
+</div>
+</body>
+</html>

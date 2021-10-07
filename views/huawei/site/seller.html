@@ -1,0 +1,69 @@
+
+<div class="bigweb">
+
+<section class="breadcrumb">
+	<span>您当前的位置：</span> <a href="{url:}">首页</a> » <a href="{url:/site/seller}">商家列表</a>
+</section>
+
+
+<section class="web">
+	<section class="main">
+		<h2 class="main_head">商家列表</h2>
+		<section class="seller_list">
+			{set:$queryObj=Api::run('getSellerList');$resultData=$queryObj->find()}
+				{if:$resultData}
+				<ul>
+					{foreach:items=$resultData}
+					<li>
+						<a href="{url:/site/home/id/$item['id']}">
+							<h3>{$item['true_name']}</h3>
+							<img src="{url:$item['logo']}" style="width:100%" onerror="this.src='http://www.aircheng.com/images/public/default_logo.png'" />
+							<div class="star_box">
+								<strong class="item">评分：</strong>
+								<span class="star stat_{echo:Common::gradeWidth(statistics::gradeSeller($item['id']))}"></span>
+							</div>
+							<span>销量：{echo:statistics::sellCountSeller($item['id'])} 件</span>
+							<address>{echo:join(' ',area::name($item['province'],$item['city'],$item['area']))}</address>
+						</a>
+					</li>
+
+
+					{/foreach}
+				</ul>
+				{$queryObj->getPageBar()}
+				{else:}
+				<p class="no_tip">
+					对不起，当前系统没有商家
+				</p>
+				{/if}
+		</section>
+	</section>
+	<aside class="bar">
+
+		<nav class="bar_box">
+			<h3 class="bar_box_head">VIP商家</h3>
+			<ul class="bar_nav">
+				{foreach:items=Api::run('getVipSellerList')}
+				<li><a href="{url:/site/home/id/$item['id']}">{$item['true_name']}</a></li>
+				{/foreach}
+			</ul>
+		</nav>
+		<div class="bar_box">
+			<h3 class="bar_box_head">热卖商品</h3>
+			<ul class="bar_goods">
+				{foreach:items=Api::run('getCommendHot',5)}
+				<li>
+					<a href="{url:/site/products/id/$item['id']}">
+						<img src="{url:/pic/thumb/img/$item[img]/w/60/h/60}" alt="{$item['name']}">
+						<strong>{$item['name']}</strong>
+						<em>￥{$item['sell_price']}</em>
+					</a>
+				</li>
+				{/foreach}
+			</ul>
+		</div>
+
+	</aside>
+</section>
+
+</div>

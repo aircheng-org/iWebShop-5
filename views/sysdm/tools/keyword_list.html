@@ -1,0 +1,119 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">工具</a>
+		</li>
+		<li>
+			<a href="#">关键词管理</a>
+		</li>
+		<li class="active">关键词列表</li>
+	</ul>
+</div>
+<div class="content">
+	<form action="#" method="post" name="searchForm">
+		<table class="table list-table">
+			<colgroup>
+				<col width="35px" />
+				<col  />
+				<col width="120px" />
+				<col width="100px" />
+				<col width="150px" />
+			</colgroup>
+			<caption>
+                <a class="btn btn-default" href='{url:/tools/keyword_edit}'>
+                    <i class="fa fa-plus"></i>添加关键词
+                </a>
+                <a class="btn btn-default" onclick="selectAll('id[]')">
+                    <i class="fa fa-check"></i>全选
+                </a>
+                <a class="btn btn-default" onclick="delModel({'link':'{url:/tools/keyword_del}','form':'searchForm'})">
+                    <i class="fa fa-close"></i>批量删除
+                </a>
+                <a class="btn btn-default" onclick="delModel({msg:'是否批量同步？','link':'{url:/tools/keyword_account}','form':'searchForm'});">
+                    <i class="fa fa-refresh"></i>批量同步
+                </a>
+			</caption>
+			<thead>
+				<tr>
+					<th></th>
+					<th>关键词</th>
+					<th>关联商品数量</th>
+					<th>是否热门</th>
+					<th>排序</th>
+				</tr>
+			</thead>
+
+			<tbody>
+                {set:$queryObj=Api::run('getKeywordAllList');$resultData=$queryObj->find()}
+                {foreach:items=$resultData}
+				<tr>
+					<td><input type="checkbox" name="id[]" value="{$item['word']}" /></td>
+					<td>{$item['word']}</td>
+					<td>{$item['goods_nums']}</td>
+					<td>
+						{if:$item['hot']==1}
+						<a class='text-red' href='javascript:void(0);' onclick='set_hot("{$item['word']}",this);'>是</a>
+						{else:}
+						<a href='javascript:void(0);' onclick='set_hot("{$item['word']}",this);'>否</a>
+						{/if}
+					</td>
+					<td>
+						<input type='text' onblur='set_order("{$item['word']}",this,"{$item['order']}");' class='form-control' value='{$item['order']}' />
+					</td>
+				</tr>
+				{/foreach}
+			</tbody>
+		</table>
+	</form>
+</div>
+{$queryObj->getPageBar()}
+
+<script type='text/javascript'>
+//设置热门关键词
+function set_hot(word,obj)
+{
+	var rd = Math.random();
+	$.getJSON('{url:/tools/keyword_hot/hot/1}',{id:word,rd:rd},function(content){
+		if(content.isError ==  false)
+		{
+			if(content.hot == 1)
+			{
+				obj.innerHTML = '是';
+				$(obj).removeClass('blue');
+				$(obj).addClass('red2');
+			}
+			else
+			{
+				obj.innerHTML = '否';
+				$(obj).removeClass('red2');
+				$(obj).addClass('blue');
+			}
+		}
+		else
+		{
+			alert(content.message);
+		}
+	});
+}
+
+//设置排序
+function set_order(word,obj,default_val)
+{
+	var order = $(obj).val();
+	if(isNaN(order))
+	{
+		alert('排序必须是一个数字');
+		$(obj).val(default_val);
+	}
+	else
+	{
+		$.getJSON('{url:/tools/keyword_order}',{id:word,order:order},function(content){
+			if(content.isError == true)
+			{
+				alert(content.message);
+			}
+		});
+	}
+}
+</script>

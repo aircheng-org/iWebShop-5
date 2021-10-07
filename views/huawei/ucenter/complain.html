@@ -1,0 +1,70 @@
+<header class="uc_head">
+	<h3>我要建议</h3>
+</header>
+
+<section class="user_form">
+	<form action="{url:/ucenter/complain_edit}" method="post" >
+		<dl>
+			<dt>建议标题：</dt>
+			<dd>
+				<input name="title" type="text" pattern='required' alt='标题不能为空' class="input_text" />
+				<label>*标题不能为空</label>
+			</dd>
+		</dl>
+		<dl>
+			<dt>建议内容：</dt>
+			<dd><textarea class="input_textarea" name='content' pattern='required' alt=''></textarea></dd>
+		</dl>
+		<dl>
+			<dt></dt>
+			<dd><input class="input_submit" type="submit" value="提交建议" /></dd>
+		</dl>
+	</form>
+</section>
+
+<header class="uc_head">
+	<h3>建议列表</h3>
+</header>
+
+<section class="uc_table">
+	<table>
+		<thead>
+			<tr>
+				<th>建议主题</th><th width="200">添加时间</th><th width="100">状态</th><th width="100">查看</th>
+			</tr>
+		</thead>
+		<tbody>
+		    {set:$querySuggestionList = Api::run('getUcenterSuggestion')}
+			{foreach:items = $querySuggestionList->find()}
+			<script>var item{$key} = {echo:JSON::encode($item)};</script>
+			<tr>
+				<td align="left">{$item['title']}</td>
+				<td>{$item['time']}</td>
+				<td>{if:$item['re_content']!=''}<span class="green">已回复</span>{else:}<span>未回复</span>{/if}</td>
+				<td><a class="blue" href='javascript:show_msg(item{$key})'>查看</a></td>
+			</tr>
+			{/foreach}
+		</tbody>
+	</table>
+</section>
+{$querySuggestionList->getPageBar()}
+
+{if:!$items}
+<section class="no_tip">暂无数据</section>
+{/if}
+
+<script>
+function show_msg(obj)
+{
+    var content = "<strong>建议内容：</strong><p>"+obj.content+"</p><p>"+obj.time+"</p><hr/>";
+    if(obj.re_content)
+    {
+        content+= "<strong>回复内容：</strong><p>"+obj.re_content+"</p><p>"+obj.re_time+"</p>";
+    }
+    else
+    {
+        content+= "<strong>回复内容：</strong><p>请耐心等待...</p>";
+    }
+    art.dialog({"title":obj.title,"content":content,"ok":function(){return true;}});
+}
+</script>

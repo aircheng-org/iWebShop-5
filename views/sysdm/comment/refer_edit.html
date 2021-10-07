@@ -1,0 +1,53 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">会员</a>
+		</li>
+		<li>
+			<a href="#">咨询管理</a>
+		</li>
+		<li class="active">回复咨询</li>
+	</ul>
+</div>
+
+<div class="content">
+	<form action="{url:/comment/refer_reply}" method="post" name="refer_edit">
+		<input type="hidden" value="{$referItem['id']}" name="refer_id" />
+		<table class="table form-table">
+
+			<colgroup>
+				<col width="130px" />
+				<col />
+			</colgroup>
+
+			<tr>
+				<th>咨询人：</th>
+				<td>
+					{if:isset($referItem['username'])}
+					<a href="{url:/member/member_edit/uid/$referItem['user_id']}">{$referItem['username']}</a>
+					{else:}
+					非会员顾客
+					{/if}
+				</td>
+			</tr>
+			<tr>
+				<th>咨询时间：</th><td>{$referItem['time']}</td>
+			</tr>
+			<tr>
+				<th>咨询内容：</th><td>{$referItem['question']}</td>
+			</tr>
+			<tr>
+				<th>回复：</th><td><textarea name="content" class="form-control" style="height:200px">{$referItem['answer']}</textarea></td>
+			</tr>
+			<tr>
+				<th></th>
+				<td>
+					<button class='btn btn-primary' type="submit">回 复</button>
+					<a class="btn btn-default" href="javascript:window.history.go(-1)">返回</a>
+	                <a class="btn btn-danger" href="{url:/comment/refer_del/check/$referItem['id']}">删除</a>
+				</td>
+			</tr>
+		</table>
+	</form>
+</div>

@@ -1,0 +1,84 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">系统</a>
+		</li>
+		<li>
+			<a href="#">商品分类管理</a>
+		</li>
+		<li class="active">编辑分类</li>
+	</ul>
+</div>
+<div class="content">
+	<form action="{url:/goods/category_save}" method="post" enctype='multipart/form-data' >
+		<input name="id" value="" type="hidden" />
+		<table class="table form-table">
+			<colgroup>
+				<col width="130px" />
+				<col />
+			</colgroup>
+
+			<tr>
+				<th>分类名称：</th>
+				<td>
+					<input class="form-control" name="name" type="text" value="" pattern="required" />
+				</td>
+			</tr>
+			<tr>
+				<th>分类图片：</th>
+				<td>
+					{if:$this->categoryRow['img']}
+					<img src="{url:$this->categoryRow['img']}" style="width:150px;margin-bottom:10px;" class='img-thumbnail' />
+					{/if}
+					<input type='file' name='img'  />
+					<p class="help-block">预留分类图片</p>
+				</td>
+			</tr>
+			<tr>
+				<th>上级分类：</th>
+				<td>
+					<!--分类数据显示-->
+					<span id="__categoryBox" style="margin-bottom:8px"></span>
+					<button class="btn btn-default" type="button" name="_goodsCategoryButton"><i class="fa fa-list"></i> 设置分类</button>
+					{set:plugin::trigger('goodsCategoryWidget',array("name" => "parent_id","value" => isset($this->categoryRow['parent_id']) ? $this->categoryRow['parent_id'] : IReq::get('pid')))}
+					<p class="help-block">如果不选择上级分类，默认为顶级分类</p>
+				</td>
+			</tr>
+			<tr>
+				<th>首页楼层显示：</th>
+				<td>
+                    <label class="radio-inline">
+                        <input type="radio" name="visibility" value="1" checked=checked >是
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="visibility" value="0">否
+                    </label>
+				</td>
+			</tr>
+			<tr>
+				<th>排序：</th><td><input class="form-control" name="sort" pattern='int' empty type="text" value=""/></td>
+			</tr>
+			<tr>
+				<th>SEO标题：</th><td><input class="form-control" name="title" type="text" value="" /></td>
+			</tr>
+			<tr>
+				<th>SEO关键词：</th><td><input class="form-control" name="keywords" type="text" value="" /></td>
+			</tr>
+			<tr>
+				<th>SEO描述：</th><td><textarea class="form-control" name="descript" cols="" rows=""></textarea></td>
+			</tr>
+			<tr>
+				<td></td><td><button class='btn btn-primary' type="submit">确定</button></td>
+			</tr>
+		</table>
+	</form>
+</div>
+
+<script type="text/javascript">
+$(function()
+{
+	var formObj = new Form();
+	formObj.init({echo:JSON::encode($this->categoryRow)});
+})
+</script>

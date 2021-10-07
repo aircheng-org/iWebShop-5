@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>订单退款</title>
+	{js:jquery}
+	{js:dialog}
+	{js:form}
+	{js:validate}
+	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+	<link rel="stylesheet" href="{webroot:public/css/twitter-bootstrap/3.3.7/css/bootstrap.min.css}">
+	<script type='text/javascript' src="{webroot:public/javascript/public.js}"></script>
+</head>
+
+<body style="width:620px;min-height:420px;overflow-x:hidden;">
+<div class="container">
+	<form action="{url:/order/order_refundment_doc}" method="post">
+		<input type="hidden" name="refunds_id" value="{$refunds['id']}"/>
+		<input type="hidden" name="id" value="{$order_id}"/>
+		<input type="hidden" name="order_no" value="{$order_no}"/>
+		<input type="hidden" name="user_id" value="{$user_id}"/>
+
+		<table class="table table-condensed">
+			<colgroup>
+				<col width="120px" />
+				<col />
+			</colgroup>
+
+			<tbody>
+				<tr>
+					<td>订单号:</td><td>{$order_no}</td>
+				</tr>
+				<tr>
+					<td>下单时间:</td><td>{$create_time}</td>
+				</tr>
+				<tr>
+					<td>商品应付金额:</td>
+					<td>￥{$payable_amount}</td>
+				</tr>
+				<tr>
+					<td>商品实付金额:</td>
+					<td>￥{$real_amount}</td>
+				</tr>
+				<tr>
+					<td>运费应付金额:</td>
+					<td>￥{$payable_freight}</td>
+				</tr>
+				<tr>
+					<td>运费实付金额:</td>
+					<td>￥{$real_freight}</td>
+				</tr>
+
+				<tr>
+					<td>订单保价金额:</td>
+					<td>￥{$insured}</td>
+				</tr>
+
+				{if:$invoice == 1}
+				<tr>
+					<td>订单税金金额:</td>
+					<td>￥{$taxes}</td>
+				</tr>
+				{/if}
+
+				{if:$promotions > 0}
+				<tr>
+					<td>促销活动优惠金额:</td>
+					<td>￥{$promotions}</td>
+				</tr>
+				{/if}
+
+				{if:$discount != 0}
+				<tr>
+					<td>订单价格修改:</td>
+					<td>￥{$discount}</td>
+				</tr>
+				{/if}
+
+				<tr>
+					<td>订单总额:</td>
+					<td>￥{$order_amount}</td>
+				</tr>
+
+				{set:$refundRowCount = CountSum::countSellerOrderFee([$this->data])}
+				<tr>
+					<td>订单已退金额:</td>
+					<td>￥{$refundRowCount['refundFee']}</td>
+				</tr>
+
+				<tr>
+				    <td>订单状态：</td>
+				    <td>{echo:order_class::orderStatusText(order_class::getOrderStatus($this->data))}</td>
+				</tr>
+
+				<tr>
+					<td>退款商品:</td>
+					<td>
+					{if:isset($refunds)}
+						{foreach:items=Api::run('getOrderGoodsRowById',array('id'=>$refunds["order_goods_id"]))}
+						{set:$goods = JSON::decode($item['goods_array'])}
+						{$goods['name']} X {echo:order_class::refundsDocNums($refunds,$item['id'])}
+						<span class="text-danger">【商品金额：￥{echo:order_class::refundsDocNums($refunds,$item['id'])*$item['real_price']}】</span>
+						<br />
+						{/foreach}
+					{else:}
+						{foreach:items=Api::run('getOrderGoodsListByGoodsid',array('order_id'=>$order_id)) item=$good}
+						{set:$good_info = JSON::decode($good['goods_array'])}
+						{set:$refundsApplyNums = Order_Class::refundsApplyNums($good)}
+						{if:$refundsApplyNums}
+						<input type="checkbox" name="order_goods_id[{$key}]" value="{$good['id']}" />
+						<a href="{url:/site/products/id/$good['goods_id']}" target='_blank'>
+							{$good_info['name']}
+							{if:$good_info['value']}{$good_info['value']}{/if} X {$good['goods_nums']}【￥{echo:$good['real_price']*$good['goods_nums']}】
+						</a>
+
+						{if:$good['is_send'] == 0}
+						<input value="{$refundsApplyNums}" type="hidden" name="refunds_nums[{$key}]" />
+						{else:}
+						<span class="num-box">
+							<button type="button" onclick="numsReduce('nums{$good['id']}');">-</button>
+							<input style="width:40px;display:inline;" class='form-control input-sm text-center' value="{$refundsApplyNums}" type="text" name="refunds_nums[{$key}]" id="nums{$good['id']}" max="{$refundsApplyNums}" onchange="numUpdate('nums{$good['id']}');" />
+							<button type="button" onclick="numsAdd('nums{$good['id']}')">+</button>
+						</span>
+						{/if}
+						<br />
+						{/if}
+						{/foreach}
+					{/if}
+					</td>
+				</tr>
+				<tr>
+					<td>退款金额流向:</td>
+					<td>
+						<select name="way" class="form-control" style="width:auto">
+							<option value="origin" selected="selected">原路退款</option>
+							<option value="balance">退款到用户预存款</option>
+							<option value="other">已通过其他方式退款</option>
+						</select>
+						<span class="help-block">原路退款支持：微信，支付宝，银联在线</span>
+					</td>
+				</tr>
+				<tr>
+					<td>退款金额:</td>
+					<td>
+						<label class="radio-inline">
+							<input type="radio" name="isAuto" onclick="closeCustom();" checked="checked" /> 自动计算【默认】
+						</label>
+
+						<label class="radio-inline">
+							<input type="radio" name="isAuto" onclick="openCustom();" /> 手动填写
+						</label>
+						<input type="text" class="form-control" placeholder="自定义退款金额" style="display:inline;width:auto;" name="amount" pattern="float" empty disabled="disabled" />
+					</td>
+				</tr>
+				<tr>
+					<td>说明:</td>
+					<td>点击退款后，<退款商品的金额>将直接转入用户的网站预存款中，如果订单中所有商品均在未发货的情况下全部退款，那么系统将返还运费等</td>
+				</tr>
+			</tbody>
+		</table>
+	</form>
+</div>
+<script type="text/javascript">
+function openCustom()
+{
+	$('[name="amount"]').prop('disabled',false);
+}
+
+function closeCustom()
+{
+	$('[name="amount"]').prop('disabled',true);
+	$('[name="amount"]').val('');
+}
+</script>
+</body>
+</html>

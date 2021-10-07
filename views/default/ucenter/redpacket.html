@@ -1,0 +1,76 @@
+<div class="main f_r">
+    <div class="uc_title m_10">
+        <label class="current"><span>我的优惠券</span></label>
+    </div>
+
+	<div class="form_content m_10">
+		<div class="uc_title2 m_10"><strong>积分兑换</strong></div>
+		<form action='{url:/ucenter/trade_ticket}' method='post'>
+			<table class="form_table" width="100%" cellpadding="0" cellspacing="0">
+			    <colgroup>
+					<col width="10px" />
+					<col width="320px" />
+					<col />
+			    </colgroup>
+
+				{foreach:items=Api::run('getTicketList')}
+				<tr>
+					<td></td>
+					<td><b class="gray"><label class='attr'><input class="radio" type="radio" name='ticket_id' value="{$item['id']}" />{$item['name']}：{$item['value']}元（需要{$item['point']}积分）</label></b></td>
+					<td><label>有效日期：{$item['start_time']}至{$item['end_time']} , 使用范围：{echo:ticket::noteFull($item['id'])}</label></td>
+				</tr>
+				{/foreach}
+				<tr><td></td><td colspan="2"><label class="btn"><input type="submit" value="兑换优惠券" /></label></td></tr>
+			</table>
+		</form>
+
+        {if:!$items}
+    	<div class="error f18 t_c light_gray">暂无数据</div>
+    	{/if}
+	</div>
+
+    <div class="box m_10">
+        <table class="list_table m_10" width="100%" cellpadding="0" cellspacing="0">
+        	<colgroup>
+    	        <col width="120px" />
+    	        <col width="120px" />
+				<col width="120px" />
+				<col />
+				<col width="90px" />
+        	</colgroup>
+
+            <thead>
+            	<tr>
+            		<th>编号</th>
+            		<th>面值</th>
+            		<th>有效时间</th>
+					<th>限制说明</th>
+            		<th>状况</th>
+            	</tr>
+            </thead>
+
+            <tbody>
+            {set:$queryPropList = Api::run('getPropList')}
+    		{foreach:items = $queryPropList->find()}
+                <tr>
+                    <td>{$item['card_name']}</td>
+                    <td>{$item['value']}元</td>
+                    <td>{echo:substr($item['end_time'],0,16)}</td>
+					<td>{echo:ticket::noteFull($item['condition'])}</td>
+                    <td><a href="{echo:ticket::useUrl($item)}" name="ticket{echo:ticket::status($item)}">{echo:ticket::statusText(ticket::status($item))}</a></td>
+                </tr>
+            {/foreach}
+            </tbody>
+        </table>
+
+        {$queryPropList->getPageBar()}
+
+        {if:!$items}
+    	<div class="error f18 t_c light_gray">暂无数据</div>
+    	{/if}
+    </div>
+</div>
+<script>
+$('[name^="ticket"]').css({"color":"red"});
+$('[name="ticket1"]').css({"color":"green","font-weight":"bold"});
+</script>

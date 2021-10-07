@@ -1,0 +1,54 @@
+<div class="main f_r">
+    <div class="uc_title m_10">
+        <label class="current"><span>短消息</span></label>
+    </div>
+    <table class="list_table" width="100%" cellpadding="0" cellspacing="0">
+    	<colgroup>
+	        <col />
+	        <col width="160px" />
+	        <col width="120px" />
+	        <col width="120px" />
+    	</colgroup>
+
+        <thead><tr><th>标题</th><th>发送时间</th><th>状态</th><th>操作</th></tr></thead>
+		<tbody>
+        	{set:$queryMessageList = Api::run('getUcenterMessageList')}
+			{foreach:items = $queryMessageList->find()}
+        	<tr>
+            	<td class="t_l"><label class="blue">{$item['title']}</label></td>
+            	<td>{$item['time']}</td>
+            	<td id="msg_id_{$item['id']}">{if:$queryMessageList->msg->is_read($item['id'])}已读{else:}未读{/if}</td>
+            	<td class="blue">
+            		<a class='blue' href="{url:/ucenter/message_del/id/$item['id']}">删除</a>
+            		<a class="blue" href="javascript:show_msg({$item['id']});">查看</a>
+            	</td>
+            </tr>
+			{/query}
+        </tbody>
+    </table>
+
+    {$queryMessageList->getPageBar()}
+
+    {if:!$items}
+	<div class="error f18 t_c light_gray">暂无数据</div>
+	{/if}
+</div>
+
+<script type="text/javascript">
+//阅读消息
+function show_msg(id)
+{
+    $.getJSON("{url:/ucenter/message_read}",{"id":id},function(json)
+    {
+	    if(json.status == 'success')
+	    {
+	    	$("#msg_id_"+id).html('已读');
+	    	art.dialog({'content':json.data.content,'title':json.data.title,ok:function(){return true;}});
+	    }
+	    else
+	    {
+	        alert(json.error);
+	    }
+    });
+}
+</script>

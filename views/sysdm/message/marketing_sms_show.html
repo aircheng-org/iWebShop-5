@@ -1,0 +1,40 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">会员</a>
+		</li>
+		<li>
+			<a href="#">信息处理</a>
+		</li>
+		<li class="active">营销短信</li>
+	</ul>
+</div>
+<div class="content">
+	<table class="table form-table">
+		<colgroup>
+			<col width="130px" />
+			<col />
+		</colgroup>
+
+		<tr>
+			<th>营销短信：</th><td>{$smsRow['content']}</td>
+		</tr>
+		<tr>
+			<th>发送成功数：</th><td>{$smsRow['send_nums']}</td>
+		</tr>
+		<tr>
+			<th>收件人信息：</th><td>{$smsRow['rev_info']}</td>
+		</tr>
+		<tr>
+			<th>发布时间：</th><td>{$smsRow['time']}</td>
+		</tr>
+		<tr>
+			<th></th>
+			<td>
+				<a class='btn btn-primary' href='{url:/message/marketing_sms_list}'>返回</a>
+	            <a class="btn btn-danger" href='{url:/message/marketing_sms_del/check/$smsRow['id']}'>删除</a>
+			</td>
+		</tr>
+	</table>
+</div>

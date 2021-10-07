@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>验证消费码</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+	<link rel="stylesheet" href="{webroot:public/css/twitter-bootstrap/3.3.7/css/bootstrap.min.css}">
+	{js:jquery}
+
+	<style>
+    .code-box {
+        height: 50px;
+        position: relative;
+        border: 1px solid #9f9fa0;
+        border-radius: 3px;
+        overflow:hidden;
+        margin: 10px auto;
+    }
+    #code {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        border: none;
+        font-size: 18px;
+        opacity: 0;
+        z-index: 1;
+        outline: none;
+    }
+    .fake-box {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-flow: row;
+    }
+    .fake-box input{
+        width: 12.6%;
+        height: 100%;
+        border: none;
+        border-right: 1px solid #e5e5e5;
+        text-align: center;
+        font-size: 30px;
+        float: left;
+    }
+    .fake-box input:nth-last-child(1){
+        border:none;
+    }
+	</style>
+</head>
+
+<body>
+	<div class="container" style="min-height:320px">
+        <form>
+    	    <div class="form-group">
+    	        <label for="code"><h3>输入客户验证码</h3></label>
+
+                <div class="code-box">
+                    <input type="text" maxlength="8" id="code" autofocus="autofocus" autocomplete="off">
+                    <div class="fake-box">
+                        <input type="text" readonly="readonly">
+                        <input type="text" readonly="readonly">
+                        <input type="text" readonly="readonly">
+                        <input type="text" readonly="readonly">
+                        <input type="text" readonly="readonly">
+                        <input type="text" readonly="readonly">
+                        <input type="text" readonly="readonly">
+                        <input type="text" readonly="readonly">
+                    </div>
+                </div>
+
+                <p class="help-block">每次仅限一个验证码，输入后会验证显示信息</p>
+    	    </div>
+
+            <div class="form-group">
+    	        <div class="alert alert-info" id="goodsInfo">待显示验证区域</div>
+    	    </div>
+
+    	    <div class="form-group">
+                <input type="button" class="btn btn-warning btn-lg disabled" disabled="disabled" value="确认使用" onclick="checkCode();" id="checkButton" />
+                <input type="button" class="btn btn-success btn-lg" value="刷新" onclick="window.location.reload();" />
+    	    </div>
+	    </form>
+	</div>
+</body>
+
+<script>
+//验证消费码
+function checkCode()
+{
+    $('#checkButton').attr('disabled','disabled').addClass('disabled');
+    $('#checkButton').val("核销中...");
+
+    var code = $('#code').val();
+    $.getJSON("{url:/order/check_code_ajax}",{"code":code,"rand":Math.random(),"seller_id":"{$this->seller['seller_id']}"},function(json)
+    {
+        if(json.success == true)
+        {
+            $('#goodsInfo').removeClass('alert-warning alert-danger').addClass('alert-success');
+            $('#goodsInfo').html("核销完成！【"+json.msg+"】 <br> 请为客户服务");
+            $('#checkButton').hide();
+        }
+        else
+        {
+            $('#goodsInfo').removeClass('alert-warning alert-success').addClass('alert-danger');
+            $('#goodsInfo').text(json.msg);
+        }
+    });
+}
+
+//绑定数据事件
+$("#code").on("input", function()
+{
+    var code = $(this).val().trim();
+    for (var i = 0; i < code.length; i++)
+    {
+        $(".fake-box input").eq(i).val(code[i]);
+    }
+
+    $(".fake-box input").each(function()
+    {
+        var index = $(this).index();
+        if (index >= code.length)
+        {
+            $(this).val("");
+        }
+    });
+
+    //执行校验
+    if(code.length == 8)
+    {
+        $.getJSON("{url:/order/get_code_info_ajax}",{"code":code,"rand":Math.random(),"seller_id":"{$this->seller['seller_id']}"},function(json)
+        {
+            if(json.success == true)
+            {
+                $('#code').attr("disabled","disabled").addClass('disabled');
+                $('#goodsInfo').removeClass('alert-danger alert-info').addClass('alert-warning');
+                $('#goodsInfo').html("此验证码可用！【"+json.msg+"】 <br>点击 <确认使用> 进行核销");
+                $('#checkButton').removeAttr('disabled').removeClass('disabled');
+            }
+            else
+            {
+                $('#goodsInfo').removeClass('alert-info').addClass('alert-danger');
+                $('#goodsInfo').text(json.msg);
+                $('#checkButton').attr('disabled','disabled').addClass('disabled');
+            }
+        });
+    }
+    else
+    {
+        $('#goodsInfo').removeClass('alert-danger').addClass('alert-info');
+        $('#goodsInfo').text('待显示验证区域');
+        $('#checkButton').attr('disabled','disabled').addClass('disabled');
+    }
+});
+</script>
+</html>

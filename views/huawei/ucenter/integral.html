@@ -1,0 +1,32 @@
+<header class="uc_head">
+	<h3>个人积分</h3>
+	<span class="money">您当前的积分：<em>{$this->memberRow['point']}</em> 分</span>
+</header>
+
+<section class="uc_table">
+	<table>
+		<thead>
+			<tr>
+				<th class="tl">积分日期</th>
+				<th class="tl">积分</th>
+				<th class="tl">说明</th>
+			</tr>
+		</thead>
+		<tbody>
+		    {set:$queryPointLog = Api::run('getUcenterPointLog')}
+			{foreach:items = $queryPointLog->find()}
+			<tr>
+				<td class="tl">{$item['datetime']}</td>
+				<td class="tl">{$item['value']}分</td>
+				<td class="tl"><span class="uc_high_light">{$item['intro']}</span></td>
+			</tr>
+			{/foreach}
+		</tbody>
+	</table>
+</section>
+
+{if:!$items}
+<section class="no_tip">暂无数据</section>
+{/if}
+
+{$queryPointLog->getPageBar()}

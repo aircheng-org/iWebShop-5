@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="UTF-8">
+	{js:jquery}
+	{js:validate}
+	{js:dialog}
+	{js:artTemplate}
+	{js:form}
+	{js:my97date}
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<link href="{webroot:public/css/twitter-bootstrap/3.3.7/css/bootstrap.min.css}" rel="stylesheet">
+</head>
+
+<body>
+<div class="container">
+	<form action='{url:/seller/ad_edit_act}' method='post' name='ad' enctype='multipart/form-data'>
+		<input type='hidden' name='id' value='' />
+		<table class="table form-table">
+			<colgroup>
+				<col width="130px" />
+				<col />
+			</colgroup>
+			<tr>
+				<td>(1)先添加 <广告位> 数据；(2)再添加 <广告> 并且绑定之前添加的 <广告位>，广告数据才可以正常显示 </td>
+			</tr>
+			<tr>
+				<td>
+					<input type='text' class='form-control' name='name' pattern='required' placeholder="填写广告名称" />
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label class='radio-inline'><input type='radio' name='type' value='1' checked='checked' onclick='changeType(1);' />图片</label>
+					<label class='radio-inline'><input type='radio' name='type' value='2' onclick='changeType(2);' />flash</label>
+					<label class='radio-inline'><input type='radio' name='type' value='3' onclick='changeType(3);' />文字</label>
+					<div id='ad_box' style='margin-top:10px'></div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<select name='position_id' class='form-control' pattern='required'>
+						<option value=''>请选择</option>
+						{foreach:items=Api::run('getAdPositionList',100)}
+						<option value='{$item['id']}'>{$item['name']}</option>
+						{/foreach}
+					</select>
+					<p class='help-block'>*在选择的广告位置内进行展示（必选）</p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<input type='text' class='form-control' name='link' />
+					<p class='help-block'>点击广告后页面链接的URL地址，为空则不跳转</p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<input type='text' class='form-control' name='order' pattern='int' value='99'  />
+					<p class='help-block'>数字越小，排列越靠前</p>
+				</td>
+			</tr>
+
+			<tr>
+				<td>
+					<div class="row">
+						<div class="col-xs-6">
+							<div class="input-group">
+								<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+								<input class="form-control" type="text" name="start_time" pattern="date" onfocus="WdatePicker()" value="" placeholder="开始时间" />
+							</div>
+						</div>
+
+						<div class="col-xs-6">
+							<div class="input-group">
+								<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+								<input class="form-control" type="text" name="end_time" pattern="date" onfocus="WdatePicker()" value="" placeholder="结束时间" />
+							</div>
+						</div>
+					</div>
+					<p class='help-block'>*广告展示的开始时间和结束时间（必选）</p>
+				</td>
+			</tr>
+			<tr>
+				<td><textarea class="form-control" rows="3" name='description' alt='请填写文章内容'></textarea></td>
+			</tr>
+			<tr>
+				<td>
+					<!--分类数据显示-->
+					<span id="__categoryBox"></span>
+					<button class="btn btn-default" type="button" name="_goodsCategoryButton">设置分类</button>
+					{set:plugin::trigger('goodsCategoryWidget',array("table"=>"category_seller","seller_id"=>$seller_id,"name" => "goods_cat_id","value" => isset($adRow['goods_cat_id']) ? $adRow['goods_cat_id'] : ""))}
+					<p class='help-block'> 仅用于循环分类广告位，否则不要选择 </p>
+				</td>
+			</tr>
+
+			<tr>
+				<td>
+					<input type="submit" class="btn btn-success" value="保 存" />
+					<input type="button" class="btn btn-danger" value="返 回" onclick="window.location.href='{url:/seller/ad_list}';" />
+				</td>
+			</tr>
+		</table>
+	</form>
+</div>
+<!--广告内容模板-->
+<script id="adTemplate" type="text/html">
+	<%if(newType == "1"){%>
+	<input type="file" name="img" class="file" />
+	<%if(newType == defaultType){%>
+	<p><img src="<%=webroot(content)%>" width="150px" /></p>
+	<input type="hidden" name="content" value="<%=content%>" />
+	<%}%>
+	<%}else if(newType == "2"){%>
+	<input type="file" name="flash" class="file" />
+	<%if(newType == defaultType){%>
+	<embed src="<%=webroot(content)%>" width="150px" type="application/x-shockwave-flash"></embed>
+	<input type="hidden" name="content" value="<%=content%>" />
+	<%}%>
+	<%}else if(newType == "3"){%>
+	<input type="text" class="form-control" name="content" value="<%=content%>" />
+	<%}%>
+</script>
+
+<script type='text/javascript'>
+//广告数据
+defaultAdRow = {echo:JSON::encode($adRow)};
+
+//切换广告类型 1:图片; 2:flash; 3:文字;
+function changeType(typeVal)
+{
+    var content = (defaultAdRow && typeVal == defaultAdRow['type']) ? defaultAdRow['content'] : "";
+    var defaultType = (defaultAdRow && defaultAdRow['type']) ? defaultAdRow['type'] : "";
+    var adHtml = template.render('adTemplate',{'newType':typeVal,'defaultType':defaultType,'content':content});
+    $('#ad_box').html(adHtml);
+}
+
+//表单回显
+var FromObj = new Form('ad');
+FromObj.init(defaultAdRow);
+
+jQuery(function()
+{
+    changeType($("[name='type']:checked").val());
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<article class="col-lg-12">
+	<div class="card forms">
+		<div class="card-header">
+			<h3>退款申请列表</h3>
+		</div>
+
+		<div class="card-body">
+			<table class="table">
+				<colgroup>
+					<col width="160px" />
+					<col width="160px" />
+					<col />
+					<col width="110px" />
+					<col width="80px" />
+				</colgroup>
+
+				<thead>
+					<tr>
+						<th>订单号</th>
+						<th>申请时间</th>
+						<th>商品名称</th>
+						<th>状态</th>
+						<th>操作</th>
+					</tr>
+				</thead>
+
+				<tbody>
+					{set:$queryObj=Api::run('getRefundmentList');$resultData=$queryObj->find()}
+					{foreach:items=$resultData}
+					<tr>
+						<td>{$item['order_no']}</td>
+						<td>{$item['time']}</td>
+						<td>
+							{foreach:items=Api::run('getOrderGoodsRowById',array('id'=>$item["order_goods_id"])) item=$itemGoods}
+							{set:$goods = JSON::decode($itemGoods['goods_array'])}
+							<p><a href="{url:/site/products/id/$itemGoods['goods_id']}" target="_blank">{$goods['name']} X {echo:order_class::refundsDocNums($item,$itemGoods['id'])}</a></p>
+							{/foreach}
+						</td>
+						<td>{echo:Order_Class::refundmentText($item['pay_status'])}</td>
+						<td><a href="{url:/seller/refundment_show/id/$item['id']}"><i class="fa fa-edit fa-lg" title="查看"></i></a></td>
+					</tr>
+					{/foreach}
+				</tbody>
+			</table>
+			{$queryObj->getPageBar()}
+		</div>
+	</div>
+</article>

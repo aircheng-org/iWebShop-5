@@ -1,0 +1,44 @@
+<div class="main f_r">
+    <div class="uc_title m_10">
+        <label class="current"><span>我的订单</span></label>
+    </div>
+
+    <div class="box m_10">
+        <table class="list_table" width="100%" cellpadding="0" cellspacing="0">
+        	<col width="140px" />
+        	<thead>
+            <tr>
+                <th>订单编号</th>
+                <th>下单日期</th>
+                <th>收货人</th>
+                <th>支付方式</th>
+                <th>总金额</th>
+                <th>订单状态</th>
+            </tr>
+            </thead>
+            <tbody>
+            {set:$queryOrderList = Api::run('getOrderList')}
+			{foreach:items = $queryOrderList->find()}
+            <tr>
+                <td>
+                	<a href="{url:/ucenter/order_detail/id/$item['id']}" class="orange">{$item['order_no']}</a>
+                </td>
+                <td>{$item['create_time']}</td>
+                <td>{$item['accept_name']}</td>
+                <td>{$this->payments[$item['pay_type']]['name']}</td>
+                <td>￥{echo:$item['order_amount']}</td>
+                <td>
+                	<b class="orange">{echo:Order_Class::orderStatusText(Order_Class::getOrderStatus($item))}</b>
+                </td>
+            </tr>
+            {/foreach}
+            </tbody>
+        </table>
+
+        {$queryOrderList->getPageBar()}
+
+        {if:!$items}
+    	<div class="error f18 t_c light_gray">暂无数据</div>
+    	{/if}
+    </div>
+</div>

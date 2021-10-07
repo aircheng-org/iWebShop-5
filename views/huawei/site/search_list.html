@@ -1,0 +1,55 @@
+{set:$defaultWhere = array('search' => $this->word , 'category_extend' => $this->cat_id )}
+{set:$goodsObj = search_goods::find($defaultWhere,20);$resultData = $goodsObj->find();}
+
+<div class="bigweb">
+<section class="breadcrumb">
+	<span>您当前的位置：</span> <a href="{url:}">首页</a> » 搜索"{$this->word}"
+</section>
+
+<section class="web">
+	<section class="prolist_main">
+		<!-- 搜索结果所在栏目 -->
+		{set:$catExt = Api::run('getGoodsCategoryExtend',array('#word#',$this->word))}
+		{if:$catExt}
+		<section class="search_class">
+			<strong>搜索结果分类：</strong>
+			<div class="search_class_content">
+				{foreach:items=$catExt}
+				{set:$tmpWord=urlencode($this->word);}
+				<a href="{url:/site/search_list/word/$tmpWord/cat/$item['id']}">{$item['name']}({$item['num']})</a>
+				{/foreach}
+			</div>
+		</section>
+		{/if}
+		<!-- 调用筛选 -->
+		<aside class="condition_filter">
+			<!-- 调用筛选 -->
+			{include:_goods_list_filter}
+			<!-- 调用筛选 -->
+		</aside>
+		<!-- 商品列表 -->
+		<section class="goods_list">
+			{if:$resultData}
+			<ul>
+				{foreach:items=$resultData}
+				<li>
+					<a target="_blank" href="{url:/site/products/id/$item['id']}">
+						<img alt="{$item['name']}" src="{url:/pic/thumb/img/$item[img]/w/180/h/180}">
+						<p class="goods_title"><span>{$item['name']}</span></p>
+						<p class="goods_sell_price">￥{$item['sell_price']}</p>
+						<p class="goods_market_price">￥{$item['market_price']}</p>
+					</a>
+				</li>
+				{/foreach}
+			</ul>
+			{$goodsObj->getPageBar()}
+
+			{else:}
+			<p class="no_tip">
+				对不起，没有找到相关商品
+			</p>
+			{/if}
+		</section>
+	</section>
+</section>
+</div>

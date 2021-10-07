@@ -1,0 +1,168 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">订单</a>
+		</li>
+		<li>
+			<a href="#">单据管理</a>
+		</li>
+		<li class="active">维修申请信息</li>
+	</ul>
+</div>
+
+<div class="content">
+	<form method="post" action="{url:/order/fix_doc_show_save}">
+		<input type="hidden" name="id" value="{$id}"/>
+		<table class="table form-table">
+			<colgroup>
+				<col width="130px" />
+				<col />
+			</colgroup>
+
+			<tbody>
+				<tr>
+					<th>订单号：</th>
+					<td>{$order_no}</td>
+				</tr>
+				<tr>
+					<th>商品信息：</th>
+					<td>
+					    {set:$is_send = false}
+						{foreach:items=Api::run('getOrderGoodsRowById',array('id'=>$order_goods_id))}
+						{set:$refundsNum=order_class::refundsDocNums(['order_goods_id' => $order_goods_id,'order_goods_nums' => $order_goods_nums],$item['id'])}
+						{if:$item['is_send']!=0}{set:$is_send = true}{/if}
+						{set:$goods = JSON::decode($item['goods_array'])}
+						<p>
+							{$goods['name']} X {$refundsNum}件
+							【商品金额：￥{echo:$refundsNum*$item['real_price']}】
+							{if:$seller_id}
+							<a href="{url:/site/home/id/$seller_id}" target="_blank"><i class='operator fa fa-user'></i></a>
+							{/if}
+						</p>
+						{/foreach}
+					</td>
+				</tr>
+				<tr>
+					<th>用户名：</th>
+					<td>
+					{set:$user = Api::run('getMemberInfo',$user_id)}
+					{$user['username']}
+					</td>
+				</tr>
+				<tr>
+					<th>申请时间：</th><td>{$time}</td>
+				</tr>
+				<tr>
+					<th>申请原因：</th><td>{$content}</td>
+				</tr>
+
+				{if:$img_list}
+                <tr>
+                    <th>图片信息：</th>
+                    <td>
+                    {foreach:items=JSON::decode($img_list) item=$itemImg}
+                        <a href="{url:$itemImg}" target="_blank"><img class="img-thumbnail" style="width:100px;height:100px" src="{url:$itemImg}" /></a>
+                     {/foreach}
+                     </td>
+                </tr>
+                {/if}
+
+				<tr>
+					<th>处理操作：</th>
+					<td>
+                        <label class="radio-inline">
+                            <input type="radio" name="status" value="2" checked="checked">同意
+                        </label>
+
+                        <label class="radio-inline">
+                            <input type="radio" name="status" value="1">拒绝
+                        </label>
+
+                        {if:$is_send == true && !$user_send_time}
+                        <label class="radio-inline">
+                            <input type="radio" name="status" value="3" checked="checked">买家填写返还物流信息
+                        </label>
+                        {/if}
+					</td>
+				</tr>
+
+				<tr id="sellerSendBox">
+				    <th>填写重发物流：</th>
+				    <td>
+				        <div class="row">
+				            <div class="col-sm-3">
+            			        <select name="seller_freight_id" pattern="required" class="form-control">
+                					<option value="">请选择物流公司</option>
+                                    {foreach:items=Api::run('getFreightCompany')}
+                					<option value="{$item['id']}">{$item['freight_name']}</option>
+                					{/foreach}
+            			        </select>
+				            </div>
+
+				            <div class="col-sm-5">
+				                <input name="seller_delivery_code" type="text" pattern="required" class="form-control" placeholder="填写快递单号">
+				            </div>
+				        </div>
+				    </td>
+				</tr>
+
+				{if:$user_send_time}
+				<tr>
+				    <th>买家返还物流：</th>
+				    <td>
+				        {$user_send_time}
+                        <p>
+    				    {foreach:items=Api::run('getFreightCompanyById',array('freight_id'=>$user_freight_id)) item=$tempFreight}
+                        {$tempFreight['freight_name']}
+                        {/foreach}
+
+                        【快递单号：{$user_delivery_code}】
+                        <button class="btn btn-default btn-sm" type="button" onclick="freightLine({$user_freight_id},'{$user_delivery_code}')">物流跟踪</button>
+				        </p>
+				    </td>
+				</tr>
+				{/if}
+
+				<tr>
+					<th>处理意见：</th>
+					<td>
+						<textarea name="dispose_idea" class="form-control">{$dispose_idea}</textarea>
+					</td>
+				</tr>
+				<tr>
+					<th></th>
+					<td><button type="submit" class="btn btn-primary">确定</button></td>
+				</tr>
+			</tbody>
+		</table>
+	</form>
+</div>
+
+<script type="text/javascript">
+//快递跟踪
+function freightLine(doc_id,code)
+{
+	var urlVal = "{url:/block/freight/id/@id@/code/@code@}";
+	urlVal = urlVal.replace("@id@",doc_id).replace("@code@",code);
+	art.dialog.open(urlVal,{title:'轨迹查询',width:'600px',height:'500px'});
+}
+
+//根据操作选项预显示内容
+function changeShow()
+{
+    var statusVal = $('[name="status"]:checked').val();
+    if(statusVal == 2)
+    {
+        $('#sellerSendBox').show();
+    }
+    else
+    {
+        $('#sellerSendBox').hide();
+    }
+}
+
+//加载完毕运行
+changeShow();
+$('[name="status"]').on("click",changeShow);
+</script>

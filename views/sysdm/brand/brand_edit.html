@@ -1,0 +1,73 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">商品</a>
+		</li>
+		<li>
+			<a href="#">品牌管理</a>
+		</li>
+		<li class="active">编辑品牌</li>
+	</ul>
+</div>
+<div class="content">
+	<form action="{url:/brand/brand_save}" method="post" enctype='multipart/form-data'>
+		<input name="id" value="" type="hidden" />
+		<input type='hidden' name="callback" value="{echo:IUrl::getRefRoute(false)}" />
+
+		<table class="table form-table">
+			<colgroup>
+				<col width="130px" />
+				<col />
+			</colgroup>
+
+			<tr>
+				<th>品牌名称：</th>
+				<td>
+					<input class="form-control" name="name" type="text" value="" pattern="required" />
+				</td>
+			</tr>
+			<tr>
+				<th>排序：</th><td><input class="form-control" name="sort" type="text" value="" pattern='int' empty /></td>
+			</tr>
+			<tr>
+				<th>网址：</th>
+				<td>
+					<input class="form-control" name="url" type="text" value="" pattern='url' empty  />
+					<p class="help-block">完整的URL链接地址，如：http://www.aircheng.com</p>
+				</td>
+			</tr>
+			<tr>
+				<th>LOGO：</th>
+				<td><div>{if:isset($brand['logo'])}<img src="{url:$brand['logo']}" class="img-thumbnail" width="100px"/><br />{/if}<input type='file' name='logo'/></div></td>
+			</tr>
+			<tr>
+				<th>所属分类：</th>
+				<td>
+					{set:$items = Api::run('getBrandCategory')}
+					{if:$items}
+                    {foreach:items=$items}
+                    <label class="checkbox-inline">
+                        <input type="checkbox" name='category_ids[]' value="{$item['id']}" />{$item['name']}
+                    </label>
+                    {/foreach}
+                    {else:}
+                    系统暂无品牌分类，<a href='{url:/brand/category_edit}'>请点击添加</a>
+                    {/if}
+				</td>
+			</tr>
+			<tr>
+				<th>描述：</th><td><textarea class="form-control" name="description" style="width:100%;height:200px;"></textarea></td>
+			</tr>
+			<tr>
+				<td></td><td><button class='btn btn-primary' type="submit">确定</button></td>
+			</tr>
+		</table>
+	</form>
+</div>
+
+<script type="text/javascript">
+//表单回填
+var formObj = new Form();
+formObj.init({echo:JSON::encode($brand)});
+</script>

@@ -1,0 +1,121 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">会员</a>
+		</li>
+		<li>
+			<a href="#">商户管理</a>
+		</li>
+		<li class="active">商户列表</li>
+	</ul>
+</div>
+
+<div class="content">
+	<table class="table list-table">
+		<colgroup>
+			<col width="35px" />
+			<col width="110px" />
+			<col />
+			<col width="120px" />
+			<col width="110px" />
+			<col width="70px" />
+			<col width="70px" />
+			<col width="70px" />
+			<col width="90px" />
+			<col width="110px"/>
+			<col width="80px" />
+		</colgroup>
+		<caption>
+			<form name="searchseller" action="{url:/}" method="get" class="pull-right form-inline">
+				<input type='hidden' name='controller' value='member' />
+				<input type='hidden' name='action' value='seller_list' />
+				<select class="form-control" name="search[like]">
+					<option value="seller_name">登录名</option>
+					<option value="true_name">真实名称</option>
+					<option value="mobile">手机</option>
+					<option value="email">Email</option>
+				</select>
+				<input class="form-control" name="search[likeValue]" type="text" value=""/>
+
+				<button class="btn btn-default" type="submit">
+                    <i class="fa fa-search"></i>搜 索
+                </button>
+			</form>
+
+            <a class="btn btn-default" href='{url:/member/seller_edit}'>
+                <i class="fa fa-plus"></i>添加商户
+            </a>
+            <a class="btn btn-default" onclick="selectAll('id[]')">
+                <i class="fa fa-check"></i>全选
+            </a>
+            <a class="btn btn-default" onclick="delModel({'form':'seller_list',msg:'确定要删除所选中的商户吗？'})">
+                <i class="fa fa-close"></i>批量删除
+            </a>
+            <a class="btn btn-default" href='{url:/member/seller_recycle_list}'>
+                <i class="fa fa-trash"></i>回收站
+            </a>
+		</caption>
+		<thead>
+			<tr>
+				<th></th>
+				<th>登录用户名</th>
+				<th>真实名称</th>
+				<th>座机</th>
+				<th>移动电话</th>
+				<th>VIP</th>
+				<th>销量</th>
+				<th>评分</th>
+				<th>状态</th>
+				<th>注册日期</th>
+				<th>操作</th>
+			</tr>
+		</thead>
+		<form action="{url:/member/seller_del}" method="post" name="seller_list" onsubmit="return checkboxCheck('id[]','尚未选中任何记录！')">
+		<tbody>
+			{foreach:items=$this->query->find()}
+			<tr>
+				<td><input name="id[]" type="checkbox" value="{$item['id']}" /></td>
+				<td title="{echo:htmlspecialchars($item['seller_name'])}">{$item['seller_name']}</td>
+				<td title="{echo:htmlspecialchars($item['true_name'])}">{$item['true_name']}</td>
+				<td title="{echo:htmlspecialchars($item['phone'])}">{$item['phone']}</td>
+				<td title="{echo:htmlspecialchars($item['mobile'])}">{$item['mobile']}</td>
+				<td>{echo:$item['is_vip'] == 0 ? '否':'是'}</td>
+				<td>{echo:statistics::sellCountSeller($item['id'])} 件</td>
+				<td>{echo:statistics::gradeSeller($item['id'])} 分</td>
+				<td>
+					<select class="form-control input-sm" onchange="changeStatus({$item['id']},this)">
+						<option value="0" {if:$item['is_lock'] == 0}selected="selected"{/if}>正常</option>
+						<option value="1" {if:$item['is_lock'] == 1}selected="selected"{/if}>待审核</option>
+					</select>
+				</td>
+				<td title="{$item['create_time']}">{$item['create_time']}</td>
+				<td>
+					<a href="{url:/member/seller_edit/id/$item['id']}"><i class='operator fa fa-edit'></i></a>
+					<a onclick="delModel({link:'{url:/member/seller_del/id/$item[id]}'})"><i class='operator fa fa-close'></i></a>
+				</td>
+			</tr>
+			{/foreach}
+		</tbody>
+		</form>
+	</table>
+</div>
+{$this->query->getPageBar()}
+
+<script language="javascript">
+//预加载
+$(function(){
+	var searchData = {echo:JSON::encode(IReq::get('search'))};
+	for(var index in searchData)
+	{
+		$('[name="search['+index+']"]').val(searchData[index]);
+	}
+})
+
+//商户状态修改
+function changeStatus(sid,obj)
+{
+	var lockVal = obj.value;
+	$.getJSON("{url:/member/ajax_seller_lock}",{"id":sid,"lock":lockVal});
+}
+</script>

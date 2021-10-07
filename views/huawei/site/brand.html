@@ -1,0 +1,50 @@
+<div class="bigweb">
+
+	<section class="breadcrumb">
+		<span>您当前的位置：</span> <a href="{url:}">首页</a> » <a href="{url:/site/brand}">商品品牌</a>
+	</section>
+
+	<section class="web">
+		<section class="main">
+			{if:isset($name) && $name != ''}
+			<h2 class="main_head">{$name}</h2>
+			<div class="brand_list">
+				<ul>
+					{foreach:items=Api::run('getBrandListWhere',array('#id#',$id),100)}
+					<li>
+						<a href="{url:/site/brand_zone/id/$item['id']}">
+							<img src="{url:/pic/thumb/img/$item[logo]/w/208/h/120}">
+							<strong>{$item['name']}</strong>
+						</a>
+					</li>
+					{/foreach}
+				</ul>
+			</div>
+			{else:}
+			<h2 class="main_head">推荐品牌</h2>
+			<div class="brand_list">
+				<ul>
+					{foreach:items=Api::run('getBrandList',40)}
+					<li>
+						<a href="{url:/site/brand_zone/id/$item['id']}">
+							<img src="{url:/pic/thumb/img/$item[logo]/w/208/h/120}">
+							<strong>{$item['name']}</strong>
+						</a>
+					</li>
+					{/foreach}
+				</ul>
+			</div>
+			{/if}
+		</section>
+		<aside class="bar">
+			<nav class="bar_box">
+				<h3 class="bar_box_head">品牌分类</h3>
+				<ul class="bar_nav">
+					{foreach:items=Api::run('getBrandCategory',20)}
+					<li {if:$item['id']==$id}class='current'{/if}><a href="{url:/site/brand/id/$item['id']/name/$item[name]}">{$item['name']}</a></li>
+					{/foreach}
+				</ul>
+			</nav>
+		</aside>
+	</section>
+</div>

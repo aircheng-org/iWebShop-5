@@ -1,0 +1,31 @@
+<div class="position"> <span>您当前的位置：</span> <a href="{url:}"> 首页</a> » 商城公告 </div>
+<div class="wrapper clearfix container_2">
+<div class="sidebar f_l">
+	<div class="box m_10">
+		<div class="title">热卖商品</div>
+		<div class="content">
+		  <ul class="ranklist">
+
+			{foreach:items=Api::run('getCommendHot',10)}
+			<li class='current'><a href="{url:/site/products/id/$item[id]}"><img src="{url:/pic/thumb/img/$item[img]/w/58/h/58}" width="58" height="58" /></a><a href="{url:/site/products/id/$item[id]}">{$item['name']}</a><b>￥{$item['sell_price']}</b></li>
+			{/foreach}
+		  </ul>
+		</div>
+	</div>
+</div>
+<div class="main f_r">
+	<div class="box m_10">
+		<div class="title2">商城公告</div>
+		<div class="cont">
+			<h5 class="list_title gray"><span class="f_l">标题</span>发表时间</li></h5>
+			<ul class="newslist">
+				{set:$queryNotice = Api::run('getNoticeList')}
+				{foreach:items = $queryNotice->find()}
+				<li><a class="" href="{url:/site/notice_detail/id/$item[id]}">{$item['title']}</a><span>({$item['time']})</span></li>
+				{/foreach}
+			</ul>
+			{$queryNotice->getPageBar()}
+		</div>
+	</div>
+</div>
+</div>

@@ -1,0 +1,133 @@
+<article class="col-lg-12">
+	<div class="card">
+		<div class="card-header d-flex align-items-center justify-content-between">
+			<h3>店内分类列表</h3>
+			<div>
+				<input type="button" class="btn btn-primary ml-2" onclick="window.location.href='{url:/seller/category_edit}';" value="添加店内分类" />
+				<input type="button" class="btn btn-primary ml-2" onclick="selectAll('cat_id[]');" value="全选" />
+				<input type="button" class="btn btn-primary ml-2" onclick="category_del();" name="_goodsCategoryButton" value="批量移动" />{set:plugin::trigger('goodsCategoryWidget',array("table" => "category_seller","name" => "parent_id","callback" => "setCat"))}
+			</div>
+		</div>
+
+		<div class="card-body forms">
+			<form action="{url:/seller/category_sort}" method="post" name="goodsForm">
+				<table class="table" id="list_table">
+					<colgroup>
+						<col width="40px" />
+						<col width="300px" />
+						<col width="100px" />
+						<col width="220px" />
+					</colgroup>
+
+					<thead>
+						<tr>
+							<th>选择</th>
+							<th>分类名称</th>
+							<th>排序</th>
+							<th>操作</th>
+						</tr>
+					</thead>
+
+					<tbody>
+						{foreach:items=$category}
+						<tr id="{$item['id']}" parent={$item['parent_id']}>
+							<td><input type='checkbox' class="checkbox-template" name='cat_id[]' value='{$item['id']}' /></td>
+							<td><i class="fa fa-folder-open-o fa-lg" style='margin-left:{echo:$item['floor']*20}px;' onclick="displayData(this);" alt="关闭"></i> {$item['name']}</td>
+							<td><input class="form-control form-control-sm" id="s{$item['id']}" class="form-control form-control-sm" size="2" type="text" onblur="toSort({$item['id']});" value="{$item['sort']}" /></td>
+							<td>
+								<a href="{url:/seller/category_edit/pid/$item['id']}"><i class="fa fa-plus fa-lg" alt="添加下级分类" title="添加下级分类"></i></a>
+								<a href="{url:/seller/category_edit/cid/$item['id']}"><i class="fa fa-edit fa-lg" alt="修改" title="修改"></i></a>
+								<a href="javascript:void(0)" onclick="delModel({link:'{url:/seller/category_del/cid/$item['id']}'})"><i class="fa fa-times fa-lg" alt="删除" title="删除"></i></a>
+							</td>
+						</tr>
+						{/foreach}
+					</tbody>
+				</table>
+			</form>
+		</div>
+	</div>
+</article>
+
+<script language="javascript">
+//折叠展示
+function displayData(_self)
+{
+	if($(_self).attr('alt') == "关闭")
+	{
+		jqshow($(_self).parent().parent().attr('id'), 'hide');
+		$(_self).attr("class","fa fa-folder-o fa-lg");
+		$(_self).attr('alt','打开');
+	}
+	else
+	{
+		jqshow($(_self).parent().parent().attr('id'), 'show');
+		$(_self).attr("class","fa fa-folder-open-o fa-lg");
+		$(_self).attr('alt','关闭');
+	}
+}
+
+function jqshow(id,isshow)
+{
+	var obj = $("#list_table tr[parent='"+id+"']");
+	if (obj.length>0)
+	{
+		obj.each(function(i) {
+			jqshow($(this).attr('id'), isshow);
+		});
+		if (isshow=='hide')
+		{
+			obj.hide();
+		}
+		else
+		{
+			obj.show();
+		}
+	}
+}
+//排序
+function toSort(id)
+{
+	if(id!='')
+	{
+		var va = $('#s'+id).val();
+		var part = /^\d+$/i;
+		if(va!='' && va!=undefined && part.test(va))
+		{
+			$.get("{url:/seller/category_sort}",{'id':id,'sort':va}, function(data)
+			{
+				if(data=='1')
+				{
+					tips('修改成功');
+				}
+			});
+		}
+	}
+}
+//设置分类
+function setCat(catData)
+{
+	var parent_id = catData == "" ? 0 : catData[0]['id'];
+	var cat_id    = [];
+	$('[name="cat_id[]"]:checked').each(function(i){
+		cat_id.push($(this).val());
+	});
+
+	if(cat_id && cat_id.length == 0)
+	{
+		alert("请选择分类");
+		return;
+	}
+
+	$.getJSON("{url:/seller/categoryAjax}",{"id":cat_id,"parent_id":parent_id},function(json)
+	{
+		if(json.result == 'success')
+		{
+			window.location.reload();
+		}
+		else
+		{
+			alert('更新失败，当前分类不能设置到其子分类下');
+		}
+	});
+}
+</script>

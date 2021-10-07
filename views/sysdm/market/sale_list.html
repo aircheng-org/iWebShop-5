@@ -1,0 +1,74 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">营销</a>
+		</li>
+		<li>
+			<a href="#">营销活动管理</a>
+		</li>
+		<li class="active">特价活动</li>
+	</ul>
+</div>
+<div class="content">
+	<form method='post' action='{url:/market/sale_del}'>
+		<table class="table list-table">
+			<colgroup>
+				<col width="35px" />
+				<col />
+				<col width="80px" />
+				<col width="80px" />
+				<col width="170px" />
+				<col width="100px" />
+			</colgroup>
+			<caption>
+                <a class="btn btn-default" href='{url:/market/sale_edit}'>
+                    <i class="fa fa-plus"></i>添加特价
+                </a>
+                <a class="btn btn-default" onclick="selectAll('id[]')">
+                    <i class="fa fa-check"></i>全选
+                </a>
+                <a class="btn btn-default" onclick="delModel()">
+                    <i class="fa fa-close"></i>批量删除
+                </a>
+                <a href="{url:/site/sale}" class="btn btn-default" >
+                    <i class="fa fa-eye"></i>查看特价
+                </a>
+			</caption>
+			<thead>
+				<tr>
+					<th></th>
+					<th>标题</th>
+					<th>排序</th>
+					<th>状态</th>
+					<th>创建时间</th>
+					<th>操作</th>
+				</tr>
+			</thead>
+
+			<tbody>
+                {set:$queryObj=Api::run('getListSale');$resultData=$queryObj->find()}
+                {foreach:items=$resultData}
+				{set:$seller_id = $item['seller_id']}
+				{set:$sellerRow = Api::run('getSellerInfo',$seller_id)}
+				<tr>
+					<td><input type='checkbox' name='id[]' value='{$item['id']}' /></td>
+					<td><a href='{url:/site/sale}' target='_blank'  title="{$item['name']}">{$item['name']} 【{if:isset($sellerRow['true_name'])}{$sellerRow['true_name']}{else:}平台自营{/if}】</a></td>
+					<td>{$item['sort']}</td>
+					<td>{echo:($item['is_close']==1) ? '关闭':'开启'}</td>
+					<td>{$item['start_time']}</td>
+					<td>
+						<a href='{url:/market/sale_edit/id/$item['id']}'>
+							<i class='operator fa fa-edit'></i>
+						</a>
+						<a href='javascript:void(0)' onclick="delModel({link:'{url:/market/sale_del/id/$item['id']}'});">
+							<i class='operator fa fa-close'></i>
+						</a>
+					</td>
+				</tr>
+				{/foreach}
+			</tbody>
+		</table>
+	</form>
+</div>
+{$queryObj->getPageBar()}

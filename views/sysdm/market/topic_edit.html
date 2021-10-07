@@ -1,0 +1,90 @@
+{js:kindeditor}
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">统计</a>
+		</li>
+		<li>
+			<a href="#">专题管理</a>
+		</li>
+		<li class="active">专题修改</li>
+	</ul>
+</div>
+<div class="content">
+	<form action="{url:/market/topic_edit_act}"  method="post" name="topic_edit">
+		<input type='hidden' name='id' />
+		<table class="table form-table">
+			<colgroup>
+				<col width="130px" />
+				<col />
+			</colgroup>
+			<tr>
+				<th>专题名称：</th>
+				<td><input type='text' class="form-control" name="name" pattern='required' placeholder='标题不能为空' /></td>
+			</tr>
+			<tr>
+				<th>专题商品：</th>
+				<td>
+					<button type='button' onclick='searchGoods({"type":"checkbox","callback":searchGoodsCallback});' class='btn btn-default'>选择商品</button>
+					<table class="table table-bordered list-table" style="width:80%;margin-top:10px;">
+						<thead>
+							<tr>
+								<td>商品名称</td>
+								<td>操作</td>
+							</tr>
+						</thead>
+						<tbody id="goodsListBox"></tbody>
+					</table>
+				</td>
+			</tr>
+			<tr>
+				<th>内容：</th><td><textarea id="content" name='content' style='width:100%;height:550px' pattern='required' alt='内容不能为空'></textarea></td>
+			</tr>
+			<tr><th></th><td><button class='btn btn-primary' type='submit'>确 定</button></td></tr>
+		</table>
+	</form>
+</div>
+
+<!--商品模板-->
+<script type="text/html" id="goodsItemTemplate">
+<tr>
+	<td><input type='hidden' name='goods_id[]' value='<%=templateData['goods_id']%>' /><%=templateData['name']%></td>
+	<td><i class='operator fa fa-close' onclick="$(this).parent().parent().remove();"></i></td>
+</tr>
+</script>
+
+<script type="text/javascript">
+KindEditor.create('#content');
+
+//商品单品特价回调
+function searchGoodsCallback(goodsList)
+{
+	goodsList.each(function()
+	{
+		var temp         = $.parseJSON($(this).attr('data'));
+		var templateHTML = template.render('goodsItemTemplate',{"templateData":temp});
+		$('#goodsListBox').append(templateHTML);
+	});
+}
+
+{if:$this->topicRow}
+jQuery(function()
+{
+	//表单回填
+	var formObj = new Form('topic_edit');
+	formObj.init({echo:JSON::encode($this->topicRow)});
+
+	{if:$this->topicRow['goods_ids']}
+	{set:$goodsList = Api::run('getGoodSale',['goods_id'=>$this->topicRow['goods_ids']])}
+	var goodsList = {echo:JSON::encode($goodsList)};
+	for(var i in goodsList)
+	{
+		var temp = goodsList[i];
+		var templateHTML = template.render('goodsItemTemplate',{"templateData":temp});
+		$('#goodsListBox').append(templateHTML);
+	}
+	{/if}
+});
+{/if}
+</script>

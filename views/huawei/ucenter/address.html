@@ -1,0 +1,85 @@
+<header class="uc_head">
+	<h3>地址管理</h3>
+</header>
+
+<section class="uc_table">
+	<table>
+		<thead>
+			<tr>
+				<th width="120">收货人</th>
+				<th width="200">所在地区</th>
+				<th>街道地址</th>
+				<th width="100">电话/手机</th>
+				<th width="60">邮编</th>
+				<th width="250">操作</th>
+			</tr>
+		</thead>
+		<tbody>
+			{foreach:items = $this->address}
+			<tr>
+				<td>{$item['accept_name']}</td>
+				<td>{$this->areas[$item['province']]}{$this->areas[$item['city']]}{$this->areas[$item['area']]}</td>
+				<td>{$item['address']}</td>
+				<td>{$item['mobile']}</td>
+				<td>{$item['zip']}</td>
+				<!-- 个人中心表格操作 -->
+				<td class="uc_tab_operation">
+					<a href='javascript:void(0)' onclick='editAddress({$item['id']})'>
+						<i class="fa fa-pencil" style="font-size: 16px;"></i>
+					</a>|
+					<a href="javascript:void(0)" onclick="delModel({link:'{url:/ucenter/address_del/id/$item['id']}'});">
+						<i class="fa fa-remove" style="font-size: 16px;"></i>
+					</a>|
+					{if:$item['is_default']==1}
+					<a class="striking" href="{url:/ucenter/address_default/id/$item['id']/is_default/0}">取消默认</a>
+					{else:}
+					<a href="{url:/ucenter/address_default/id/$item['id']/is_default/1}">设为默认</a>
+					{/if}
+				</td>
+				<!-- 个人中心表格操作 -->
+			</tr>
+			{/foreach}
+		</tbody>
+	</table>
+</section>
+
+{if:!$items}
+<section class="no_tip">暂无数据</section>
+{/if}
+
+<div class="new_address_btn" onclick="editAddress();">
+	<i class="fa fa-map-marker"></i>
+	<span>添加新地址</span>
+</div>
+
+<script type='text/javascript'>
+//地址修改
+function editAddress(addressId)
+{
+	art.dialog.open(creatUrl("block/address/id/"+addressId),
+	{
+		"id":"addressWindow",
+		"title":"收货地址",
+		"ok":function(iframeWin, topWin){
+			var formObject = iframeWin.document.forms[0];
+			if(formObject.onsubmit() === false)
+			{
+				alert("请正确填写各项信息");
+				return false;
+			}
+			$.getJSON(formObject.action,$(formObject).serialize(),function(content){
+				if(content.result == false)
+				{
+					alert(content.msg);
+					return;
+				}
+				window.location.reload();
+			});
+			return false;
+		},
+		"okVal":"提交",
+		"cancel":true,
+		"cancelVal":"取消",
+	});
+}
+</script>

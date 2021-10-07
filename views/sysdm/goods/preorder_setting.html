@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>日期预约设置</title>
+{js:jquery}
+{js:dialog}
+{js:validate}
+{js:artTemplate}
+{js:my97date}
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="{webroot:public/css/twitter-bootstrap/3.3.7/css/bootstrap.min.css}">
+<script type='text/javascript' src="{webroot:public/javascript/twitter-bootstrap/3.3.7/js/bootstrap.min.js}"></script>
+</head>
+
+<body>
+<div class="container" style="overflow-y:auto">
+	<form action='{url:/goods/preorder_setting_save}' method='post'>
+		<input type="hidden" name="id" value="{$id}" />
+		<input type="hidden" name="type" value="{$type}" />
+		<input type="hidden" name="seller_id" value="{$seller_id}" />
+
+		<div class="form-group">
+		    <img src='{url:/pic/thumb/img/$goodsRow['img']/w/70/h/70}' class='img-rounded' />
+		    {$goodsRow['name']}
+
+		    {if:isset($goodsRow['spec_array'])}
+			{set:$spec_array=goods_class::show_spec($goodsRow['spec_array']);}
+			{foreach:items=$spec_array item=$specValue key=$specName}
+				，{$specName}：{$specValue} &nbsp;&nbsp;
+			{/foreach}
+			{/if}
+		</div>
+
+		<hr />
+
+		<div id="dateDiscount">
+		    <div class="form-group">
+		        <button onclick="addDateDiscount();" type="button" class="btn btn-primary"><i class="glyphicon glyphicon-plus"></i> 价格浮动</button>
+		    </div>
+            <p class="help-block">某个时间段内在原有价格上的浮动，+ 加价 或者 - 减价</p>
+		</div>
+
+		<script type="text/html" id="dateDiscountTemplate">
+	    <div class="form-group">
+		    <div class='row'>
+		        <div class="col-xs-6 col-sm-4">
+                    <div class="input-group">
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                        <input class="form-control" autocomplete="off" pattern='date' type="text" name="discountDateStart[]" onfocus="WdatePicker({'minDate':'%y-%M-%d'})" value="<%=data['start_date']%>" placeholder="起始时间" />
+                    </div>
+                </div>
+
+                <div class="col-xs-6 col-sm-4">
+                    <div class="input-group">
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                        <input class="form-control" autocomplete="off" pattern='date' type="text" name="discountDateEnd[]" onfocus="WdatePicker({'minDate':'%y-%M-{%d+1}'})" value="<%=data['end_date']%>" placeholder="结束时间" />
+                    </div>
+                </div>
+
+                <div class="col-xs-6 col-sm-3">
+                    <div class="input-group">
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-yen"></span></span>
+                        <input class="form-control" autocomplete="off" pattern="float" type="text" name="discount[]"  value="<%=data['discount']%>" placeholder="价格浮动">
+                    </div>
+                </div>
+
+                <div class="col-xs-6 col-sm-1">
+                    <a class='btn btn-default' onclick="$(this).parent().parent().parent().remove();"><i class="glyphicon glyphicon-remove"></i></a>
+                </div>
+		    </div>
+	    </div>
+		</script>
+
+        <hr />
+
+		<div id="dateDisnums">
+		    <div class="form-group">
+		        <button onclick="addDateDisnums();" type="button" class="btn btn-primary"><i class="glyphicon glyphicon-plus"></i> 库存占用</button>
+		    </div>
+            <p class="help-block">某个时间段内在原有库存上的占用</p>
+		</div>
+
+		<script type="text/html" id="dateDisnumsTemplate">
+	    <div class="form-group">
+		    <div class='row'>
+		        <div class="col-xs-6 col-sm-4">
+                    <div class="input-group">
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                        <input class="form-control" autocomplete="off" pattern='date' type="text" name="disnumsDateStart[]" onfocus="WdatePicker({'minDate':'%y-%M-%d'})" value="<%=data['start_date']%>" placeholder="起始时间" />
+                    </div>
+                </div>
+
+                <div class="col-xs-6 col-sm-4">
+                    <div class="input-group">
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                        <input class="form-control" autocomplete="off" pattern='date' type="text" name="disnumsDateEnd[]" onfocus="WdatePicker({'minDate':'%y-%M-{%d+1}'})" value="<%=data['end_date']%>" placeholder="结束时间" />
+                    </div>
+                </div>
+
+                <div class="col-xs-6 col-sm-3">
+                    <div class="input-group">
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-lock"></span></span>
+                        <input class="form-control" autocomplete="off" pattern="int" type="text"  name="disnums[]"  value="<%=data['disnums']%>" placeholder="库存占用">
+                    </div>
+                </div>
+
+                <div class="col-xs-6 col-sm-1">
+                    <a class='btn btn-default' onclick="$(this).parent().parent().parent().remove();"><i class="glyphicon glyphicon-remove"></i></a>
+                </div>
+		    </div>
+	    </div>
+		</script>
+	</form>
+</div>
+<script type='text/javascript'>
+$(function()
+{
+    var disnumsData = {echo:JSON::encode($disnums)};
+    for(var index in disnumsData)
+    {
+        addDateDisnums(disnumsData[index]);
+    }
+
+    var discountData= {echo:JSON::encode($discount)};
+    for(var index in discountData)
+    {
+        addDateDiscount(discountData[index]);
+    }
+});
+
+//新建预订价格浮动
+function addDateDiscount(obj)
+{
+    obj = obj ? obj : [];
+    var html = template.render('dateDiscountTemplate',{'data':obj});
+    $('#dateDiscount').append(html);
+    $(window).trigger('autoValidate');
+}
+
+//新建预订库存占用
+function addDateDisnums(obj)
+{
+    obj = obj ? obj : [];
+    var html = template.render('dateDisnumsTemplate',{'data':obj});
+    $('#dateDisnums').append(html);
+    $(window).trigger('autoValidate');
+}
+</script>
+</body>
+</html>
+
+

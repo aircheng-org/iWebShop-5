@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>上传SQL文件</title>
+{js:jquery}
+{js:dialog}
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="{webroot:public/css/twitter-bootstrap/3.3.7/css/bootstrap.min.css}">
+</head>
+<body style="width:500px;min-height:220px;overflow-y:hidden;">
+	<div class="container">
+		<ul class="list-group">
+			<li class="list-group-item">1、此功能可以直接将SQL语句导入到您的商城系统中</li>
+			<li class="list-group-item">2、导入的SQL语句必须按照MYSQL的语法编写</li>
+			<li class="list-group-item">3、导入的SQL附件必须是小于 {echo:IUpload::getMaxSize()} 的文本文件，您可以通过修改php.ini中的 &lt;post_max_size&gt;和&lt;upload_max_filesize&gt;选项来修改上传SQL附件的大小</li>
+			<li class="list-group-item">
+				<form action="{url:/tools/localUpload}" method="post" enctype="multipart/form-data">
+					<div class="form-group">
+						<label for="name">导入的SQL文件</label>
+						<input class="form-control" name="attach" type="file" accept=".sql" />
+					</div>
+				</form>
+			</li>
+		</ul>
+	</div>
+</body>
+</html>

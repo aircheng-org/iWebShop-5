@@ -1,0 +1,57 @@
+<div class="position"> <span>您当前的位置：</span> <a href="{url:}"> 首页</a> » 咨询 </div>
+	<div class="clearfix">
+	<div class="sidebar f_l">
+		<div class="box_2 m_10">
+			<div class="title">商品信息</div>
+			<div class="content">
+				<ul class="prolist clearfix">
+					<li>
+						<a href="{url:/site/products/id/$this->goodsRow['id']}"><img src="{url:/pic/thumb/img/$this->goodsRow['img']/w/167/h/212}" alt="{$this->goodsRow['name']}" height="212" width="167"></a>
+						<p class="pro_title">商品名称：<a class="blue" href="{url:/site/products/id/$this->goodsRow['id']}">{$this->goodsRow['name']}</a></p>
+						<p>优惠价：<b>￥{$this->goodsRow['sell_price']}</b></p>
+						<p>评价得分：<span class="grade-star g-star{$this->goodsRow['apoint']}"></span>({$this->goodsRow['apoint']}分)</p>
+						<p>评论数：{$this->goodsRow['comments']}条</p>
+					</li>
+					<input type="submit" onclick="joinCart_list({$this->goodsRow['id']});" value="加入购物车" class="submit_join m_10">
+				</ul>
+			</div>
+		</div>
+	</div>
+	<div class="wrapper main f_r">
+		<div class="wrap_box">
+			<form action='{url:/site/consult_act}' method='post' name='consult'>
+				<input type='hidden' name='goods_id' value='{$this->goodsRow['id']}' />
+				<table class="form_table f_l">
+					<caption><img src="{skin:images/front/consult.gif}" width="88" height="23" alt="我要咨询" /></caption>
+					<col width="120px" />
+					<col />
+					<tr>
+						<td colspan="2">
+							<div class="prompt">
+								<span class="red">*</span>&nbsp;声明：您可在购买前对产品包装、颜色、运输、库存等方面进行咨询，我们有专人进行回复！因厂家随时会更改一些产品的包装、
+					&nbsp;&nbsp;颜色、产地等参数，所以该回复仅在当时对提问者有效，其他网友仅供参考！咨询回复的工作时间为：周一至周五，9:00至18:00，
+					&nbsp;&nbsp;请耐心等待工作人员回复。
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<th>咨询类型：</th>
+						<td>
+							<label><input class="radio" type="radio" value="0" name="type" checked=checked />商品咨询</label>
+							<label><input class="radio" type="radio" value="1" name="type" />库存及配送</label>
+							<label><input class="radio" type="radio" value="2" name="type" />支付问题</label>
+							<label><input class="radio" type="radio" value="3" name="type" />发票及保修</label>
+							<label><input class="radio" type="radio" value="4" name="type" />促销及商品</label>
+						</td>
+					</tr>
+					<tr>
+						<th>咨询内容：</th><td valign="top"><textarea name="question" pattern='required'></textarea></td>
+					</tr>
+					<tr><th>验证码：</th><td><input type='text' class='gray_s' name='captcha' pattern='^\w{5,10}$' alt='填写下面图片所示的字符' /><label>填写下面图片所示的字符</label></td></tr>
+					<tr class="low"><th></th><td><img src='{url:/site/getCaptcha}' id='captchaImg' /><span class="light_gray">看不清？<a class="link" href="javascript:changeCaptcha();">换一张</a></span></td></tr>
+					<tr><td></td><td><label class="btn"><input type="submit" value="发表咨询" /></label></td></tr>
+				</table>
+			</form>
+		</div>
+	</div>
+</div>

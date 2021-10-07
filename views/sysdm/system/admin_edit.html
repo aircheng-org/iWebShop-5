@@ -1,0 +1,105 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">系统</a>
+		</li>
+		<li>
+			<a href="#">权限管理</a>
+		</li>
+		<li class="active">管理员编辑</li>
+	</ul>
+</div>
+<div class="content">
+	<form action="{url:/system/admin_edit_act}"  method="post" name="admin_edit">
+		<input type='hidden' name='id' />
+		<table class="table form-table">
+			<colgroup>
+				<col width="130px" />
+				<col />
+			</colgroup>
+
+			<tr>
+				<th>用户名：</th>
+				<td>
+					<input type='text' name='admin_name' class='form-control' pattern='^\w{4,20}$' />
+					<p class="help-block">* 管理员登录后台的用户名，请填写英文字母，数字或下划线，在4-20个字符之间</p>
+				</td>
+			</tr>
+
+			{if:$this->adminRow['id']}
+			<tr name="reset_pwd">
+				<th>密码重设：</th>
+				<td><button type='button' class='btn btn-default' onclick="reset_pwd();">重 设</button></td>
+			</tr>
+			{/if}
+
+			<tr name="pwd">
+				<th>密码：</th>
+				<td>
+					<input type='password' class='form-control' name='password' pattern='^\w{6,32}$'  />
+					<p class="help-block">* 管理员登录后台的密码，请填写英文字母，数字或下划线，在6-32个字符之间</p>
+				</td>
+			</tr>
+
+			<tr name="pwd">
+				<th>重复密码：</th>
+				<td>
+					<input type='password' class='form-control' name='repassword' pattern='^\w{6,32}$'  bind='password' />
+					<p class="help-block">* 重复输入管理员登录后台的密码</p>
+				</td>
+			</tr>
+
+			<tr>
+				<th>角色：</th>
+				<td>
+					{if:$this->adminRow['id'] == 1 && $this->adminRow['role_id'] == 0}
+					超级管理员
+					{else:}
+					<select class='form-control' name='role_id' pattern='required' alt='请选择一个角色'>
+						<option value=''>请选择</option>
+						<option value='0'>超级管理员</option>
+						{foreach:items=Api::run('getAdminRoleListAll',['is_del' => 0])}
+						<option value='{$item['id']}'>{$item['name']}</option>
+						{/foreach}
+					</select>
+					<p class="help-block">*为管理员分配一个角色</p>
+					{/if}
+					<a class="btn btn-default"  href='{url:/system/role_edit}'>添加角色</a>
+				</td>
+			</tr>
+			<tr>
+				<th>Email:</th>
+				<td>
+					<input type='text' name='email' class='form-control' pattern='email' empty alt='请填写正确的email格式' />
+					<p class="help-block">联系此管理员的email邮箱地址</p>
+				</td>
+			</tr>
+			<tr><td></td><td><button class='btn btn-primary' type="submit">保存</button></td></tr>
+		</table>
+	</form>
+</div>
+
+<script type='text/javascript'>
+//展示密码重设
+function reset_pwd()
+{
+	$('[name="reset_pwd"]').hide();
+
+	$('[name="pwd"]').each(
+		function (i)
+		{
+			$('[name="pwd"]:eq('+i+') *').show();
+		}
+	);
+}
+
+//修改信息时自动隐藏
+{if:$this->adminRow['id']}
+	$('[name="pwd"] *').hide();
+{/if}
+
+//表单回填
+var formObj = new Form('admin_edit');
+formObj.init({echo:JSON::encode($this->adminRow)});
+</script>

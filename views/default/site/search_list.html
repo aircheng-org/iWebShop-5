@@ -1,0 +1,71 @@
+{set:$defaultWhere = array('search' => $this->word , 'category_extend' => $this->cat_id )}
+{set:$goodsObj = search_goods::find($defaultWhere);$resultData = $goodsObj->find();}
+
+<div class="position"> <span>全部结果：</span> <a href="javascript:void(0)">{$this->word}</a> </div>
+<div class="wrapper clearfix container_2">
+	<div class="sidebar f_l">
+		<div class="box_2 m_10">
+			<div class="title">分类筛选</div>
+			<div class="content">
+				<dl class="w clearfix">
+					{foreach:items=Api::run('getGoodsCategoryExtend',array('#word#',$this->word)) }
+					{set:$tmpWord=urlencode($this->word);}
+					<dd class='{if:IReq::get('cat') == $item['id']}current{/if}'><a href="{url:/site/search_list/word/$tmpWord/cat/$item['id']}">{$item['name']}({$item['num']})</a></dd>
+					{/foreach}
+				</dl>
+			</div>
+		</div>
+		<div class="box m_10">
+			{echo:Ad::show("商品搜索结果页左侧198*120(default)")}
+		</div>
+		<div class="box m_10">
+			<div class="title">热卖商品</div>
+			<div class="content">
+				<ul class="ranklist" id='ranklist'>
+					{foreach:items=Api::run('getCommendHot',10)}
+				  	<li>
+				  		<span>{echo:intval($key+1)}</span>
+				  		<a href="{url:/site/products/id/$item[id]}"><img src="{url:/pic/thumb/img/$item[img]/w/60/h/60}" width="60" height="60" alt="{$item['name']}" /></a>
+				  		<a title="{$item['name']}" class="p_name" href="{url:/site/products/id/$item[id]}">{$item['name']}</a><b>￥{$item['sell_price']}</b>
+				  	</li>
+				  	{/foreach}
+				</ul>
+			</div>
+		</div>
+	</div>
+	<div class="main f_r">
+		<strong class="result">"<span class="red">{$this->word}</span>" 搜索结果</strong>
+		<p class="t_l gray m_10">你是不是想找：
+			{foreach:items=Api::run('getKeywordByWord',array('#word#',$this->word)) }
+			{set:$tmpWord=urlencode($item['word']);}
+			<a href="{url:/site/search_list/word/$tmpWord}" class='orange'>{$item['word']}</a>
+			{/foreach}
+		</p>
+
+		<!--商品条件筛选-->
+		{include:_goods_list_filter}
+
+		{if:$resultData}
+		<ul class="display_list clearfix m_10">
+			{foreach:items=$resultData}
+			<li name="goodsItems" class="clearfix win">
+				<div class="pic">
+					<a title="{$item['name']}" href="{url:/site/products/id/$item[id]}"><img src="{url:/pic/thumb/img/$item[img]/w/200/h/200}" width="200px" height="200px" alt="{$item['name']}" title="{$item['name']}" name="goodsImage" /></a>
+				</div>
+				<h3 class="title"><a title="{$item['name']}" class="p_name" href="{url:/site/products/id/$item[id]}">{echo:str_replace($this->word,'<b class="red">'.$this->word.'</b>',$item['name'])}</a><span>总销量：{$item['sale']}<a class="blue" href="{url:/site/comments_list/id/$item[id]}">( {$item['comments']}人评论 )</a></span><span class="grade-star g-star{echo:Common::gradeWidth($item['grade'],$item['comments'])}"></span></h3>
+				<div class="handle">
+					<label class="btn_gray_m"><img src="{skin:images/front/ucenter/shopping.gif}" width="15" height="15" /><input type="button" value="加入购物车" onclick="joinCart_list({$item['id']});"></label>
+					<label class="btn_gray_m"><img src="{skin:images/front/ucenter/favorites.gif}" width="15" height="14" /><input type="button" value="收藏" onclick="favorite_add_ajax('{$item['id']}',this);"></label>
+				</div>
+				<div class="price">￥{$item['sell_price']}<s>￥{$item['market_price']}</s></div>
+			</li>
+			{/foreach}
+		</ul>
+		{$goodsObj->getPageBar()}
+		{else:}
+		<p class="display_list mt_10" style='margin-top:50px;margin-bottom:50px'>
+			<strong class="gray f14">对不起，没有找到相关商品</strong>
+		</p>
+		{/if}
+	</div>
+</div>

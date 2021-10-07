@@ -1,0 +1,126 @@
+{js:my97date}
+{set:$seller_id = $this->seller['seller_id']}
+<article class="col-lg-12">
+	{if:$this->bill}
+    <div class="alert alert-primary">
+        {$this->bill['log']}
+    </div>
+	{/if}
+
+	<div class="card">
+		<div class="card-header d-flex align-items-center justify-content-between">
+			<h3>商品货款明细</h3>
+
+			{if:!$this->bill}
+			<form name="searchOrderGoods" action="{url:/}" method="get" class="form-inline">
+				<input type='hidden' name='controller' value='seller' />
+				<input type='hidden' name='action' value='order_goods_list' />
+
+				<div class="input-group mr-2">
+					<div  class="input-group-prepend">
+						<span class="input-group-text"><i class="fa fa-calendar"></i></span>
+					</div>
+					<input type="text" name='search[start_time]' value='' class="form-control" pattern='date' onFocus="WdatePicker()" empty placeholder="起始时间" />
+				</div>
+
+				<div class="input-group mr-2">
+					<div  class="input-group-prepend">
+						<span class="input-group-text"><i class="fa fa-calendar"></i></span>
+					</div>
+					<input type="text" name='search[end_time]' value='' class="form-control" pattern='date' onFocus="WdatePicker()" empty placeholder="结束时间" />
+				</div>
+
+				<select class="form-control mr-2" name="search[is_checkout]">
+					<option value="" selected="selected">结算状态</option>
+					<option value="0">未结算</option>
+					<option value="1">已结算</option>
+				</select>
+
+				<button class="btn btn-primary mr-2" type="submit">
+                    <i class="fa fa-search"></i> 搜索
+                </button>
+			</form>
+			{/if}
+		</div>
+
+		<div class="card-body">
+			<table class="table">
+				<colgroup>
+					<col width="170px" />
+					<col width="160px" />
+					<col width="110px" />
+					<col width="110px" />
+					<col width="110px" />
+					{if:class_exists("commission")}
+					<col width="110px" />
+					{/if}
+					<col width="110px" />
+					<col />
+					<col width="110px" />
+				</colgroup>
+
+				<thead>
+					<tr>
+						<th>订单号</th>
+						<th>完成时间</th>
+						<th>订单完成额</th>
+						<th>平台促销额</th>
+						<th>平台手续费</th>
+						{if:class_exists("commission")}
+						<th>分销佣金额</th>
+						{/if}
+						<th>应结算金额</th>
+						<th>结算状态</th>
+						<th>操作</th>
+					</tr>
+				</thead>
+
+				<tbody>
+					{foreach:items=$this->query->find()}
+					{set:$countData = CountSum::countSellerOrderFee([$item])}
+					<tr>
+						<td>{$item['order_no']}</td>
+						<td>{$item['completion_time']}</td>
+						<td>￥{echo:$countData['orderAmountPrice'] - $countData['refundFee']}</td>
+						<td>￥{$countData['platformFee']}</td>
+						<td>￥{$countData['commission']}</td>
+						{if:class_exists("commission")}
+						<td>￥{$countData['commissionFee']}</td>
+						{/if}
+						<td>￥{$countData['countFee']}</td>
+						<td>
+							{if:$item['is_checkout'] == 1}
+							<span class="text-green">已结算</span>
+							{else:}
+							<span class="text-red">未结算</span>
+							{/if}
+						</td>
+						<td>
+							<a href="{url:/seller/order_show/id/$item['id']}"><i class="fa fa-eye fa-lg" title="订单详情"></i></a>
+							<a href="javascript:servicefee({$item['id']});"><i class="fa fa-list fa-lg" title="手续费明细"></i></a>
+						</td>
+					</tr>
+					{/foreach}
+				</tbody>
+			</table>
+			{$this->query->getPageBar()}
+		</div>
+	</div>
+</article>
+
+<script type="text/javascript">
+//表单回填
+var searchData = {echo:JSON::encode(IReq::get('search'))};
+for(var index in searchData)
+{
+	$('[name="search['+index+']"]').val(searchData[index]);
+}
+
+//订单手续费明细
+function servicefee(order_id)
+{
+	var urlVal = "{url:/market/order_goods_servicefee_list/id/@order_id@/seller_id/@seller_id@}";
+	urlVal = urlVal.replace("@order_id@",order_id).replace("@seller_id@",{$this->seller['seller_id']});
+	art.dialog.open(urlVal,{title:'订单手续费明细',width:'80%',height:'500px'});
+}
+</script>

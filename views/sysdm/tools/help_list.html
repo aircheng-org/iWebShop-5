@@ -1,0 +1,62 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">工具</a>
+		</li>
+		<li>
+			<a href="#">帮助管理</a>
+		</li>
+		<li class="active">帮助列表</li>
+	</ul>
+</div>
+<div class="content">
+	<form action="{url:/tools/help_del}" method="post" name="article">
+		<table class="table list-table">
+			<colgroup>
+				<col width="35px" />
+				<col />
+				<col width="150px" />
+				<col width="80px" />
+				<col width="120px" />
+			</colgroup>
+			<caption>
+                <a class="btn btn-default" href='{url:/tools/help_edit}'>
+                    <i class="fa fa-plus"></i>添加帮助
+                </a>
+                <a class="btn btn-default" onclick="selectAll('id[]')">
+                    <i class="fa fa-check"></i>全选
+                </a>
+                <a class="btn btn-default" onclick="delModel()">
+                    <i class="fa fa-close"></i>批量删除
+                </a>
+			</caption>
+			<thead>
+				<tr>
+					<th></th>
+					<th>标题</th>
+					<th>帮助分类</th>
+					<th>排序</th>
+					<th>操作</th>
+				</tr>
+			</thead>
+
+			<tbody>
+				{set:$helpList=$this->query->find()}
+				{foreach:items=$helpList}
+				<tr>
+					<td><input type="checkbox" name="id[]" value="{$item['id']}" /></td>
+					<td><a target="_blank" href='{url:/site/help/id/$item['id']}' title='查看'>{$item['name']}</a></td>
+					<td>{$item['cat_name']}</td>
+					<td>{$item['sort']}</td>
+					<td>
+						<a href='{url:/tools/help_edit/id/$item['id']}'><i class='operator fa fa-edit'></i></a>
+						<a href="javascript:delModel({link:'{url:/tools/help_del/id/$item['id']}'});"><i class='operator fa fa-close'></i></a>
+					</td>
+				</tr>
+				{/foreach}
+			</tbody>
+		</table>
+	</form>
+</div>
+{$this->query->getPageBar()}

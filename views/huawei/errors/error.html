@@ -1,0 +1,19 @@
+{set:$msg = IReq::get('message') ? IReq::get('message') : '发生错误'}
+
+<div class="bigweb">
+<section class="prompt_page error">
+	<i class="ico"></i>
+	<article>
+		<strong>{echo:htmlspecialchars($msg,ENT_QUOTES)}</strong><br>
+		您可以：<br>
+		1.检查刚才的输入<br>
+		2.到<a href="{url:/site/help_list}">帮助中心</a>寻求帮助<br>
+
+			3.去其他地方逛逛：
+			<a href='javascript:void(0)' onclick='window.history.go(-1);'>返回上一级操作</a> |
+			<a href="{url:}">网站首页</a> |
+			<a href="{url:/ucenter/order}">我的订单</a> |
+			<a href="{url:/simple/cart}">我的购物车</a>
+	</article>
+</section>
+</div>

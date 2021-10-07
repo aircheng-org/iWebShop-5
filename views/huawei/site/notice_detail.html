@@ -1,0 +1,28 @@
+<div class="bigweb">
+<section class="breadcrumb">
+	<span>您当前的位置：</span> <a href="{url:}">首页</a> > <a href="{url:/site/notice}">公告列表</a> > {$this->noticeRow['title']}
+</section>
+<section class="web">
+	<section class="article_main">
+		<section class="article article_notice">
+			<header>
+				<h1 class="article_title">{$this->noticeRow['title']}</h1>
+				<time class="article_date">发布日期：{$this->noticeRow['time']}</time>
+			</header>
+			<article class="article_content">{$this->noticeRow['content']}</article>
+		</section>
+	</section>
+	<aside class="article_bar">
+		<!-- 资讯分类 -->
+		<nav class="news_article_box">
+			<h3 class="news_article_box_head">资讯分类</h3>
+			<ul class="news_article_infor">
+				{foreach:items=Api::run('getArticleCategoryList', 10)}
+				<li><a title="{$item['name']}" href="{url:/site/article/id/$item['id']}">{$item['name']}</a></li>
+				{/foreach}
+			</ul>
+		</nav>
+		<!-- 资讯分类 -->
+	</aside>
+</section>
+</div>

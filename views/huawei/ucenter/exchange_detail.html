@@ -1,0 +1,146 @@
+{if:$this->data['status'] == 3}
+<header class="uc_head">
+    <h3>填写物流信息</h3>
+</header>
+
+<section class="col_table">
+    <form action="{url:/ucenter/exchange_freight}" method="post">
+    <input type="hidden" value="{$this->data['id']}" name="id" />
+    <table>
+		<tr><th>说明：</th><td>需要您提供返还商品的物流信息，以便我们尽快为您办理后续服务</td></tr>
+		<tr>
+		    <th>填写返还物流：</th>
+		    <td>
+		        <select name="user_freight_id" pattern="required" class="input_select">
+					<option value="">请选择物流公司</option>
+                    {foreach:items=Api::run('getFreightCompany')}
+					<option value="{$item['id']}">{$item['freight_name']}</option>
+					{/foreach}
+		        </select>
+		        <input name="user_delivery_code" type="text" pattern="required" class="input_text" placeholder="填写快递单号">
+		    </td>
+		</tr>
+
+		<tr>
+			<th></th>
+			<td>
+				<input type="submit" value="保存" class="goback_btn" />
+			</td>
+		</tr>
+	</table>
+    </form>
+</section>
+{/if}
+
+<header class="uc_head">
+    <h3>换货详情</h3>
+</header>
+<section class="col_table">
+    <table>
+        <tr>
+            <th>订单号：</th>
+            <td>{$this->data['order_no']}</td>
+        </tr>
+        <tr>
+            <th>处理状态：</th>
+            <td>{echo:Order_Class::refundmentText($this->data['status'])}</td>
+        </tr>
+        <tr>
+            <th>售后商品：</th>
+            <td>
+                {foreach:items = $this->data['goods']}
+                {set:$goodsInfo = JSON::decode($item['goods_array'])}
+                <p>
+                    <a class="blue" href="{url:/site/products/id/$item['goods_id']}" href="_blank">{$goodsInfo['name']} {if:$goodsInfo['value']}{$goodsInfo['value']}{/if} X {$item['goods_nums']}</a>
+                </p>
+                {/foreach}
+            </td>
+        </tr>
+
+		{if:$this->data['img_list']}
+        <tr>
+            <th>图片信息：</th>
+            <td>
+            {foreach:items=JSON::decode($this->data['img_list']) item=$itemImg}
+                <a href="{url:$itemImg}" target="_blank"><img class="img-thumbnail" style="width:120px;height:120px" src="{url:$itemImg}" /></a>
+            {/foreach}
+            </td>
+        </tr>
+        {/if}
+
+        {if:$this->data['seller_id']}
+        <tr>
+            <th>商家主页：</th>
+            <td><a href="{url:/site/home/id/$this->data['seller_id']}" target="_blank">进入主页</a></td>
+        </tr>
+        {/if}
+        <tr>
+            <th>申请时间：</th>
+            <td>{$this->data['time']}</td>
+        </tr>
+
+        <tr>
+            <th>处理时间：</th>
+            <td>{echo:$this->data['dispose_time']?$this->data['dispose_time']:'未处理';}</td>
+        </tr>
+        <tr>
+            <th>处理建议：</th>
+            <td>{echo:$this->data['dispose_idea']?$this->data['dispose_idea']:'未回复'}</td>
+        </tr>
+        <tr>
+            <th>售后原因：</th>
+            <td>{$this->data['content']}</td>
+        </tr>
+
+        {if:$this->data['user_send_time']}
+		<tr>
+		    <th>返还物流：</th>
+		    <td>
+		        {$this->data['user_send_time']}
+                <p>
+			    {foreach:items=Api::run('getFreightCompanyById',array('freight_id'=>$this->data['user_freight_id'])) item=$tempFreight}
+                {$tempFreight['freight_name']}
+                {/foreach}
+
+                【快递单号：{$this->data['user_delivery_code']}】
+                <input type='button' value='物流' onclick="freightLine({$this->data['user_freight_id']},'{$this->data['user_delivery_code']}')" />
+		        </p>
+		    </td>
+		</tr>
+        {/if}
+
+        {if:$this->data['seller_send_time']}
+		<tr>
+		    <th>重发物流：</th>
+		    <td>
+		        {$this->data['seller_send_time']}
+                <p>
+			    {foreach:items=Api::run('getFreightCompanyById',array('freight_id'=>$this->data['seller_freight_id'])) item=$tempFreight}
+                {$tempFreight['freight_name']}
+                {/foreach}
+
+                【快递单号：{$this->data['seller_delivery_code']}】
+                <input type='button' value='物流' onclick="freightLine({$this->data['seller_freight_id']},'{$this->data['seller_delivery_code']}')" />
+		        </p>
+		    </td>
+		</tr>
+        {/if}
+
+        <tr>
+            <th></th>
+            <td>
+                <input type="button" class="goback_btn" value="返 回" onclick='event_link("{url:/ucenter/exchange}")'>
+            </td>
+        </tr>
+    </table>
+</section>
+
+<script>
+//快递跟踪
+function freightLine(doc_id,code)
+{
+	var urlVal = "{url:/block/freight/id/@id@/code/@code@}";
+	urlVal = urlVal.replace("@id@",doc_id).replace("@code@",code);
+	art.dialog.open(urlVal,{title:'轨迹查询',width:'600px',height:'500px'});
+}
+</script>

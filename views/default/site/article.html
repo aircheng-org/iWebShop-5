@@ -1,0 +1,40 @@
+<div class="position"> <span>您当前的位置：</span> <a href="{url:}">首页</a> » {if:$catRow}{$catRow['name']}{else:}最新资讯{/if} </div>
+<div class="wrapper clearfix container_2">
+	<div class="sidebar f_l">
+		<div class="box m_10">
+			<div class="title">热卖商品</div>
+			<div class="content">
+				<ul class="ranklist">
+					{foreach:items=Api::run('getCommendHot',5)}
+					<li class='current'><a href="{url:/site/products/id/$item[id]}"><img src="{url:/pic/thumb/img/$item[img]/w/58/h/58}" width="58" height="58" alt="{$item['name']}" /></a><a title="{$item['name']}" class="p_name" href="{url:/site/products/id/$item[id]}">{$item['name']}</a><b>￥{$item['sell_price']}</b></li>
+					{/foreach}
+				</ul>
+			</div>
+		</div>
+
+		<div class="box m_10">
+			<div class="title">资讯分类</div>
+			<div class="content">
+				<ul class="ranklist">
+					{foreach:items=Api::run('getArticleCategoryList',10)}
+					<li><a title="{$item['name']}" href="{url:/site/article/id/$item[id]}">{$item['name']}</a></li>
+					{/foreach}
+				</ul>
+			</div>
+		</div>
+	</div>
+	<div class="main f_r">
+		<div class="box m_10">
+			<div class="title2">{if:$catRow}{$catRow['name']}{else:}最新资讯{/if}</div>
+			<div class="cont">
+				<h5 class="list_title gray"><span class="f_l">标题</span>发表时间</li></h5>
+				<ul class="newslist">
+				    {foreach:items = $queryArticle->find()}
+					<li><a href="{url:/site/article_detail/id/$item[id]}">{$item['title']}</a><span>({$item['create_time']})</span></li>
+					{/foreach}
+				</ul>
+				{$queryArticle->getPageBar()}
+			</div>
+		</div>
+	</div>
+</div>

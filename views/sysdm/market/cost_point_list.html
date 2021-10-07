@@ -1,0 +1,70 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">营销</a>
+		</li>
+		<li>
+			<a href="#">营销活动管理</a>
+		</li>
+		<li class="active">积分兑换</li>
+	</ul>
+</div>
+<div class="content">
+	<form method='post' action='{url:/market/cost_point_del}'>
+		<table class="table list-table">
+			<colgroup>
+				<col width="35px" />
+				<col width="130px" />
+				<col />
+				<col width="100px" />
+				<col width="100px" />
+				<col width="100px" />
+			</colgroup>
+			<caption>
+                <a class="btn btn-default" onclick="event_link('{url:/market/cost_point_edit}');">
+                    <i class="fa fa-plus"></i>添加积分兑换
+                </a>
+                <a class="btn btn-default" onclick="selectAll('id[]')">
+                    <i class="fa fa-check"></i>全选
+                </a>
+                <a class="btn btn-default" onclick="delModel()">
+                    <i class="fa fa-close"></i>批量删除
+                </a>
+			</caption>
+			<thead>
+				<tr>
+                    <th></th>
+                    <th>活动名称</th>
+                    <th>产品名称</th>
+                    <th>排序</th>
+                    <th>状态</th>
+                    <th>操作</th>
+				</tr>
+			</thead>
+
+			<tbody>
+				 {set:$queryObj=Api::run('getListByCostPoint');$resultData=$queryObj->find()}
+                 {foreach:items=$resultData}
+				<tr>
+                    <td><input type='checkbox' name='id[]' value='{$item["cid"]}' /></td>
+                    <td>{$item['cname']}</td>
+                    <td><a href='{url:/site/products/id/$item["id"]}' target='_blank'>{$item['name']}</a></td>
+                    <td>{$item['sort']}</td>
+                    <td>{echo:active::statusCostPoint($item)}</td>
+                    <td>
+                        <a href='{url:/market/cost_point_edit/id/$item["cid"]}'>
+                            <i class='operator fa fa-edit'></i>
+                        </a>
+
+                        <a href='javascript:void(0)' onclick="delModel({link:'{url:/market/cost_point_del/id/$item[cid]}'});">
+                            <i class='operator fa fa-close'></i>
+                        </a>
+                    </td>
+                </tr>
+				{/foreach}
+			</tbody>
+		</table>
+	</form>
+</div>
+{$queryObj->getPageBar()}

@@ -1,0 +1,105 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">会员</a>
+		</li>
+		<li>
+			<a href="#">商户管理</a>
+		</li>
+		<li class="active">修改单品手续费</li>
+	</ul>
+</div>
+<div class="content">
+	<form action="{url:/goods/goods_rate_save}" method="post" name="goods_rate_edit">
+		<table class="table form-table">
+			<colgroup>
+				<col width="130px" />
+				<col />
+			</colgroup>
+
+			<tr>
+				<th>设置商品：</th>
+				<td>
+					<table class="table table-bordered list-table" >
+						<colgroup>
+							<col width="160px" />
+							<col />
+						</colgroup>
+						<input type='hidden' name='goods_id' />
+						<thead>
+							<tr>
+								<td>图片</td>
+								<td>名称</td>
+							</tr>
+						</thead>
+						<tbody>
+							<tr id='rate_goods'></tr>
+							<tr>
+								<td colspan='2'>
+									<button type='button' onclick='searchGoods({"callback":searchGoodsCallback});' class='btn btn-default'>选择商品</button>
+									<p class="help-block">* 仅能设置一种商品</p>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</td>
+			</tr>
+			<tr>
+				<th>单品手续费：</th>
+				<td>
+                    <div class="input-group col-md-3">
+                        <input class="form-control" name="goods_rate" pattern='float' empty type="text" value="" placeholder="请填写0~100的数字" />
+                        <span class="input-group-addon">%</span>
+                    </div>
+                </td>
+			</tr>
+			<tr><td></td><td><button class='btn btn-primary' type='submit'>确定</button></td></tr>
+		</table>
+	</form>
+</div>
+
+<script type='text/javascript'>
+//输入筛选商品的条件
+function searchGoodsCallback(goodsList)
+{
+	goodsList.each(function()
+	{
+		var temp = $.parseJSON($(this).attr('data'));
+		var content = {
+			"data":
+			{
+				"id":temp.goods_id,
+				"name":temp.name,
+				"img":temp.img
+			}
+		};
+		relationCallBack(content);
+	});
+}
+
+//关联商品回调处理函数
+function relationCallBack(content)
+{
+	if(content)
+	{
+		$('[name="goods_id"]').val(content['data']['id']);
+		var imgUrl = webroot(content['data']['img']);
+
+		var html =   '<td><img src="'+imgUrl+'" title="'+content['data']['name']+'" style="max-width:140px;" /></td>'
+					+'<td>'+content['data']['name']+'</td>';
+
+		$('#rate_goods').html(html);
+	}
+}
+
+jQuery(function()
+{
+	//预定义商品绑定
+	relationCallBack({$this->goodsRateRow['goodsRow']});
+
+	//表单回填
+	var formObj = new Form('goods_rate_edit');
+	formObj.init({echo:JSON::encode($this->goodsRateRow)});
+});
+</script>

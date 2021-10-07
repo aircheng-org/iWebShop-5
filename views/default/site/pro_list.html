@@ -1,0 +1,101 @@
+{set:$breadGuide = goods_class::catRecursion($this->catId)}
+{set:$goodsObj = search_goods::find(array('category_extend' => $this->childId),21);$resultData = $goodsObj->find()}
+<div class="position">
+	<span>您当前的位置：</span>
+	<a href="{url:}">首页</a>{foreach:items=$breadGuide} » <a href="{url:/site/pro_list/cat/$item[id]}">{$item['name']}</a>{/foreach}
+</div>
+
+<div class="wrapper clearfix container_2">
+	<div class="sidebar f_l">
+		<!--侧边栏分类-->
+		{set:$catSide = Api::run('catTree',$this->catId)}
+		{if:$catSide}
+		<div class="box_2 m_10">
+			<div class="title">{$this->catRow['name']}</div>
+			<div class="content">
+				{foreach:items=$catSide item=$first}
+				<dl class="clearfix">
+					<dt><a href="{url:/site/pro_list/cat/$first[id]}">{$first['name']}</a></dt>
+					{foreach:items=Api::run('getCategoryByParentid',array('#parent_id#',$first['id'])) item=$second}
+					<dd><a href="{url:/site/pro_list/cat/$second[id]}">{$second['name']}</a></dd>
+					{/foreach}
+				</dl>
+				{/foreach}
+			</div>
+		</div>
+		{/if}
+		<!--侧边栏分类-->
+
+		<!--销售排行-->
+		{set:$sellTopsData=Api::run('getCategoryExtendListByCategoryid',array('#categroy_id#',$this->childId))}
+		{if:$sellTopsData}
+		<div class="box m_10">
+			<div class="title">销售排行榜</div>
+			<div class="content">
+				<ul class="ranklist" id='ranklist'>
+					{foreach:items=$sellTopsData}
+				  	<li>
+				  		<span>{echo:intval($key+1)}</span>
+				  		<a href="{url:/site/products/id/$item[id]}" target="_blank">
+				  			<img src="{url:/pic/thumb/img/$item[img]/w/60/h/60}" width="60" height="60" alt="{$item['name']}" />
+				  		</a>
+				  		<a title="{$item['name']}" class="p_name" href="{url:/site/products/id/$item['id']}">{$item['name']}</a>
+				  		<b>￥{$item['sell_price']}</b>
+				  	</li>
+				  	{/foreach}
+				</ul>
+			</div>
+		</div>
+		{/if}
+		<!--销售排行-->
+	</div>
+
+	<div class="main f_r">
+		<!--推荐商品-->
+		{set:$pro_list = Api::run('getCategoryExtendByCommendid',array('#childId#',$this->childId))}
+	  	{if:$pro_list}
+		<div class="brown_box m_10 clearfix">
+			<p class="caption"><span>推荐</span></p>
+
+			<ul class="prolist">
+				{foreach:items=$pro_list}
+				<li>
+					<a class="pic" href="{url:/site/products/id/$item[id]}"><img src="{url:/pic/thumb/img/$item[img]/w/85/h/85}" alt="{$item['name']}" height="85px" width="85px"></a>
+					<p class="pro_title"><a class="blue" href="{url:/site/products/id/$item[id]}">{$item['name']}</a><span class="gray">{$item['description']}</span></p>
+					<p><b>￥{$item['sell_price']}</b> <s>￥{$item['market_price']}</s></p>
+				</li>
+				{/foreach}
+			</ul>
+		</div>
+		{/if}
+		<!--推荐商品-->
+
+		<!--商品条件筛选-->
+		{include:_goods_list_filter}
+
+		{if:$resultData}
+		<ul class="display_list clearfix m_10">
+			{foreach:items=$resultData}
+			<li name="goodsItems" class="clearfix win">
+				<div class="pic">
+					<a title="{$item['name']}" href="{url:/site/products/id/$item[id]}"><img src="{url:/pic/thumb/img/$item[img]/w/200/h/200}" width="200px" height="200px" alt="{$item['name']}" title="{$item['name']}" name="goodsImage" /></a>
+				</div>
+				<h3 class="title"><a title="{$item['name']}" class="p_name" href="{url:/site/products/id/$item[id]}">{$item['name']}</a><span>总销量：{$item['sale']}<a class="blue" href="{url:/site/comments_list/id/$item[id]}">( {$item['comments']}人评论 )</a></span><span class="grade-star g-star{echo:Common::gradeWidth($item['grade'],$item['comments'])}"></span></h3>
+				<div class="handle">
+					<label class="btn_gray_m"><img src="{skin:images/front/ucenter/shopping.gif}" width="15" height="15" /><input type="button" value="加入购物车" onclick="joinCart_list({$item['id']});"></label>
+					<label class="btn_gray_m"><img src="{skin:images/front/ucenter/favorites.gif}" width="15" height="14" /><input type="button" value="收藏" onclick="favorite_add_ajax('{$item['id']}',this);"></label>
+				</div>
+				<div class="price">￥{$item['sell_price']}<s>￥{$item['market_price']}</s></div>
+			</li>
+			{/foreach}
+		</ul>
+		{$goodsObj->getPageBar()}
+
+		{else:}
+		<p class="display_list mt_10" style='margin-top:50px;margin-bottom:50px'>
+			<strong class="gray f14">对不起，没有找到相关商品</strong>
+		</p>
+		{/if}
+		<!--商品列表展示-->
+	</div>
+</div>

@@ -1,0 +1,129 @@
+{js:fileUpload}
+<div class="bigweb">
+<section class="breadcrumb">
+	<span>您当前的位置：</span> <a href="{url:}">首页</a> » <a href="{url:/site/products/id/$this->goods['goods_id']}">{$this->goods['name']}</a>
+</section>
+
+<section class="web">
+	<section class="main">
+		<h2 class="main_head">我要评论</h2>
+		<section class="user_form">
+			<form method="post" action="{url:/site/comment_add}">
+				<input type="hidden" name="id" value="{$this->comment['id']}" />
+				<dl>
+					<dt>评论等级：</dt>
+					<dd>
+						<label class="star_box fl">
+							<input name="point" class="radio" type="radio" value="5" checked="checked" />
+							<span class="star star_5"></span>
+						</label>
+						<label class="star_box fl">
+							<input name="point" class="radio" type="radio" value="4" />
+							<span class="star star_4"></span>
+						</label>
+						<label class="star_box fl">
+							<input name="point" class="radio" type="radio" value="3" />
+							<span class="star star_3"></span>
+						</label>
+						<label class="star_box fl">
+							<input name="point" class="radio" type="radio" value="2" />
+							<span class="star star_2"></span>
+						</label>
+						<label class="star_box fl">
+							<input name="point" class="radio" type="radio" value="1" />
+							<span class="star star_1"></span>
+						</label>
+					</dd>
+				</dl>
+				<dl>
+					<dt>评论内容：</dt>
+					<dd><textarea class="input_textarea" name='contents' pattern='required' alt=''></textarea></dd>
+				</dl>
+
+				<dl>
+                    <dt>上传图片：</dt>
+                    <dd>
+                        <input type='hidden' name="_imgList" value="" />
+                        <input id="fileUpload" type="file" accept="image/*" name="_goodsFile" data-url="{url:/ucenter/comment_img_upload}" />
+                        <p>可以上传5张图片，3K分辨率以下并且每张不得超过{echo:IUpload::getMaxSize()}</p>
+
+                        <div id="thumbnails"></div>
+
+                        <!--图片模板-->
+                        <script type='text/html' id='picTemplate'>
+                        <div class="pic" style='float:left;'>
+                            <img class="img-thumbnail" style="width:100px;height:100px;border:1px solid #ccc;margin-right:10px;" src="<%=webroot(picRoot)%>" alt="<%=picRoot%>" />
+                            <p style="text-align:center;">
+                                <a href='javascript:;' onclick="$(this).parents('.pic').remove();">删除</a>
+                            </p>
+                        </div>
+                        </script>
+                    </dd>
+                </dl>
+
+				<dl>
+					<dt></dt>
+					<dd><input class="input_submit" type="submit" value="我要评价" /></dd>
+				</dl>
+			</form>
+		</section>
+	</section>
+	<aside class="bar">
+		<div class="bar_box">
+			<h3 class="bar_box_head">商品信息</h3>
+			<div class="bar_goods_big">
+				<a target="_blank" href="{url:/site/products/id/$this->goods['goods_id']}">
+					<img alt="{$this->goods['name']}" src="{url:/pic/thumb/img/$this->goods['img']/w/205/h/205}">
+					<h5>{$this->goods['name']}</h5>
+					<em>￥{$this->goods['sell_price']}</em>
+					<label class="star_box">
+						<span class="item">评分</span>
+						<span class="star star_{echo:Common::gradeWidth($this->commentCount['average_point'])}"></span>
+					</label>
+				</a>
+			</div>
+		</div>
+	</aside>
+</section>
+</div>
+
+<script type="text/javascript">
+//jquery图片上传
+$('[name="_goodsFile"]').fileupload({
+    dataType: 'json',
+    done: function (e, data)
+    {
+    	if(data.result && data.result.flag == 1)
+    	{
+    	    var picJson = data.result;
+        	var picHtml = template.render('picTemplate',{'picRoot':picJson.img});
+        	$('#thumbnails').append(picHtml);
+    	}
+    	else
+    	{
+    		alert(data.result.error);
+    	}
+    },
+    add:function(e, data)
+    {
+        if($('#thumbnails .img-thumbnail').length >= 5)
+        {
+             alert("最多上传5张图片");
+             return false;
+        }
+        data.submit();
+    }
+});
+
+//合并图片地址信息
+$("form").submit(function()
+{
+    var goodsPhoto = [];
+    $('#thumbnails .img-thumbnail').each(function(){
+        goodsPhoto.push(this.alt);
+    });
+
+    $('input[name="_imgList"]').val(goodsPhoto.join(','));
+    return true;
+});
+</script>

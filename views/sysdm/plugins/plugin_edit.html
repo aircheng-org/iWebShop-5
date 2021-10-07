@@ -1,0 +1,140 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">工具</a>
+		</li>
+		<li>
+			<a href="#">插件管理</a>
+		</li>
+		<li class="active">配置插件</li>
+	</ul>
+</div>
+<div class="content">
+	<form action="{url:/plugins/plugin_update}" method="post">
+		<input type='hidden' name='class_name' value='' />
+		<table class="table form-table">
+			<colgroup>
+				<col width="150px" />
+				<col />
+			</colgroup>
+
+			<tr>
+				<th>插件名称：</th>
+				<td>{$this->pluginRow['name']}</td>
+			</tr>
+
+			<tr>
+				<th>插件简述：</th>
+				<td>{$this->pluginRow['description']}</td>
+			</tr>
+
+			{if:$this->pluginRow['explain']}
+			<tr>
+				<th>使用说明：</th>
+				<td>{$this->pluginRow['explain']}</td>
+			</tr>
+			{/if}
+
+			<tr>
+				<th>插件状态：</th>
+				<td>
+                    <label class="radio-inline">
+                        <input type="radio" name="is_open" value="1" checked=checked >开启
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="is_open" value="0">关闭
+                    </label>
+				</td>
+			</tr>
+			<tr>
+				<th></th>
+				<td>
+					<button class='btn btn-primary' type='submit' onclick='$("tr:hidden").remove();'>确定</button>
+				</td>
+			</tr>
+		</table>
+	</form>
+</div>
+
+<!--数据录入模板-->
+<script type='text/html' id='paramTemplate'>
+<%for(var item in templateData){%>
+<%var key = item;%>
+<%var item = templateData[item];%>
+<%var valueItems = item['value'];%>
+<tr>
+	<th><%=item["name"]%>：</th>
+	<td>
+		<%if(item['type'] == "radio"){%>
+			<%for(var tempKey in valueItems){%>
+			<%tempVal = valueItems[tempKey]%>
+            <label class="radio-inline">
+                <input type="radio" name="<%=key%>" value="<%=tempVal%>" checked="checked"><%=tempKey%>
+            </label>
+			<%}%>
+		<%}else if(item['type'] == "checkbox"){%>
+			<%for(var tempKey in valueItems){%>
+			<%tempVal = valueItems[tempKey]%>
+            <label class="checkbox-inline">
+                <input type="checkbox" name='<%=key%>[]' value="<%=tempVal%>"><%=tempKey%>
+            </label>
+			<%}%>
+		<%}else if(item['type'] == "select"){%>
+			<select class="form-control" name="<%=key%>" pattern="<%=item['pattern']%>" <%if(item['bind']){%>onchange="bindCallback(this,<%=JSON().stringify(item['bind'])%>);"<%}%>>
+			<%for(var tempKey in valueItems){%>
+			<%tempVal = valueItems[tempKey]%>
+			<option value="<%=tempVal%>"><%=tempKey%></option>
+			<%}%>
+			</select>
+		<%}else if(item['type'] == "text"){%>
+			<input type="text" name="<%=key%>" value="<%=item['value']%>" class="form-control" pattern="<%=item['pattern']%>" />
+		<%}%>
+
+		<%if(item['info']){%>
+			<p class="help-block"><%=item['info']%></p>
+		<%}%>
+	</td>
+</tr>
+<%}%>
+</script>
+
+<script language="javascript">
+//DOM加载完毕
+$(function()
+{
+	//加载插件配置
+	var paramHtml = template.render('paramTemplate',{'templateData':{echo:JSON::encode($this->pluginRow['config_name'])}});
+	$('.form-table tr:eq(1)').after(paramHtml);
+
+	//数据加载
+	var formInstance = new Form();
+	formInstance.init({echo:JSON::encode($this->pluginRow['config_param'])});
+	formInstance.init({echo:JSON::encode($this->pluginRow)});
+
+	//触发绑定回调接口
+	$('select').change();
+});
+
+//绑定回到函数
+function bindCallback(_self,bindData)
+{
+	for(var value in bindData)
+	{
+		for(var k in bindData[value])
+		{
+			var name = bindData[value][k];
+			$('[name="'+name+'"]').parents("tr").hide();
+		}
+	}
+
+	if(bindData[_self.value])
+	{
+		for(var k in bindData[_self.value])
+		{
+			var name = bindData[_self.value][k];
+			$('[name="'+name+'"]').parents("tr").show();
+		}
+	}
+}
+</script>

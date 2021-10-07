@@ -1,0 +1,135 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">系统</a>
+		</li>
+		<li>
+			<a href="#">权限管理</a>
+		</li>
+		<li class="active">编辑权限</li>
+	</ul>
+</div>
+<div class="content">
+	<form action="{url:/system/right_edit_act}"  method="post" name='right_edit'>
+		<input type='hidden' name='id' />
+		<table class="table form-table">
+			<colgroup>
+				<col width="130px" />
+				<col />
+			</colgroup>
+
+			<tr>
+				<th>权限名称：</th>
+				<td><input type='text' class='form-control' name='name' pattern='required' placeholder='请填写权限名称' /><p class="help-block">* 权限名称，如 [商品]商品管理，程序会根据中括号里面的字符进行权限分组</p></td>
+			</tr>
+
+			<tr>
+				<th>权限码集合：</th>
+				<td>
+					<table class="table list-table" style="width:500px">
+						<colgroup>
+							<col />
+							<col width="150px" />
+						</colgroup>
+						<thead>
+							<tr><td>权限码</td><td>操作</td></tr>
+						</thead>
+						<tbody id='rightBox'>
+						{set:$rightArray = explode(',',trim($this->rightRow['right'],','))}
+						{if:$rightArray}
+							{foreach:items=$rightArray}
+							<tr>
+								<td><input type='text' class='form-control' value='{$item}' name='right[]' pattern="required" /></td>
+								<td><a href="javascript:;" onclick="$(this).parent().parent().remove();"><i class='operator fa fa-close'></i></a></td>
+							</tr>
+							{/foreach}
+						{else:}
+							<tr>
+								<td><input type='text' class='form-control' value='' name='right[]' pattern="required" /></td>
+								<td><a href="javascript:;" onclick="$(this).parent().parent().remove();"><i class='operator fa fa-close'></i></a></td>
+							</tr>
+						{/if}
+						</tbody>
+						<tfoot>
+							<tr><td colspan='2'><button type="button" class="btn btn-default" onclick='create_right();'>添 加</button></td></tr>
+						</tfoot>
+					</table>
+					<p class="help-block">* 此码是由 [ 控制器名称 ] @ [ 动作名称 ] 组成，例如 管理员列表的权限码：system@admin_list </p>
+				</td>
+			</tr>
+			<tr>
+				<th>添加权限码：</th>
+				<td class="form-inline">
+					<select class='form-control' id='ctrl' name='ctrl' onchange="get_list_action(this.value);">
+						<option value='' selected=selected>请选择</option>
+					</select>
+					@
+					<select class='form-control' name='action' id='action'>
+					</select>
+
+					<button type="button" class="btn btn-default" onclick='create_right_auto();'>添加</button>
+				</td>
+			</tr>
+			<tr>
+				<td></td>
+				<td>
+					<button class='btn btn-primary' type='submit'>保存</button>
+				</td>
+			</tr>
+		</table>
+	</form>
+</div>
+
+<script type='text/javascript'>
+//动态获取动作列表
+function get_list_action(ctrlId)
+{
+	$('#action').empty();
+	$.getJSON('{url:/system/list_action}',{ctrlId:ctrlId},function(content){
+		for(pro in content)
+		{
+			var optionStr = '<option value="'+content[pro]+'">'+content[pro]+'</option>';
+			$('#action').append(optionStr);
+		}
+	});
+}
+
+jQuery(function(){
+	//动态获取控制器文件列表
+	$.getJSON('{url:/system/list_controller}',function(content){
+		for(pro in content)
+		{
+			var optionStr = '<option value="'+content[pro]+'">'+content[pro]+'</option>';
+			$('#ctrl').append(optionStr);
+		}
+		get_list_action($('#ctrl').val());
+	});
+});
+
+//添加权限码
+function create_right(val)
+{
+	var val = (val == undefined) ? '':val;
+	var rightStr = '<tr><td><input type="text" class="form-control" value="'+val+'" name="right[]" /></td><td><a href="javascript:void(0)" onclick="$(this).parent().parent().remove();"><i class="operator fa fa-close"></i></a></td></tr>';
+	$('#rightBox').prepend(rightStr);
+}
+
+//自动添加权限码
+function create_right_auto()
+{
+	var ctrlVal   = $('#ctrl').val();
+	var actionVal = $('#action').val();
+	if(ctrlVal && actionVal)
+	{
+		create_right(ctrlVal+'@'+actionVal);
+	}
+	else
+	{
+		alert('控制器或者动作不能为空');
+	}
+}
+
+var formObj = new Form('right_edit');
+formObj.init({echo:JSON::encode($this->rightRow)});
+</script>

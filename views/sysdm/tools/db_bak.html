@@ -1,0 +1,76 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">工具</a>
+		</li>
+		<li>
+			<a href="#">数据库管理</a>
+		</li>
+		<li class="active">备份数据库</li>
+	</ul>
+</div>
+<div class="content">
+	<form>
+		<table class="table list-table">
+			<colgroup>
+				<col width="35px" />
+				<col width="220px" />
+				<col width="120px" />
+				<col width="115px" />
+				<col width="120px" />
+				<col />
+			</colgroup>
+			<caption>
+                <a class="btn btn-default" onclick="selectAll('name[]')">
+                    <i class="fa fa-check"></i>全选
+                </a>
+                <a class="btn btn-default" onclick="confirm('确定要备份么？','backup_act()');">
+                    <i class="fa fa-database"></i>备份
+                </a>
+			</caption>
+			<thead>
+				<tr>
+					<th></th>
+					<th>数据库表</th>
+					<th>记录条数</th>
+					<th>占用空间</th>
+					<th>编码</th>
+					<th>说明</th>
+				</tr>
+			</thead>
+
+			<tbody>
+				{foreach:items=$tableInfo}
+				<tr>
+					<td><input type="checkbox" name="name[]" value="{$item['Name']}" /></td>
+					<td>{$item['Name']}</td>
+					<td>{$item['Rows']}</td>
+					<td>{echo:$item['Data_length']>=1024 ? ($item['Data_length']>>10).' KB':$item['Data_length'].' B'}</td>
+					<td>{$item['Collation']}</td>
+					<td>{$item['Comment']}</td>
+				</tr>
+				{/foreach}
+			</tbody>
+		</table>
+	</form>
+</div>
+<script type="text/javascript">
+//备份数据库表
+function backup_act()
+{
+	loadding('正在备份请稍候......');
+	var jsonData = getArray('name[]','checkbox');
+	$.post('{url:/tools/db_act_bak}',{name:jsonData},function(c){
+		if(c.isError == true)
+		{
+			alert(c.message);
+		}
+		else
+		{
+			window.location.href=c.redirect;
+		}
+		unloadding();
+	},'json');
+}
+</script>

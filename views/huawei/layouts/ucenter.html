@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="UTF-8">
+	<title>{echo:$this->_siteConfig->name}</title>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<link type="image/x-icon" href="{webroot:favicon.ico}" rel="icon">
+	{js:jquery}
+	{js:form}
+	{js:validate}
+	{js:dialog}
+	{js:artTemplate}
+	<!--[if IE]><script src="{theme:javascript/html5.js}"></script><![endif]-->
+	<script src='{theme:javascript/site.js}'></script>
+	<link rel="stylesheet" href="{skin:style/style.css}">
+  <script type='text/javascript' src='{webroot:public/javascript/public.js}'></script>
+</head>
+<body>
+
+<!-- 顶部工具栏 -->
+<div class="header_top">
+	<div class="web">
+		<div class="welcome">
+			欢迎您来到 {echo:$this->_siteConfig->name}！
+		</div>
+		<ul class="top_tool">
+			<li><a href="{url:ucenter/index}">个人中心</a></li>
+			<li><a href="{url:/simple/seller}">申请开店</a></li>
+			<li><a href="{url:/seller/index}">商家管理</a></li>
+			<li><a href="{url:/site/help_list}">使用帮助</a></li>
+		</ul>
+	</div>
+</div>
+<!-- 顶部工具栏 -->
+<header class="header">
+	<!-- logo与搜索 -->
+	<div class="body_wrapper">
+		<div class="web">
+			<!-- logo -->
+			<div class="logo_layer">
+				<a title="{$this->_siteConfig->name}" href="{url:}" class="logo">
+					<img src="{if:$this->_siteConfig->logo}{webroot:$this->_siteConfig->logo}{else:}{skin:image/logo.png}{/if}">
+				</a>
+			</div>
+			<!-- 注册与登录 -->
+			<div class="body_toolbar">
+				{if:$this->user}
+					<div class="body_toolbar_btn userinfo">
+						<a href="{url:/ucenter/index}">{$this->user['username']}</a>
+						<i></i>
+					</div>
+					<div class="body_toolbar_layer">
+						<div class="toolbar_layer_info">
+							<a class="info_photo" href="{url:/ucenter/index}">
+								<img id="user_ico_img" src="{url:$this->user['head_ico']}" onerror="this.src='{skin:image/user_ico.gif}'">
+							</a>
+							<div>
+								<a href="{url:/ucenter/index}">{$this->user['username']} <i class="fa fa-user-md"></i></a>
+								<span>{echo:ISafe::get('last_login')}</span>
+							</div>
+						</div>
+						<div class="myorder">
+							<dl class="clearfix">
+								<dt>
+									<span class="fl">我的订单</span>
+									<a class="fr" href="{url:/ucenter/index}">更多&gt;</a>
+								</dt>
+								<dd><a href="{url:/ucenter/integral}">我的积分</a></dd>
+								<dd><a href="{url:/ucenter/account_log}">账户预付款</a></dd>
+								<dd><a href="{url:/ucenter/evaluation}">待评价</a></dd>
+								<dd><a href="{url:/ucenter/refunds}">退换货</a></dd>
+								<dd><a href="{url:/ucenter/consult}">商品咨询</a></dd>
+							</dl>
+						</div>
+						<div class="myshop"><a href="{url:/ucenter/index}">我的商城</a></div>
+						<div class="logout"><a href="{url:/simple/logout}">退出登录</a></div>
+					</div>
+				{else:}
+					<div class="body_toolbar_btn login_reg">
+						<a href="{url:/simple/login}">登录</a>
+						<em> | </em>
+						<a class="reg" href="{url:/simple/reg}">注册</a>
+					</div>
+				{/if}
+			</div>
+			<!-- 注册与登录 -->
+			<!--购物车模板 开始-->
+			<div class="header_cart" name="mycart">
+				<a href="{url:/simple/cart}" class="go_cart">
+					<i class="fa fa-shopping-cart"></i>
+					<em class="sign_total" name="mycart_count"]>0</em>
+				</a>
+				<div class="cart_simple" id="div_mycart"></div>
+			</div>
+			<script type='text/html' id='cartTemplete'>
+			<div class='cart_panel'>
+				<%if(goodsCount){%>
+					<!-- 购物车物品列表 -->
+					<ul class='cart_list'>
+						<%for(var item in goodsData){%>
+						<%var data = goodsData[item]%>
+						<li id="site_cart_dd_<%=item%>">
+							<em><%=(window().parseInt(item)+1)%></em>
+							<a target="_blank" href="{url:/site/products/id/<%=data['goods_id']%>}">
+								<img src="<%=webroot(data['img'])%>">
+							</a>
+							<a class="shop_name" target="_blank" href="{url:/site/products/id/<%=data['goods_id']%>}"><%=data['name']%></a>
+							<div class="shop_price"><p>￥ <%=data['sell_price']%> <span>x <%=data['count']%></span></p></div>
+							<i class="fa fa-remove" onclick="removeCart('<%=data['id']%>','<%=data['type']%>');$('#site_cart_dd_<%=item%>').hide('slow');"></i>
+						</li>
+						<%}%>
+					</ul>
+					<!-- 购物车物品列表 -->
+					<!-- 购物车物品统计 -->
+					<div class="cart_total">
+						<p>
+							共<span name="mycart_count"><%=goodsCount%></span>件
+							总额：<em name="mycart_sum">￥<%=goodsSum%></em>
+						</p>
+						<a href="{url:simple/cart}">结算</a>
+					</div>
+					<!-- 购物车物品统计 -->
+				<%}else{%>
+					<!-- 购物车无内容 -->
+					<div class='cart_no'>购物车空空如也~</div>
+				<%}%>
+			</div>
+			</script>
+			<!--购物车模板 结束-->
+			<!-- 搜索框 -->
+			<div class="search_box">
+					<!-- 搜索内容 -->
+				<form method='get' action='{url:/}'>
+					<input type='hidden' name='controller' value='site'>
+					<input type='hidden' name='action' value='search_list'>
+					<div class="search">
+						<input type="text" name='word' class="search_keyword" autocomplete="off">
+						<button class="search_submit" type="submit">
+							<i class="fa fa-search"></i>
+						</button>
+					</div>
+				</form>
+				<!-- 热门搜索 -->
+				<div class="search_hotwords">
+					{foreach:items=Api::run('getKeywordList',2) }
+					{set:$tmpWord = urlencode($item['word']);}
+					<a href="{url:/site/search_list/word/$tmpWord}">{$item['word']}</a>
+					{/foreach}
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- logo与搜索 -->
+
+	<!-- 导航栏 -->
+	<div class="nav_bar">
+		<div class="user_center">
+		<div class="web">
+			<!-- 分类列表 -->
+			<div class="category_list">
+				<!-- 全部商品 -->
+				<a class="all_goods_sort" href="" target="_blank">
+					<h3 class="all">全部商品</h3>
+				</a>
+				<!-- 全部商品 -->
+				<!-- 分类列表-详情 -->
+				<ul class="cat_list none">
+					{foreach:items=Api::run('getCategoryListTop')  item=$first}
+					<li>
+						<!-- 分类列表-导航模块 -->
+						<div class="cat_nav">
+							<h3><a href="{url:/site/pro_list/cat/$first[id]}">{$first['name']}</a></h3>
+							{foreach:items=Api::run('getCategoryByParentid',array('#parent_id#',$first['id']), 3)  item=$second}
+							<a href="{url:/site/pro_list/cat/$second[id]}">{$second['name']}</a>
+							{/foreach}
+							<i class="fa fa-angle-right"></i>
+						</div>
+						<!-- 分类列表-导航模块 -->
+						<!-- 分类列表-导航内容模块 -->
+						<div class="cat_more">
+							<h3>
+							    {foreach:items=Api::run('getCategoryByParentid',array('#parent_id#',$first['id']), 7)  item=$second}
+								<a href="{url:/site/pro_list/cat/$second['id']}">
+									<span>{$second['name']}</span>
+								</a>
+								{/foreach}
+							</h3>
+
+							{if:isset($second) && $second}
+							<ul class="cat_nav_list">
+								{foreach:items=Api::run('getCategoryByParentid',array('#parent_id#',$second['id']), 12)  item=$third}
+								<li><a href="{url:/site/pro_list/cat/$third['id']}">{$third['name']}</a></li>
+								{/foreach}
+							</ul>
+							{/if}
+
+							<ul class="cat_content_list">
+								{foreach:items=Api::run('getCategoryExtendList',array('#categroy_id#',$first['id']),4)}
+								<li>
+									<a href="{url:/site/products/id/$item['id']}" target="_blank" title="{$item['name']}">
+										<img class="img-lazyload" src="{url:/pic/thumb/img/$item['img']/w/118/h/118}" alt="{$item['name']}">
+										<h3>{$item['name']}</h3>
+										<p class="price">￥{$item['sell_price']}</p>
+									</a>
+								</li>
+								{/foreach}
+							</ul>
+						</div>
+						<!-- 分类列表-导航内容模块 -->
+					</li>
+					{/foreach}
+				</ul>
+				<!-- 分类列表-详情 -->
+			</div>
+			<!-- 分类列表 -->
+			<!-- 导航索引 -->
+			<div class="nav_index">
+				<ul class="nav">
+					<li class="user_nav_index"><a href="{url:/site/index}"><span>首 页</span></a></li>
+					{foreach:items=Api::run('getGuideList')}
+					<li class="user_nav_index"><a href="{url:$item[link]}"><span>{$item['name']}</span></a></li>
+					{/foreach}
+				</ul>
+			</div>
+		</div>
+		</div>
+	</div>
+</header>
+
+<!-- 个人中心内容 -->
+<div class="center_content">
+	<section class="breadcrumb">
+		<span></span> <a href="{url:}">首页</a> \ <a href="{url:/ucenter/index}">我的账户</a>
+	</section>
+
+
+	<section class="web">
+		<div class="ucenter_content_bar">
+			<section class="ucenter_main">
+				{viewcontent}
+			</section>
+			<!-- 个人中心内容-功能栏 -->
+			<aside class="ucenter_bar">
+				<!-- 我的商城 -->
+				<div class="ucenter_bar_wapper">
+					<a href="{url:/ucenter/index}">我的商城</a>
+				</div>
+				<!-- 我的商城 -->
+				<!-- 功能栏 -->
+				{set:$index=0;}
+				{foreach:items=menuUcenter::init()}
+				{set:$index++;}
+				<nav class="user_bar">
+					<h3>{$key}</h3>
+					<ul>
+						{foreach:items=$item key=$moreKey item=$moreValue}
+						<li><a title="{$moreValue}" href="{url:$moreKey}">{$moreValue}</a></li>
+						{/foreach}
+					</ul>
+				</nav>
+				{/foreach}
+				<!-- 功能栏 -->
+			</aside>
+			<!-- 个人中心内容-功能栏 -->
+		</div>
+		<section class="ucenter_goods">
+			<h3>也许你会对下列商品感兴趣</h3>
+			<ul>
+				{foreach:items=Api::run('getGoodsByCommendgoods',8)}
+				<li>
+					<a href="{url:/site/products/id/$item['id']}">
+						<img src="{url:/pic/thumb/img/$item[img]/w/170/h/170}" alt="{$item['name']}">
+						<p class="pro_title">{$item['name']}</p>
+						<p class="pro_price">￥{$item['sell_price']}</p>
+					</a>
+				</li>
+				{/foreach}
+			</ul>
+		</section>
+	</section>
+</div>
+<!-- 个人中心内容 -->
+
+<footer class="foot">
+	<section class="service">
+		<ul>
+			<li class="item1">
+				<i class="fa fa-star"></i>
+				<strong>正品优选</strong>
+			</li>
+			<li class="item2">
+				<i class="fa fa-globe"></i>
+				<strong>上市公司</strong>
+			</li>
+			<li class="item3">
+				<i class="fa fa-inbox"></i>
+				<strong>300家连锁门店</strong>
+			</li>
+			<li class="item4">
+				<i class="fa fa-map-marker"></i>
+				<strong>上百家维修网点 全国联保</strong>
+			</li>
+		</ul>
+	</section>
+	<section class="help">
+		<div class="prompt_link">
+			{set:$catIco = array('help-new','help-delivery','help-pay','help-user','help-service')}
+			{foreach:items=Api::run('getHelpCategoryFoot') item=$helpCat}
+			<dl class="help_{echo:$key+1}">
+				<dt>
+					<p class="line"></p>
+					<p class="title"><a href="{url:/site/help_list/id/$helpCat['id']}">{$helpCat['name']}</a></p>
+				</dt>
+				{foreach:items=Api::run('getHelpListByCatidAll',array('#cat_id#',$helpCat['id']))}
+				<dd><a href="{url:/site/help/id/$item['id']}">{$item['name']}</a></dd>
+				{/foreach}
+			</dl>
+			{/foreach}
+		</div>
+		<div class="contact">
+			<p class="line"></p>
+			<em>{$this->_siteConfig->phone}</em>
+			<span>24小时在线客服(仅收市话费)</span>
+			<a href="#"><i class="fa fa-comments"></i> 在线客服</a>
+		</div>
+	</section>
+	<section class="copy">
+		{echo:IFilter::stripSlash($this->_siteConfig->site_footer_code)}
+	</section>
+</footer>
+
+
+
+<script>
+//DOM加载完毕后运行
+$(function(){
+	//隔行换色
+	$(".list_table tr:nth-child(even)").addClass('even');
+	$(".list_table tr").hover(
+		function () {
+			$(this).addClass("sel");
+		},
+		function () {
+			$(this).removeClass("sel");
+		}
+	);
+
+	//按钮高亮
+	var localUrl = "{echo:IUrl::getUri()}";
+	$('a[href^="'+localUrl+'"]').parent().addClass('current');
+});
+
+</script>
+</body>
+</html>

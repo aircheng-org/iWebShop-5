@@ -1,0 +1,53 @@
+<header class="uc_head">
+	<h3>商品咨询</h3>
+</header>
+
+<section class="uc_table">
+	<table>
+	    <colgroup>
+    		<col width="250px">
+    		<col>
+    		<col width="110px">
+    		<col width="90px">
+	    </colgroup>
+
+		<thead>
+			<tr>
+				<th>商品名称</th><th>内容</th><th>咨询时间</th><th>回复</th>
+			</tr>
+		</thead>
+		<tbody>
+		    {set:$queryConsultList = Api::run('getUcenterConsult')}
+			{foreach:items = $queryConsultList->find()}
+			<script>var item{$key} = {echo:JSON::encode($item)};</script>
+			<tr>
+				<td><a href="{url:/site/products/id/$item[gid]}" target="_black">{$item['name']}</a></td>
+				<td>{$item['question']}</td>
+				<td>{echo:substr($item['time'],0,10)}</td>
+				<td>{if:$item['status']==1}<span class="blue" onclick='show_msg(item{$key})'>查看</span>{else:}未回复{/if}</td>
+			</tr>
+			{/foreach}
+		</tbody>
+	</table>
+</section>
+{$queryConsultList->getPageBar()}
+
+{if:!$items}
+<section class="no_tip">暂无数据</section>
+{/if}
+
+<script>
+function show_msg(obj)
+{
+    var content = "<strong>咨询内容：</strong><p>"+obj.question+"</p><p>"+obj.time+"</p><hr/>";
+    if(obj.answer)
+    {
+        content+= "<strong>商家回复：</strong><p>"+obj.answer+"</p><p>"+obj.reply_time+"</p>";
+    }
+    else
+    {
+        content+= "<strong>商家回复：</strong><p>请耐心等待...</p>";
+    }
+    art.dialog({"title":"商品咨询","content":content,"ok":function(){return true;}});
+}
+</script>

@@ -1,0 +1,77 @@
+<header class="uc_head">
+	<span class="money">账户预付款：<em>￥{$this->memberRow['balance']}</em></span>
+	<h3><a href="{url:/ucenter/account_log}">交易记录</a></h3>
+	<h3 class="current"><a href='{url:/ucenter/withdraw}'>提现申请</a></h3>
+</header>
+
+<section class="uc_table">
+	<table>
+		<col />
+		<col />
+		<col width="100px" />
+		<col width="140px" />
+		<col width="80px" />
+		<col width="80px" />
+		<thead>
+			<tr>
+				<th>会员备注</th><th>管理员备注</th><th>金额</th><th>申请时间</th><th>状态</th><th>操作</th>
+			</tr>
+		</thead>
+		<tbody>
+			{set:$queryWithdrawList = Api::run('getWithdrawList')}
+			{foreach:items = $queryWithdrawList->find()}
+			<tr>
+				<td>{$item['note']}</td>
+				<td>{$item['re_note']}</td>
+				<td>{$item['amount']} 元</td>
+				<td>{$item['time']}</td>
+				<td>{echo:AccountLog::getWithdrawStatus($item['status'])}</td>
+				<td>
+					{if:$item['status']==0}
+					<a href="javascript:delModel({link:'{url:/ucenter/withdraw_del/id/$item['id']}'});">取消</a>
+					{/if}
+				</td>
+			</tr>
+			{/foreach}
+		</tbody>
+	</table>
+</section>
+
+{$queryWithdrawList->getPageBar()}
+
+{if:!$items}
+<section class="no_tip">暂无数据</section>
+{/if}
+
+<header class="uc_head">
+	<h3>申请提现</h3>
+</header>
+<section class="user_form">
+	<form action='{url:/ucenter/withdraw_act}' method='post' name='withdraw'>
+		<dl>
+			<dt>收款人姓名：</dt>
+			<dd>
+				<input type="text" class="input_text" name='name' pattern='required' alt='请填写真实的收款人姓名' />
+				<span><i class='red'>*</i> 填写收款人真实的姓名</span>
+			</dd>
+		</dl>
+		<dl>
+			<dt>提现金额：</dt>
+			<dd>
+				<input type="text" class="input_text" name='amount' pattern='float' alt='填写体现金额' />
+				<span><i class='red'>*</i> 最低提现额度： ￥{echo:$this->_siteConfig->low_withdraw}</span>
+			</dd>
+		</dl>
+		<dl>
+			<dt>备注：</dt>
+			<dd>
+				<textarea name='note' class="input_textarea" pattern='required' alt='填写一些必要的提现信息'></textarea><br />
+				<span><i class='red'>*</i> 填写必要的提现信息，如开户银行，帐号等</span>
+			</dd>
+		</dl>
+		<dl>
+			<dt></dt>
+			<dd><input class="input_submit" type="submit" value="确定提交" /></dd>
+		</dl>
+	</form>
+</section>

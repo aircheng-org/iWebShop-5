@@ -1,0 +1,174 @@
+{js:artTemplate}
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">系统</a>
+		</li>
+		<li>
+			<a href="#">地域管理</a>
+		</li>
+		<li class="active">地区列表</li>
+	</ul>
+</div>
+
+<div class="content">
+	<table class="table list-table">
+		<colgroup>
+			<col />
+			<col width="160px" />
+			<col width="120px" />
+		</colgroup>
+		<caption>
+            <a class="btn btn-default" onclick="addArea(0,0);">
+                <i class="fa fa-plus"></i>添加地区
+            </a>
+		</caption>
+		<thead>
+			<tr>
+				<th>名称</th>
+				<th>排序</th>
+				<th>操作</th>
+			</tr>
+		</thead>
+		<tbody id="area_box"></tbody>
+	</table>
+</div>
+
+<!--地域模板 开始-->
+<script type='text/html' id='areaRowTemplate'>
+<tr id="area_<%=item['area_id']%>" name="parent_<%=item['parent_id']%>">
+	<td <%if(level > 0){%>style="padding-left:<%=level*30%>px"<%}%>>
+		<a href="javascript:toggleArea(<%=item['area_id']%>,<%=level+1%>);"><i id="ctrl_<%=item['area_id']%>" name="box_<%=item['parent_id']%>" class="operator fa fa-plus-square-o" is_open="no" is_cache="no"></i></a>
+		<input type="text" value="<%=item['area_name']%>" name="area_name" class="form-control w-auto" style="width:150px" onblur="updateArea(<%=item['area_id']%>,this);" />
+	</td>
+	<td><input type="text" value="<%=item['sort']%>" name="area_sort" class="form-control w-auto" style="width:80px" onblur="updateArea(<%=item['area_id']%>,this);" /></td>
+	<td>
+		<a href="javascript:addArea(<%=item['area_id']%>,<%=level+1%>);"><i class='operator fa fa-plus'></i></a>
+		<a href="javascript:delArea(<%=item['area_id']%>);"><i class='operator fa fa-close'></i></a>
+	</td>
+</tr>
+</script>
+<!--地域模板 结束-->
+
+<script type='text/javascript'>
+//DOM加载完毕后
+$(function()
+{
+	{set:$items = Api::run('getAreaAll',array('parent_id'=>0))}
+	var firstData = {echo:JSON::encode($items)};
+	for(var item in firstData)
+	{
+		$('#area_box').append(template.render('areaRowTemplate',{'item':firstData[item],'level':0}));
+	}
+});
+
+//切换地区
+function toggleArea(area_id,level)
+{
+	var is_cache = $('#ctrl_'+area_id).attr('is_cache');
+	var is_open  = $('#ctrl_'+area_id).attr('is_open');
+
+	//缓存存在
+	if(is_cache == 'yes')
+	{
+		$('[name="parent_'+area_id+'"]').toggle();
+	}
+	else
+	{
+		$.getJSON('{url:/block/area_child}',{"aid":area_id},function(jsonData){
+			for(var item in jsonData)
+			{
+				$('#area_'+area_id).after(template.render('areaRowTemplate',{'item':jsonData[item],'level':level}));
+			}
+		});
+		$('#ctrl_'+area_id).attr('is_cache','yes');
+	}
+
+	//是否已经展开
+	if(is_open == 'yes')
+	{
+		$('#ctrl_'+area_id).removeClass("fa-minus-square-o").addClass("fa-plus-square-o");
+		$('#ctrl_'+area_id).attr('is_open','no');
+
+		//递归子分类
+		$("img[name='box_"+area_id+"'][is_open='yes']").each(function()
+		{
+			var idValue = $(this).attr('id').replace("ctrl_","");
+			toggleArea(idValue);
+		});
+	}
+	else
+	{
+		$('#ctrl_'+area_id).removeClass("fa-plus-square-o").addClass("fa-minus-square-o");
+		$('#ctrl_'+area_id).attr('is_open','yes');
+	}
+}
+
+//添加地区
+function addArea(area_id,level)
+{
+	art.dialog.prompt('添加新地域',function(area_name){
+		if(!area_name)
+		{
+			alert('请填写地域名称');
+			return;
+		}
+		$.getJSON("{url:/system/area_update}",{"parent_id":area_id,"area_name":area_name},function(result){
+			if(result.isSuccess == true)
+			{
+				if(area_id == 0)
+				{
+					window.location.reload();
+					return;
+				}
+
+				var is_open  = $('#ctrl_'+area_id).attr('is_open');
+				if(is_open == 'yes')
+				{
+					$('#area_'+area_id).after(template.render('areaRowTemplate',{'item':result.data,'level':level}));
+				}
+				else
+				{
+					toggleArea(area_id,level);
+				}
+			}
+		});
+	});
+}
+
+//删除地区
+function delArea(area_id)
+{
+	art.dialog.confirm('确定要删除么？',function(){
+		$.get('{url:/system/area_del}',{'id':area_id},function(result){$('#area_'+area_id).remove();})
+	});
+}
+
+//更新地域数据
+function updateArea(area_id,obj)
+{
+	if($.trim(obj.value) == '')
+	{
+		alert('地域信息不能为空');
+		return;
+	}
+
+	var sendData = {"area_id":area_id};
+	switch(obj.name)
+	{
+		case "area_sort":
+		{
+			sendData.area_sort = obj.value;
+		}
+		break;
+
+		default:
+		{
+			sendData.area_name = obj.value;
+		}
+		break;
+	}
+	$.getJSON('{url:/system/area_update}',sendData,function(result){});
+}
+</script>

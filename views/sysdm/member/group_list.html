@@ -1,0 +1,64 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">会员</a>
+		</li>
+		<li>
+			<a href="#">用户组管理</a>
+		</li>
+		<li class="active">会员组列表</li>
+	</ul>
+</div>
+<form action="{url:/member/group_del}" method="post" name="group_list" onsubmit="return checkboxCheck('check[]','尚未选中任何记录！')">
+<div class="content">
+	<table id="list_table" class="table">
+
+		<colgroup>
+			<col width="35px" />
+			<col  />
+			<col width="120px" />
+			<col width="120px" />
+			<col width="120px" />
+			<col width="120px" />
+		</colgroup>
+		<caption>
+            <a class="btn btn-default" href='{url:/member/group_edit}'>
+                <i class="fa fa-plus"></i>添加用户组
+            </a>
+            <a class="btn btn-default" onclick="selectAll('check[]')">
+                <i class="fa fa-check"></i>全选
+            </a>
+            <a class="btn btn-default" onclick="delModel({'form':'group_list',msg:'确定要删除选中的记录吗？'})">
+                <i class="fa fa-close"></i>批量删除
+            </a>
+		</caption>
+		<thead>
+			<tr>
+				<th></th>
+				<th>会员组</th>
+				<th>折扣率</th>
+				<th>最小经验</th>
+				<th>最大经验</th>
+				<th>操作</th>
+			</tr>
+		</thead>
+
+		<tbody>
+            {foreach:items=Api::run('getUserGroupListAll')}
+			<tr>
+				<td><input name="check[]" type="checkbox" value="{$item['id']}" /></td>
+				<td>{$item['group_name']}</td>
+				<td>{$item['discount']}</td>
+				<td>{$item['minexp']}</td>
+				<td>{$item['maxexp']}</td>
+				<td>
+					<a href="{url:/member/group_edit/gid/$item['id']}"><i class='operator fa fa-edit'></i></a>
+					<a onclick="delModel({link:'{url:/member/group_del/check/$item['id']}'})"><i class='operator fa fa-close'></i></a>
+				</td>
+			</tr>
+			{/foreach}
+		</tbody>
+	</table>
+</div>
+</form>

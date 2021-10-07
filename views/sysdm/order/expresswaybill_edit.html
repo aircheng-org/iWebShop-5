@@ -1,0 +1,70 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">订单</a>
+		</li>
+		<li>
+			<a href="#">订单管理</a>
+		</li>
+		<li class="active">快递公司编辑</li>
+	</ul>
+</div>
+
+<div class="content">
+	<form action="{url:/order/expresswaybill_update}" method="post">
+		<input type='hidden' name='id' value='' />
+		<table class="table form-table">
+			<colgroup>
+				<col width="130px" />
+				<col />
+			</colgroup>
+			<tr>
+				<th>物流公司名称：</th>
+				<td>{$this->expressRow['freight_name']}</td>
+			</tr>
+
+			{if:$this->expressRow['config']}
+			{set:$configParam = JSON::decode($this->expressRow['config'])}
+			{foreach:items = $configParam}
+			<tr>
+				<th>{$key}：</th>
+				<td><input class="form-control" name="{$key}" type="text" value="{$item}" pattern="required" /></td>
+			</tr>
+			{/foreach}
+			{/if}
+
+			<tr>
+				<th>打印接口说明：</th>
+				<td>{$this->expressRow['description']}</td>
+			</tr>
+			<tr>
+				<th>开启：</th>
+				<td>
+                    <label class="radio-inline">
+                        <input type="radio" name="is_open" value="1" checked="checked">开启
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="is_open" value="0">关闭
+                    </label>
+                    <p class="help-block">只有开启后，在快递单打印的时候才能选择此物流公司</p>
+				</td>
+			</tr>
+			<tr>
+				<th></th>
+				<td>
+					<button class='btn btn-primary' type='submit'>确 定</button>
+					<a href="{url:/order/print_template}" class="btn btn-default">返 回</a>
+				</td>
+			</tr>
+		</table>
+	</form>
+</div>
+
+<script language="javascript">
+//DOM加载完毕
+$(function(){
+	var formInstance = new Form();
+	formInstance.init({echo:JSON::encode($this->expressRow)});
+});
+</script>

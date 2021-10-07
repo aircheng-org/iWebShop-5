@@ -1,0 +1,108 @@
+{js:artTemplate}
+{js:areaSelect}
+<article class="col-lg-12">
+	<div class="card forms">
+		<div class="card-header">
+			<h3>商家发货信息</h3>
+		</div>
+
+		<div class="card-body">
+			<form name="ModelForm" action="{url:/seller/ship_info_update}" method="post" class="form-horizontal">
+				<input type="hidden" name="id" value="" />
+
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label">发货点名称</label>
+					<div class="col-sm-10">
+						<input class="form-control" name="ship_name" type="text" pattern="required" value="" alt="发货点名称" />
+					</div>
+				</div>
+
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label">发货人姓名</label>
+					<div class="col-sm-10">
+						<input class="form-control" name="ship_user_name" type="text" pattern="required" value="" alt="发货人姓名" />
+					</div>
+				</div>
+
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label">性别</label>
+					<div class="col-sm-10">
+					    <div class="form-check form-check-inline">
+							<label class="form-check-label"><input type='radio' name="sex" value="1" checked="checked" class="radio-template form-check-input" />先生</label>
+					    </div>
+
+					    <div class="form-check form-check-inline">
+							<label class="form-check-label"><input type='radio' name="sex" value="0" checked="checked" class="radio-template form-check-input" />女士</label>
+					    </div>
+					</div>
+				</div>
+
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label">地区</label>
+					<div class="col-sm-10">
+						<select name="province" child="city,area" class="form-control mr-2 d-inline w-25"></select>
+						<select name="city" child="area" class="form-control mr-2 d-inline w-25"></select>
+						<select name="area" parent="city" class="form-control d-inline  w-25"></select>
+					</div>
+				</div>
+
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label">地址</label>
+					<div class="col-sm-10">
+						<input class="form-control" name="address" type="text" pattern="required" value="" alt="具体地址错误" />
+					</div>
+				</div>
+
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label">邮编</label>
+					<div class="col-sm-10">
+						<input class="form-control" name="postcode" type="text" pattern="zip" value="" empty alt="邮编错误" />
+					</div>
+				</div>
+
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label">手机</label>
+					<div class="col-sm-10">
+						<input class="form-control" name="mobile" type="text" pattern='mobi' value="" />
+					</div>
+				</div>
+
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label">固定电话</label>
+					<div class="col-sm-10">
+						<input class="form-control" name="telphone" type="text" pattern="phone" empty alt="电话号码错误" value="" />
+					</div>
+				</div>
+
+				<div class="form-group row">
+					<label class="col-sm-2">默认地址</label>
+					<div class="col-sm-10">
+					    <div class="form-check form-check-inline">
+							<label class="form-check-label"><input type='checkbox' name="is_default" value="1" checked="checked" class="checkbox-template form-check-input" />设置为默认地址</label>
+					    </div>
+					</div>
+				</div>
+
+				<div class="form-group row">
+					<div class="col-sm-4 offset-sm-2">
+						<input type="submit" class="btn btn-primary" value="确 定" />
+						<input type="reset" class="btn btn-secondary" value="重 置" />
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</article>
+
+<script type='text/javascript'>
+//DOM加载完毕
+var formObj = new Form();
+formObj.init({echo:JSON::encode($this->data)});
+
+var selectInstance = new areaSelect('province');
+{if:isset($this->data) && $this->data}
+selectInstance.init({echo:JSON::encode($this->data)});
+{else:}
+selectInstance.init();
+{/if}
+</script>

@@ -1,0 +1,41 @@
+<section class="breadcrumb">
+	<span>您当前的位置：</span> <a href="{url:}">首页</a> » 拼团
+</section>
+
+<div class="pingou">
+    <div>
+        <div class="pt-title">
+            <p class="bk-title">拼<span>|</span>团<span>|</span>推<span>|</span>荐</p>
+        </div>
+        <ul>
+            {foreach:items=$this->assemble_list}
+            <li>
+            <a href="{url:/site/products/id/$item['goods_id']}">
+                <span class="img-con">
+                    <img src="{url:/pic/thumb/img/$item['img']/w/350/h/350}" />
+                </span>
+                <span class="pro-con">
+                    <span class="pro-title">{$item['title']}</span>
+                    <span class="pro-desc">{$item['intro']}</span>
+                    <dl class="banner">
+                        <dd class="active">
+                            <em>销售数量：</em> {$item['sum_count']}
+                        </dd>
+                        <dd>
+                            <em>成团人数：</em> {$item['limit_nums']}
+                        </dd>
+                    </dl>
+                    <span class="price"><em>拼团价</em>{$item['assemble_price']}元  <del>{$item['sell_price']}元</del></span>
+                </span>
+            </a>
+            </li>
+            {/foreach}
+        </ul>
+        <div class="container notic">
+            <h3>拼购须知：</h3>
+    		<p>1、因机会有限下单成功后必须立即支付。</p>
+    		<p>2、每个拼购活动必须满足成团的人数才能成功。</p>
+    		<p>3、拼团活动自己开团也可以加入其他人的团。</p>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,94 @@
+<div class="main f_r">
+    {if:$msgNum>0}
+    <div class="prompt m_10">
+        <b>温馨提示：</b>您有<span class="red">{$msgNum}</span> 条站内未读短信息，<a class="blue" href="{url:/ucenter/message}">现在去看看</a>
+    </div>
+    {/if}
+
+	<div class="userinfo_bar"><span class="f_r">上一次登录时间：{echo:ISafe::get('last_login')}</span><b class="f14">您好，{$this->user['username']} 欢迎回来!</b></div>
+	<div class="box clearfix">
+		<h3>用户信息</h3>
+		<dl class="userinfo_box">
+			<dt>
+    			{set:$user_ico = $this->user['head_ico']}
+    			<a class="ico"><img id="user_ico_img" src="{url:/pic/thumb/img/$user_ico/w/100/h/100}" width="100" height="100" alt="" onerror="this.src='{skin:images/front/user_ico.gif}'" /></a>
+    			<a class="blue" href="javascript:$('#userIcoFile').trigger('click');">修改头像</a>
+			</dt>
+			<dd>
+			<table width="100%" cellpadding="0" cellspacing="0">
+				<col width="350px" />
+				<col />
+				<tr>
+					<td>你的账户目前总积分：<b class="red2">{$user['point']} 分</b>&nbsp;&nbsp;&nbsp;<a class="blue" href="{url:/ucenter/integral}">查看积分历史</a></td>
+					<td>你的订单交易总数量：<b class="red2">{$statistics['num']} 笔</b>&nbsp;&nbsp;&nbsp;<a class="blue" href="{url:/ucenter/order}">进入订单列表</a></td>
+				</tr>
+				<tr>
+					<td>总消费额：<b class="red2">￥{$statistics['amount']}</b></td>
+					<td>预存款：<b class="red2">￥{$user['balance']}</b></td>
+				</tr>
+				<tr>
+					<td>优惠券：<b class="red2">{$propData['prop_num']} 张</b></td>
+					<td>经验值：<b class="red2">{$user['exp']}</b></td>
+				</tr>
+			</table>
+
+			<div class="stat">
+				<span>待评价商品：<label>(<b><a class="red2" href="{url:/ucenter/evaluation}">{echo:statistics::countUserWaitComment()}</b>)</a></label></span>
+				<span>待付款订单：<label>(<b><a class="red2" href="{url:/ucenter/order}">{echo:statistics::countUserWaitPay()}</b>)</a></label></span>
+				<span>待确认收货：<label>(<b><a class="red2" href="{url:/ucenter/order}">{echo:statistics::countUserWaitCommit()}</b>)</a></label></span>
+				<span>待退款申请：<label>(<b><a class="red2" href="{url:/ucenter/refunds}">{echo:statistics::countUserWaitRefund()}</b>)</a></label></span>
+			</div>
+			</dd>
+		</dl>
+	</div>
+	<h3 class="bg">我的订单</h3>
+	<div class="box m_10">
+		<table class="list_table" width="100%" cellpadding="0" cellspacing="0">
+			<col width="140px" />
+			<tr>
+				<th>订单编号</th><th>下单日期</th><th>收货人</th><th>支付方式</th><th>总金额</th><th>订单状态</th>
+			</tr>
+			{foreach:items=Api::run('getOrderListByUserid')}
+			<tr>
+				<td><a href="{url:/ucenter/order_detail/id/$item[id]}">{$item['order_no']}</a></td>
+				<td>{$item['create_time']}</td>
+				<td>{$item['accept_name']}</td>
+				<td>{$this->payments[$item['pay_type']]['name']}</td>
+				<td>￥{echo:($item['order_amount'])}</td>
+				<td>
+					{set:$orderStatus = Order_Class::getOrderStatus($item)}
+					<b class="{if:$orderStatus >= 6}green{else:}orange{/if}">{echo:Order_Class::orderStatusText($orderStatus)}</b>
+				</td>
+			</tr>
+			{/foreach}
+
+			<tfoot><tr><td colspan="6" class="t_r"><a class="blue" href="{url:/ucenter/order}">更多订单&gt;&gt;</a></td></tr></tfoot>
+		</table>
+	</div>
+	<div class="box">
+		<div class="title"><h2>也许你会对下列商品感兴趣</h2></div>
+		<div class="cont clearfix">
+			<ul class="prolist f_l">
+				{foreach:items=Api::run('getGoodsByCommendgoods')}
+				<li>
+				<a href="{url:/site/products/id/$item[id]}" target="_black"><img src="{url:/pic/thumb/img/$item[img]/w/100/h/100}" alt="{$item['name']}" height="100" width="100"></a>
+				<p class="pro_title"><a href="{url:/site/products/id/$item[id]}" target='_black'>{$item['name']}</a></p>
+				<p class="price_new"><b>￥{$item['sell_price']}</b></p>
+				</li>
+				{/foreach}
+			</ul>
+		</div>
+	</div>
+</div>
+{js:fileUpload}
+<input style="display:none;" type="file" accept="image/*" id="userIcoFile" name="userIcoFile" data-url="{url:/ucenter/user_ico_upload}" />
+<script type='text/javascript'>
+//jquery图片上传
+$('#userIcoFile').fileupload({
+    dataType: 'json',
+    done: function (e, data)
+    {
+        data.result && data.result.flag == 1 ? $('#user_ico_img').attr('src',data.result.img) : alert(data.result.error);
+    }
+});
+</script>

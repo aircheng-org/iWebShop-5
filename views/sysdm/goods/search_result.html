@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>商品检索列表</title>
+{js:jquery}
+{js:dialog}
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="{webroot:public/css/twitter-bootstrap/3.3.7/css/bootstrap.min.css}">
+</head>
+<body>
+<div class="container" style="min-width:620px;margin-top:10px;height:550px;overflow-y:scroll">
+	<table class="table table-bordered">
+		<colgroup>
+			<col width="150px" />
+			<col />
+			<col width="90px" />
+			<col width="70px" />
+		</colgroup>
+
+		<tbody>
+			{if:$this->goodsData}
+			{foreach:items = $this->goodsData}
+			<tr>
+				<td>
+					<div class="{$this->type}">
+						<label>
+							<input type='{$this->type}' name='id[]' value="{$item['goods_id']}" id="goods{$key}" />
+							{$item['goods_no']}
+						</label>
+						<script>$("#goods{$key}").attr('data',JSON.stringify({echo:JSON::encode($item)}));</script>
+					</div>
+				</td>
+				<td>
+					{$item['name']}
+
+					{set:$spec_array=goods_class::show_spec($item['spec_array']);}
+					<p>{foreach:items=$spec_array item=$specValue key=$specName}{$specName}：{$specValue} &nbsp;&nbsp;{/foreach}</p>
+				</td>
+				<td>￥{$item['sell_price']}</td>
+				<td><img src="{url:$item['img']}" width="45px" /></td>
+			</tr>
+			{/foreach}
+			{else:}
+			<tr>
+				<td colspan="4">对不起，没有找到相关商品</td>
+			</tr>
+			{/if}
+		</tbody>
+	</table>
+</div>
+</body>
+</html>

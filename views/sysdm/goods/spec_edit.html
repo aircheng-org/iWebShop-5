@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>规格编辑</title>
+{js:jquery}
+{js:dialog}
+{js:form}
+{js:validate}
+{js:artTemplate}
+<script type='text/javascript' src='{webroot:public/javascript/public.js}'></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="{webroot:public/css/twitter-bootstrap/3.3.7/css/bootstrap.min.css}">
+</head>
+
+<body style="min-height: 460px;">
+<div class="container">
+	<form action='{url:/goods/spec_update}' method='post' id='specForm' name='specForm'>
+		<input type="hidden" name="seller_id" value="{$seller_id}" />
+		<input type="hidden" name="id" value="{$id}" />
+
+		<div class="form-group">
+			<label class="control-label">规格名称：</label>
+			<input class="form-control" name="name" value="{$name}" type="text" pattern="required" alt="名字不能为空" />
+		</div>
+
+		<div class="form-group">
+			<label class="control-label">排序：</label>
+			<input class="form-control" name="sort" value="{echo:isset($sort)?$sort:99}" type="text" pattern="int" />
+			<p class="help-block">填写数字，越小排名越靠前</p>
+		</div>
+
+		<div class="form-group">
+			<label class="control-label">说明：</label>
+			<input class="form-control" type="text" name="note" value="{$note}" />
+		</div>
+
+		<div class="form-group">
+			<button type="button" class="btn btn-default" onclick="addSpec();"><span class="glyphicon glyphicon-plus"></span> 添加规格</button>
+		</div>
+
+		<div class="table-responsive">
+			<table class="table table-condensed">
+				<thead>
+					<tr>
+						<th>规格值</th>
+						<th>绑定图片</th>
+						<th>操作</th>
+					</tr>
+				</thead>
+				<tbody id='spec_box'></tbody>
+			</table>
+		</div>
+	</form>
+</div>
+
+<!--规格模板-->
+<script id="specTemplate" type='text/html'>
+<tr>
+	<td style="vertical-align:middle">
+	    <input type="text" class="form-control" name="value[]" value="<%=value%>" pattern="required" />
+	</td>
+	<td>
+		<img class="img-thumbnail <%if(!image){%>hidden<%}%>" src='<%=webroot(image)%>' width='55px' height='55px' />
+		<input type="hidden" name="image[]" value="<%=image%>" />
+		<button type="button" class="btn btn-default" onclick="photoUpload(this);">选择图片</button>
+	</td>
+	<td style="vertical-align:middle">
+		<button alt="向上" onclick="upChange(this);" type="button"><span class="glyphicon glyphicon-arrow-up"></span></button>
+		<button alt="向下" onclick="downChange(this);" type="button"><span class="glyphicon glyphicon-arrow-down"></span></button>
+		<button alt="删除" onclick="delItem(this);" type="button"><span class="glyphicon glyphicon-remove"></span></button>
+	</td>
+</tr>
+</script>
+
+<script type='text/javascript'>
+//页面加载
+jQuery(function()
+{
+	var specValue = {echo:$value ? $value : "[]"};
+	for(var value in specValue)
+	{
+		$('#spec_box').append(template('specTemplate', {"value":value,"image":specValue[value]}));
+	}
+});
+
+//向上移动
+function upChange(_self)
+{
+	var toIndex = $(_self).closest("tr").prev().index();
+	$('#spec_box tr:eq('+toIndex+')').before($(_self).closest("tr"));
+}
+
+//向下移动
+function downChange(_self)
+{
+	var toIndex = $(_self).closest("tr").next().index();
+	$('#spec_box tr:eq('+toIndex+')').after($(_self).closest("tr"));
+}
+
+//删除自身
+function delItem(_self)
+{
+	art.dialog.confirm('确定要删除么？',function(){$(_self).closest('tr').remove();});
+}
+
+//添加规格数据
+function addSpec()
+{
+    $('#spec_box').append(template('specTemplate'));
+}
+
+//规格图片上传回调函数
+function updatePic(indexValue,srcValue)
+{
+	var imageUrl = webroot(srcValue);
+	$('#spec_box tr:eq('+indexValue+')').find(".img-thumbnail").attr("src",imageUrl);
+	$('#spec_box tr:eq('+indexValue+')').find(".img-thumbnail").removeClass('hidden');
+	$('#spec_box tr:eq('+indexValue+')').find("[name='image[]']").val(srcValue);
+	art.dialog({id:'uploadIframe'}).close();
+}
+
+//上传按钮html
+function photoUpload(_self)
+{
+	var specIndex = $(_self).closest("tr").index();
+	var tempUrl = '{url:/block/pic/specIndex/@specIndex@}';
+	tempUrl     = tempUrl.replace('@specIndex@',specIndex);
+	art.dialog.open(tempUrl,
+	{
+		'id':"uploadIframe",
+		'title':'选择图片上传的方式',
+		'ok':function(iframeWin, topWin)
+		{
+	    	iframeWin.document.forms[0].submit();
+	    	return false;
+		}
+	});
+}
+</script>
+</body>
+</html>

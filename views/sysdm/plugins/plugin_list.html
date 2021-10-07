@@ -1,0 +1,71 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">插件</a>
+		</li>
+		<li>
+			<a href="#">插件管理</a>
+		</li>
+		<li class="active">插件列表</li>
+	</ul>
+</div>
+<div class="content">
+	<table class="table table-hover list-table">
+		<colgroup>
+			<col width="180px">
+			<col />
+			<col width="150px">
+			<col width="90px">
+		</colgroup>
+
+		<thead>
+			<tr>
+				<th>名称</th>
+				<th>描述</th>
+				<th>状态</th>
+				<th>操作</th>
+			</tr>
+		</thead>
+
+		<tbody>
+			{foreach:items=plugin::getItems()}
+			<tr>
+				<td>{$item['name']}</td>
+				<td>{$item['description']}</td>
+				<td>
+                	{if:$item['is_open'] == 1}
+                	<span class="bg-green badge">使用中</span>
+                	{else:}
+                	<span class="bg-red badge">已关闭</span>
+                	{/if}
+
+                	{if:$item['is_install'] == 1}
+                	<span class="bg-green badge">已安装</span>
+                	{else:}
+                	<span class="bg-red badge">未安装</span>
+                	{/if}
+				</td>
+				<td>
+					{if:$item['is_install'] == 1}
+					<a href="{url:/plugins/plugin_edit/class_name/$item['class_name']}"><i class='operator fa fa-edit' title='修改插件'></i></a>
+					<a href="javascript:delModel({link:'{url:/plugins/plugin_del/class_name/$item['class_name']}'});"><i class='operator fa fa-close' title='删除插件'></i></a>
+					{else:}
+					<a href="javascript:install('{$item['class_name']}');"><i class='operator fa fa-plus' title='添加插件'></i></a>
+					{/if}
+				</td>
+			</tr>
+			{/foreach}
+		</tbody>
+	</table>
+</div>
+
+<script type="text/javascript">
+//安装插件提示
+function install(class_name)
+{
+	var url = "{url:/plugins/plugin_add/class_name/@class_name@}";
+	url     = url.replace("@class_name@",class_name);
+	window.confirm("确定要安装此插件到系统么？","window.location.href='"+url+"'");
+}
+</script>

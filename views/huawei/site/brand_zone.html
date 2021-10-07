@@ -1,0 +1,89 @@
+{set:$goodsObj = search_goods::find(' go.brand_id = '.$brandId,20);$resultData = $goodsObj->find();}
+<div class="bigweb">
+	<section class="breadcrumb">
+		<span>您当前的位置：</span> <a href="{url:}">首页</a> » <a href="{url:/site/brand}">商品品牌</a>
+	</section>
+	<section class="web">
+		<section class="main">
+			<section class="about_brand">
+				<h2 class="main_head">
+					关于<mark>{$brandRow['name']}</mark>品牌
+					{if:$brandRow['url']}<a class="barnd_web" href="{$brandRow['url']}"><i class="fa fa-home"></i></a>{/if}
+				</h2>
+				<div class="barnd_info">
+					<img class="brand_logo" src="{url:/pic/thumb/img/$brandRow[logo]/w/215/h/120}">
+					{$brandRow['description']}
+				</div>
+			</section>
+			<div class="gehang"></div>
+			<aside class="condition_filter">
+				<!-- 调用筛选 -->
+				{include:_goods_list_filter}
+				<!-- 调用筛选 -->
+			</aside>
+			<section class="goods_list">
+				{if:$resultData}
+				<ul>
+				{foreach:items=$resultData}
+				<li>
+					<a target="_blank" href="{url:/site/products/id/$item['id']}">
+						<img alt="{$item['name']}" src="{url:/pic/thumb/img/$item[img]/w/205/h/205}">
+						<p class="goods_title"><span>{$item['name']}</span></p>
+						<p class="goods_sell_price">￥{$item['sell_price']}</p>
+						<p class="goods_market_price">￥{$item['market_price']}</p>
+					</a>
+				</li>
+				{/foreach}
+			</ul>
+				{$goodsObj->getPageBar()}
+
+				{else:}
+				<p class="no_tip">
+					对不起，没有找到相关商品
+				</p>
+				{/if}
+			</section>
+		</section>
+		<aside class="bar">
+
+			<div class="bar_box">
+				<h3 class="bar_box_head">销售排行榜</h3>
+				<ul class="bar_goods ranking">
+					{foreach:items=Api::run('getGoodsListBrandSum',array('#brandid#',$brandId),10)}
+					<li>
+						<a href="{url:/site/products/id/$item['id']}">
+							<img src="{url:/pic/thumb/img/$item[img]/w/60/h/60}" alt="{$item['name']}">
+							<strong>{$item['name']}</strong>
+							<em>￥{$item['sell_price']}</em>
+						</a>
+					</li>
+					{/foreach}
+				</ul>
+			</div>
+
+			<div class="bar_box">
+				<h3 class="bar_box_head">热卖商品</h3>
+				<ul class="bar_goods">
+					{foreach:items=Api::run('getCommendHotBrand',array('#brandid#',$brandId),10)}
+					<li>
+						<a href="{url:/site/products/id/$item['id']}">
+							<img src="{url:/pic/thumb/img/$item[img]/w/60/h/60}" alt="{$item['name']}">
+							<strong>{$item['name']}</strong>
+							<em>￥{$item['sell_price']}</em>
+						</a>
+					</li>
+					{/foreach}
+				</ul>
+			</div>
+
+			<nav class="bar_box">
+				<h3 class="bar_box_head">更多品牌</h3>
+				<ul class="bar_nav">
+					{foreach:items=Api::run('getBrandList',10)}
+					<li><a href="{url:/site/brand_zone/id/$item['id']}">{$item['name']}</a></li>
+					{/foreach}
+				</ul>
+			</nav>
+		</aside>
+	</section>
+</div>

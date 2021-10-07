@@ -1,0 +1,92 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">系统</a>
+		</li>
+		<li>
+			<a href="#">权限管理</a>
+		</li>
+		<li class="active">编辑角色</li>
+	</ul>
+</div>
+
+<div class="content">
+	<form action="{url:/system/role_edit_act}" method="post" name="role_edit">
+		<input type='hidden' name='id' />
+		<table class="table form-table">
+			<colgroup>
+				<col width="80px" />
+				<col />
+			</colgroup>
+
+			<tr>
+				<th>名称：</th>
+				<td><input type='text' class='form-control' name='name' pattern='required' placeholder='请填写角色名称' /></td>
+			</tr>
+			{if:$this->rightArray}
+			{foreach:items=$this->rightArray item=$groupRight key=$rightKey}
+			<tr>
+				<th>
+					<label class="checkbox-inline">
+						<strong><input type='checkbox' id='checkbox_{$rightKey}' onclick='checkGroupAll(this,"{$rightKey}");' /> {$rightKey}</strong>
+					</label>
+				</th>
+				<td id='ul_{$rightKey}' alt="{$rightKey}">
+					{foreach:items=$groupRight}
+					<div style="width:220px;float:left;">
+						<label class="checkbox-inline">
+							<input type='checkbox' value='{$item['id']}' name='right[]' {if:stripos($this->roleRow['rights'],",".$item['right'].",") !== false}checked="checked"{/if} onclick='checkItem("{$rightKey}");' /> {$item['name']}
+						</label>
+					</div>
+					{/foreach}
+				</td>
+			</tr>
+			{/foreach}
+			{/if}
+			<tr><td></td><td><button class='btn btn-primary' type='submit'>保 存</button></td></tr>
+		</table>
+	</form>
+</div>
+
+<script type='text/javascript'>
+var formObj = new Form('role_edit');
+formObj.init({echo:JSON::encode($this->roleRow)});
+
+//分组权限全选
+function checkGroupAll(obj,nameVal)
+{
+	if(obj.checked == true)
+	{
+		$('#ul_'+nameVal+' [name="right[]"]').prop('checked',true);
+	}
+	else
+	{
+		$('#ul_'+nameVal+' [name="right[]"]').prop('checked',false);
+	}
+}
+
+//选择权限
+function checkItem(nameVal)
+{
+	var unCheckedNum = $('#ul_'+nameVal+' [name="right[]"]:not(:checked)').length;
+	if(unCheckedNum == 0)
+	{
+		$('#checkbox_'+nameVal).prop('checked',true);
+	}
+	else
+	{
+		$('#checkbox_'+nameVal).prop('checked',false);
+	}
+}
+
+//预选择复选框
+jQuery(function(){
+	$('td[alt]').each(
+		function(i)
+		{
+			checkItem($(this).attr('alt'));
+		}
+	);
+});
+</script>

@@ -1,0 +1,109 @@
+<div class="position"> <span>您当前的位置：</span> <a href="{url:}"> 首页</a> » <a href="{url:/site/home/id/$sellerRow['id']}">商户主页</a> </div>
+<div class="wrapper clearfix container_2">
+
+	<div class="sidebar f_l">
+		<div class="box m_10">
+			<div class="title">商户信息</div>
+			<div class="content">
+				<div class="c_box">
+					<dl class="clearfix">
+						<dt><strong><a href="{url:/site/home/id/$sellerRow['id']}">{$sellerRow['true_name']}</a></strong></dt>
+					</dl>
+					<p><img src="{url:$sellerRow['logo']}" style="width:100%" onerror="this.src='http://www.aircheng.com/images/public/default_logo.png'" /></p>
+					<p> 评分：<span class="grade-star g-star{echo:statistics::gradeSeller($sellerRow['id'])}"></span></p>
+					<p> 销量：{echo:statistics::sellCountSeller($sellerRow['id'])} 件</p>
+					<p> 官网：<a href="{$sellerRow['home_url']}" target="_blank" class="orange">点击进入</a></p>
+					<p> 联系电话：{$sellerRow['phone']}</p>
+					<p> 所在地：{echo:join(' ',area::name($sellerRow['province'],$sellerRow['city'],$sellerRow['area']))} {$sellerRow['address']}</p>
+					<p> {set:plugin::trigger("onServiceButton",$sellerRow['id'])}</p>
+				</div>
+			</div>
+		</div>
+
+		<!--侧边栏分类-->
+		{set:$catSide = Api::run('catTreeSeller',$sellerRow['id'])}
+		{if:$catSide}
+		<div class="box_2 m_10">
+			<div class="title">店内分类</div>
+			<div class="content">
+				{foreach:items=$catSide item=$first}
+				<dl class="clearfix">
+					<dt><a href="{url:/site/home/id/$sellerRow['id']/cat/$first['id']}">{$first['name']}</a></dt>
+					{foreach:items=Api::run('getSellerCategoryByParentid',array('#parent_id#',$first['id'])) item=$second}
+					<dd><a href="{url:/site/home/id/$sellerRow['id']/cat/$second['id']}">{$second['name']}</a></dd>
+					{/foreach}
+				</dl>
+				{/foreach}
+			</div>
+		</div>
+		{/if}
+		<!--侧边栏分类-->
+
+		<!--促销规则-->
+		<div class="box m_10">
+			<div class="title">促销活动</div>
+			<div class="cont">
+				<ul class="list">
+				{foreach:items=Api::run('getProrule',$seller_id)}
+					<li>{$item['info']}</li>
+				{/foreach}
+				</ul>
+			</div>
+		</div>
+		<!--促销规则-->
+
+		<div class="box m_10">
+			<div class="title">销售排行榜</div>
+			<div class="content">
+				<ul class="ranklist" id="ranklist">
+					{foreach:items=Api::run('getGoodsListBySellerid',array('#seller_id#',$seller_id),10,"sale-")}
+					<li><span>{echo:intval($key+1)}</span><a href="{url:/site/products/id/$item[id]}"><img src="{url:/pic/thumb/img/$item[img]/w/58/h/58}" width="58px" height="58px" /></a><a href="{url:/site/products/id/$item[id]}">{$item['name']}</a><b>￥{$item['sell_price']}</b></li>
+					{/foreach}
+				</ul>
+			</div>
+		</div>
+
+		<div class="box m_10">
+			<div class="title">商家推荐</div>
+			<div class="cont">
+				<ul class="ranklist">
+					{foreach:items=Api::run('getGoodsListBySellerid',array('#seller_id#',$seller_id),10)}
+					<li class='current'><a href="{url:/site/products/id/$item[id]}"><img src="{url:/pic/thumb/img/$item[img]/w/58/h/58}" width="58" height="58" /></a><a href="{url:/site/products/id/$item[id]}">{$item['name']}</a><b>￥{$item['sell_price']}</b></li>
+					{/foreach}
+				</ul>
+			</div>
+		</div>
+
+	</div>
+
+	<div class="main f_r">
+		{set:$goodsObj = search_goods::find(array('go.seller_id' => $seller_id,'category_extend_seller' => $cat_id));$resultData = $goodsObj->find();}
+
+		<!--商品条件筛选-->
+		{include:_goods_list_filter}
+
+		{if:$resultData}
+		<ul class="display_list clearfix m_10">
+			{foreach:items=$resultData}
+			<li name="goodsItems" class="clearfix win">
+				<div class="pic">
+					<a href="{url:/site/products/id/$item[id]}"><img src="{url:/pic/thumb/img/$item[img]/w/200/h/200}" width="200px" height="200px" alt="{$item['name']}" title="{$item['name']}" name="goodsImage" /></a>
+				</div>
+				<h3 class="title"><a title="{$item['name']}" class="p_name" href="{url:/site/products/id/$item[id]}">{$item['name']}</a><span>总销量：{$item['sale']}<a class="blue" href="{url:/site/comments_list/id/$item[id]}">( {$item['comments']}人评论 )</a></span><span class="grade-star g-star{echo:Common::gradeWidth($item['grade'],$item['comments'])}"></span></h3>
+				<div class="handle">
+					<label class="btn_gray_m"><img src="{skin:images/front/ucenter/shopping.gif}" width="15" height="15" /><input type="button" value="加入购物车" onclick="joinCart_list({$item['id']});"></label>
+					<label class="btn_gray_m"><img src="{skin:images/front/ucenter/favorites.gif}" width="15" height="14" /><input type="button" value="收藏" onclick="favorite_add_ajax('{$item['id']}',this);"></label>
+				</div>
+				<div class="price">￥{$item['sell_price']}<s>￥{$item['market_price']}</s></div>
+			</li>
+			{/foreach}
+		</ul>
+		{$goodsObj->getPageBar()}
+
+		{else:}
+		<p class="display_list mt_10" style='margin-top:50px;margin-bottom:50px'>
+			<strong class="gray f14">对不起，没有找到相关商品</strong>
+		</p>
+		{/if}
+	</div>
+</div>

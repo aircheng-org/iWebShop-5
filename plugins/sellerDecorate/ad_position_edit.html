@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="UTF-8">
+	{js:jquery}
+	{js:validate}
+	{js:dialog}
+	{js:artTemplate}
+	{js:form}
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<link href="{webroot:public/css/twitter-bootstrap/3.3.7/css/bootstrap.min.css}" rel="stylesheet">
+</head>
+
+<body>
+<div class="container">
+	<form action='{url:/seller/ad_position_edit_act}' method='post' name='ad_position'>
+		<table class="table form-table">
+			<input type='hidden' name='id' />
+			<colgroup>
+				<col width="130px" />
+				<col />
+			</colgroup>
+
+			<tr>
+				<td>(1)先添加 <广告位> 数据；(2)再添加 <广告> 并且绑定之前添加的 <广告位>，广告数据才可以正常显示 </td>
+			</tr>
+			<tr>
+				<td>
+					<input type='text' class='form-control' pattern='required' placeholder="请填写名称" name='name' />
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label class='radio-inline'><input type='radio' name='fashion' value='1' checked=checked />轮回显示</label>
+					<label class='radio-inline'><input type='radio' name='fashion' value='2' />随机显示</label>
+					<p class="help-block">*如果此广告位有多条有效时， 广告位中的广告的播放顺序（必填）</p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label class='radio-inline'><input type='radio' name='status' value='1' checked=checked />开启 </label>
+					<label class='radio-inline'><input type='radio' name='status' value='0' />关闭 </label>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<input type="submit" class="btn btn-success" value="保 存" />
+					<input type="button" class="btn btn-danger" value="返 回" onclick="window.location.href='{url:/seller/ad_position_list}';" />
+				</td>
+			</tr>
+		</table>
+	</form>
+</div>
+<script type="text/javascript">
+var FromObj = new Form('ad_position');
+FromObj.init({echo:JSON::encode($positionRow)});
+</script>
+</body>
+</html>

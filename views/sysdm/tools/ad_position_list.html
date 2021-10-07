@@ -1,0 +1,66 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">工具</a>
+		</li>
+		<li>
+			<a href="#">广告管理</a>
+		</li>
+		<li class="active">广告位列表</li>
+	</ul>
+</div>
+<div class="content">
+	<form name='ad_position' method='post' action='{url:/tools/ad_position_del}'>
+		<table class="table list-table">
+			<colgroup>
+				<col width="35px" />
+				<col />
+				<col width="150px" />
+				<col width="100px" />
+				<col width="100px" />
+				<col width="120px" />
+			</colgroup>
+			<caption>
+                <a class="btn btn-default" href='{url:/tools/ad_position_edit}'>
+                    <i class="fa fa-plus"></i>添加广告位
+                </a>
+                <a class="btn btn-default" onclick="selectAll('id[]')">
+                    <i class="fa fa-check"></i>全选
+                </a>
+                <a class="btn btn-default" onclick="delModel()">
+                    <i class="fa fa-close"></i>批量删除
+                </a>
+			</caption>
+			<thead>
+				<tr>
+					<th></th>
+					<th>名称</th>
+					<th>宽×高</th>
+					<th>播放方式</th>
+					<th>开启状态</th>
+					<th>操作</th>
+				</tr>
+			</thead>
+
+			<tbody>
+				{set:$queryObj=Api::run('getAdPositionList');$resultData=$queryObj->find()}
+                {foreach:items=$resultData}
+				<tr>
+					<td><input type='checkbox' name='id[]' value='{$item['id']}' /></td>
+					<td>{$item['name']}</td>
+					<td>{$item['width']}×{$item['height']}</td>
+					<td>{echo:$item['fashion']==1 ? '轮回显示':'随机显示'}</td>
+					<td>{echo:$item['status']==1 ? '是':'否'}</td>
+					<td>
+						<a href='{url:/tools/ad_edit/pid/$item['id']}'><i class='operator fa fa-plus' title="添加广告数据"></i></a>
+						<a href='{url:/tools/ad_position_edit/id/$item['id']}'><i class='operator fa fa-edit' title="获取广告位代码"></i></a>
+						<a href="javascript:delModel({link:'{url:/tools/ad_position_del/id/$item['id']}'});"><i class='operator fa fa-close'></i></a>
+					</td>
+				</tr>
+				{/foreach}
+			</tbody>
+		</table>
+	</form>
+</div>
+{$queryObj->getPageBar()}

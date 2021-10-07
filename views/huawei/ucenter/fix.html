@@ -1,0 +1,32 @@
+<header class="uc_head">
+	<h3><a href="{url:/ucenter/refunds}">我的退款</a></h3>
+	<h3><a href="{url:/ucenter/exchange}">我的换货</a></h3>
+	<h3 class="current"><a href="{url:/ucenter/fix}">我的维修</a></h3>
+</header>
+
+<section class="uc_table">
+	<table>
+		<thead>
+			<tr><th>维修订单</th><th>申请时间</th><th>处理状态</th><th>操作</th></tr>
+		</thead>
+		<tbody>
+		{set:$queryFixDocList = Api::run('getFixDocList')}
+		{foreach:items = $queryFixDocList->find()}
+		<tr>
+			<td>{$item['order_no']}</td>
+			<td>{$item['time']}</td>
+			<td>{echo:Order_Class::refundmentText($item['status'])}</td>
+			<td>
+				{if:$item['status']==0}<a href='javascript:delModel({link:"{url:/ucenter/fix_del/id/$item['id']}"})'>取消</a>|{/if}
+				<a href="{url:/ucenter/fix_detail/id/$item['id']}">查看</a>
+			</td>
+		</tr>
+		{/foreach}
+		</tbody>
+	</table>
+</section>
+{$queryFixDocList->getPageBar()}
+
+{if:!$items}
+<section class="no_tip">暂无数据</section>
+{/if}

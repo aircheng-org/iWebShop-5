@@ -1,0 +1,139 @@
+{js:areaSelect}
+<article class="col-lg-12">
+	<div class="card forms">
+		<div class="card-header">
+			<h3>订单发货</h3>
+		</div>
+
+		<div class="card-body">
+        	<form action="{url:/seller/order_delivery_doc}" method="post" id="deliver_form">
+        		<input type="hidden" name="order_no" value="{$order_no}"/>
+        		<input type="hidden" name="id" value="{$order_id}"/>
+        		<input type="hidden" name="user_id" value="{$user_id}"/>
+        		<input type="hidden" name="freight" value="{$real_freight}" />
+        		<input type="hidden" name="delivery_type" value="{$distribution}" />
+
+    			<table class="table">
+    				<thead>
+    					<tr>
+    						<th>商品名称</th>
+    						<th>商品价格</th>
+    						<th>购买数量</th>
+    						<th onclick="selectAll('sendgoods[]')">选择发货</th>
+    					</tr>
+    				</thead>
+
+    				<tbody>
+                        {foreach:items=Api::run('getOrderGoodsRowByOrderId',array('id'=>$order_id))}
+                        <tr>
+    						<td>
+    							{set:$goodsRow = JSON::decode($item['goods_array'])}
+    							{$goodsRow['name']} &nbsp;&nbsp; {$goodsRow['value']}
+    						</td>
+    						<td>{$item['real_price']}</td>
+    						<td>{$item['goods_nums']}</td>
+    						<td>
+    							{if:$item['is_send'] == 0}
+    							<input type="checkbox" class="checkbox-template" name="sendgoods[]" value="{$item['id']}" />
+    							{else:}{echo:Order_class::goodsSendStatus($item)}{/if}
+    						</td>
+    					</tr>
+    					{/foreach}
+    				</tbody>
+    			</table>
+
+    			<table class="table">
+    				<colgroup>
+    					<col width="120px" />
+    					<col />
+    					<col width="120px" />
+    					<col />
+    				</colgroup>
+
+    				<tbody>
+    					<tr>
+    						<th>订单号:</th><td align="left">{$order_no}</td>
+    						<th>下单时间:</th><td align="left">{$create_time}</td>
+    					</tr>
+    					<tr>
+    						<th>配送方式:</th>
+    						<td align="left">
+                                {foreach:items=Api::run('getDeliveryById',array('distribution'=>$distribution))}
+                                {$item['name']}
+                                {/foreach}
+    						</td>
+    						<th>配送费用:</th><td align="left">{$real_freight}</td>
+    					</tr>
+    					<tr>
+    						<th>保价费用:</th><td align="left">￥{$insured}</td>
+    					</tr>
+    					<tr>
+    						<th>收货人姓名:</th><td align="left"><input type="text" class="form-control" name="name" value="{$accept_name}" pattern="required"/></td>
+    						<th>电话:</th><td align="left"><input type="text" class="form-control" name="telphone" value="{$telphone}" pattern="phone" empty /></td>
+    					</tr>
+    					<tr>
+    						<th>手机:</th><td align="left"><input type="text" class="form-control" name="mobile" value="{$mobile}" pattern="mobi"/></td>
+    						<th>邮政编码:</th><td align="left"><input type="text" name="postcode" class="form-control" value="{$postcode}" pattern="zip" empty /></td>
+    					</tr>
+    					<tr>
+    						<th>物流公司：</th>
+    						<td align="left">
+    							<select name="freight_id" pattern="required" alt="选择物流公司" class="form-control">
+    								<option value="">选择物流公司</option>
+                                    {foreach:items=Api::run('getFreightCompany')}
+    								<option value="{$item['id']}">{$item['freight_name']}</option>
+    								{/foreach}
+    							</select>
+    							<small class="help-block-none">选择物流公司</small>
+    						</td>
+    						<th>配送单号:</th><td align="left"><input type="text" class="form-control" name="delivery_code" pattern="required"/></td>
+    					</tr>
+    					<tr>
+    						<th>地区:</th>
+    						<td align="left" colspan="3">
+    						    <div class="d-flex">
+        							<select name="province" child="city,area" class="form-control w-auto mr-2"></select>
+        							<select name="city" child="area" class="form-control w-auto mr-2"></select>
+        							<select name="area" pattern="required" class="form-control w-auto mr-2"></select>
+    						    </div>
+    						</td>
+    					</tr>
+    					<tr>
+    						<th>地址:</th><td align="left" colspan="3"><input type="text" class="form-control" name="address" value="{$address}" size="50" pattern="required"/></td>
+    					</tr>
+    					<tr>
+    						<th>发货单备注:</th><td align="left" colspan="3"><textarea name="note" class="form-control"></textarea></td>
+    					</tr>
+    				</tbody>
+    			</table>
+
+				<div class="form-group row">
+					<div class="col-sm-4 offset-sm-2">
+        				<input type="submit" class="btn btn-primary" value="确 定" onclick="return checkForm()" />
+        				<input type="reset" class="btn btn-secondary" value="重 置" />
+        			</div>
+        		</div>
+        	</form>
+        </div>
+    </div>
+</article>
+
+<script type="text/javascript">
+//DOM加载完毕
+$(function(){
+	var areaInstance = new areaSelect('province');
+	areaInstance.init({"province":"{$province}","city":"{$city}","area":"{$area}"});
+});
+
+//表单提交前检测
+function checkForm()
+{
+	var checkedNum = $('input[name="sendgoods[]"]:checked').length;
+	if(checkedNum == 0)
+	{
+		alert('请选择要发货的商品');
+		return false;
+	}
+	return true;
+}
+</script>

@@ -1,0 +1,52 @@
+<div class="bigweb">
+	<section class="breadcrumb">
+		<span>您当前的位置：</span> <a href="{url:}">首页</a> > {if:$catRow}{$catRow['name']}{else:}最新资讯{/if}
+	</section>
+	<section class="web">
+		<section class="article_main">
+			<h2 class="main_head">{if:$catRow}{$catRow['name']}{else:}最新资讯{/if}</h2>
+			<div class="article_list">
+				<ul>
+					{foreach:items = $queryArticle->find()}
+					<li>
+						<a href="{url:/site/article_detail/id/$item['id']}">{$item['title']}</a>
+						<time>{$item['create_time']}</time>
+					</li>
+					{/foreach}
+				</ul>
+				{$queryArticle->getPageBar()}
+			</div>
+		</section>
+		<!-- 文章详情侧边 -->
+		<aside class="article_bar">
+			<!-- 资讯分类 -->
+			<nav class="news_article_box">
+				<h3 class="news_article_box_head">资讯分类</h3>
+				<ul class="news_article_infor">
+					{foreach:items=Api::run('getArticleCategoryList',10)}
+					<li><a title="{$item['name']}" href="{url:/site/article/id/$item['id']}">{$item['name']}</a></li>
+					{/foreach}
+				</ul>
+			</nav>
+			<!-- 资讯分类 -->
+			<div class="products_bar_box">
+				<h3 class="products_bar_box_head">热卖排行</h3>
+				<ul class="products_bar_hot">
+					{foreach:items=Api::run('getCommendHot', 8)}
+					<li>
+						<a href="{url:/site/products/id/$item['id']}">
+							<i class="goods_mark"></i>
+							<img src="{url:/pic/thumb/img/$item['img']/w/56/h/56}" alt="{$item['name']}">
+							<div>
+								<p class="goods_title"><span>{$item['name']}</span></p>
+								<p class="goods_sell_price">￥{$item['sell_price']}</p>
+							</div>
+						</a>
+					</li>
+					{/foreach}
+				</ul>
+			</div>
+		</aside>
+		<!-- 文章详情侧边 -->
+	</section>
+</div>

@@ -1,0 +1,49 @@
+{js:kindeditor}
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">商品</a>
+		</li>
+		<li>
+			<a href="#">品牌管理</a>
+		</li>
+		<li class="active">编辑分类</li>
+	</ul>
+</div>
+
+<div class="content">
+	<form action="{url:/brand/category_save}" method="post" name="brandForm">
+		<input name="id" value="" type="hidden" />
+		<table class="table form-table">
+			<colgroup>
+				<col width="130px" />
+				<col />
+			</colgroup>
+
+			<tr>
+				<th>分类名称：</th>
+				<td>
+					<input class="form-control" name="name" type="text" value="" pattern="required" />
+				</td>
+			</tr>
+			<tr>
+				<th>所属商品分类：</th>
+				<td>
+					<span id="__categoryBox" style="margin-bottom:8px"></span>
+					<button class="btn btn-default" type="button" name="_goodsCategoryButton">设置分类</button>
+					{set:plugin::trigger('goodsCategoryWidget',array("name" => "goods_category_id","value" => isset($this->catRow['goods_category_id']) ? $this->catRow['goods_category_id'] : ""))}
+				</td>
+			</tr>
+			<tr>
+				<td></td><td><button class='btn btn-primary' type="submit">确定</button></td>
+			</tr>
+		</table>
+	</form>
+</div>
+
+<script type="text/javascript">
+//表单回填
+var formObj = new Form('brandForm');
+formObj.init({echo:JSON::encode($this->catRow)});
+</script>

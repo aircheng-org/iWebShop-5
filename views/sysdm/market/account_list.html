@@ -1,0 +1,106 @@
+{js:my97date}
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">统计</a>
+		</li>
+		<li>
+			<a href="#">日志操作记录</a>
+		</li>
+		<li class="active">资金操作记录列表</li>
+	</ul>
+</div>
+
+<div class="content">
+	<table class="table list-table">
+		<colgroup>
+			<col />
+			<col width="100px" />
+			<col width="100px" />
+			<col width="200px" />
+		</colgroup>
+		<caption class="row">
+			<form action="{url:/}" method="get" name="searchForm" class="form-inline col-sm-8">
+				<input type='hidden' name='controller' value='market' />
+				<input type='hidden' name='action' value='account_list' />
+				<div class="input-group">
+					<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                	<input class="form-control" name="search[time>=]" type="text" value="" onfocus="WdatePicker()" placeholder="起始时间" />
+				</div>
+
+			    <div class="input-group">
+			    	<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+			    	<input class="form-control" name="search[time<=]" type="text" value="" onfocus="WdatePicker()" placeholder="结束时间" />
+				</div>
+
+                <select class="form-control" name="search[event=]">
+                    <option value="">全部</option>
+                    <option value="1">充值</option>
+                    <option value="2">提现</option>
+                    <option value="4">退款</option>
+                </select>
+
+                <button class="btn btn-default" onclick="submitForm('account_list')">
+                    <i class="fa fa-search"></i> 搜索
+                </button>
+
+				<button class="btn btn-default" onclick="submitForm('account_report')">
+					<i class="fa fa-file-excel-o"></i> 导出报表
+				</button>
+			</form>
+
+			<form action="{url:/market/clear_log/type/account}" method="post" name='clear_log' class="form-inline col-sm-4">
+                <select class="form-control" name="month">
+                    <option value=''>选择要删除的时间段</option>
+                    <option value='1'>一个月以前</option>
+                    <option value='3'>三个月以前</option>
+                    <option value='6'>六个月以前</option>
+                </select>
+
+                <button class="btn btn-default" type="button" onclick="delModel({'form':'clear_log'});">
+                    <i class="fa fa-close"></i> 记录删除
+                </button>
+			</form>
+		</caption>
+		<thead>
+			<tr>
+				<th>内容</th>
+				<th>类型</th>
+				<th>金额</th>
+				<th>时间</th>
+			</tr>
+		</thead>
+
+		<tbody>
+
+			{foreach:items = $this->accountList}
+			<tr>
+				<td>{$item['note']}</td>
+				<td>{echo:AccountLog::eventText($item['event'])}</td>
+				<td>{echo:abs($item['amount'])} 元</td>
+				<td>{$item['time']}</td>
+			</tr>
+			{/foreach}
+		</tbody>
+	</table>
+</div>
+{$this->accountObj->getPageBar()}
+
+<script type="text/javascript">
+$(function()
+{
+	var searchData = {echo:JSON::encode(IReq::get('search'))};
+	for(var index in searchData)
+	{
+		$('[name="search['+index+']"]').val(searchData[index]);
+	}
+})
+
+//修改表单提交内容
+function submitForm(action)
+{
+	$('[name="action"]').val(action);
+	formSubmit("searchForm");
+}
+</script>

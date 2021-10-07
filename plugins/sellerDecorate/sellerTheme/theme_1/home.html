@@ -1,0 +1,108 @@
+<!--引入头部-->
+{set:include($this->sellerDecorate->viewFile('header'))}
+
+<!-- 幻灯片 -->
+<div class="home-slider mb-sm-4">
+    {foreach:items=Api::run('getBannerList',$seller_id)}
+    <a href="{url:$item['url']}" target="_blank"><img title="{$item['name']}" src="{url:/pic/thumb/img/$item['img']}" style="width:100%" /></a>
+    {/foreach}
+</div>
+
+<div class="container">
+	<!-- 广告图片 -->
+	<div class="row">
+		<div class="col-sm-6">
+		{echo:Ad::show("首页第一排1(theme_1)",0,$seller_id)}
+		</div>
+
+		<div class="col-sm-6">
+		{echo:Ad::show("首页第一排2(theme_1)",0,$seller_id)}
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-sm-6">
+		{echo:Ad::show("首页第二排1(theme_1)",0,$seller_id)}
+		</div>
+
+		<div class="col-sm-6">
+		{echo:Ad::show("首页第二排2(theme_1)",0,$seller_id)}
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-sm-4">
+		{echo:Ad::show("首页第三排1(theme_1)",0,$seller_id)}
+		</div>
+
+		<div class="col-sm-4">
+		{echo:Ad::show("首页第三排2(theme_1)",0,$seller_id)}
+		</div>
+
+		<div class="col-sm-4">
+		{echo:Ad::show("首页第三排3(theme_1)",0,$seller_id)}
+		</div>
+	</div>
+
+	<!--排序前12商品信息-->
+    <div class="row">
+        {foreach:items=Api::run('getGoodsListBySellerid',['seller_id' => $seller_id],12)}
+    	<div class="col-sm-3 col-6 mt-2">
+    	    <a href="{url:/site/products/id/$item['id']}">
+    		<div class="product-item">
+    			<div class="product-thumb">
+    				<img class="img-fluid border" src="{url:/pic/thumb/img/$item['img']/w/300/h/300}" />
+    			</div>
+    			<div class="product-content">
+    				<h4>{$item['name']}</h4>
+    				<p class="price">￥{$item['sell_price']}</p>
+    			</div>
+    		</div>
+    	    </a>
+    	</div>
+    	{/foreach}
+    </div>
+
+
+	<!--店内分类循环-->
+	<div class="bg-light">
+
+		{foreach:items=Api::run('getSellerCategoryListTop',['seller_id' => $seller_id]) item=$catRow}
+		<div class="d-flex pb-3 pt-3">
+			<h4><a href="{url:/site/seller_goods_list/id/$catRow['id']}"><i class="fa fa-bars"></i> {$catRow['name']}</a></h4>
+
+			<div class="ml-auto w-50 text-truncate">
+				{foreach:items=Api::run('getSellerCategoryByParentid',['parent_id' => $catRow['id']]) item=$second}
+				<a href="{url:/site/seller_goods_list/id/$second['id']}" class="ml-3">{$second['name']}</a>
+				{/foreach}
+			</div>
+		</div>
+
+		<div class="row">
+			{foreach:items=Api::run('getSellerCategoryExtendList',['categroy_id' => $catRow['id']],12)}
+			<div class="col-sm-3 col-6">
+				<a href="{url:/site/products/id/$item['id']}">
+				<div class="product-item">
+					<div class="product-thumb">
+						<img class="img-fluid border" src="{url:/pic/thumb/img/$item['img']/w/300/h/300}" />
+					</div>
+					<div class="product-content">
+						<h4>{$item['name']}</h4>
+						<p class="price">￥{$item['sell_price']}</p>
+					</div>
+				</div>
+				</a>
+			</div>
+			{/foreach}
+		</div>
+		{/foreach}
+	</div>
+</div>
+
+<script src="{echo:__WEBPATH__}/plugins/slick-carousel/slick/slick.min.js"></script>
+<script>
+//幻灯片开启
+$(document).ready(function(){
+    $('.home-slider').slick({"autoplay":true,"arrows":false});
+});
+</script>

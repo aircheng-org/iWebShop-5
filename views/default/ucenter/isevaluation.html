@@ -1,0 +1,36 @@
+<div class="main f_r">
+	<div class="uc_title m_10">
+		<label><span><a href="{url:/ucenter/evaluation}">未评价</a></span></label><label class="current"><span>已评价</span></label>
+	</div>
+
+    <div class="box">
+    	<table class="list_table m_10" width="100%" cellpadding="0" cellspacing="0">
+    		<colgroup>
+    			<col />
+    			<col width="150px" />
+    			<col width="120px" />
+    			<col width="80px" />
+    			<col width="100px"/>
+    		</colgroup>
+
+    		<thead><tr><th>商品名称</th><th>订单编号</th><th>评论时间</th><th>评分</th><th>评价</th></tr></thead>
+    		<tbody>
+    			{set:$queryIevaluationList = Api::run('getUcenterEvaluation',1)}
+    			{foreach:items = $queryIevaluationList->find()}
+    			<tr>
+    				<td><a href="{url:/site/comments_list/id/$item[goods_id]}" target="_block">{$item['name']}{if:$item['value']}【{$item['value']}】{/if}</a></td>
+    				<td>{$item['order_no']}</td>
+    				<td>{$item['comment_time']}</td>
+    				<td>{$item['point']}</td>
+    				<td><span class="green bold">已评价</span></td>
+    			</tr>
+    			{/query}
+    		</tbody>
+    	</table>
+    	{$queryIevaluationList->getPageBar()}
+
+        {if:!$items}
+    	<div class="error f18 t_c light_gray">暂无数据</div>
+    	{/if}
+    </div>
+</div>

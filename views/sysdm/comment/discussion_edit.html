@@ -1,0 +1,45 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">会员</a>
+		</li>
+		<li>
+			<a href="{url:/comment/discussion_list}">讨论管理</a>
+		</li>
+		<li class="active">讨论信息</li>
+	</ul>
+</div>
+<div class="content">
+	<table class="table form-table">
+		<colgroup>
+			<col width="130px" />
+			<col />
+		</colgroup>
+
+		<tr>
+			<th>讨论人：</th>
+			<td>
+				{if:isset($disItem['userid'])}
+				<a href="{url:/member/member_edit/uid/$disItem['userid']}">{$disItem['username']}</a>
+				{/if}
+			</td>
+		</tr>
+		<tr>
+			<th>讨论时间：</th><td>{$disItem['time']}</td>
+		</tr>
+		<tr>
+			<th>讨论商品：</th><td>{$disItem['goods_name']}</td>
+		</tr>
+		<tr>
+			<th>讨论内容：</th><td>{$disItem['contents']}</td>
+		</tr>
+		<tr>
+			<th></th>
+			<td>
+	            <a class="btn btn-primary" href="javascript:window.history.go(-1);">返回</a>
+	            <a class="btn btn-danger" href="{url:/comment/discussion_del/check/$disItem['id']}">删除</a>
+			</td>
+		</tr>
+	</table>
+</div>

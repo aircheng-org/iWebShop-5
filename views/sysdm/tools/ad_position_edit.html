@@ -1,0 +1,67 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">工具</a>
+		</li>
+		<li>
+			<a href="#">广告管理</a>
+		</li>
+		<li class="active">编辑广告位</li>
+	</ul>
+</div>
+
+<div class="content">
+	<form action='{url:/tools/ad_position_edit_act}' method='post' name='ad_position'>
+		<table class="table form-table">
+			<input type='hidden' name='id' />
+			<colgroup>
+				<col width="130px" />
+				<col />
+			</colgroup>
+
+			<tr>
+				<th>说明：</th>
+				<td>(1)先添加 <广告位> 数据；(2)再添加 <广告> 并且绑定之前添加的 <广告位>，广告数据才可以正常显示 </td>
+			</tr>
+			<tr>
+				<th>名称：</th>
+				<td>
+					<input type='text' class='form-control' pattern='required' placeholder="请填写名称" name='name' />
+				</td>
+			</tr>
+			<tr>
+				<th>宽×高：</th>
+				<td>
+					<input type='text' class='form-control w-auto' name='width' pattern='required' empty alt='填写宽度' /> X
+					<input type='text' class='form-control w-auto' name='height' pattern='required' empty alt='填写高度' />
+					<p class="help-block">*广告位在页面中所占宽高，单位可以是PX或者百分比(%)，如果为空则不限制</p>
+				</td>
+			</tr>
+
+			<tr>
+				<th>播放方式：</th>
+				<td>
+					<label class='radio-inline'><input type='radio' name='fashion' value='1' checked=checked />轮回显示</label>
+					<label class='radio-inline'><input type='radio' name='fashion' value='2' />随机显示</label>
+					<p class="help-block">*如果此广告位有多条有效时， 广告位中的广告的播放顺序（必填）</p>
+				</td>
+			</tr>
+			<tr>
+				<th>是否开启：</th>
+				<td>
+					<label class='radio-inline'><input type='radio' name='status' value='1' checked=checked />是 </label>
+					<label class='radio-inline'><input type='radio' name='status' value='0' />否 </label>
+				</td>
+			</tr>
+			<tr>
+				<th></th><td><button class='btn btn-primary' type='submit'>确 定</button></td>
+			</tr>
+		</table>
+	</form>
+</div>
+
+<script type='text/javascript'>
+var FromObj = new Form('ad_position');
+FromObj.init({echo:JSON::encode($this->positionRow)});
+</script>

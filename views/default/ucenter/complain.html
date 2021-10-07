@@ -1,0 +1,83 @@
+<div class="main f_r">
+    <div class="uc_title m_10">
+        <label class="current"><span>我的建议</span></label>
+    </div>
+
+    <div class="orange_box m_15">
+		<form action="{url:/ucenter/complain_edit}" method="post" >
+		    <table class="form_table" width="100%" cellpadding="0" cellspacing="0">
+		        <col width="120px" />
+		        <col />
+		        <caption>建议信息：</caption>
+		        <tr>
+		            <th>建议标题：</th><td><input name="title" type="text" pattern='required' alt='标题不能为空' class="normal" /><label>*标题不能为空</label></td>
+		        </tr>
+		        <tr>
+		            <th>建议内容：</th><td><textarea name='content' pattern='required' alt=''></textarea></td>
+		        </tr>
+		        <tr>
+		            <th></th><td><label class="btn"><input type="submit" value="我要建议" /></label></td>
+		        </tr>
+		    </table>
+		</form>
+    </div>
+
+    <div class="box m_10">
+        <table class="list_table m_10" width="100%" cellpadding="0" cellspacing="0">
+            <colgroup>
+                <col />
+                <col width="160px" />
+                <col width="80px" />
+                <col width="80px" />
+            </colgroup>
+
+            <thead>
+            	<tr>
+            		<th>建议主题</th>
+            		<th>添加时间</th>
+            		<th>状态</th>
+            		<th>查看</th>
+            	</tr>
+            </thead>
+            <tbody>
+                {set:$querySuggestionList = Api::run('getUcenterSuggestion')}
+    		    {foreach:items = $querySuggestionList->find()}
+    		    <script>var item{$key} = {echo:JSON::encode($item)};</script>
+                <tr>
+                    <td class="t_l">{$item['title']}</td>
+                    <td>{$item['time']}</td>
+                    <td>
+                    	{if:$item['re_content']!=''}
+                    	<span class="green bold">已回复</span>
+                    	{else:}
+                    	<span>未回复</span>
+                    	{/if}
+                    </td>
+                    <td><a class="blue bold" href="javascript:show_msg(item{$key})">查看</a></td>
+                </tr>
+                {/foreach}
+            </tbody>
+        </table>
+
+        {$querySuggestionList->getPageBar()}
+
+        {if:!$items}
+    	<div class="error f18 t_c light_gray">暂无数据</div>
+    	{/if}
+    </div>
+</div>
+<script type="text/javascript">
+function show_msg(obj)
+{
+    var content = "<strong>建议内容：</strong><p>"+obj.content+"</p><p>"+obj.time+"</p><hr/>";
+    if(obj.re_content)
+    {
+        content+= "<strong>回复内容：</strong><p>"+obj.re_content+"</p><p>"+obj.re_time+"</p>";
+    }
+    else
+    {
+        content+= "<strong>回复内容：</strong><p>请耐心等待...</p>";
+    }
+    art.dialog({"title":obj.title,"content":content,"ok":function(){return true;}});
+}
+</script>

@@ -1,0 +1,93 @@
+{js:artTemplate}
+<script type='text/javascript' src="{webroot:public/javascript/cart.js}"></script>
+<div class="wrapper clearfix">
+	<div class="position mt_10"> <span>您当前的位置：</span> <a href="{url:}"> 首页</a> » 购物车</div>
+	<div class="myshopping m_10">
+		<ul class="order_step">
+			<li class="current"><span class="first">1、查看购物车</span></li>
+			<li><span>2、填写核对订单信息</span></li>
+			<li class="last"><span>3、成功提交订单</span></li>
+		</ul>
+	</div>
+
+	<div id="cart_prompt" class="cart_prompt f14 t_l" style="display:none">
+		<p class="m_10 gray"><b class="orange">恭喜，</b>您的订单已经满足了以下优惠活动！</p>
+		<div id="cart_prompt_box"></div>
+	</div>
+
+	<!--促销规则模板-->
+	<script type="text/html" id="promotionTemplate">
+		<p class="indent blue"><%=item['plan']%>，<%=item['info']%></p>
+	</script>
+
+	<table width="100%" class="cart_table m_10">
+		<colgroup>
+			<col width="30px" />
+			<col width="115px" />
+			<col />
+			<col width="80px" />
+			<col width="80px" />
+			<col width="80px" />
+			<col width="80px" />
+			<col width="80px" />
+			<col width="80px" />
+		</colgroup>
+
+		<caption>查看购物车</caption>
+		<thead>
+			<tr><th><input type="checkbox" name="_selectCartGoods" onchange="selectAll('selectCartGoods');" /></th><th>图片</th><th>商品名称</th><th>赠送积分</th><th>单价</th><th>优惠</th><th>数量</th><th>小计</th><th class="last">操作</th></tr>
+		</thead>
+		<tbody>
+			{foreach:items = $this->goodsList key=$goodsKey}
+			<script>var item{$goodsKey} = {echo:JSON::encode($item)};</script>
+			<tr>
+				<td><input type="checkbox" name="selectCartGoods[{$item['seller_id']}][]" value="{$item['goods_id']}_{$item['product_id']}" /></td>
+				<td><img src="{url:/pic/thumb/img/$item[img]/w/66/h/66}" width="66px" height="66px" alt="{$item['name']}" title="{$item['name']}" /></td>
+				<td class="t_l">
+					<a href="{url:/site/products/id/$item['goods_id']}" class="blue">{$item['name']}</a>
+					{if:isset($item['spec_array'])}
+					<p>
+					{set:$spec_array=goods_class::show_spec($item['spec_array']);}
+					{foreach:items=$spec_array item=$specValue key=$specName}
+						{$specName}：{$specValue} &nbsp&nbsp
+					{/foreach}
+					</p>
+					{/if}
+				</td>
+				<td>{$item['point']}</td>
+				<td><b>￥{$item['sell_price']}</b></td>
+				<td>减￥{$item['reduce']}</td>
+				<td>
+					<div class="num">
+						<a class="reduce" href="javascript:void(0)" onclick='cart_reduce(item{$goodsKey});'>-</a>
+						<input class="tiny" value="{$item['count']}" onchange='cartCount(item{$goodsKey});' type="text" id="count_{$item['goods_id']}_{$item['product_id']}" />
+						<a class="add" href="javascript:void(0)" onclick='cart_increase(item{$goodsKey});'>+</a>
+					</div>
+				</td>
+				<td>￥<b class="red2" id="sum_{$item['goods_id']}_{$item['product_id']}">{$item['sum']}</b></td>
+				<td><a href='javascript:removeCartByJSON(item{$goodsKey});'>删除</a></td>
+			</tr>
+			{/foreach}
+
+			<tr class="stats">
+				<td colspan="9">
+					<span>商品总重量：<b id='weight'>{$this->weight}</b></span><span>商品总金额：￥<b id='origin_price'>{$this->sum}</b> - 商品优惠：￥<b id='discount_price'>{$this->reduce}</b> - 促销活动优惠：￥<b id='promotion_price'>{$this->proReduce}</b></span><br />
+					金额总计（不含运费）：￥<b class="orange" id='sum_price'>{$this->final_sum}</b>
+				</td>
+			</tr>
+		</tbody>
+		<tfoot>
+			<tr>
+				<td colspan="2" class="t_l">
+					<a class="del" href="javascript:void(0);" onclick="delModel({msg:'确定要清空购物车么？',link:'{url:/simple/clearCart}'});">清空购物车</a>
+				</td>
+				<td colspan="7" class="t_r">
+					<a class="btn_continue" href="javascript:void(0)" onclick="window.history.go(-1);">继续购物</a>
+					{if:$this->goodsList}
+					<a class="btn_pay" href="{url:/simple/cart2}">去结算</a>
+					{/if}
+				</td>
+			</tr>
+		</tfoot>
+	</table>
+</div>

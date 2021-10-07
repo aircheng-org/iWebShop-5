@@ -1,0 +1,34 @@
+<div class="position"> <span>您当前的位置：</span> <a href="{url:}"> 首页</a> » 特价商品 </div>
+
+<div class="wrapper clearfix">
+	<!--首页推荐商品-->
+	{foreach:items=Api::run('getSaleList') item=$promRow}
+	<div class="box m_10" name="showGoods">
+		<div class="title title3">
+			<h2><strong>{$promRow['name']}</strong></h2>
+		</div>
+
+		<div class="cont clearfix">
+			<ul class="prolist">
+				{foreach:items=$promRow['goodsList']}
+				<li>
+					<a href="{url:/site/products/id/$item[id]}"><img src="{url:/pic/thumb/img/$item[img]/w/175/h/175}" width="175" height="175" alt="{$item['name']}" title="{$item['name']}" class="img_border" /></a>
+					<p class="pro_title"><a title="{$item['name']}" href="{url:/site/products/id/$item['id']}">{$item['name']}</a></p>
+					<p class="brown">现特价：<b>￥{$item['sell_price']}</b></p>
+					<p class="light_gray">市场价：<s>￥{$item['market_price']}</s></p>
+				</li>
+				{/foreach}
+			</ul>
+		</div>
+	</div>
+	{/foreach}
+</div>
+
+<script type="text/javascript">
+//商品变色
+var colorArray = ['green','yellow','purple','black'];
+$('div[name="showGoods"]').each(function(i)
+{
+	$(this).addClass(colorArray[i%colorArray.length]);
+});
+</script>

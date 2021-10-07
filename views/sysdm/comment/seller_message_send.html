@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>商家消息</title>
+{js:jquery}
+{js:dialog}
+{js:kindeditor}
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="{webroot:public/css/twitter-bootstrap/3.3.7/css/bootstrap.min.css}">
+<script src="{webroot:public/javascript/twitter-bootstrap/3.3.7/js/bootstrap.min.js}"></script>
+</head>
+<body style="width:720px;min-height:460px;">
+<div class="container">
+<form action="{url:/comment/start_seller_message}" method="post" style="margin-top:10px">
+    <div class="form-group form-inline">
+        <label class="form-control-static">收件人：</label>
+        <select class="form-control" onchange="changeCondition(this);">
+            <option value="all" selected="selected">全部商家</option>
+            <option value="seller_name">商家账号</option>
+            <option value="true_name">商家真实名</option>
+            <option value="is_vip">商家VIP</option>
+            <option value="mobile">商家手机号</option>
+            <option value="sale">销量区间</option>
+        </select>
+        <span id="conditionBox" style="margin-left:20px;"></span>
+    </div>
+
+	<div class="form-group">
+		<input class="form-control" type="text" name="title" placeholder="标题信息" />
+	</div>
+
+	<div class="form-group">
+		<textarea name="content" id="content" style="width:100%;height:300px"></textarea>
+	</div>
+</form>
+</div>
+<script type='text/javascript'>
+KindEditor.create('#content');
+
+//选择筛选条件
+function changeCondition(obj)
+{
+    var templateHtml = "";
+    var condition    = $(obj).val();
+    switch(condition)
+    {
+        case "seller_name":
+        {
+            templateHtml = "<input type='text' class='form-control' name='search[seller_name]' placeholder='商家账号' pattern='required' />";
+        }
+        break;
+
+        case "is_vip":
+        {
+            templateHtml = "<label class='radio-inline'><input type='radio' value='1' name='search[is_vip]' checked='checked'> VIP商家</label>";
+            templateHtml+= "<label class='radio-inline'><input type='radio' value='0' name='search[is_vip]'> 普通商家</label>";
+        }
+        break;
+
+        case "true_name":
+        {
+            templateHtml = "<input type='text' class='form-control' name='search[true_name]' placeholder='商家真实名' pattern='required' />";
+        }
+        break;
+
+        case "mobile":
+        {
+            templateHtml = "<input type='text' class='form-control' name='search[mobile]' placeholder='商家手机号' pattern='mobi' />";
+        }
+        break;
+
+        case "sale":
+        {
+            templateHtml = "<input type='text' class='form-control' name='search[sale_min]' placeholder='销量最小值' pattern='int' /> —— ";
+            templateHtml+= "<input type='text' class='form-control' name='search[sale_max]' placeholder='销量最大值' pattern='int' />";
+        }
+        break;
+
+        default:
+        {
+            templateHtml = "<p class='form-control-static'>【全部商家】</p>";
+        }
+    }
+    $('#conditionBox').html(templateHtml);
+}
+</script>
+</body>
+</html>

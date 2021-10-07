@@ -1,0 +1,51 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">会员</a>
+		</li>
+		<li>
+			<a href="#">咨询管理</a>
+		</li>
+		<li class="active">查看建议</li>
+	</ul>
+</div>
+
+<div class="content">
+	<form action="{url:/comment/suggestion_edit_act}" method="post" name="comment_edit">
+	<input type="hidden" name="id" value="{$suggestion['id']}" />
+	<table class="table form-table">
+		<colgroup>
+			<col width="130px" />
+			<col />
+		</colgroup>
+
+		<tr>
+			<th>建议人：</th>
+			<td>{if:isset($suggestion['user_id'])}<a href="{url:/member/member_edit/uid/$suggestion['user_id']}">{$suggestion['username']}</a>{/if}</td>
+		</tr>
+		<tr>
+			<th>建议时间：</th><td>{$suggestion['time']}</td>
+		</tr>
+		<tr>
+			<th>建议内容：</th><td>{$suggestion['content']}</td>
+		</tr>
+		<tr>
+			<th>回复：</th><td><textarea name="re_content" class="form-control" rows="" cols="">{$suggestion['re_content']}</textarea></td>
+		</tr>
+		{if:$suggestion['re_time'] > 0}
+		<tr>
+			<th>回复时间：</th><td>{$suggestion['re_time']}</td>
+		</tr>
+		{/if}
+		<tr>
+			<th></th>
+			<td>
+				<button class='btn btn-primary' type="submit">回复</button>
+                <a class="btn btn-default" href="javascript:window.history.go(-1)">返回</a>
+                <a class="btn btn-danger" href="{url:/comment/suggestion_del/check/$suggestion['id']}">删除</a>
+			</td>
+		</tr>
+	</table>
+	</form>
+</div>

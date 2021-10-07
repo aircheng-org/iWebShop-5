@@ -1,0 +1,33 @@
+<div class="position"> <span>您当前的位置：</span> <a href="{url:}"> 首页</a> » {$this->cat_row['name']} </div>
+<div class="wrapper clearfix">
+	<div class="help_c sidebar f_l">
+	{foreach:items=Api::run('getHelpCategoryLeft',10)}
+		<div class="hc_title"><strong>{$item['name']}</strong></div>
+		<ul class="list m_10">
+			{foreach:items=Api::run('getHelpListByCatidAll',array('#cat_id#',$item['id'])) item=$help_row}
+			<li><a href="{url:/site/help/id/$help_row[id]}">{$help_row['name']}</a></li>
+			{/foreach}
+		</ul>
+	{/foreach}
+	</div>
+
+	<div class="main f_r">
+		<div class="box m_10">
+			<div class="title2">{$this->cat_row['name']}</div>
+			<div class="cont">
+				<h5 class="list_title gray">
+					<span class="f_l">标题</span>发表时间
+				</h5>
+				<ul class="newslist">
+				{foreach:items = $this->helpQuery->find()}
+					<li>
+						<a href="{url:/site/help/id/$item['id']}">{$item['name']}</a>
+						<span>({echo:date('Y-m-d H:i:s',$item['dateline']);})</span>
+					</li>
+				{/foreach}
+				</ul>
+				{$this->helpQuery->getPageBar();}
+			</div>
+		</div>
+	</div>
+</div>

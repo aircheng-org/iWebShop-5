@@ -1,0 +1,23 @@
+<div class="bigweb">
+<section class="breadcrumb">
+	<span>您当前的位置：</span> <a href="{url:}">首页</a> » 特价活动
+</section>
+
+<section class="web">
+	{foreach:items=Api::run('getSaleList') item=$promRow}
+	<h2 class="main_head">{$promRow['name']}</h2>
+	<ul class="sale_list">
+		{foreach:items=$promRow['goodsList']}
+		<li>
+			<a href="{url:/site/products/id/$item['id']}">
+				<img src="{url:/pic/thumb/img/$item[img]/w/250/h/250}" alt="{$item['name']}">
+				<strong>{$item['name']}</strong>
+				<em>￥{$item['sell_price']}</em>
+				<del>￥{$item['market_price']}</del>
+			</a>
+		</li>
+		{/foreach}
+	</ul>
+	{/foreach}
+</section>
+</div>

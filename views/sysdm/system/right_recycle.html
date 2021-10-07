@@ -1,0 +1,61 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">系统</a>
+		</li>
+		<li>
+			<a href="#">权限管理</a>
+		</li>
+		<li class="active">权限回收站</li>
+	</ul>
+</div>
+<div class="content">
+	<form name='right_list' method='post' action='#'>
+	<table class="table list-table">
+		<colgroup>
+			<col width="35px" />
+			<col width="180px" />
+			<col />
+			<col width='80px' />
+		</colgroup>
+		<caption>
+            <a class="btn btn-default" href='{url:/system/right_list}'>
+                <i class="fa fa-reply"></i>返回列表
+            </a>
+
+            <a class="btn btn-default" onclick="selectAll('id[]');">
+                <i class="fa fa-check"></i>全选
+            </a>
+            <a class="btn btn-default" onclick="delModel({'form':'right_list','link':'{url:/system/right_update}','msg':'是否进行彻底删除？'});">
+                <i class="fa fa-close"></i>批量删除
+            </a>
+            <a class="btn btn-default" onclick="delModel({'form':'right_list','link':'{url:/system/right_update/recycle/rec}','msg':'是否进行恢复？'});">
+                <i class="fa fa-recycle"></i>恢复
+            </a>
+		</caption>
+		<thead>
+			<tr>
+				<th></th>
+				<th>名字</th>
+				<th>权限码</th>
+				<th>操作</th>
+			</tr>
+		</thead>
+
+		<tbody>
+			{foreach:items=Api::run('getRightListAll',array('is_del'=>1))}
+			<tr>
+				<td><input type='checkbox' name='id[]' value='{$item['id']}' /></td>
+				<td>{$item['name']}</td>
+				<td class="word-wrap">{$item['right']}</td>
+				<td>
+					<a href="javascript:delModel({link:'{url:/system/right_update/id/$item['id']}',msg:'是否进行彻底删除？'});"><i class='operator fa fa-close'></i></a>
+					<a href="javascript:delModel({link:'{url:/system/right_update/recycle/rec/id/$item['id']}',msg:'是否进行恢复？'});"><i class='operator fa fa-recycle'></i></a>
+				</td>
+			</tr>
+			{/foreach}
+		</tbody>
+	</table>
+	</form>
+</div>

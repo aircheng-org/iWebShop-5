@@ -1,0 +1,60 @@
+{set:$breadGuide = goods_class::catRecursion($this->catId)}
+{set:$goodsObj = search_goods::find(array('category_extend' => $this->childId),20);$resultData = $goodsObj->find()}
+
+<div class="bigweb">
+	<section class="breadcrumb">
+		<span>您当前的位置：</span> <a href="{url:}">首页</a>
+		{foreach:items=$breadGuide} >
+		<a href='{url:/site/pro_list/cat/$item['id']}'>{$item['name']} </a>
+		{/foreach}
+	</section>
+
+	<section class="web">
+		<!-- 条件过滤 -->
+		<aside class="condition_filter">
+			<!-- 分类 -->
+			{set:$catSide = Api::run('catTree',$this->catId)}
+			{if:$catSide}
+			<nav class="bar_goods_nav">
+				<h3><div>分类:</div></h3>
+				<ul>
+					{foreach:items=$catSide item=$first}
+					<li><a href="{url:/site/pro_list/cat/$first[id]}">{$first['name']}</a></li>
+					{/foreach}
+				</ul>
+			</nav>
+			{/if}
+			<!-- 分类 -->
+			<!-- 调用筛选 -->
+			{include:_goods_list_filter}
+			<!-- 调用筛选 -->
+		</aside>
+		<!-- 条件过滤 -->
+		<section class="prolist_main">
+			<!-- 商品列表 -->
+			<section class="goods_list">
+				{if:$resultData}
+				<ul>
+					{foreach:items=$resultData}
+					<li>
+						<a target="_blank" href="{url:/site/products/id/$item['id']}">
+							<img alt="{$item['name']}" src="{url:/pic/thumb/img/$item[img]/w/180/h/180}">
+							<p class="goods_title"><span>{$item['name']}</span></p>
+							<p class="goods_sell_price">￥{$item['sell_price']}</p>
+							<p class="goods_market_price">￥{$item['market_price']}</p>
+						</a>
+					</li>
+					{/foreach}
+				</ul>
+				{$goodsObj->getPageBar()}
+
+				{else:}
+				<p class="no_tip">
+					对不起，没有找到相关商品
+				</p>
+				{/if}
+			</section>
+			<!-- 商品列表 -->
+		</section>
+	</section>
+</div>

@@ -1,0 +1,81 @@
+<div class="main f_r">
+	<div class="uc_title m_10">
+		<label><span><a href='{url:/ucenter/account_log}'>交易记录</a></span></label>
+		<label class="current"><span><a href='{url:/ucenter/withdraw}'>提现申请</a></span></label>
+	</div>
+
+	<div class="prompt m_10">
+		<p>账户预存款：<b class="orange f14">￥{$this->memberRow['balance']}</b></p>
+	</div>
+
+	<div class="box m_10">
+		<table class='list_table' width='100%' cellspacing='0' cellpadding='0'>
+			<col />
+			<col width="120px" />
+			<col width="100px" />
+			<col width="140px" />
+			<col width="80px" />
+			<col width="80px" />
+			<thead>
+				<tr>
+					<th>会员备注</th><th>管理员备注</th><th>金额</th><th>申请时间</th><th>状态</th><th>操作</th>
+				</tr>
+			</thead>
+
+			<tbody>
+				{set:$queryWithdrawList = Api::run('getWithdrawList')}
+			    {foreach:items = $queryWithdrawList->find()}
+				<tr>
+					<td>{$item['note']}</td>
+					<td>{$item['re_note']}</td>
+					<td>{$item['amount']} 元</td>
+					<td>{$item['time']}</td>
+					<td>{echo:AccountLog::getWithdrawStatus($item['status'])}</td>
+					<td>
+						{if:$item['status']==0}
+						<a href="javascript:delModel({link:'{url:/ucenter/withdraw_del/id/$item[id]}'});" class='blue'>取消</a>
+						{/if}
+					</td>
+				</tr>
+				{/foreach}
+			</tbody>
+		</table>
+
+		{$queryWithdrawList->getPageBar()}
+
+        {if:!$items}
+    	<div class="error f18 t_c light_gray">暂无数据</div>
+    	{/if}
+	</div>
+
+	<div class="orange_box">
+		<form action='{url:/ucenter/withdraw_act}' method='post' name='withdraw'>
+			<table class="form_table mt_10" width="100%" cellpadding="0" cellspacing="0">
+				<col width="120px" />
+				<col />
+				<tr>
+					<th>收款人姓名：</th>
+					<td>
+						<input type="text" class="normal" name='name' pattern='required' alt='请填写真实的收款人姓名' />
+						<label><span class='red'>*</span> 填写收款人真实的姓名</label>
+					</td>
+				</tr>
+				<tr>
+					<th>提现金额：</th>
+					<td>
+						<input type="text" class="normal" name='amount' pattern='float' alt='填写体现金额' />
+						<label><span class='red'>*</span>最低提现额度： ￥{echo:$this->_siteConfig->low_withdraw}</label>
+					</td>
+				</tr>
+				<tr>
+					<th>备注：</th>
+					<td>
+						<textarea name='note' pattern='required' alt='填写一些必要的提现信息'></textarea><br />
+						<label><span class='red'>*</span> 填写必要的提现信息，如开户银行，帐号等</label>
+					</td>
+				</tr>
+				<tr><th></th><td><label class="btn"><input type="submit" value="提交提现申请" /></label><label class="btn"><input type="reset" value="取消" /></label></td></tr>
+			</table>
+		</form>
+	</div>
+</div>

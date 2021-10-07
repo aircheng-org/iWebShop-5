@@ -1,0 +1,76 @@
+{set:$resultData=$this->comment;}
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">会员</a>
+		</li>
+		<li>
+			<a href="{url:/comment/comment_list}">评价管理</a>
+		</li>
+		<li class="active">查看评论</li>
+	</ul>
+</div>
+<div class="content">
+	<form action="{url:/comment/comment_update}" method="post" name="comment_edit">
+		<input type="hidden" value="{$resultData['id']}" name="id" />
+		<table class="table form-table">
+			<colgroup>
+				<col width="130px" />
+				<col />
+			</colgroup>
+
+			<tr>
+				<th>评论人：</th>
+				<td><a href="{url:/member/member_edit/uid/$resultData['user_id']}">{$resultData['username']}</a></td>
+			</tr>
+			<tr>
+				<th>购买时间：</th><td>{$resultData['time']}</td>
+			</tr>
+			<tr>
+				<th>评价商品：</th><td><a href="{url:/goods/products/id/$resultData['goods_id']}" target="_blank">{$resultData['name']}</a></td>
+			</tr>
+			<tr>
+				<th>评价时间：</th><td>{$resultData['comment_time']}</td>
+			</tr>
+			<tr>
+				<th>评价内容：</th><td>{$resultData['contents']}</td>
+			</tr>
+
+			{if:$resultData['img_list']}
+            <tr>
+                <th>评价图片：</th>
+                <td>
+                {foreach:items=JSON::decode($resultData['img_list']) item=$img}
+                    <a href="{url:$img}" target="_blank"><img class="img-thumbnail" style="width:100px;height:100px" src="{url:$img}" /></a>
+                {/foreach}
+                </td>
+            </tr>
+            {/if}
+
+			<tr>
+				<th>评价分数：</th><td>{$resultData['point']}分</td>
+			</tr>
+			{if:$resultData['seller_id']}
+			<tr><th>商家：</th><td><a href="{url:/site/home/id/$resultData['seller_id']}" target="_blank">商家主页</a></td></tr>
+			{/if}
+			<tr>
+				<th>回复评价：</th>
+				<td><textarea class='form-control' name='recontents' style='height:200px'>{$resultData['recontents']}</textarea></td>
+			</tr>
+			{if:$resultData['recomment_time']>0}
+			<tr>
+				<th>最后回复时间</th>
+				<td>{$resultData['recomment_time']}</td>
+			</tr>
+			{/if}
+			<tr>
+				<th></th>
+				<td>
+					<button type='submit' class='btn btn-primary'>确定</button>
+					<button type='reset' class='btn btn-primary'>重置</button>
+				</td>
+			</tr>
+		</table>
+	</form>
+</div>

@@ -1,0 +1,40 @@
+<div class="wrapper clearfix">
+	<div class="wrap_box">
+		<div class="error box clearfix">
+			<table class="form_table prompt_3">
+				<colgroup>
+					<col width="320px" />
+					<col />
+				</colgroup>
+
+				<tbody>
+					<tr>
+						<th><img src="{skin:images/front/right.gif}" width="48px" height="51px" /></th>
+						<td>
+							<strong class="f14">
+							{echo:IReq::get('message') ? IFilter::act(IReq::get('message'),'text') : '操作成功！'}
+							</strong>
+						</td>
+					</tr>
+
+					<tr>
+						<th></th>
+						<td>
+							您现在可以去：
+							{set:$callback = plugin::trigger('getCallback')}
+							{if:$callback}
+							<a class="blue" href="{url:$callback}">继续操作 >></a>
+							{/if}
+
+							{if:$this->user['user_id']}
+							<a class="blue" href="{url:/ucenter/index}">个人中心 >></a>
+							{/if}
+
+							<a class="blue" href="{url:/site/index}">网站首页 >></a>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>

@@ -1,0 +1,72 @@
+<header class="uc_head">
+	<h3>我的优惠券</h3>
+</header>
+
+<section class="uc_table">
+	<table>
+		<thead>
+			<tr>
+				<th>编号</th>
+				<th>面值</th>
+				<th>有效时间</th>
+				<th>限制说明</th>
+				<th>状况</th>
+			</tr>
+		</thead>
+		<tbody>
+		    {set:$queryPropList = Api::run('getPropList')}
+			{foreach:items=$queryPropList->find()}
+			<tr>
+				<td>{$item['card_name']}</td>
+				<td>{$item['value']}元</td>
+				<td>{echo:substr($item['end_time'],0,16)}</td>
+				<td>{echo:ticket::noteFull($item['condition'])}</td>
+				<td><a href="{echo:ticket::useUrl($item)}" name="ticket{echo:ticket::status($item)}">{echo:ticket::statusText(ticket::status($item))}</a></td>
+			</tr>
+			{/foreach}
+		</tbody>
+	</table>
+
+    {if:!$items}
+    <section class="no_tip">暂无数据</section>
+    {/if}
+</section>
+
+<header class="uc_head">
+	<h3>积分兑换</h3>
+</header>
+
+<section class="user_form">
+	{foreach:items=Api::run('getTicketList')}
+	<form action='{url:/ucenter/trade_ticket}' method='post'>
+	<div class="coupon-item">
+		<div class="style">
+			<div class="info-box">
+				<p class="nick">{$item['name']}</p>
+				<div class="coupon-money">
+					<div class="lay of">￥<em>{$item['value']}</em></div>
+					<div class="lay">
+						<p class="tit">需要{$item['point']}积分</p>
+						<p class="demand">有效日期：{$item['start_time']}至{$item['end_time']}</p>
+						<p>{echo:ticket::noteFull($item['id'])}</p>
+					</div>
+				</div>
+			</div>
+			<a href="javascript:;" class="get-btn">
+				<input type="hidden" name='ticket_id' value="{$item['id']}" />
+				<input type="submit" value="立即兑换" />
+			</a>
+		</div>
+	</div>
+	</form>
+	{/foreach}
+
+	{if:!$items}
+	<section class="no_tip">暂无数据</section>
+	{/if}
+</section>
+
+<script>
+$('[name^="ticket"]').css({"color":"red"});
+$('[name="ticket1"]').css({"color":"green","font-weight":"bold"});
+</script>

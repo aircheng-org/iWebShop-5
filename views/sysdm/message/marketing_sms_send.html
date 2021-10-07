@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>短信发送</title>
+{js:jquery}
+{js:dialog}
+{js:validate}
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="{webroot:public/css/twitter-bootstrap/3.3.7/css/bootstrap.min.css}">
+<script src="{webroot:public/javascript/twitter-bootstrap/3.3.7/js/bootstrap.min.js}"></script>
+</head>
+<body style="width:720px;min-height:460px;">
+<div class="container">
+<form action="{url:/message/start_marketing_sms}" method="post" style="margin-top:10px">
+    <div class="form-group form-inline">
+        <label class="form-control-static">收件人：</label>
+        <select class="form-control" onchange="changeCondition(this);">
+            <option value="all" selected="selected">全部用户</option>
+            <option value="username">用户名</option>
+            <option value="group_id">用户组</option>
+            <option value="mobile">用户手机号</option>
+            <option value="point">积分区间</option>
+            <option value="balance">预存款区间</option>
+        </select>
+        <span id="conditionBox" style="margin-left:20px;"></span>
+    </div>
+
+	<div class="form-group">
+		<textarea name="content" style="width:100%;min-height:300px;"></textarea>
+	</div>
+</form>
+</div>
+<script type='text/javascript'>
+//选择筛选条件
+function changeCondition(obj)
+{
+    var templateHtml = "";
+    var condition    = $(obj).val();
+    switch(condition)
+    {
+        case "username":
+        {
+            templateHtml = "<input type='text' class='form-control' name='search[username]' placeholder='用户名' pattern='required' />";
+        }
+        break;
+
+        case "group_id":
+        {
+            templateHtml = "<select class='form-control' name='search[group_id]' pattern='required'><option value=''>选择用户组</option>";
+            {foreach:items=Api::run('getUserGroupListAll')}
+            templateHtml+= "<option value='{$item['id']}'>{$item['group_name']}</option>";
+            {/foreach}
+            templateHtml+= "</select>";
+        }
+        break;
+
+        case "mobile":
+        {
+            templateHtml = "<input type='text' class='form-control' name='search[mobile]' placeholder='用户手机号' pattern='mobi' />";
+        }
+        break;
+
+        case "point":
+        {
+            templateHtml = "<input type='text' class='form-control' name='search[point_min]' placeholder='积分最小值' pattern='int' /> —— ";
+            templateHtml+= "<input type='text' class='form-control' name='search[point_max]' placeholder='积分最大值' pattern='int' />";
+        }
+        break;
+
+        case "balance":
+        {
+            templateHtml = "<input type='text' class='form-control' name='search[balance_min]' placeholder='预存款最小值' pattern='int' /> —— ";
+            templateHtml+= "<input type='text' class='form-control' name='search[balance_max]' placeholder='预存款最大值' pattern='int' />";
+        }
+        break;
+
+        default:
+        {
+            templateHtml = "<p class='form-control-static'>【全部用户】</p>";
+        }
+    }
+    $('#conditionBox').html(templateHtml);
+}
+</script>
+</body>
+</html>

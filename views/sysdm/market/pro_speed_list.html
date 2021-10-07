@@ -1,0 +1,67 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">营销</a>
+		</li>
+		<li>
+			<a href="#">营销活动管理</a>
+		</li>
+		<li class="active">限时抢购</li>
+	</ul>
+</div>
+<div class="content">
+	<form method='post' action='{url:/market/pro_speed_del}'>
+		<table class="table list-table">
+			<colgroup>
+				<col width="35px" />
+				<col />
+				<col width="330px" />
+				<col width="120px" />
+				<col width="120px" />
+			</colgroup>
+			<caption>
+                <a class="btn btn-default" href="{url:/market/pro_speed_edit}">
+                    <i class="fa fa-plus"></i>添加限时抢购
+                </a>
+                <a class="btn btn-default" onclick="selectAll('id[]')">
+                    <i class="fa fa-check"></i>全选
+                </a>
+                <a class="btn btn-default" onclick="delModel()">
+                    <i class="fa fa-close"></i>批量删除
+                </a>
+			</caption>
+			<thead>
+				<tr>
+					<th></th>
+					<th>名称</th>
+					<th>活动时间</th>
+					<th>状态</th>
+					<th>操作</th>
+				</tr>
+			</thead>
+
+			<tbody>
+				{set:$queryObj=Api::run('getListSpeed');$resultData=$queryObj->find()}
+                {foreach:items=$resultData}
+				<tr>
+					<td><input type='checkbox' name='id[]' value='{$item['id']}' /></td>
+					<td><a href='{url:/site/products/id/$item['condition']}' target='_blank'>{$item['name']}</a></td>
+					<td>{$item['start_time']} ～ {$item['end_time']}</td>
+					<td>{echo:active::statusTime($item)}</td>
+					<td>
+						<a href='{url:/market/pro_speed_edit/id/$item['id']}'>
+							<i class='operator fa fa-edit'></i>
+						</a>
+
+						<a href='javascript:void(0)' onclick="delModel({link:'{url:/market/pro_speed_del/id/$item['id']}'});">
+							<i class='operator fa fa-close'></i>
+						</a>
+					</td>
+				</tr>
+				{/foreach}
+			</tbody>
+		</table>
+	</form>
+</div>
+{$queryObj->getPageBar()}

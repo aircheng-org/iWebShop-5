@@ -1,0 +1,45 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">工具</a>
+		</li>
+		<li>
+			<a href="#">关键词管理</a>
+		</li>
+		<li class="active">添加关键词</li>
+	</ul>
+</div>
+
+<div class="content">
+	<form action='{url:/tools/keyword_add}' method='post'>
+		<table class="table form-table">
+			<colgroup>
+				<col width="130px" />
+				<col />
+			</colgroup>
+
+			<tr>
+				<th>关键词：</th>
+				<td><input type='text' name='word' class='form-control' value='' pattern="required" placeholder="请填写最少一个词语" /><p class="help-block">搜索和查询商品信息的依据，必须节选自商品的名称中，可以填写多个词，以“，” 分隔</p></td>
+			</tr>
+			<tr>
+				<th>是否为热门词：</th>
+				<td>
+					<label class='radio-inline'><input type='radio' name='hot' value='1' />是</label>
+					<label class='radio-inline'><input type='radio' name='hot' value='0' checked=checked />否</label>
+				</td>
+			</tr>
+			<tr>
+				<th>排序：</th>
+				<td>
+					<input type='text' name='order' class='form-control' pattern='int' alt='请填写数字' />
+					<p class="help-block">数值越小，排名越靠前</p>
+				</td>
+			</tr>
+			<tr>
+				<td></td><td><button class='btn btn-primary' type='submit'>确定</button></td>
+			</tr>
+		</table>
+	</form>
+</div>

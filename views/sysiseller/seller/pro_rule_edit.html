@@ -1,0 +1,140 @@
+{js:my97date}
+<article class="col-lg-12">
+	<div class="card forms">
+		<div class="card-header">
+			<h3>编辑促销活动</h3>
+		</div>
+
+		<div class="card-body">
+			<form action="{url:/seller/pro_rule_edit_act}" method="post" name='pro_rule_edit' class="form-horizontal">
+				<input type='hidden' name='id' />
+
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label">活动名称</label>
+					<div class="col-sm-10">
+						<input class="form-control" name="name" type="text" pattern="required" value="" alt="请填写活动名称" />
+					</div>
+				</div>
+
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label">活动时间</label>
+					<div class="col-sm-10">
+					    <div class="d-flex">
+					        <input type='text' class="form-control w-25 mr-2" name='start_time' pattern='datetime' onFocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" alt='请填写一个日期' placeholder="活动开始时间" /> ——
+                            <input type='text' class="form-control w-25 ml-2" name='end_time' pattern='datetime' onFocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" alt='请填写一个日期' placeholder="活动结束时间" />
+					    </div>
+						<small class="help-block-none">* 此活动生效的时间段</small>
+					</div>
+				</div>
+
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label">允许参与人群</label>
+					<div class="col-sm-10">
+						{foreach:items=Api::run('getUserGroupListAll')}
+						<div class="form-check form-check-inline">
+						    <label class='form-check-label'><input type='checkbox' class="checkbox-template form-check-input" name='user_group[]' value='{$item['id']}' />{$item['group_name']}</label>
+						</div>
+						{/foreach}
+						<small class="help-block-none">如果不设置用户组表示不限</small>
+					</div>
+				</div>
+
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label">是否开启</label>
+					<div class="col-sm-10">
+					    <div class="form-check form-check-inline">
+							<label class="form-check-label"><input type='radio' name="is_close" value="0" checked="checked" class="radio-template form-check-input" />是</label>
+					    </div>
+
+					    <div class="form-check form-check-inline">
+					        <label class="form-check-label"><input type='radio' name="is_close" value="1" class="radio-template form-check-input" />否</label>
+					    </div>
+					</div>
+				</div>
+
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label">活动介绍</label>
+					<div class="col-sm-10">
+						<textarea name='intro' class="form-control" style="height:80px;">{$this->promotionRow['intro']}</textarea>
+					</div>
+				</div>
+
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label">订单总金额条件</label>
+					<div class="col-sm-10">
+						<div class="input-group w-25">
+							<input class="form-control" name='condition' pattern='float' alt='请填写一个金额数字' />
+							<div class="input-group-append"><span class="input-group-text">元</span></div>
+						</div>
+						<small class="help-block-none">当购物车总金额达到所填写的现金额度时规则生效</small>
+					</div>
+				</div>
+
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label">活动规则</label>
+					<div class="col-sm-10">
+						<select name='award_type' pattern='required' alt='请选择一种规则' onchange="change_rule(this.value);" class="form-control">
+							<option value=''>请选择</option>
+							<option value='1'>当购物车金额满 M 元时,优惠 N 元</option>
+							<option value='2'>当购物车金额满 M 元时,优惠 N% </option>
+							<option value='6'>当购物车金额满 M 元时,免运费</option>
+						</select>
+						<small class="help-block-none">* 选择一种活动规则</small>
+					</div>
+				</div>
+
+				<div class="form-group row" id='rule_box'></div>
+
+				<div class="form-group row">
+					<div class="col-sm-4 offset-sm-2">
+						<input type="submit" class="btn btn-primary" value="确 定" />
+						<input type="reset" class="btn btn-secondary" value="重 置" />
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</article>
+
+<script type='text/javascript'>
+//修改规则
+function change_rule(selectVal)
+{
+	//判断是否为真正的onchange事件
+	if(selectVal != $('#rule_box').data('index'))
+	{
+		$('#rule_box').data('index',selectVal);
+	}
+	else
+	{
+		return;
+	}
+
+	var html = '';
+	switch(selectVal)
+	{
+		case "1":
+		{
+			html = "<label class='col-sm-2 col-form-label'>优惠金额</label>"
+					+"<div class='col-sm-10'><div class='input-group w-25'><input type='text' name='award_value' class='form-control' pattern='float' alt='请填写一个金额数字' /><div class='input-group-append'><span class='input-group-text'>元</span></div></div>"
+					+"<small class='help-block-none'>* 优惠的金额，从购物车总金额中减掉此部分金额</small></div>";
+		}
+		break;
+
+		case "2":
+		{
+			html = "<label class='col-sm-2 col-form-label'>优惠百分比</label>"
+					+"<div class='col-sm-10'><div class='input-group w-25'><input type='text' name='award_value' class='form-control' pattern='float' alt='请填写一个数字' /><div class='input-group-append'><span class='input-group-text'>%</span></div></div>"
+					+"<small class='help-block-none'>* 优惠的百分比，从购物车总金额中的折扣百分比，如输入10则表示优惠10%</small></div>";
+		}
+		break;
+	}
+	$('#rule_box').html(html);
+	formObj.setValue('award_value',"{$this->promotionRow['award_value']}");
+}
+
+//表单回填
+var formObj = new Form('pro_rule_edit');
+formObj.init({echo:JSON::encode($this->promotionRow)});
+change_rule("{$this->promotionRow['award_type']}");
+</script>

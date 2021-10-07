@@ -1,0 +1,28 @@
+{set:$goods_id = IFilter::act(IReq::get('goods_id'),'int');}
+<div class="wrapper clearfix">
+	<div class="wrap_box">
+		<h3 class="notice">到货通知</h3>
+		<p class="tips">欢迎来到我们的网站，如果您所购买的商品到货了，我们会用短信或手机通知您</p>
+		<div class="box clearfix">
+			<form action="{url:/simple/arrival_notice}" method="post">
+			<input name="goods_id" type="hidden" value="{$goods_id}"/>
+			<table class="form_table">
+				<col width="300px" />
+				<col />
+				<tr>
+					<th class="t_r">邮箱地址：</th>
+					<td><input name="email" class="gray current" type="text" pattern='email' alt='请正确填写邮箱地址！' /><label>*填写正确的邮箱板式</label></td>
+				</tr>
+				<tr>
+					<th class="t_r">手机号码：</th>
+					<td><input name="mobile" class="gray" pattern='mobi' empty alt='手机号码格式不正确！' type="text" /><label>如果不想以手机短信的方式，可以不填！</label></td>
+				</tr>
+				<tr>
+					<td></td>
+					<td><input class="submit" type="submit" value="提交" /></td>
+				</tr>
+			</table>
+			</form>
+		</div>
+	</div>
+</div>

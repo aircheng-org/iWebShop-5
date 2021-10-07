@@ -1,0 +1,75 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">订单</a>
+		</li>
+		<li>
+			<a href="#">快递单管理</a>
+		</li>
+		<li class="active">发货信息管理</li>
+	</ul>
+</div>
+<div class="content">
+	<form action="{url:/order/ship_info_del}" method="post">
+	<table class="table list-table">
+		<colgroup>
+			<col width="35px" />
+			<col />
+		</colgroup>
+
+		<caption>
+            <a class="btn btn-default" href='{url:/order/ship_info_edit}'>
+                <i class="fa fa-plus"></i>添加发货信息
+            </a>
+            <a class="btn btn-default" onclick="selectAll('id[]')">
+                <i class="fa fa-check"></i>全选
+            </a>
+            <a class="btn btn-default" onclick="delModel()">
+                <i class="fa fa-close"></i>批量删除
+            </a>
+            <a class="btn btn-default" href='{url:/order/ship_recycle_list}'>
+                <i class="fa fa-trash"></i>回收站
+            </a>
+		</caption>
+		<thead>
+			<tr>
+				<th></th>
+				<th>发货点名称</th>
+				<th>地址</th>
+				<th>邮编</th>
+				<th>电话</th>
+				<th>发货人</th>
+				<th>默认</th>
+				<th>操作</th>
+			</tr>
+		</thead>
+
+		<tbody>
+			{set:$queryObj=Api::run('getShipInfoList',array('is_del'=>0));$resultData=$queryObj->find()}
+            {foreach:items=$resultData}
+			<tr>
+				<td><input name="id[]" type="checkbox" value="{$item['id']}" /></td>
+				<td>{$item['ship_name']}</td>
+				<td>{$item['address']}</td>
+				<td>{$item['postcode']}</td>
+				<td>{if:$item['mobile']!=""}{$item['mobile']}{else:}{$item['telphone']}{/if}</td>
+				<td>{$item['ship_user_name']}</td>
+				<td>
+					{if:$item['is_default']==1}
+					<a class='text-red' href="{url:/order/ship_info_default/id/$item['id']/default/0}">取消默认</a>
+					{else:}
+					<a class="text-blue" href="{url:/order/ship_info_default/id/$item['id']/default/1}">设为默认</a>
+					{/if}
+				</td>
+				<td>
+					<a href="{url:/order/ship_info_edit/id/$item['id']}"><i class='operator fa fa-edit'></i></a>
+					<a href="javascript:delModel({link:'{url:/order/ship_info_del/id/$item['id']}'})"><i class='operator fa fa-close'></i></a>
+				</td>
+			</tr>
+			{/foreach}
+		</tbody>
+	</table>
+	</form>
+</div>
+{$queryObj->getPageBar()}

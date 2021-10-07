@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>使用优惠券</title>
+	{js:form}
+	{js:jquery}
+	{js:dialog}
+	{js:artTemplate}
+	{js:validate}
+<style>
+.__ticket {overflow-y: hidden;}
+.__ticket,.__ticket * {padding: 0;margin: 0;list-style: none;font-size: 12px;}
+.__ticket .__ticket_box {padding: 8px;max-height: 400px;min-height: 250px;overflow-y: auto;}
+.__ticket .__ticket_box .mb10 {margin-bottom: 10px;}
+.__ticket .__ticket_box .brs5 {border-radius: 5px;}
+.__ticket .__ticket_box .hide {display: none;}
+.__ticket .__ticket_box .__tip {padding: 10px;color: #886537;background: #FEF8E5;border: 1px solid #FCEBCC;}
+.__ticket .__ticket_box .__canecl,.__ticket .__ticket_box .__add_ticket {
+	border: 1px solid #DC3E3F;background: #E15253;color: #fff;display: block;width: 100%;height: 40px;cursor: pointer;line-height: 40px;text-align: center;
+}
+.__ticket .__ticket_box .__add_ticket {border: 1px solid #1E7EBA;background: #2F8BC7;}
+.__ticket .__ticket_box .__add_ticket_box {position: fixed;left: 0;top: 0;right: 0;bottom: 0;background: #fff;padding:20px 8px 8px;overflow-y: auto;}
+.__ticket .__ticket_box .__add_ticket_box li {margin-bottom: 20px;position: relative;}
+.__ticket .__ticket_box .__add_ticket_box li span {
+	position: absolute;height: 10px;line-height: 10px;background: #fff;top: -7px;padding: 0 10px;left: 5px;
+	color: #999;font-size: 12px;z-index: 1;
+}
+.__ticket .__ticket_box .__add_ticket_box li .__text {
+	display: block;width: 100%;height: 16px;line-height: 16px;border-radius: 0;padding: 10px 0;border: none;
+	background: #fff;text-indent: 10px;outline: 1px solid #ddd;
+}
+#ticket_show_box li input[type="checkbox"]{vertical-align: sub;}
+#ticket_show_box li{border: 1px solid #ddd;background: #fafafa;color: #555;line-height: 20px;padding: 10px 0;text-indent: 10px;}
+#ticket_show_box li .disabled{color:#ccc; cursor: not-allowed;}
+</style>
+</head>
+
+<body class="__ticket">
+<div class="__ticket_box">
+	<form action="#" method="post" name="ticketForm">
+		<div class="__tip mb10 brs5">
+			注：选择优惠券仅能抵扣一个商家的商品金额
+		</div>
+		<div class="__ticket_list">
+			<ul id="ticket_show_box"></ul>
+		</div>
+		<div class="__add_ticket brs5" onclick="$('#addbox').show()">有卡号密码</div>
+		<div class="__add_ticket_box hide" id="addbox">
+			<ul>
+				<li>
+					<span>优惠券卡号</span>
+					<input type='text' class="__text" id='ticket_num' placeholder="卡号" />
+				</li>
+				<li>
+					<span>优惠券密码</span>
+					<input type='password' class="__text" id='ticket_pwd' placeholder="密码" />
+				</li>
+				<li>
+					<input type="button" class="__add_ticket brs5" onclick="add_ticket();" value="填完" />
+				</li>
+				<li>
+					<input type="button" class="__canecl brs5" onclick="$('#addbox').hide()" value="返回" />
+				</li>
+			</ul>
+		</div>
+	</form>
+</div>
+</body>
+
+<!--优惠券模板-->
+<script type='text/html' id='ticketTrTemplate'>
+<li class="mb10">
+	<label <%if(!item.valid){%>class="disabled"<%}%>>
+		<input name="ticket_id" onclick="userTicket(this);" type="checkbox" price="<%=item.price%>" <%if(item.valid){%> value="<%=item.id%>" <%}else{%> disabled="disabled" <%}%> />
+		<%=item.name%>【<%=item.card_name%>】【￥<%=item.value%>】<%=item.noteFull%>
+	</label>
+</li>
+</script>
+
+<script type='text/javascript'>
+jQuery(function()
+{
+	{if:$this->prop}
+	{foreach:items=$this->prop}
+	var propItem = template.render("ticketTrTemplate",{"item":{echo:JSON::encode($item)}});
+	$('#ticket_show_box').prepend(propItem);
+	{/foreach}
+	$('#ticket_show_box').show();
+	{/if}
+
+    var ticket_id = art.dialog.data('ticket_id');
+    if(ticket_id)
+    {
+        $('input[type="checkbox"][name="ticket_id"][value="'+ticket_id+'"]').prop('checked',true);
+    }
+})
+
+/**
+ * @brief 选择优惠券
+ * @param _self object 当前对象
+ */
+function userTicket(_self)
+{
+    var checkedLength = $('[name="ticket_id"]:checked').length;
+    if(checkedLength > 1)
+    {
+    	$('[name="ticket_id"]').prop('checked',false);
+    	$(_self).prop('checked',true);
+    }
+}
+
+//添加优惠券
+function add_ticket()
+{
+    var goodsInfo  = "{$this->goodsInfo}";
+	var ticket_num = $('#ticket_num').val();
+	var ticket_pwd = $('#ticket_pwd').val();
+
+	if(ticket_num == '' || ticket_pwd == '')
+	{
+		alert('请填写卡号和密码');
+		return '';
+	}
+
+	$.getJSON("{url:/block/add_download_ticket}",{"ticket_num":ticket_num,"ticket_pwd":ticket_pwd,"goodsInfo":goodsInfo},function(content){
+		if(content.isError == false)
+		{
+			if($('[name="ticket_id"][value="'+content.data.id+'"]').length > 0)
+			{
+				alert('优惠券已经存在，不要重复添加');
+				return;
+			}
+
+			var ticketHtml = template.render('ticketTrTemplate',{item:content.data});
+			$('#ticket_show_box').prepend(ticketHtml);
+			$('#ticket_show_box').show();
+
+			$('#ticket_num').val('');
+			$('#ticket_pwd').val('');
+			$('#addbox').hide();
+		}
+		else
+		{
+			alert(content.message);
+		}
+	});
+}
+</script>
+</html>

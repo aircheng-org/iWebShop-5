@@ -1,0 +1,70 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">订单</a>
+		</li>
+		<li>
+			<a href="#">单据管理</a>
+		</li>
+		<li class="active">维修申请列表</li>
+	</ul>
+</div>
+
+<div class="content">
+	<form name="orderForm" action="{url:/order/fix_doc_del}" method="post">
+	<table class="table list-table">
+		<colgroup>
+			<col width="35px" />
+			<col width="160px" />
+			<col width="170px" />
+			<col />
+			<col width="110px" />
+			<col width="50px" />
+		</colgroup>
+		<caption>
+            <a class="btn btn-default" onclick="selectAll('id[]')">
+                <i class="fa fa-check"></i>全选
+            </a>
+            <a class="btn btn-default" onclick="delModel()">
+                <i class="fa fa-close"></i>批量删除
+            </a>
+		</caption>
+		<thead>
+			<tr>
+				<th></th>
+				<th>订单号</th>
+				<th>申请时间</th>
+				<th>维修商品名称</th>
+				<th>状态</th>
+				<th>操作</th>
+			</tr>
+		</thead>
+
+		<tbody>
+			{set:$queryObj=Api::run('getFixList');$resultData=$queryObj->find()}
+            {foreach:items=$resultData}
+			<tr>
+				<td><input name="id[]" type="checkbox" value="{$item['id']}" /></td>
+				<td>{$item['order_no']}</td>
+				<td>{$item['time']}</td>
+				<td>
+					{foreach:items=Api::run('getOrderGoodsRowById',array('id'=>$item["order_goods_id"])) item=$itemGoods}
+					{set:$goods = JSON::decode($itemGoods['goods_array'])}
+					<p>
+						<a href="{url:/site/products/id/$itemGoods['goods_id']}" target="_blank">{$goods['name']} X {echo:order_class::refundsDocNums($item,$itemGoods['id'])}</a>
+						{if:$item['seller_id']}
+						<a href="{url:/site/home/id/$item['seller_id']}" target="_blank"><i class='operator fa fa-user'></i></a>
+						{/if}
+					</p>
+					{/foreach}
+				</td>
+				<td>{echo:Order_Class::refundmentText($item['status'])}</td>
+				<td><a href="{url:/order/fix_doc_show/id/$item['id']}"><i class='operator fa fa-eye'></i></a></td>
+			</tr>
+			{/foreach}
+		</tbody>
+	</table>
+	</form>
+</div>
+{$queryObj->getPageBar()}

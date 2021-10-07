@@ -1,0 +1,60 @@
+<div class="bigweb">
+<section class="breadcrumb">
+	<span>您当前的位置：</span> <a href="{url:}">首页</a> » 咨询
+</section>
+
+<section class="web">
+	<section class="main">
+		<h2 class="main_head">我要咨询</h2>
+		<div class="prompt">
+			<span class="red">*</span>声明：您可在购买前对产品包装、颜色、运输、库存等方面进行咨询，我们有专人进行回复！因厂家随时会更改一些产品的包装、颜色、产地等参数，所以该回复仅在当时对提问者有效，其他网友仅供参考！咨询回复的工作时间为：周一至周五，9:00至18:00，请耐心等待工作人员回复。
+		</div>
+		<section class="user_form">
+			<form action='{url:/site/consult_act}' method='post' name='consult'>
+				<input type='hidden' name='goods_id' value='{$this->goodsRow['id']}' />
+				<dl>
+					<dt>咨询类型：</dt>
+					<dd>
+						<label><input class="radio" type="radio" value="0" name="type" checked=checked />商品咨询</label>
+						<label><input class="radio" type="radio" value="1" name="type" />库存及配送</label>
+						<label><input class="radio" type="radio" value="2" name="type" />支付问题</label>
+						<label><input class="radio" type="radio" value="3" name="type" />发票及保修</label>
+						<label><input class="radio" type="radio" value="4" name="type" />促销及商品</label>
+					</dd>
+				</dl>
+				<dl>
+					<dt>咨询内容：</dt>
+					<dd><textarea class="input_textarea" name='question' pattern='required' alt=''></textarea></dd>
+				</dl>
+				<dl>
+					<dt>验证码：</dt>
+					<dd>
+						<input type='text' class='input_text w100' name='captcha' pattern='^\w{5,10}$' alt='填写图片所示的字符' />
+						<img src='{url:/site/getCaptcha}' id='captchaImg' onclick="changeCaptcha()" />
+					</dd>
+				</dl>
+				<dl>
+					<dt></dt>
+					<dd><input class="input_submit" type="submit" value="发表咨询" /></dd>
+				</dl>
+			</form>
+		</section>
+	</section>
+	<aside class="bar">
+		<div class="bar_box">
+			<h3 class="bar_box_head">商品信息</h3>
+			<div class="bar_goods_big">
+				<a target="_blank" href="{url:/site/products/id/$this->goodsRow['id']}">
+					<img alt="{$this->goodsRow['name']}" src="{url:/pic/thumb/img/$this->goodsRow['img']/w/180/h/180}">
+					<h5>{$this->goodsRow['name']}</h5>
+					<em>￥{$this->goodsRow['sell_price']}</em>
+					<label class="star_box">
+						<span class="item">评分</span>
+						<span class="star star_{echo:$this->goodsRow['apoint']}"></span>
+					</label>
+				</a>
+			</div>
+		</div>
+	</aside>
+</section>
+</div>

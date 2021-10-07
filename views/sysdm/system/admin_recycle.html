@@ -1,0 +1,69 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">系统</a>
+		</li>
+		<li>
+			<a href="#">权限管理</a>
+		</li>
+		<li class="active">管理员回收站</li>
+	</ul>
+</div>
+<div class="content">
+	<form name='searchForm' method='post' action='#'>
+		<table class="table list-table">
+			<colgroup>
+				<col width="35px" />
+				<col width="150px" />
+				<col width="100px" />
+				<col width="200px" />
+				<col />
+			</colgroup>
+			<caption>
+                <a class="btn btn-default" href='{url:/system/admin_list}'>
+                    <i class="fa fa-reply"></i>返回列表
+                </a>
+                <a class="btn btn-default" onclick="selectAll('id[]');">
+                    <i class="fa fa-check"></i>全选
+                </a>
+                <a class="btn btn-default" onclick="delModel({msg:'是否进行彻底删除？','form':'searchForm','link':'{url:/system/admin_update}'});">
+                    <i class="fa fa-close"></i>批量删除
+                </a>
+                <a class="btn btn-default" onclick="delModel({msg:'是否进行恢复？','form':'searchForm','link':'{url:/system/admin_update/recycle/rec}'});">
+                    <i class="fa fa-recycle"></i>批量还原
+                </a>
+				</caption>
+			<thead>
+				<tr>
+					<th></th>
+					<th>用户名</th>
+					<th>角色</th>
+					<th>Email</th>
+					<th>上次登录IP</th>
+					<th>上次登录时间</th>
+					<th>操作</th>
+				</tr>
+			</thead>
+
+			<tbody>
+		        {set:$queryObj=Api::run('getListByAdmin',array('is_del'=>'1'));$resultData=$queryObj->find()}
+                {foreach:items=$resultData}
+				<tr>
+					<td><input type='checkbox' name='id[]' value='{$item['id']}' /></td>
+					<td>{$item['admin_name']}</td>
+					<td>{echo:$item['role_name'] ? $item['role_name'] : '超级管理员'}</td>
+					<td>{$item['email']}</td>
+					<td>{$item['last_ip']}</td>
+					<td>{$item['last_time']}</td>
+					<td>
+						<a href='javascript:void(0)' onclick="delModel({link:'{url:/system/admin_update/id/$item['id']}',msg:'是否对信息进行彻底删除？'});"><i class='operator fa fa-close'></i></a>
+						<a href='javascript:void(0)' onclick="delModel({link:'{url:/system/admin_update/recycle/rec/id/$item['id']}',msg:'是否对信息进行恢复？'});"><i class='operator fa fa-recycle'></i></a>
+					</td>
+				</tr>
+				{/foreach}
+			</tbody>
+		</table>
+	</form>
+</div>
+{$queryObj->getPageBar()}

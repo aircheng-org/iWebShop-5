@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>{$this->_siteConfig->name}</title>
+	<link type="image/x-icon" href="{webroot:favicon.ico}" rel="icon">
+	<link rel="stylesheet" href="{skin:css/index.css}" />
+	{js:jquery}
+	{js:form}
+	{js:validate}
+	{js:dialog}
+	{js:artTemplate}
+	<script type='text/javascript' src='{theme:javascript/site.js}'></script>
+	<script type='text/javascript' src='{webroot:public/javascript/public.js}'></script>
+</head>
+<body class="index">
+<div class="container">
+	<div class="header">
+		<h1 class="logo"><a title="{$this->_siteConfig->name}" style="background:url({if:$this->_siteConfig->logo}{webroot:$this->_siteConfig->logo}{else:}{skin:images/front/logo.gif}{/if}) center no-repeat;background-size:contain;" href="{url:}">{echo:$this->_siteConfig->name}</a></h1>
+		<ul class="shortcut">
+			<li>{set:plugin::trigger('siteTopMenu')}</li>
+			<li class="first"><a href="{url:/ucenter/index}">我的账户</a></li>
+			<li><a href="{url:/ucenter/order}">我的订单</a></li>
+			<li><a href="{url:/simple/seller}">申请开店</a></li>
+			<li><a href="{url:/seller/index}">商家管理</a></li>
+			<li class='last'><a href="{url:/site/help_list}">使用帮助</a></li>
+		</ul>
+		<p class="loginfo">
+			{if:$this->user}
+			{echo:$this->user['username']}您好，欢迎您来到{echo:$this->_siteConfig->name}购物！[<a href="{url:/simple/logout}" class="reg">安全退出</a>]
+			{else:}
+			[<a href="{url:/simple/login}">登录</a><a class="reg" href="{url:/simple/reg}">免费注册</a>]
+			{/if}
+		</p>
+	</div>
+	<div class="navbar">
+		<ul>
+			<li><a href="{url:/site/index}">首页</a></li>
+			{foreach:items=Api::run('getGuideList')}
+			<li><a href="{url:$item['link']}">{$item['name']}<span> </span></a></li>
+			{/foreach}
+		</ul>
+
+		<div class="mycart" name="mycart">
+			<dl>
+				<dt><a href="{url:/simple/cart}">购物车<b name="mycart_count">0</b>件</a></dt>
+				<dd><a href="{url:/simple/cart}">去结算</a></dd>
+			</dl>
+
+			<!--购物车浮动div 开始-->
+			<div class="shopping" id='div_mycart' style='display:none;'></div>
+			<!--购物车浮动div 结束-->
+
+			<!--购物车模板 开始-->
+			<script type='text/html' id='cartTemplete'>
+			<dl class="cartlist">
+				<%for(var item in goodsData){%>
+				<%var data = goodsData[item]%>
+				<dd id="site_cart_dd_<%=item%>">
+					<div class="pic f_l"><img width="55px" height="55px" src="<%=webroot(data['img'])%>"></div>
+					<h3 class="title f_l"><a href="{url:/site/products/id/<%=data['goods_id']%>}"><%=data['name']%></a></h3>
+					<div class="price f_r t_r">
+						<b class="block">￥<%=data['sell_price']%> x <%=data['count']%></b>
+						<input class="del" type="button" value="删除" onclick="removeCart('<%=data['id']%>','<%=data['type']%>');$('#site_cart_dd_<%=item%>').hide('slow');" />
+					</div>
+				</dd>
+				<%}%>
+
+				<dd class="static"><span>共<b name="mycart_count"><%=goodsCount%></b>件商品</span>金额总计：<b name="mycart_sum">￥<%=goodsSum%></b></dd>
+
+				<%if(goodsData){%>
+				<dd class="static">
+					<label class="btn_orange"><input type="button" value="去购物车结算" onclick="window.location.href='{url:/simple/cart}';" /></label>
+				</dd>
+				<%}%>
+			</dl>
+			</script>
+			<!--购物车模板 结束-->
+		</div>
+	</div>
+
+	<div class="searchbar">
+		<div class="allsort">
+			<a href="javascript:void(0);">全部商品分类</a>
+
+			<!--总的商品分类-开始-->
+			<ul class="sortlist" id='div_allsort' style='display:none'>
+				{foreach:items=Api::run('getCategoryListTop')  item=$first}
+				<li>
+					<h2><a href="{url:/site/pro_list/cat/$first['id']}">{$first['name']}</a></h2>
+
+					<!--商品分类 浮动div 开始-->
+					<div class="sublist" style='display:none'>
+						<div class="items">
+							<strong>选择分类</strong>
+							{foreach:items=Api::run('getCategoryByParentid',array('#parent_id#',$first['id']))  item=$second}
+							<dl class="category selected">
+								<dt>
+									<a href="{url:/site/pro_list/cat/$second['id']}">{$second['name']}</a>
+								</dt>
+
+								<dd>
+									{foreach:items=Api::run('getCategoryByParentid',array('#parent_id#',$second['id']))  item=$third}
+									<a href="{url:/site/pro_list/cat/$third['id']}">{$third['name']}</a>|
+									{/foreach}
+								</dd>
+							</dl>
+							{/foreach}
+						</div>
+					</div>
+					<!--商品分类 浮动div 结束-->
+				</li>
+				{/foreach}
+			</ul>
+			<!--总的商品分类-结束-->
+		</div>
+
+		<div class="searchbox">
+			<form method='get' action='{url:/}'>
+				<input type='hidden' name='controller' value='site' />
+				<input type='hidden' name='action' value='search_list' />
+				<input class="text" type="text" name='word' autocomplete="off" value="" placeholder="请输入关键词..."  />
+				<input class="btn" type="submit" value="商品搜索" />
+			</form>
+		</div>
+
+		<div class="hotwords">热门搜索：
+			{foreach:items=Api::run('getKeywordList') }
+			{set:$tmpWord = urlencode($item['word']);}
+			<a href="{url:/site/search_list/word/$tmpWord}">{$item['word']}</a>
+			{/foreach}
+		</div>
+	</div>
+	{echo:Ad::show("页面顶部通栏广告条960*70(default)")}
+
+	{viewcontent}
+
+	<div class="help m_10">
+		<div class="cont clearfix">
+			{foreach:items=Api::run('getHelpCategoryFoot') item=$helpCat}
+			<dl>
+     			<dt><a href="{url:/site/help_list/id/$helpCat['id']}">{$helpCat['name']}</a></dt>
+				{foreach:items=Api::run('getHelpListByCatidAll',array('#cat_id#',$helpCat['id']))}
+					<dd><a href="{url:/site/help/id/$item['id']}">{$item['name']}</a></dd>
+				{/foreach}
+      		</dl>
+      		{/foreach}
+		</div>
+	</div>
+	{echo:IFilter::stripSlash($this->_siteConfig->site_footer_code)}
+</div>
+
+<script type='text/javascript'>
+$(function()
+{
+	//搜索框填充默认数据
+	$('input:text[name="word"]').val("{$this->word}");
+
+	var allsortLateCall = new lateCall(200,function(){$('#div_allsort').show();});
+
+	//商品分类
+	$('.allsort').hover(
+		function(){
+			allsortLateCall.start();
+		},
+		function(){
+			allsortLateCall.stop();
+			$('#div_allsort').hide();
+		}
+	);
+	$('.sortlist li').each(
+		function(i)
+		{
+			$(this).hover(
+				function(){
+					$(this).addClass('hover');
+					$('.sublist:eq('+i+')').show();
+				},
+				function(){
+					$(this).removeClass('hover');
+					$('.sublist:eq('+i+')').hide();
+				}
+			);
+		}
+	);
+
+	//排行,浏览记录的图片
+	$('#ranklist li').hover(
+		function(){
+			$(this).addClass('current');
+		},
+		function(){
+			$(this).removeClass('current');
+		}
+	);
+});
+</script>
+</body>
+</html>

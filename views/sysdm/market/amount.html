@@ -1,0 +1,145 @@
+{set:
+	$start = IFilter::act(IReq::get('start'));
+	$end   = IFilter::act(IReq::get('end'));
+	$countData = statistics::spandAmount($start,$end);
+}
+
+{js:my97date}
+{js:chart}
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">统计</a>
+		</li>
+		<li>
+			<a href="#">基础数据统计</a>
+		</li>
+		<li class="active">销售额统计</li>
+	</ul>
+</div>
+<div class="content">
+	<form action='{url:/}' method='get' class="form-inline" name="searchForm">
+		<input type='hidden' name='controller' value='market' />
+		<input type='hidden' name='action' value='amount' />
+
+		<div class="input-group">
+			<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+			<input type="text" name='start' class="form-control" value='{$start}' pattern='date' empty onFocus="WdatePicker()" placeholder="起始时间"/>
+		</div>
+
+		<div class="input-group">
+			<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+			<input type="text" name='end' pattern='date' value='{$end}' class="form-control" empty onFocus="WdatePicker()" placeholder="结束时间"/>
+		</div>
+		
+		<select class="form-control" name="seller_id">
+			<option value=''>所有商家</option>
+			{query:name=seller where=is_del eq 0}
+			<option value="{$item['id']}">{$item['true_name']}</option>
+			{/query}
+		</select>
+
+		<select class="form-control" onchange="changeData(this);" name="searchDate">
+			<option value=''>时间段</option>
+			<option value='toDay'>今天</option>
+			<option value='toWeek'>本周</option>
+			<option value='toMonth'>本月</option>
+		</select>		
+
+		<button class="btn btn-default" type="button" onclick="submitForm('amount');">
+		    <i class="fa fa-search"></i> 查询
+		</button>
+
+		<button class="btn btn-default" onclick="submitForm('amount_report')">
+		    <i class="fa fa-file-excel-o"></i> 导出报表
+		</button>
+	</form>
+
+	<div class="box" style="margin-top:20px">
+		<div class="box-header">
+			销售金额统计，更清楚了了解每月销售的情况，为你下一步的营销计划做出更好的判定！
+		</div>
+
+		<div class="box-body">
+			<div id="myChart" style="min-height:350px;"></div>
+		</div>
+	</div>
+</div>
+
+<script type='text/javascript'>
+//图表生成
+$(function()
+{
+	//图标模板
+	var option = {
+		title:
+		{
+			text:'销售额'
+		},
+		xAxis:
+		{
+			name:'时间',
+			data:{echo:JSON::encode(array_keys($countData))},
+		},
+		yAxis:
+		{
+			name:'金额(元)',
+		},
+		series:
+		[
+			{
+				name:'销售金额',
+				type:'line',
+				data:{echo:JSON::encode(array_values($countData))}
+			}
+		],
+		tooltip:
+		{
+			show:true
+		}
+	};
+	echarts.init(document.getElementById('myChart')).setOption(option);
+});
+
+//修改表单提交内容
+function submitForm(action)
+{
+	$('[name="action"]').val(action);
+	formSubmit("searchForm");
+}
+
+var formObj = new Form();
+formObj.init({"seller_id":"{echo:IReq::get('seller_id')}","searchDate":"{echo:IReq::get('searchDate')}"});
+
+//选择时间段
+function changeData(obj)
+{
+	var dateType = $(obj).find('option:selected').val();
+	switch(dateType)
+	{
+		case "toDay":
+		{
+			$('[name="start"]').val('{echo:date('Y-m-d')}');
+			$('[name="end"]').val('{echo:date('Y-m-d')}');
+		}
+		break;
+		
+		case "toWeek":
+		{
+			{set:$startDate = date('Y-m-d', (time() - ((date('w') == 0 ? 7 : date('w')) - 1) * 24 * 3600))}
+			$('[name="start"]').val('{$startDate}');
+			$('[name="end"]').val('{echo:date('Y-m-d')}');
+		}
+		break;
+
+		case "toMonth":
+		{
+			{set:$startDate = date('Y-m-d', strtotime(date('Y-m', time()) . '-01 00:00:00'))}
+			$('[name="start"]').val('{$startDate}');
+			$('[name="end"]').val('{echo:date('Y-m-d')}');
+		}
+		break;		
+	}
+}
+</script>

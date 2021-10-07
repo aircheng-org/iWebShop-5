@@ -1,0 +1,60 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">会员</a>
+		</li>
+		<li>
+			<a href="#">商户管理</a>
+		</li>
+		<li class="active">分类手续费列表</li>
+	</ul>
+</div>
+<form action="{url:/goods/category_rate_del}" method="post" name="category_rate_list" onsubmit="return checkboxCheck('check[]','尚未选中任何记录！')">
+<div class="content">
+	<table id="list_table" class="table">
+
+		<colgroup>
+			<col width="35px" />
+			<col  />
+			<col width="120px" />
+			<col width="120px" />
+		</colgroup>
+		<caption>
+            <a class="btn btn-default" href='{url:/goods/category_rate_edit}'>
+                <i class="fa fa-plus"></i>添加
+            </a>
+            <a class="btn btn-default" onclick="selectAll('check[]')">
+                <i class="fa fa-check"></i>全选
+            </a>
+            <a class="btn btn-default" onclick="delModel({'form':'category_rate_list',msg:'确定要删除选中的记录吗？'})">
+                <i class="fa fa-close"></i>批量删除
+            </a>
+		</caption>
+		<thead>
+			<tr>
+				<th></th>
+				<th>分类名称</th>
+				<th>分类手续费</th>
+				<th>操作</th>
+			</tr>
+		</thead>
+
+		<tbody>
+            {set:$queryObj=Api::run('getCategoryRateList');$resultData=$queryObj->find()}
+            {foreach:items=$resultData}
+			<tr>
+				<td><input name="check[]" type="checkbox" value="{$item['category_id']}" /></td>
+				<td>{$item['name']}</td>
+				<td>{$item['category_rate']}%</td>
+				<td>
+					<a href="{url:/goods/category_rate_edit/id/$item['category_id']}"><i class='operator fa fa-edit'></i></a>
+					<a onclick="delModel({link:'{url:/goods/category_rate_del/check/$item['category_id']}'})"><i class='operator fa fa-close'></i></a>
+				</td>
+			</tr>
+			{/foreach}
+		</tbody>
+	</table>
+</div>
+</form>
+{$queryObj->getPageBar()}

@@ -1,0 +1,174 @@
+{js:my97date}
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">工具</a>
+		</li>
+		<li>
+			<a href="#">广告管理</a>
+		</li>
+		<li class="active">更新广告</li>
+	</ul>
+</div>
+
+<div class="content">
+	<form action='{url:/tools/ad_edit_act}' method='post' name='ad' enctype='multipart/form-data'>
+		<input type='hidden' name='id' value='' />
+		<table class="table form-table">
+			<colgroup>
+				<col width="130px" />
+				<col />
+			</colgroup>
+			<tr>
+				<th>说明：</th>
+				<td>(1)先添加 <广告位> 数据；(2)再添加 <广告> 并且绑定之前添加的 <广告位>，广告数据才可以正常显示 </td>
+			</tr>
+			<tr>
+				<th>广告名称：</th>
+				<td>
+					<input type='text' class='form-control' name='name' pattern='required' placeholder="填写广告名称" />
+				</td>
+			</tr>
+			<tr>
+				<th>广告展示类型：</th>
+				<td>
+					<label class='radio-inline'><input type='radio' name='type' value='1' checked='checked' onclick='changeType(1);' />图片</label>
+					<label class='radio-inline'><input type='radio' name='type' value='2' onclick='changeType(2);' />flash</label>
+					<label class='radio-inline'><input type='radio' name='type' value='3' onclick='changeType(3);' />文字</label>
+					<label class='radio-inline'><input type='radio' name='type' value='4' onclick='changeType(4);' />代码</label>
+
+					<div id='ad_box' style='margin-top:10px'></div>
+				</td>
+			</tr>
+			<tr>
+				<th>广告位：</th>
+				<td>
+					<select name='position_id' class='form-control' pattern='required'>
+						<option value=''>请选择</option>
+						{foreach:items=Api::run('getAdPositionList',100)}
+						<option value='{$item['id']}'>{$item['name']}</option>
+						{/foreach}
+					</select>
+					<p class='help-block'>*在选择的广告位置内进行展示（必选）</p>
+				</td>
+			</tr>
+			<tr>
+				<th>链接地址：</th>
+				<td>
+					<input type='text' class='form-control' name='link' />
+					<p class='help-block'>点击广告后页面链接的URL地址，为空则不跳转</p>
+				</td>
+			</tr>
+			<tr>
+				<th>排序：</th>
+				<td>
+					<input type='text' class='form-control' name='order' pattern='int' value='99'  />
+					<p class='help-block'>数字越小，排列越靠前</p>
+				</td>
+			</tr>
+
+			<tr>
+				<th>开始结束时间：</th>
+				<td>
+					<div class="row">
+						<div class="col-xs-3">
+							<div class="input-group">
+								<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+								<input class="form-control" type="text" name="start_time" pattern="date" onfocus="WdatePicker()" value="" placeholder="开始时间" />
+							</div>
+						</div>
+
+						<div class="col-xs-3">
+							<div class="input-group">
+								<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+								<input class="form-control" type="text" name="end_time" pattern="date" onfocus="WdatePicker()" value="" placeholder="结束时间" />
+							</div>
+						</div>
+					</div>
+					<p class='help-block'>*广告展示的开始时间和结束时间（必选）</p>
+				</td>
+			</tr>
+			<tr>
+				<th>描述：</th>
+				<td><textarea class="form-control" rows="3" name='description' alt='请填写文章内容'></textarea></td>
+			</tr>
+			<tr>
+				<th>绑定商品分类：</th>
+				<td>
+					<!--分类数据显示-->
+					<span id="__categoryBox"></span>
+					<button class="btn btn-default" type="button" name="_goodsCategoryButton">设置分类</button>
+					{set:plugin::trigger('goodsCategoryWidget',array("name" => "goods_cat_id","value" => isset($this->adRow['goods_cat_id']) ? $this->adRow['goods_cat_id'] : ""))}
+					<p class='help-block'> 仅用于循环分类广告位，否则不要选择 </p>
+				</td>
+			</tr>
+
+			{if:$this->adRow && $this->adRow['position_id']}
+			{set:$positionRow = Api::run('getAdPositionRowById',array('id'=>$this->adRow['position_id']))}
+			<tr>
+				<th>代码：</th>
+				<td style="font-weight:bold;color:#000;font-size:14px;">
+					将以下代码Copy到你想要放置广告的任何模板中。 <a href="http://www.aircheng.com/movie" target="_blank">如何添加广告？</a><br />
+					<code style="font-weight:normal;font-family:'Courier New';font-size:16px;display:block;background:#333;color:#fff;padding:10px;">
+						{if:isset($this->adRow['goods_cat_id']) && $this->adRow['goods_cat_id']}
+						{echo:chr(123)}echo:Ad::show("{$positionRow['name']}",绑定的商品分类ID){echo:chr(125)}
+						{else:}
+						{echo:chr(123)}echo:Ad::show("{$positionRow['name']}"){echo:chr(125)}
+						{/if}
+					</code>
+				</td>
+			</tr>
+			{/if}
+
+			<tr>
+				<th></th><td><button class='btn btn-primary' type='submit'>确定</button></td>
+			</tr>
+		</table>
+	</form>
+</div>
+
+<!--广告内容模板-->
+<script id="adTemplate" type="text/html">
+<%if(newType == "1"){%>
+	<input type="file" name="img" class="file" />
+	<%if(newType == defaultType){%>
+		<p><img src="<%=webroot(content)%>" width="150px" /></p>
+		<input type="hidden" name="content" value="<%=content%>" />
+	<%}%>
+<%}else if(newType == "2"){%>
+	<input type="file" name="flash" class="file" />
+	<%if(newType == defaultType){%>
+		<embed src="<%=webroot(content)%>" width="150px" type="application/x-shockwave-flash"></embed>
+		<input type="hidden" name="content" value="<%=content%>" />
+	<%}%>
+<%}else if(newType == "3"){%>
+	<input type="text" class="form-control" name="content" value="<%=content%>" />
+<%}else{%>
+	<textarea class="form-control" rows="3" name='content'><%=content%></textarea>
+<%}%>
+</script>
+
+<script type='text/javascript'>
+//广告数据
+defaultAdRow = {echo:JSON::encode($this->adRow)};
+
+//切换广告类型 1:图片; 2:flash; 3:文字; 4:代码;
+function changeType(typeVal)
+{
+	var content = (defaultAdRow && typeVal == defaultAdRow['type']) ? defaultAdRow['content'] : "";
+	var defaultType = (defaultAdRow && defaultAdRow['type']) ? defaultAdRow['type'] : "";
+	var adHtml = template.render('adTemplate',{'newType':typeVal,'defaultType':defaultType,'content':content});
+	$('#ad_box').html(adHtml);
+}
+
+//表单回显
+var FromObj = new Form('ad');
+FromObj.init(defaultAdRow);
+
+jQuery(function()
+{
+	changeType($("[name='type']:checked").val());
+});
+
+</script>

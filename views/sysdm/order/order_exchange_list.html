@@ -1,0 +1,61 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">订单</a>
+		</li>
+		<li>
+			<a href="#">单据管理</a>
+		</li>
+		<li class="active">换货单列表</li>
+	</ul>
+</div>
+
+<div class="content">
+	<form name="orderForm" action="{url:/order/exchange_del}" method="post">
+	<table class="table list-table">
+		<colgroup>
+			<col width="35px" />
+			<col width="180px" />
+			<col width="100px" />
+			<col />
+		</colgroup>
+		<caption>
+            <a class="btn btn-default" onclick="selectAll('id[]')">
+                <i class="fa fa-check"></i>全选
+            </a>
+            <a class="btn btn-default" onclick="delModel()">
+                <i class="fa fa-close"></i>批量删除
+            </a>
+            <a class="btn btn-default" href='{url:/order/exchange_recycle_list}'>
+                <i class="fa fa-trash"></i>回收站
+            </a>
+		</caption>
+		<thead>
+			<tr>
+				<th></th>
+				<th>订单号</th>
+				<th>用户名</th>
+				<th>处理状态</th>
+				<th>处理时间</th>
+				<th>操作</th>
+			</tr>
+		</thead>
+
+		<tbody>
+            {set:$queryObj=Api::run('getListByOrderExchange');$resultData=$queryObj->find()}
+            {foreach:items=$resultData}
+			<tr>
+				<td><input name="id[]" type="checkbox" value="{$item['id']}" /></td>
+				<td>{$item['order_no']}</td>
+				<td>{echo:$item['username']=='' ? '游客' : $item['username']}</td>
+				<td>{echo:Order_Class::refundmentText($item['status'])}</td>
+				<td>{$item['dispose_time']}</td>
+				<td><a href="{url:/order/exchange_show/id/$item['id']}"><i class='operator fa fa-eye'></i></a></td>
+			</tr>
+			{/foreach}
+		</tbody>
+	</table>
+	</form>
+</div>
+{$queryObj->getPageBar()}

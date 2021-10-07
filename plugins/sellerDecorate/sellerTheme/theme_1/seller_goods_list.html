@@ -1,0 +1,59 @@
+<!--引入头部-->
+{set:include($this->sellerDecorate->viewFile('header'))}
+
+{if:$resultData}
+<div class="container mt-3">
+    <!--属性筛选-->
+    {foreach:items=search_goods::$attrSearch}
+    <ul class="list-inline pt-2 border-dotted-top">
+        <li class="list-inline-item">{$item['name']}：</li>
+        <li class="list-inline-item"><a class="current" href="javascript:searchObj.link({'attr[{$item["id"]}]':''});" id="filter-attr{$item['id']}">不限</a></li>
+		{foreach:items=$item['value'] item=$attr}
+		<li class="list-inline-item"><a href="javascript:searchObj.link({'attr[{$item["id"]}]':'{$attr}'});" id="filter-attr{$item['id']}{$attr}">{$attr}</a></li>
+		{/foreach}
+    </ul>
+    {/foreach}
+
+    <!--排序-->
+    <div class="d-flex justify-content-sm-start justify-content-around bg-light p-2 mt-4 border">
+        {foreach:items=search_goods::getOrderType()}
+        <div class="mr-sm-3 px-sm-4 py-sm-2" id="filter-order{$key}">
+			<a href='javascript:searchObj.link({"order":"{$key}"});'>{$item} <i id="filter-by{$key}" class="fa fa-angle-double-down"></i></a>
+        </div>
+        {/foreach}
+    </div>
+
+    <!--商品列表-->
+    <div class="row">
+        {foreach:items=$resultData}
+    	<div class="col-sm-3 col-6 mt-3">
+    	    <a href="{url:/site/products/id/$item['id']}">
+    		<div class="product-item">
+    			<div class="product-thumb">
+    				<img class="img-fluid border" src="{url:/pic/thumb/img/$item['img']/w/300/h/300}" />
+    			</div>
+    			<div class="product-content">
+    				<h4>{$item['name']}</h4>
+    				<p class="price">￥{$item['sell_price']}</p>
+    			</div>
+    		</div>
+    	    </a>
+    	</div>
+    	{/foreach}
+    </div>
+    {$searchObj->getPageBar()}
+</div>
+{else:}
+<div class="container">
+    <div class="jumbotron">
+        <h2 class="mb-4">商品数据不存在</h2>
+        <p><a href="javascript:window.history.go(-1);">返回上一级</a></p>
+        <p><a href="{url:/site/home/id/$seller_id}">返回商家首页</a></p>
+    </div>
+</div>
+{/if}
+
+<script type='text/javascript' src='{webroot:public/javascript/searchFilter.js}'></script>
+<script type='text/javascript'>
+var searchObj = new searchFilter({"descClassName":"fa-angle-double-down","ascClassName":"fa-angle-double-up"});
+</script>

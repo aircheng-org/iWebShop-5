@@ -1,0 +1,32 @@
+.container a,.container a:hover {
+    text-decoration: none;
+}
+
+.admanage img {
+    max-width:100%;
+    height:auto;
+}
+
+.product-item .product-content {
+    margin-top:0.6rem;
+}
+
+.product-item .product-content h4 {
+    font-size:0.9rem;
+    color:#555;
+    height: 2.2rem;
+    overflow: hidden;
+}
+
+.product-item .product-content .price {
+    color:#c00;
+    font-size:1rem;
+}
+
+.current,.current a {
+    color:#e4393c;
+}
+
+.list-inline {
+    border-top:1px dotted #ccc;
+}

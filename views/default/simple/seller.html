@@ -1,0 +1,82 @@
+{js:artTemplate}
+{js:areaSelect}
+
+<div class="wrapper clearfix">
+	<div class="wrap_box">
+		<div id="fp_form">
+			<h3 class="notice">申请加盟商户</h3>
+			<p class="tips">加入我们的电商平台，成为我们的供应商，一起共创美好未来</p>
+			<div class="box">
+				<form action="{url:/simple/seller_reg}" method="post" enctype='multipart/form-data' name="sellerForm">
+					<table class="form_table">
+						<colgroup>
+							<col width="300px" />
+							<col />
+						</colgroup>
+
+						<tbody>
+							<tr>
+								<th>登陆用户名：</th>
+								<td><input class="normal" name="seller_name" type="text" value="" pattern="required" alt="用户名不能为空" /><label>* 用户名称（必填）</label></td>
+							</tr>
+							<tr>
+								<th>密码：</th><td><input class="normal" name="password" type="password" bind='repassword' pattern="required" /><label>* 登录密码</label></td>
+							</tr>
+							<tr>
+								<th>确认密码：</th><td><input class="normal" name="repassword" type="password" bind='password' pattern="required" /><label>* 重复确认密码</label></td>
+							</tr>
+							<tr>
+								<th>商户真实全称：</th>
+								<td><input class="normal" name="true_name" type="text" value="" pattern="required" /><label>* 公司真实全称</label></td>
+							</tr>
+							<tr>
+								<th>商户资质材料：</th>
+								<td>
+									<input type='file' name='paper_img' />
+								</td>
+							</tr>
+							<tr>
+								<th>固定电话：</th>
+								<td><input type="text" class="normal" name="phone" pattern="phone" /><label>* 固定电话联系方式，如：010-88888888</label></td>
+							</tr>
+							<tr>
+								<th>手机号码：</th>
+								<td><input type="text" class="normal" name="mobile" pattern="mobi" /><label>* 移动电话联系方式：如：13000000000</label></td>
+							</tr>
+							<tr>
+								<th>邮箱：</th>
+								<td><input type="text" class="normal" name="email" pattern="email" /><label>* 电子邮箱联系方式：如：aircheng@163.com</label></td>
+							</tr>
+							<tr>
+								<th>地区：</th>
+								<td>
+									<select name="province" child="city,area"></select>
+									<select name="city" child="area"></select>
+									<select name="area"></select>
+								</td>
+							</tr>
+							<tr>
+								<th>详细地址：</th><td><input class="normal" name="address" type="text" empty value="" /></td>
+							</tr>
+							<tr>
+								<th>企业官网：</th>
+								<td><input class="normal" name="home_url" type="text" pattern="url" empty value="" /><label>填写完整的网址，如：http://www.aircheng.com</label></td>
+							</tr>
+							<tr>
+								<td></td>
+								<td>
+									<input class="submit" type="submit" value="申请加盟" />
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+var areaInstance = new areaSelect('province');
+areaInstance.init();
+</script>

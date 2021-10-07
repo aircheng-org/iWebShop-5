@@ -1,0 +1,40 @@
+<div class="main f_r">
+	<div class="uc_title m_10">
+		<label class="current"><span><a href='{url:/ucenter/account_log}'>交易记录</a></span></label>
+		<label><span><a href='{url:/ucenter/withdraw}'>提现申请</a></span></label>
+	</div>
+
+	<div class="prompt m_10">
+		<p>账户预存款：<b class="orange f14">￥{$this->memberRow['balance']}</b></p>
+	</div>
+
+	<table class='list_table m_10' width='100%' cellspacing='0' cellpadding='0'>
+		<col />
+		<col width="110px" />
+		<col width="110px" />
+		<col width="110px" />
+		<col width="145px" />
+		<thead>
+			<tr>
+				<th>事件</th><th>存入金额</th><th>支出金额</th><th>当前金额</th><th>时间</th>
+			</tr>
+		</thead>
+		<tbody>
+			{set:$queryAccountLogList = Api::run('getUcenterAccoutLog')}
+			{foreach:items = $queryAccountLogList->find()}
+			<tr>
+				<td style="text-align:left;">{$item['note']}</td>
+				<td>{echo:$item['amount'] > 0 ? $item['amount'].'元' : ''}</td>
+				<td>{echo:$item['amount'] < 0 ? $item['amount'].'元' : ''}</td>
+				<td><span class="red">{$item['amount_log']} 元</span></td>
+				<td>{$item['time']}</td>
+			</tr>
+			{/foreach}
+		</tbody>
+	</table>
+	{$queryAccountLogList->getPageBar()}
+
+    {if:!$items}
+	<div class="error f18 t_c light_gray">暂无数据</div>
+	{/if}
+</div>

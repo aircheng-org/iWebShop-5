@@ -1,0 +1,176 @@
+{js:artTemplate}
+{js:areaSelect}
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">会员</a>
+		</li>
+		<li>
+			<a href="#">商户管理</a>
+		</li>
+		<li class="active">编辑商户</li>
+	</ul>
+</div>
+<div class="content">
+	<form action="{url:/member/seller_add}" method="post" name="sellerForm" enctype='multipart/form-data'>
+		<input name="id" value="" type="hidden" />
+
+		<table class="table form-table">
+			<colgroup>
+				<col width="130px" />
+				<col />
+			</colgroup>
+
+			<tbody>
+				<tr>
+					<th>登陆用户名：</th>
+					<td><input class="form-control" name="seller_name" type="text" value="" pattern="required" placeholder="登录商家用户名账号" /></td>
+				</tr>
+				<tr>
+					<th>密码：</th><td><input class="form-control" name="password" type="password" bind='repassword' empty /></td>
+				</tr>
+				<tr>
+					<th>确认密码：</th><td><input class="form-control" name="repassword" type="password" bind='password' empty /></td>
+				</tr>
+				<tr>
+					<th>商户真实全称：</th>
+					<td><input class="form-control" name="true_name" type="text" value="" pattern="required" /></td>
+				</tr>
+				<tr>
+					<th>商户LOGO图：</th>
+					<td>
+						<input type='file' name='logo' />
+						{if:isset($this->sellerRow['logo']) && $this->sellerRow['logo']}
+						<p><img src='{url:$this->sellerRow['logo']}' style='width:220px;border:1px solid #ccc' /></p>
+						{/if}
+					</td>
+				</tr>
+				<tr>
+					<th>商户资质材料：</th>
+					<td>
+						<input type='file' name='paper_img' />
+						{if:isset($this->sellerRow['paper_img']) && $this->sellerRow['paper_img']}
+						<p><img src='{url:$this->sellerRow['paper_img']}' style='width:320px;border:1px solid #ccc' /></p>
+						{/if}
+					</td>
+				</tr>
+				<tr>
+					<th>保证金数额：</th>
+					<td>
+						<input type="text" class="form-control" name="cash" pattern="float" empty />
+						<p class="help-block">人民币（元）</p>
+					</td>
+				</tr>
+				<tr>
+					<th>收款实名：</th>
+					<td>
+						<textarea class="form-control" name="account" empty></textarea>
+						<p class="help-block">收款人的实际姓名,如微信余额收款必须要实名</p>
+					</td>
+				</tr>
+				<tr>
+					<th>固定电话：</th>
+					<td><input type="text" class="form-control" name="phone" pattern="phone" /></td>
+				</tr>
+				<tr>
+					<th>手机号码：</th>
+					<td><input type="text" class="form-control" name="mobile" pattern="mobi" /></td>
+				</tr>
+				<tr>
+					<th>邮箱：</th>
+					<td><input type="text" class="form-control" name="email" pattern="email" empty /></td>
+				</tr>
+				<tr>
+					<th>地区：</th>
+					<td>
+                        <div class="row">
+                            <div class="col-xs-3">
+                                <select name="province" class="form-control" child="city,area"></select>
+                            </div>
+                            <div class="col-xs-3">
+                                <select name="city" class="form-control" child="area"></select>
+                            </div>
+                            <div class="col-xs-3">
+                                <select name="area" class="form-control"></select>
+                            </div>
+                        </div>
+					</td>
+				</tr>
+				<tr>
+					<th>详细地址：</th><td><input class="form-control" name="address" type="text" empty value="" /></td>
+				</tr>
+				<tr>
+					<th>QQ号码：</th>
+					<td><input class="form-control" name="server_num" type="text" empty value="" /></td>
+				</tr>
+				<tr>
+					<th>企业官网：</th>
+					<td>
+						<input class="form-control" name="home_url" type="text" pattern="url" empty value="" placeholder="请填写完整的URL地址，比如：http://www.aircheng.com" />
+						<p class="help-block">填写完整的网址，如：http://www.aircheng.com</p>
+					</td>
+				</tr>
+				<tr>
+					<th>排序：</th>
+					<td><input type='text' class="form-control" name='sort' pattern='int' empty /></td>
+				</tr>
+				<tr>
+					<th>手续费增减：</th>
+					<td>
+						<div class="input-group col-md-3">
+							<input type="text" name="discount" class="form-control" pattern="float" value="100">
+							<span class="input-group-addon">%</span>
+						</div>
+                        <p class="help-block">原手续费基础上增加或者减少此商家的所有商品手续费。以100%为界限，以上表示增加，以下表示减少。要谨慎设置</p>
+                    </td>
+				</tr>
+				<tr>
+					<th>是否开通：</th>
+					<td>
+						<label class='radio-inline'><input type='radio' name='is_lock' value='0' checked='checked' />开通</label>
+						<label class='radio-inline'><input type='radio' name='is_lock' value='1' />锁定</label>
+						<p class="help-block">锁定后商户无法登陆进行管理</p>
+					</td>
+				</tr>
+				<tr>
+					<th>是否VIP：</th>
+					<td>
+						<label class='radio-inline'><input type='radio' name='is_vip' value='0' checked='checked' />否</label>
+						<label class='radio-inline'><input type='radio' name='is_vip' value='1' />是</label>
+					</td>
+				</tr>
+				<tr>
+					<td></td><td><button class='btn btn-primary' type="submit">确定</button></td>
+				</tr>
+			</tbody>
+		</table>
+	</form>
+</div>
+
+<script language="javascript">
+//DOM加载完毕
+$(function()
+{
+	//修改模式
+	{if:$this->sellerRow}
+	var formObj = new Form('sellerForm');
+	formObj.init({echo:JSON::encode($this->sellerRow)});
+
+	//锁定字段一旦注册无法修改
+	if($('[name="id"]').val())
+	{
+		var lockCols = ['seller_name'];
+		for(var index in lockCols)
+		{
+			$('input:text[name="'+lockCols[index]+'"]').addClass('readonly');
+			$('input:text[name="'+lockCols[index]+'"]').attr('readonly',true);
+		}
+	}
+	{/if}
+
+	//地区联动插件
+	var areaInstance = new areaSelect('province');
+	areaInstance.init({echo:JSON::encode($this->sellerRow)});
+});
+</script>

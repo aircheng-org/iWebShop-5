@@ -1,0 +1,23 @@
+<div class="bigweb">
+<section class="prompt_page success">
+	<i class="ico"></i>
+	<article>
+
+		<strong>{echo:IReq::get('message') ? IFilter::act(IReq::get('message'),'text') : '操作成功！'}</strong><br>
+		您现在可以去：
+
+		{set:$callback = plugin::trigger('getCallback')}
+		{if:$callback}
+		<a href="{url:$callback}">继续操作 >></a>
+		{/if}
+
+		{if:$this->user['user_id']}
+		<a href="{url:/ucenter/index}">个人中心 >></a>
+		{/if}
+
+		<a href="{url:/site/index}">网站首页 >></a>
+
+	</article>
+</section>
+
+</div>

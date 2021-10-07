@@ -1,0 +1,55 @@
+<article class="col-lg-12">
+    {if:$this->needReadNum>0}
+    <div class="alert alert-primary">您有{echo:$this->needReadNum}条未读消息通知</div>
+    {/if}
+
+    <div class="card forms">
+    	<div class="card-header d-flex align-items-center justify-content-between">
+    		<h3>消息通知列表</h3>
+    		<div>
+    			<input type="button" class="btn btn-primary" onclick="selectAll('id[]')" value="全选" />
+    			<input type="button" class="btn btn-primary" onclick="delModel();" value="批量删除" />
+    		</div>
+    	</div>
+
+    	<div class="card-body">
+    		<form action="{url:/seller/message_del}" method="post" name="messageForm" class="form-horizontal">
+    			<table class="table">
+    				<colgroup>
+    					<col width="30px" />
+    					<col />
+    					<col width="160px" />
+    					<col width="140px" />
+    					<col width="85px" />
+    				</colgroup>
+
+    				<thead>
+    					<tr>
+    						<th></th>
+    						<th>标题</th>
+    						<th>发送时间</th>
+    						<th>状态</th>
+    						<th>操作</th>
+    					</tr>
+    				</thead>
+
+    				<tbody>
+    					{foreach:items = $this->seller_messageHandle->find()}
+    					<tr>
+    						<td><input name="id[]" class="checkbox-template" type="checkbox" value="{$item['id']}" /></td>
+    						<td>{$item['title']}</td>
+    						<td>{$item['time']}</td>
+    						<td>{if:$this->seller_messObject->is_read($item['id'])}已读{else:}未读{/if}</td>
+    						<td>
+    						    <a href="{url:/seller/message_show/id/$item['id']}"><i class="fa fa-eye fa-lg" title="查看"></i></a>
+    							<a href="javascript:delModel({link:'{url:/seller/message_del/id/$item['id']}'})"><i class="fa fa-close fa-lg" title="删除"></i></a>
+    						</td>
+    					</tr>
+    					{/query}
+    				</tbody>
+    			</table>
+    		</form>
+    	    {$this->seller_messageHandle->getPageBar()}
+        </div>
+    </div>
+</article>

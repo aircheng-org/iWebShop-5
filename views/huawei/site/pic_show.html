@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>{$item['name']}_商品清晰图</title>
+	<link type="image/x-icon" href="{webroot:favicon.ico}" rel="icon">
+	<link rel="stylesheet" href="{webroot:public/css/twitter-bootstrap/3.3.7/css/bootstrap.min.css}">
+	{js:jquery}
+	{js:bxSlider}
+	<style type="text/css">
+	body {
+	    font: 12px/1.5 "宋体",Arial,Helvetica,sans-serif;
+	    text-align: center;
+	}
+	.goodsTitle{font-size:14px;clear:both;background-color: #f7f7f7; border: 1px solid #ddd;height:35px;line-height:35px;margin-bottom:10px}
+
+	.header {
+	    color: #848484;
+	    height: 63px;
+	    text-align: right;
+	}
+	.header .logo {
+	    float: left;
+	    height: 53px;
+	    overflow: hidden;
+	    width: 250px;
+	}
+	.header .logo a {
+	    display: block;
+	    height: 53px;
+	    line-height: 53px;
+	    text-indent: 9999px;
+	}
+	</style>
+</head>
+<body>
+
+<div class="header">
+	<h1 class="logo"><a title="{$this->_siteConfig->name}" style="background:url({if:$this->_siteConfig->logo}{webroot:$this->_siteConfig->logo}{else:}{skin:image/logo.png}{/if});" href="{url:}">{$this->_siteConfig->name}</a></h1>
+</div>
+
+<div class="goodsTitle red2">
+	<a href="{url:/site/products/id/$id}">{$item['name']}</a>
+	<span style="float:right"><a href="{url:/site/products/id/$id}">返回商品页面</a></span>
+</div>
+
+<ul class="pic_thumb">
+	{foreach:items=$photo}
+	<li>
+		<a href='javascript:changeImage("{url:$item['img']}");'>
+			<img style="border:1px solid #ccc;margin-bottom:10px;" src='{url:/pic/thumb/img/$item[img]/w/70/h/70}' width="70px" height="70px" />
+		</a>
+	</li>
+	{/foreach}
+</ul>
+
+<hr/>
+
+<div style="padding:15px 0px;margin: 0 auto;">
+	<img src="" id="bigImg" style="width:570px;border:1px solid #ccc;" />
+</div>
+
+<hr/>
+
+<div class="footer">
+	{echo:IFilter::stripSlash($this->_siteConfig->site_footer_code)}
+</div>
+
+<script language="javascript">
+//切换图片
+function changeImage(img)
+{
+	$('#bigImg').prop("src",img);
+}
+
+//图片初始化
+var goodsBigPic = "";
+
+//存在图片数据时候
+{if:isset($photo) && $photo}
+goodsBigPic = "{url:$photo[0]['img']}";
+{/if}
+
+//初始化商品轮换图
+$('.pic_thumb').bxSlider({
+	infiniteLoop: false,
+	hideControlOnEnd: true,
+	pager:false,
+	minSlides: 25,
+	maxSlides: 25,
+	slideWidth: 72,
+	slideMargin: 15,
+	controls:true,
+	onSliderLoad:function(currentIndex){
+		//设置图片
+		$('#bigImg').prop('src',goodsBigPic);
+	}
+});
+</script>
+
+</body>
+</html>

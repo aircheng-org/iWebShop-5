@@ -1,0 +1,87 @@
+<script type='text/javascript'>
+jQuery(function(){
+	//查看订单详情按钮
+	$('#order_a').click(function()
+	{
+		$(this).toggleClass('fold');
+		$(this).toggleClass('unfold');
+		$('#order_detail').toggle('slow');
+	});
+});
+</script>
+
+<div class="wrapper clearfix">
+	<div class="position mt_10"><span>您当前的位置：</span> <a href="{url:}"> 首页</a> » 成功提交订单</div>
+	<div class="myshopping m_10">
+		<ul class="order_step">
+			<li><span class="first">1、查看购物车</span></li>
+			<li class="current_prev"><span>2、填写核对订单信息</span></li>
+			<li class="last_current"><span>3、成功提交订单</span></li>
+		</ul>
+	</div>
+
+	<div class="cart_box m_10">
+		<div class="title">成功提交订单</div>
+		<div class="cont">
+			{if:$this->user['user_id']}
+			<p class="order_stats">
+				<a href="{url:/ucenter/order}" class="f_r blue">查看订单</a>
+				<img width="48px" height="51px" alt="" src="{skin:images/front/right.gif}"><strong class="f14">订单已提交</strong>
+			</p>
+			{/if}
+
+			<div class="stats_box">
+				<h3>订单信息</h3>
+				<table width="100%" class="form_table t_l orange">
+					<colgroup>
+						<col width="75px" />
+						<col />
+					</colgroup>
+
+					<tbody>
+						<tr><th>订单编号：</th><td class="f18 bold red2">{$this->order_num}</td></tr>
+						<tr><th>订单金额：</th><td class="f18 bold red2">￥<b>{$this->final_sum}</b></td></tr>
+						<tr><th>支付方式：</th><td class="f18 bold red2">{$this->payment}</td></tr>
+						{if:$this->delivery}
+						<tr><th>收货时间：</td><td class="f18 bold red2">{$accept_time}</td></tr>
+						<tr><th>备货时间：</th><td class="f18 bold red2">{$this->stockup_time}天</td></tr>
+						<tr><th>配送方式：</th><td class="f18 bold red2">{$this->delivery}</td></tr>
+						{/if}
+					</tbody>
+				</table>
+
+				<a class="fold" href="javascript:void(0)" id='order_a'>[查看订单详细信息]</a>
+
+				<div class="blue_box gray m_10" id='order_detail' style='display:none'>
+					<table class="form_table t_l">
+						<col width="80px" />
+						<col />
+
+						<tbody>
+							<tr><td class="t_r">联系人名：</td><td>{$accept_name}</td></tr>
+							<tr><td class="t_r">联系方式：</td><td>{$mobile}</td></tr>
+							{if:$this->tax_title}
+							<tr><td class="t_r">发票抬头：</td><td>{$this->tax_title}</td></tr>
+							{/if}
+						</tbody>
+					</table>
+				</div>
+
+				<!--不是货到付款并且支付方式为线上支付-->
+				{if:$this->deliveryType == 0 && $this->paymentType == 1}
+				{set:$order_id=$this->order_id;}
+				<form action='{url:/block/doPay/order_id/$order_id}' method='post' target='_blank'>
+					<input class="submit_pay" type="submit" value="立即支付" onclick="return dopay();" />
+				</form>
+				{/if}
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+function dopay()
+{
+	confirm('支付是否成功',"window.location.href='{url:/ucenter/order}';");
+}
+</script>

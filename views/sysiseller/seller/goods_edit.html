@@ -1,0 +1,552 @@
+{js:kindeditor}
+{js:my97date}
+{js:fileUpload}
+{set:$seller_id = $this->seller['seller_id']}
+<article class="col-lg-12">
+	<div class="card forms">
+		<div class="card-header d-flex align-items-center justify-content-between">
+			<h3>商品编辑</h3>
+			<ul class="nav nav-pills">
+				<li><a href="#tab1" data-toggle="pill" class="nav-link active">商品信息</a></li>
+				<li><a href="#tab2" data-toggle="pill" class="nav-link">描述</a></li>
+				<li><a href="#tab3" data-toggle="pill" class="nav-link">SEO优化</a></li>
+			</ul>
+		</div>
+
+        <form action="{url:/seller/goods_update}" name="goodsForm" class="form-horizontal" method="post" novalidate="true" enctype="multipart/form-data">
+			<input type="hidden" name="id" value="0" />
+			<input type='hidden' name="img" value="" />
+			<input type='hidden' name="_imgList" value="" />
+			<input type='hidden' name="type" value="{echo:$type}" />
+			<input type='hidden' name="callback" value="{echo:IUrl::getRefRoute(false)}" />
+
+		    <div class="card-body tab-content">
+
+    			<!--商品信息 开始-->
+    			<div class="tab-pane active" id="tab1">
+					<div class="form-group row">
+						<label class="col-sm-2 col-form-label">商品名称</label>
+						<div class="col-sm-10">
+							<input name="name" class="form-control" type="text" value="" pattern="required" alt="商品名称不能为空" />
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<label class="col-sm-2 col-form-label">关键词</label>
+						<div class="col-sm-10">
+							<input name="search_words" class="form-control" type="text" value="" />
+							<small class="help-block-none">每个关键词最长为15个字符，超过后系统不予存储，每个词以逗号分隔</small>
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<label class="col-sm-2 col-form-label">所属分类</label>
+						<div class="col-sm-10">
+							<div id="__categoryBox" style="margin-bottom:8px"></div>
+							<input class="btn btn-primary" type="button" name="_goodsCategoryButton" value="设置分类" />
+							{set:plugin::trigger('goodsCategoryWidget',array("type" => "checkbox","name" => "_goods_category[]","value" => isset($goods_category) ? $goods_category : ""))}
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<label class="col-sm-2 col-form-label">店内分类</label>
+						<div class="col-sm-10">
+							<div id="_goods_category_seller" style="margin-bottom:8px"></div>
+							<input class="btn btn-primary" type="button" name="_goods_category_seller" value="设置分类" />
+							{set:plugin::trigger('goodsCategoryWidget',array("seller_id" => $this->seller['seller_id'],"id" => "_goods_category_seller","type" => "checkbox","table" => "category_seller","name" => "_goods_category_seller[]","value" => isset($goods_category_seller) ? $goods_category_seller : ""))}
+						</div>
+					</div>
+
+    				{if:$type == 'download'}
+    				<div class="form-group row">
+    					<label class="col-sm-2 col-form-label">附件上传</label>
+    					<div class="col-sm-10">
+    						{if:isset($form['download[file]'])}
+    						<p><a href="{$form['download[file]']}" target="_blank">{$form['download[file]']}</a></p>
+    						<input type="file" accept="application/x-zip-compressed" name="download[file]" class="form-control-file" />
+    						{else:}
+    						<input type="file" accept="application/x-zip-compressed" name="download[file]" pattern="required" class="form-control-file" />
+    						{/if}
+    						<small class="help-block-none">文件格式为ZIP压缩包，大小不得超过{echo:IUpload::getMaxSize()}</small>
+    					</div>
+    				</div>
+
+    				<div class="form-group row">
+    					<label class="col-sm-2 col-form-label">截止时间</label>
+    					<div class="col-sm-10">
+    						<input class="form-control" pattern='date' type="text" name="download[end_time]" onfocus="WdatePicker()" value="" placeholder="" />
+    					</div>
+    				</div>
+
+    				<div class="form-group row">
+    					<label class="col-sm-2 col-form-label">限制下载次数</label>
+    					<div class="col-sm-10">
+    						<input class="form-control" name="download[limit_num]" pattern="int" />
+    					</div>
+    				</div>
+    				{/if}
+
+    				{if:$type == 'code'}
+    				<div class="form-group row">
+    					<label class="col-sm-2 col-form-label">接收短信</label>
+    					<div class="col-sm-10 col-form-label">
+    						以手机短信验证码作为消费的凭证，请确定商城平台短信功能正常
+    					</div>
+    				</div>
+    				{/if}
+
+    				{if:$type == 'preorder'}
+    				<div class="form-group row">
+    					<label class="col-sm-2 col-form-label">付费日期包括</label>
+    					<div class="col-sm-10">
+    						<select name='config[pay_date_mode]' class="form-control">
+    							<option value='0'><起始日期> 和 <结束日期></option>
+    							<option value='1'>不包括 <起始日期></option>
+    							<option value='2'>不包括 <结束日期></option>
+    							<option value='3'>不包括 <起始日期> 和 <结束日期></option>
+    						</select>
+    					</div>
+    				</div>
+    				{/if}
+
+    				<div class="form-group row">
+    					<label class="col-sm-2 col-form-label">商品排序</label>
+    					<div class="col-sm-10">
+    						<input class="form-control" name="sort" type="text" pattern="int" value="99" />
+    						<small class="help-block-none">数字越小排得越靠前</small>
+    					</div>
+    				</div>
+
+    				<div class="form-group row">
+    					<label class="col-sm-2 col-form-label">计件单位显示</label>
+    					<div class="col-sm-10">
+    						<input class="form-control" name="unit" type="text" value="件" />
+    						<small class="help-block-none">商品的单位，如：件、箱、罐</small>
+    					</div>
+    				</div>
+
+    				{if:goods_class::isDelivery($type)}
+    				<div class="form-group row">
+    					<label class="col-sm-2">是否免运费</label>
+    					<div class="col-sm-10">
+    					    <div class="form-check form-check-inline">
+    					        <label class="form-check-label"><input type='radio' name='is_delivery_fee' class="radio-template form-check-input" value='1' />是</label>
+    					    </div>
+
+    					    <div class="form-check form-check-inline">
+    					        <label class="form-check-label"><input type='radio' name='is_delivery_fee' class="radio-template form-check-input" value='0' checked="checked" />否</label>
+    					    </div>
+    					</div>
+    				</div>
+    				{/if}
+
+    				<div class="form-group row">
+    					<label class="col-sm-2 col-form-label">基本数据</label>
+    					<div class="col-sm-10">
+    						<div class="table-responsive">
+    							<table class="table">
+    								<thead id="goodsBaseHead"></thead>
+    								<tbody id="goodsBaseBody"></tbody>
+
+    								<!--商品标题模板-->
+    								<script id="goodsHeadTemplate" type='text/html'>
+    								<tr>
+    									<th>商品货号</th>
+    									<%var isProduct = false;%>
+    									<%for(var item in templateData){%>
+    									<%isProduct = true;%>
+    									<th><a href="javascript:confirm('确定要删除此列规格？','delSpec(<%=templateData[item]['id']%>)');"><%=templateData[item]['name']%>【删】</a></th>
+    									<%}%>
+    									<th>库存</th>
+    									<th>市场价格</th>
+    									<th>销售价格</th>
+    									<th>成本价格</th>
+    									<th>重量(克)</th>
+    									<%if(isProduct == true){%>
+    									<th>
+    									    <div class="form-check form-check-inline" style="width:50px">
+    									        <label class="form-check-label" title="当首行数据发生改动会同步到其他行"><input class="form-check-input" type="checkbox" id="synCheckBox" onchange="synData();" />同步    									            <label>
+    									    </div>
+    									</th>
+    									<%}%>
+    								</tr>
+    								</script>
+
+    								<!--商品内容模板-->
+    								<script id="goodsRowTemplate" type="text/html">
+    								<%var i=0;%>
+    								<%for(var item in templateData){%>
+    								<%item = templateData[item]%>
+    								<tr>
+    									<td><input class="form-control form-control-sm" style="width:100px" name="_goods_no[<%=i%>]" pattern="required" type="text" value="<%=item['goods_no'] ? item['goods_no'] : item['products_no']%>" /></td>
+    									<%var isProduct = false;%>
+    									<%var specArrayList = typeof item['spec_array'] == 'string' && item['spec_array'] ? JSON().parse(item['spec_array']) : item['spec_array'];%>
+    									<%for(var result in specArrayList){%>
+    									<%result = specArrayList[result]%>
+    									<input type='hidden' name="_spec_array[<%=i%>][]" value='<%=JSON().stringify(result)%>' />
+    									<%isProduct = true;%>
+    									<td>
+    										<%if(result['image']){%>
+    											<img class="img-thumbnail" width="40px" height="40px" src="<%=webroot(result['image'])%>" />
+    										<%}else{%>
+    										    <%=result['value']%>
+    										<%}%>
+    									</td>
+    									<%}%>
+    									<td><input class="form-control form-control-sm" name="_store_nums[<%=i%>]" type="text" pattern="int" value="<%=item['store_nums']?item['store_nums']:100%>" style="width:65px" /></td>
+    									<td><input class="form-control form-control-sm" name="_market_price[<%=i%>]" type="text" pattern="float" value="<%=item['market_price']%>" style="width:65px" /></td>
+    									<td>
+    										<input type='hidden' name="_groupPrice[<%=i%>]" value="<%=item['groupPrice']%>" />
+    										<div class="d-flex">
+    										    <input class="form-control form-control-sm mr-1" name="_sell_price[<%=i%>]" type="text" pattern="float" value="<%=item['sell_price']%>" style="width:65px" />
+    										    <input type="button" class="btn btn-success btn-sm" onclick="memberPrice(this,{$seller_id});" value="会员价格 <%if(item['groupPrice']){%>*<%}%>" />
+    									    </div>
+    									</td>
+    									<td><input class="form-control form-control-sm" name="_cost_price[<%=i%>]" type="text" pattern="float" empty value="<%=item['cost_price']%>" style="width:65px" /></td>
+    									<td><input class="form-control form-control-sm" name="_weight[<%=i%>]" type="text" pattern="float" empty value="<%=item['weight']%>" style="width:65px" /></td>
+    									<%if(isProduct == true){%>
+    									<td><a onclick="delProduct(this);"><i class="fa fa-close fa-lg" title="删除"></i></a></td>
+    									<%}%>
+    								</tr>
+    								<%i++;%>
+    								<%}%>
+    								</script>
+    							</table>
+    						</div>
+    					</div>
+    				</div>
+
+    				<div class="form-group row">
+    					<label class="col-sm-2 col-form-label">商品模型</label>
+    					<div class="col-sm-10">
+    						<select name='model_id' class="form-control" onchange="create_attr(this.value)">
+    							<option value="0">通用类型</option>
+    							{foreach:items=Api::run('getModelListAll')}
+    							<option value="{$item['id']}">{$item['name']}</option>
+    							{/foreach}
+    						</select>
+    					</div>
+    				</div>
+
+    				<div class="form-group row">
+    					<label class="col-sm-2 col-form-label">规格</label>
+    					<div class="col-sm-10">
+    						<div class="d-flex">
+    							<select onchange='selSpecVal(this);' id='specNameSel' class="form-control w-auto mr-2">
+    								<option value=''>选规格名称</option>
+    								{foreach:items=Api::run('getSpecListAll')}
+    								<option value='{$item['id']}'>{$item['name']}</option>
+    								{/foreach}
+    							</select>
+    							<select class='form-control  w-auto mr-2' onchange='selSpec(this);' id='specValSel'>
+    								<option value='0'>选规格数据</option>
+    							</select>
+    							<button class="btn btn-primary mr-2" onclick="addNewSpec({$seller_id});" type="button">新建规格</button>
+    							<button class="btn btn-primary" onclick="speedSpec();" type="button">快速录入</button>
+    						</div>
+    						<small class="help-block-none">可从现有规格中选择或新建规格生成货品。比如：尺码，颜色，类型...</small>
+    					</div>
+    				</div>
+
+    				<div class="form-group row" id="properties" style="display:none">
+    					<label class="col-sm-2 col-form-label">扩展属性</label>
+    					<div class="col-sm-10">
+    						<table class="table" id="propert_table">
+    						</table>
+
+    						<!--商品属性模板 开始-->
+    						<script type='text/html' id='propertiesTemplate'>
+    						<%for(var item in templateData){%>
+    						<%item = templateData[item]%>
+    						<%var valueItems = item['value'].split(',');%>
+    						<tr>
+    							<td>
+    								<%=item["name"]%>：
+    								<%if(item['type'] == 1){%>
+    									<%for(var tempVal in valueItems){%>
+    									<%tempVal = valueItems[tempVal]%>
+    									<div class="form-check form-check-inline">
+    										<label class="form-check-label"><input class="radio-template form-check-input" type="radio" name="attr_id_<%=item['id']%>" value="<%=tempVal%>" /><%=tempVal%></label>
+    									</div>
+    									<%}%>
+    								<%}else if(item['type'] == 2){%>
+    									<%for(var tempVal in valueItems){%>
+    									<%tempVal = valueItems[tempVal]%>
+    									<div class="form-check form-check-inline">
+    										<label class="form-check-label"><input class="checkbox-template form-check-input" type="checkbox" name="attr_id_<%=item['id']%>[]" value="<%=tempVal%>"/><%=tempVal%></label>
+    									</div>
+    									<%}%>
+    								<%}else if(item['type'] == 3){%>
+    									<select name="attr_id_<%=item['id']%>" class="form-control w-auto form-control-sm">
+    									<%for(var tempVal in valueItems){%>
+    									<%tempVal = valueItems[tempVal]%>
+    									<option value="<%=tempVal%>"><%=tempVal%></option>
+    									<%}%>
+    									</select>
+    								<%}else if(item['type'] == 4){%>
+    									<input type="text" name="attr_id_<%=item['id']%>" value="<%=item['value']%>" class="form-control w-auto form-control-sm" />
+    								<%}%>
+    							</td>
+    						</tr>
+    						<%}%>
+    						</script>
+    						<!--商品属性模板 结束-->
+    					</div>
+    				</div>
+
+    				<div class="form-group row">
+    					<label class="col-sm-2 col-form-label">商品品牌</label>
+    					<div class="col-sm-10">
+    						<select name="brand_id" class="form-control">
+    							<option value="0">请选择</option>
+    							{foreach:items=Api::run('getBrandListAllOnce')}
+    							<option value="{$item['id']}">{$item['name']}</option>
+    							{/foreach}
+    						</select>
+    					</div>
+    				</div>
+
+    				<div class="form-group row">
+    					<label class="col-sm-2 col-form-label">商品状态</label>
+    					<div class="col-sm-10">
+    					    <div class="form-check form-check-inline">
+    					        <label class="form-check-label"><input type='radio' name='is_del' value='3' checked="checked" class="radio-template form-check-input" />申请上架</label>
+    					    </div>
+
+    					    <div class="form-check form-check-inline">
+    					        <label class="form-check-label"><input type='radio' name='is_del' class="radio-template form-check-input" value='2' />下架</label>
+    					    </div>
+    					</div>
+    				</div>
+
+    				<div class="form-group row">
+    					<label class="col-sm-2 col-form-label">产品相册</label>
+    					<div class="col-sm-10">
+    						<input id="fileUpload" class="form-control-file" type="file" accept="image/*" name="_goodsFile" multiple="multiple" data-url="{url:/goods/goods_img_upload/seller_id/$seller_id}" />
+    						<small class="help-block-none" id="uploadPercent">可以上传多张图片，分辨率3000px以下，大小不得超过{echo:IUpload::getMaxSize()}</small>
+    					</div>
+    				</div>
+
+    				<div class="form-group row">
+    				    <div class="col-sm-10 offset-sm-2">
+    						<div class="d-flex text-center" id="thumbnails"></div>
+
+    						<!--图片模板-->
+    						<script type='text/html' id='picTemplate'>
+							<div class='pic mr-2'>
+								<img class="img-thumbnail" name="picThumb" onclick="defaultImage(this);" style="width:100px;height:100px" src="<%=webroot(picRoot)%>" alt="<%=picRoot%>" />
+								<p>
+									<a href='javascript:void(0)' onclick="$(this).parents('.pic').insertBefore($(this).parents('.pic').prev());"><i class="fa-lg fa fa-backward" title="左移动"></i></a>
+									<a href='javascript:void(0)' onclick="$(this).parents('.pic').remove();"><i class="fa-lg fa fa-close m-1" title="删除"></i></a>
+									<a href='javascript:void(0)' onclick="$(this).parents('.pic').insertAfter($(this).parents('.pic').next());"><i class="fa-lg fa fa-forward" title="右移动"></i></a>
+								</p>
+							</div>
+    						</script>
+    				    </div>
+    				</div>
+    			</div>
+    			<!--商品信息 结束-->
+
+				<!--商品描述 开始-->
+				<div class="tab-pane" id="tab2">
+					<div class="form-group row">
+						<label class="col-sm-2 col-form-label">产品描述</label>
+						<div class="col-sm-10">
+							<textarea id="content" name="content" style="width:100%;height:550px;" class="form-control"></textarea>
+						</div>
+					</div>
+				</div>
+				<!--商品描述 结束-->
+
+				<!--SEO 开始-->
+				<div class="tab-pane" id="tab3">
+					<div class="form-group row">
+						<label class="col-sm-2 col-form-label">SEO关键词</label>
+						<div class="col-sm-10">
+							<input name="keywords" class="form-control" type="text" value="" />
+						</div>
+					</div>
+
+					<div class="form-group row">
+						<label class="col-sm-2 col-form-label">SEO描述</label>
+						<div class="col-sm-10">
+							<textarea name="description" style="height:200px;" class="form-control"></textarea>
+						</div>
+					</div>
+				</div>
+				<!--SEO 结束-->
+
+				<div class="form-group row">
+					<div class="col-sm-4 offset-sm-2">
+						<input type="submit" class="btn btn-primary" onclick="return checkForm()" disabled="disabled" value="确 定" />
+						<input type="reset" class="btn btn-secondary" value="重 置" />
+					</div>
+				</div>
+	        </div>
+	    </form>
+	</div>
+</article>
+
+<script language="javascript">
+//创建表单实例
+var formObj = new Form('goodsForm');
+
+//默认货号
+var defaultProductNo = '{echo:goods_class::createGoodsNo()}';
+
+$(function()
+{
+	//商品图片的回填
+	{if:isset($goods_photo)}
+	var goodsPhoto = {echo:JSON::encode($goods_photo)};
+	for(var item in goodsPhoto)
+	{
+		var picHtml = template.render('picTemplate',{'picRoot':goodsPhoto[item].img});
+		$('#thumbnails').append(picHtml);
+	}
+	{/if}
+
+	//商品默认图片
+	{if:isset($form['img']) && $form['img']}
+	$('#thumbnails img[name="picThumb"][alt="{echo:$form['img']}"]').addClass('current');
+	{/if}
+
+	initProductTable();
+
+	//存在商品信息
+	{if:isset($form)}
+	var goods = {echo:JSON::encode($form)};
+
+	var goodsRowHtml = template.render('goodsRowTemplate',{'templateData':[goods]});
+	$('#goodsBaseBody').html(goodsRowHtml);
+
+	formObj.init(goods);
+
+    //商品config配置
+    if(goods['config'])
+    {
+    	var configData = JSON.parse(goods['config']);
+    	for(var index in configData)
+    	{
+    	    formObj.setValue("config["+index+"]",configData[index]);
+    	}
+    }
+
+	//模型选择
+	$('[name="model_id"]').change();
+	{else:}
+	$('[name="_goods_no[0]"]').val(defaultProductNo);
+	{/if}
+
+	//存在货品信息,进行数据填充
+	{if:isset($product)}
+	var spec_array = {echo:$product[0]['spec_array']};
+	var product    = {echo:JSON::encode($product)};
+
+	var goodsHeadHtml = template.render('goodsHeadTemplate',{'templateData':spec_array});
+	$('#goodsBaseHead').html(goodsHeadHtml);
+
+	var goodsRowHtml = template.render('goodsRowTemplate',{'templateData':product});
+	$('#goodsBaseBody').html(goodsRowHtml);
+	{/if}
+
+	//编辑器载入
+	KindEditor.create('#content');
+
+	//解锁submit提交
+	$('[type="submit"]').removeAttr('disabled');
+});
+
+//删除货品
+function delProduct(_self)
+{
+	$(_self).parent().parent().remove();
+	if($('#goodsBaseBody tr').length == 0)
+	{
+		initProductTable();
+	}
+}
+
+//提交表单前的检查
+function checkForm()
+{
+	//整理商品图片
+	var goodsPhoto = [];
+	$('#thumbnails img[name="picThumb"]').each(function(){
+		goodsPhoto.push(this.alt);
+	});
+	if(goodsPhoto.length > 0)
+	{
+		$('input[name="_imgList"]').val(goodsPhoto.join(','));
+		$('input[name="img"]').val($('#thumbnails img[name="picThumb"][class*="current"]').attr('alt'));
+	}
+	return true;
+}
+
+//根据模型动态生成扩展属性
+function create_attr(model_id)
+{
+	$.getJSON("{url:/block/attribute_init}",{'model_id':model_id}, function(json)
+	{
+		if(json && json.length > 0)
+		{
+			var templateHtml = template.render('propertiesTemplate',{'templateData':json});
+			$('#propert_table').html(templateHtml);
+			$('#properties').show();
+
+			//表单回填设置项
+			{if:isset($goods_attr)}
+			{set:$attrArray = array();}
+			{foreach:items = $goods_attr}
+			{set:$valArray = explode(',',$item);}
+			{set:$attrArray[] = '"attr_id_'.$key.'[]":"'.join(";",$valArray).'"'}
+			{set:$attrArray[] = '"attr_id_'.$key.'":"'.join(";",$valArray).'"'}
+			{/foreach}
+			formObj.init({{echo:join(',',$attrArray)}});
+			{/if}
+		}
+		else
+		{
+			$('#properties').hide();
+		}
+	});
+}
+
+//添加新规格
+function addNewSpec(seller_id)
+{
+	var url = creatUrl("goods/spec_edit/seller_id/@seller_id@");
+	url     = url.replace("@seller_id@",seller_id);
+	art.dialog.open(url,{
+		id:'addSpecWin',
+	    title:'规格设置',
+	    okVal:'确定',
+	    cancel:true,
+	    width:'60%',
+	    height:'60%',
+	    ok:function(iframeWin, topWin){
+	    	var formObject = iframeWin.document.forms['specForm'];
+	    	if(formObject.onsubmit() == false)
+	    	{
+	    		return false;
+	    	}
+			$.getJSON(formObject.action,$(formObject).serialize(),function(json){
+				if(json.flag == 'success' && json.data)
+				{
+					var insertHtml = '<option value="'+json.data.id+'">'+json.data.name+'</option>';
+					$('#specNameSel').append(insertHtml);
+					$('#specNameSel').find('option:last').attr("selected",true);
+					$('#specNameSel').trigger('change');
+					return true;
+				}
+				else
+				{
+					alert(json.message);
+					return false;
+				}
+			});
+	    }
+	});
+}
+</script>
+<script type="text/javascript" src="{webroot:public/javascript/goods_edit.js}"></script>

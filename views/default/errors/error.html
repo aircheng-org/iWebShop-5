@@ -1,0 +1,17 @@
+{set:$msg = IReq::get('message') ? IReq::get('message') : '发生错误'}
+<div class="error wrapper clearfix">
+	<table class="form_table prompt_3 f_l">
+		<col width="250px" />
+		<col />
+		<tr>
+			<th valign="top"><img src="{skin:images/front/cry.gif}" width="122" height="98" /></th>
+			<td>
+				<p class="mt_10"><strong class="f14 gray">{echo:htmlspecialchars($msg,ENT_QUOTES)}</strong></p>
+				<p class="gray">您可以：</p>
+				<p class="gray">1.检查刚才的输入</p>
+				<p class="gray">2.到<a class="blue" href="{url:/site/help_list}">帮助中心</a>寻求帮助</p>
+				<p class="gray">3.去其他地方逛逛：<a href='javascript:void(0)' class='blue' onclick='window.history.go(-1);'>返回上一级操作</a>|<a class="blue" href="{url:}">网站首页</a>|<a class="blue" href="{url:/ucenter/order}">我的订单</a>|<a class="blue" href="{url:/simple/cart}">我的购物车</a></p>
+			</td>
+		</tr>
+	</table>
+</div>

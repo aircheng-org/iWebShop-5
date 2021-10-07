@@ -1,0 +1,42 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">会员</a>
+		</li>
+		<li>
+			<a href="#">商户管理</a>
+		</li>
+		<li class="active">商户消息</li>
+	</ul>
+</div>
+
+<div class="content">
+	<table class="table form-table">
+		<colgroup>
+			<col width="130px" />
+			<col />
+		</colgroup>
+
+		<tr>
+			<th>标题：</th>
+			<td>{$messageRow['title']}</td>
+		</tr>
+		<tr>
+            <th>收件人：</th><td>{$messageRow['rev_info']}</td>
+		</tr>
+		<tr>
+			<th>发布时间：</th><td>{$messageRow['time']}</td>
+		</tr>
+		<tr>
+			<th>内容：</th><td>{$messageRow['content']}</td>
+		</tr>
+		<tr>
+			<th></th>
+			<td>
+	            <a class="btn btn-primary" href="{url:/comment/seller_message_list}">返回</a>
+	            <a class="btn btn-danger" href="{url:/comment/seller_message_del/check/$messageRow['id']}">删除</a>
+			</td>
+		</tr>
+	</table>
+</div>

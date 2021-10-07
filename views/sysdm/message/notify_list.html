@@ -1,0 +1,149 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">会员</a>
+		</li>
+		<li>
+			<a href="#">信息处理</a>
+		</li>
+		<li class="active">到货通知</li>
+	</ul>
+</div>
+<form action="{url:/message/notify_del}" method="post" name="notify_list" onsubmit="return checkboxCheck('check[]','尚未选中任何记录！')">
+<div class="content">
+	<table class="table list-table">
+		<colgroup>
+			<col width="35px" />
+			<col />
+			<col width="80px" />
+			<col width="100px" />
+			<col width="120px" />
+			<col width="120px" />
+			<col width="120px" />
+			<col width="120px" />
+			<col width="80px" />
+		</colgroup>
+		<caption>
+            <a class="btn btn-default" onclick="sendMail()">
+                <i class="fa fa-paper-plane-o"></i>邮件通知
+            </a>
+            <a class="btn btn-default" onclick="sendSms()">
+                <i class="fa fa-send"></i>短信通知
+            </a>
+            <a class="btn btn-default" onclick="selectAll('check[]')">
+                <i class="fa fa-check"></i>全选
+            </a>
+            <a class="btn btn-default" onclick="delModel({'form':'notify_list',msg:'确定要删除选中的记录吗？'})">
+                <i class="fa fa-trash"></i>批量删除
+            </a>
+		</caption>
+		<thead>
+			<tr>
+				<th></th>
+				<th>缺货商品</th>
+				<th>库存</th>
+				<th>用户名</th>
+				<th>email</th>
+				<th>手机号码</th>
+				<th>登记时间</th>
+				<th>通知时间</th>
+				<th>通知状态</th>
+			</tr>
+		</thead>
+
+		<tbody>
+            {set:$queryObj=Api::run('getListByNotify');$resultData=$queryObj->find()}
+            {foreach:items=$resultData}
+			<tr>
+				<td><input class="check_ids" name="check[]" type="checkbox" value="{$item['id']}" /></td>
+				<td><a href="{url:/goods/goods_edit/id/$item['goods_id']}">{$item['goods_name']}</a></td>
+				<td>{$item['store_nums']}</td>
+				<td><a href="{url:/member/member_edit/uid/$item['user_id']}">{$item['username']}</a></td>
+				<td>{$item['email']}</td>
+                <td>{$item['mobile']}</td>
+				<td>{$item['register_time']}</td>
+				<td>{$item['notify_time']}</td>
+				<td>
+					{if:$item['notify_status']==0}未通知{/if}
+                	{if:$item['notify_status']==1}仅邮件通知{/if}
+                	{if:$item['notify_status']==2}仅短信通知{/if}
+                	{if:$item['notify_status']==3}已邮件、短信通知{/if}
+                </td>
+			</tr>
+			{/foreach}
+		</tbody>
+	</table>
+</div>
+
+{$queryObj->getPageBar()}
+</form>
+
+<script type='text/javascript'>
+function sendMail()
+{
+	var ids = getArray('check[]','checkbox')
+	if(ids.length>0)
+	{
+		loadding('正在发送邮件，请稍候......');
+		$.getJSON('{url:/message/notify_email_send}',{notifyid:ids},function(c)
+		{
+			unloadding();
+			if(c.isError == false)
+			{
+				art.dialog({
+					content: '总共发送邮件：'+c.count+'条<br />成功发送：'+c.succeed+'条<br />发送失败：'+c.failed+'条',
+					icon: 'alert',
+					lock: true,
+					ok: function()
+					{
+						location.reload();
+						return true;
+					}
+				});
+			}
+			else
+			{
+				alert(c.message);
+			}
+		});
+	}
+	else
+	{
+		alert("您尚未选中任何记录！");
+	}
+}
+function sendSms()
+{
+	var ids = getArray('check[]','checkbox')
+	if(ids.length>0)
+	{
+		loadding('正在发送短信，请稍候......');
+		$.getJSON('{url:/message/notify_sms_send}',{notifyid:ids},function(c)
+		{
+			unloadding();
+			if(c.isError == false)
+			{
+				art.dialog({
+					content: '总共发送短信：'+c.count+'条<br />成功发送：'+c.succeed+'条<br />发送失败：'+c.failed+'条',
+					icon: 'alert',
+					lock: true,
+					ok: function()
+					{
+						location.reload();
+						return true;
+					}
+				});
+			}
+			else
+			{
+				alert(c.message);
+			}
+		});
+	}
+	else
+	{
+		alert("您尚未选中任何记录！");
+	}
+}
+</script>

@@ -1,0 +1,29 @@
+
+<section class="breadcrumb">
+	<span>您当前的位置：</span> <a href="{url:}">首页</a> » 全部商品分类
+</section>
+
+
+<section id="sitemap" class="sitemap">
+	<header class="sitemap_header">
+		<h2>所有商品分类</h2>
+	</header>
+	<section class="sitemap_list">
+		{foreach:items=Api::run('getCategoryListTop') item=$first }
+		<div class="sitemap_class">
+			<a name="class_{$key}"></a>
+			<h2>{$first['name']}</h2>
+			{foreach:items=Api::run('getCategoryByParentid',array('#parent_id#',$first['id']))  item=$second}
+			<dl>
+				<dt><a href="{url:/site/pro_list/cat/$second[id]}">{$second['name']}</a></dt>
+				<dd>
+					{foreach:items=Api::run('getCategoryByParentid',array('#parent_id#',$second['id']))  item=$third}
+					{if:$key!=0} | {/if}<a href='{url:/site/pro_list/cat/$third[id]}'>{$third['name']}</a>
+					{/foreach}
+				</dd>
+			</dl>
+			{/query}
+		</div>
+		{/foreach}
+	</section>
+</section>

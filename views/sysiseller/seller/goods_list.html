@@ -1,0 +1,207 @@
+<article class="col-lg-12">
+	<div class="card">
+		<div class="card-header d-flex align-items-center justify-content-between">
+			<h3>商品列表</h3>
+			<div>
+				<input type="button" class="btn btn-primary" onclick="searchGoods({'submit':filterResult,'mode':'normal','data':'{$searchParam}','seller_id':{$seller_id}});" value="检索" />
+				<input type="button" class="btn btn-primary" onclick="selectAll('id[]');" value="全选" />
+				<input type="button" class="btn btn-primary" onclick="delModel({'form':'goodsForm','link':'{url:/seller/goods_del}','name':'id[]'})" value="删除" />
+				<input type="button" class="btn btn-primary" onclick="delModel({'form':'goodsForm','link':'{url:/seller/goods_status/is_del/2}','name':'id[]','msg':'选择的商品下架？'})" value="下架" />
+				<input type="button" class="btn btn-primary" onclick="delModel({'form':'goodsForm','link':'{url:/seller/goods_status/is_del/3}','name':'id[]','msg':'选择的商品申请上架？'})" value="申请上架" />
+				<input type="button" class="btn btn-primary" onclick="goodsSetting();" value="批量编辑" />
+				<input type="button" class="btn btn-primary" onclick="window.open('{url:/seller/goods_report/?$searchParam}');" value="导出Excel" />
+			</div>
+		</div>
+		<div class="card-body forms">
+			<form action="{url:/seller/goods_del}" method="post" name="goodsForm" class="form-horizontal">
+				<table class="table">
+					<colgroup>
+						<col width="25px" />
+						<col />
+						<col width="150px" />
+						<col width="70px" />
+						<col width="70px" />
+						<col width="70px" />
+						<col width="70px" />
+						<col width="100px" />
+					</colgroup>
+
+					<thead>
+						<tr>
+							<th></th>
+							<th>商品名字</th>
+							<th>分类</th>
+							<th>销售价</th>
+							<th>库存</th>
+							<th>状态</th>
+							<th>排序</th>
+							<th>操作</th>
+						</tr>
+					</thead>
+
+					<tbody>
+						{foreach:items = $this->goodHandle->find()}
+						<tr>
+							<td>
+								<input name="id[]" type="checkbox" class="checkbox-template" value="{$item['id']}" />
+							</td>
+							<td>
+							    <img src='{url:/pic/thumb/img/$item['img']/w/70/h/70}' class="float-left img-thumbnail" />
+							    <a href="javascript:jumpUrl('{$item['is_del']}','{url:/site/products/id/$item['id']}')" title="{echo:htmlspecialchars($item['name'])}">{$item['name']}</a>
+							</td>
+							<td>
+								{foreach:items=Api::run('getCategoryExtendNameByCategoryid',array('id'=>$item['id'])) item=$catName}
+								[{$catName['name']}]
+								{/foreach}
+							</td>
+							<td>{$item['sell_price']}</td>
+							<td>{$item['store_nums']}</td>
+							<td class="{echo:$item['is_del']==0 ? "text-green":"text-red"}">
+								{echo:goods_class::statusText($item['is_del'])}
+							</td>
+							<td><input class="form-control form-control-sm" type="text" value="{$item['sort']}" onchange="changeSort({$item['id']},this);" /></td>
+							<td>
+								<a href="{url:/seller/goods_edit/id/$item['id']/type/$item['type']}"><i class="fa fa-edit fa-lg" title="编辑"></i></a>
+								<a href="javascript:delModel({'link':'{url:/seller/goods_del/id/$item['id']}'})"><i class="fa fa-close fa-lg" title="删除"></i></a>
+								{if:$item['type'] == 'preorder'}
+								<a href='javascript:editPreorder({$item['id']},{echo:$item['spec_array'] ? 1 : 0});'><i class='operator fa fa-calendar' title="修改日期"></i></a>
+								{/if}
+							</td>
+						</tr>
+						{/foreach}
+					</tbody>
+				</table>
+			</form>
+			{$this->goodHandle->getPageBar()}
+		</div>
+</article>
+
+<script type="text/javascript">
+//检索商品
+function filterResult(iframeWin)
+{
+	var searchForm   = iframeWin.document.body;
+	var searchString = $(searchForm).find("form").serialize();
+	var jumpUrl      = creatUrl("/seller/goods_list");
+	jumpUrl         += jumpUrl.indexOf("?") == -1 ? "?"+searchString : "&"+searchString;
+	window.location.href = jumpUrl;
+}
+
+//修改排序
+function changeSort(gid,obj)
+{
+	var selectedValue = obj.value;
+	$.getJSON("{url:/seller/ajax_sort}",{"id":gid,"sort":selectedValue});
+}
+
+//商品详情的跳转连接
+function jumpUrl(is_del,url)
+{
+	is_del == 0 ? window.open(url) : alert("该商品没有上架无法查看");
+}
+
+//upload csv file callback
+function artDialogCallback(message)
+{
+	message ? alert(message) : window.location.reload();
+}
+
+// 商品批量设置
+function goodsSetting()
+{
+	if($('input:checkbox[name="id[]"]:checked').length > 0)
+	{
+		var idArray = [];
+		var idString = '';
+		$('input:checkbox[name="id[]"]:checked').each(function(i)
+		{
+			idArray.push(this.value);
+		});
+		idString = idArray.join(',');
+
+		var urlVal = "{url:/goods/goods_setting/id/@id@/seller_id/@seller_id@}";
+		urlVal = urlVal.replace("@id@",idString).replace("@seller_id@","{$this->seller['seller_id']}");
+		art.dialog.open(urlVal,{
+			id:'goods_setting',
+			title:'商品批量设置',
+			okVal:'保存设置',
+			ok:function(iframeWin, topWin){
+				var formObject = iframeWin.document.forms[0];
+				if(formObject.onsubmit() == false)
+				{
+					return false;
+				}
+				loadding();
+				formObject.submit();
+				return false;
+			}
+		});
+	}
+	else
+	{
+		alert("请选择您要操作的商品");
+	}
+}
+
+//编辑日期预约价格和库存
+function editPreorder(id,typeVal)
+{
+    switch(typeVal)
+    {
+        //编辑货品预订时间
+        case 2:
+        {
+            var type = 'product';
+        }
+        break;
+
+        //选择货品
+        case 1:
+        {
+            var urlVal = "{url:/block/products_list/goods_id/@id@}";
+            urlVal = urlVal.replace("@id@",id);
+        	art.dialog.open(urlVal,{
+        		id:'productList',
+        		title:'选择规格商品',
+        		okVal:'下一步',
+        		ok:function(iframeWin, topWin)
+        		{
+        			var productObj = $(iframeWin.document).find('input[name="id[]"]:checked');
+        			editPreorder(productObj.val(),2);
+        			return true;
+        		}
+        	});
+        	return;
+        }
+        break;
+
+        //编辑商品预订时间
+        default:
+        {
+            var type = 'goods';
+        }
+        break;
+    }
+
+	var urlVal = "{url:/goods/preorder_setting/id/@id@/type/@type@/seller_id/@seller_id@}";
+	urlVal = urlVal.replace("@id@",id).replace("@type@",type).replace("@seller_id@","{$this->seller['seller_id']}");
+	art.dialog.open(urlVal,{
+		id:'preorder_setting',
+		title:'预订日期设置',
+		okVal:'保存设置',
+		width:'80%',
+		height:'80%',
+		ok:function(iframeWin, topWin)
+		{
+			var formObject = iframeWin.document.forms[0];
+			if(formObject.onsubmit() == false)
+			{
+				return false;
+			}
+			loadding();
+			formObject.submit();
+			return false;
+		}
+	});
+}
+</script>

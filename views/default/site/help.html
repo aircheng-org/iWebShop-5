@@ -1,0 +1,22 @@
+<div class="position"> <span>您当前的位置：</span> <a href="{url:}"> 首页</a> » <a href="{url:/site/help_list/id/$this->cat_row['id']}">{$this->cat_row['name']}</a> </div>
+<div class="container_2 wrapper clearfix">
+	<div class="help_c sidebar f_l">
+		{foreach:items=Api::run('getHelpCategoryLeft',10)}
+		<div class="hc_title"><strong>{$item['name']}</strong></div>
+		<ul class="list m_10">
+			{foreach:items=Api::run('getHelpListByCatidAll',array('#cat_id#',$item['id'])) item=$help_row}
+			<li><a href="{url:/site/help/id/$help_row['id']}">{$help_row['name']}</a></li>
+			{/foreach}
+		</ul>
+		{/foreach}
+	</div>
+	<div class="main f_r">
+		<div class="box"><div class="hc_title">{$this->help_row['name']}</div></div>
+		<div class="c_box">
+			<div class="textcontent">
+				{$this->help_row['content']}
+			</div>
+			<a class="toindex f_r" href="{url:}">返回首页</a>
+		</div>
+	</div>
+</div>

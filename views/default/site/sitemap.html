@@ -1,0 +1,40 @@
+	<div class="position"> <span>您当前的位置：</span> <a href="{url:}"> 首页</a> » 站点地图 </div>
+	<div class="sitemap wrapper clearfix">
+		<div class="orange_title"><strong>服务</strong></div>
+		<ul class="service_list clearfix">
+			<li><a class="s1" href="{url:/simple/reg}">注册</a></li><li><a class="s2" href="{url:/simple/login}">登录</a></li><li><a class="s3" href="{url:/site/article}">shop资讯</a></li><li><a class="s4" href="{url:/site/groupon}">团购</a></li><!--<li><a class="s5" href="">限时抢购</a></li>--><li><a class="s6" href="{url:/site/tags}">热门标签</a></li><li><a class="s7" href="{url:/simple/cart}">购物车</a></li><li><a class="s8" href="{url:site/sitemap}">网站地图</a></li><li><a class="s9" href="{url:/site/notice}">站点公告</a></li><li><a class="s10" href="{url:/site/help_list}">帮助中心</a></li><li><a class="s11" href="{url:/simple/find_password}">找回密码</a></li>
+		</ul>
+		<div class="box">
+			<div class="title"><h2>所有商品分类</h2></div>
+
+			<div class="sort_1">
+				{foreach:items=Api::run('getCategoryListTop') item=$first }
+				<a onclick="$(this).siblings().removeClass('current');$(this).addClass('current');" href="#sort_{$key}">{$first['name']}</a>
+				{/foreach}
+			</div>
+			<div class="sort_2">
+
+				{foreach:items=Api::run('getCategoryListTop') item=$first }
+				<table class="form_table" width="100%">
+					<col width="100px" />
+					<col />
+					<caption><a name="sort_{$key}">{$first['name']}</a></caption>
+					<tbody>
+						{foreach:items=Api::run('getCategoryByParentid',array('#parent_id#',$first['id']))  item=$second}
+						<tr>
+							<th><a class="current" href="{url:/site/pro_list/cat/$second[id]}">{$second['name']}</a></th>
+							<td>
+								{foreach:items=Api::run('getCategoryByParentid',array('#parent_id#',$second['id']))  item=$third}
+								<a href='{url:/site/pro_list/cat/$third[id]}'>{$third['name']}</a>
+								{/foreach}
+							</td>
+						</tr>
+						{/query}
+						<tr><th></th><td><a class="top f_r blue" href="#">回到顶部</a></td></tr>
+					</tbody>
+				</table>
+				{/foreach}
+
+			</div>
+		</div>
+	</div>

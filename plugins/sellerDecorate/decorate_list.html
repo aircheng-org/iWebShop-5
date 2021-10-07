@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="UTF-8">
+	{js:jquery}
+	{js:validate}
+	{js:dialog}
+	{js:artTemplate}
+	{js:form}
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<link href="{webroot:public/css/twitter-bootstrap/3.3.7/css/bootstrap.min.css}" rel="stylesheet">
+</head>
+
+<body>
+<div class="container">
+	<table class="table">
+		<colgroup>
+			<col width="180px" />
+			<col width="220px" />
+			<col width="120px" />
+			<col width="150px" />
+			<col width="150px" />
+			<col />
+		</colgroup>
+
+		<thead>
+			<tr>
+				<th>商户登录名</th>
+				<th>商户真实名称</th>
+				<th>VIP</th>
+				<th>销量</th>
+				<th>评分</th>
+				<th>选择主题</th>
+			</tr>
+		</thead>
+
+		<tbody>
+			{set:$page=intval(IReq::get('page'));$page = $page ? $page : 1;}
+			{query: name=seller as s join=left join seller_decorate as sd on s.id eq sd.seller_id fields=s.*,sd.theme page=$page where=s.is_del eq 0}
+			<tr>
+				<td>{$item['seller_name']}</td>
+				<td>{$item['true_name']}</td>
+				<td>{echo:$item['is_vip'] == 0 ? '否':'是'}</td>
+				<td>{$item['sale']}</td>
+				<td>{echo:statistics::gradeSeller($item['id'])}分</td>
+				<td>
+					<select class="form-control input-sm" name="sellerTheme" onchange="changeTheme(this,{$item['id']});" style="width:50%">
+						<option value="">无</option>
+						{foreach:items=$themeData key=$theme item=$themeRow}
+						<option value="{$theme}" {if:$item['theme']==$theme}selected="selected"{/if}>{$theme}</option>
+						{/foreach}
+					</select>
+				</td>
+			</tr>
+			{/query}
+		</tbody>
+		<tfoot>
+			<tr><th colspan="6">{$query->getPageBar()}</th></tr>
+		</tfoot>
+	</table>
+</div>
+
+<script type="text/javascript">
+//选择主题
+function changeTheme(obj,seller_id)
+{
+	var theme = $(obj).val();
+	$.getJSON("{url:/plugins/decorate_setting}",{"seller_id":seller_id,"theme":theme});
+}
+</script>
+
+</body>
+</html>

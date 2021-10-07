@@ -1,0 +1,74 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">工具</a>
+		</li>
+		<li>
+			<a href="#">文章管理</a>
+		</li>
+		<li class="active">编辑分类</li>
+	</ul>
+</div>
+
+<div class="content">
+	<form action='{url:/tools/cat_edit_act}' method='post' name='cat'>
+		<input type='hidden' name='id' value='' />
+		<table class="table form-table">
+			<colgroup>
+				<col width="130px" />
+				<col />
+			</colgroup>
+
+			<tr>
+				<th>上级分类：</th>
+				<td>
+					{set:$id = isset($this->catRow['id']) ? $this->catRow['id'] : 0}
+					<select class="form-control" name="parent_id" pattern="required" alt="请选择分类值">
+						<option value='0'>顶级分类</option>
+						{foreach:items=Api::run('getArticleCategoryListAll')}
+						<option value='{$item['id']}'>{echo:str_repeat('&nbsp;&nbsp;&nbsp;',substr_count($item['path'],',')-2)}{$item['name']}</option>
+						{/foreach}
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<th>名称：</th>
+				<td>
+					<input type='text' class='form-control' name='name' value='' pattern='required' />
+				</td>
+			</tr>
+			<tr>
+				<th>是否系统分类：</th>
+				<td>
+					<label class='radio-inline'><input type='radio' name='issys' value='0' checked=checked />否</label>
+					<label class='radio-inline'><input type='radio' name='issys' value='1' />是</label>
+					<p class="help-block">系统分类前台不展示，仅作为不可见的文章分类，主要是给管理员归纳文章使用的</p>
+				</td>
+			</tr>
+			<tr>
+				<th>排序：</th>
+				<td>
+					<input type='text' class='form-control' name='sort' value='' pattern='int' placeholder='请填写一个数字' />
+				</td>
+			</tr>
+			<tr>
+				<th>标题(SEO)：</th><td><input type='text' class='form-control' name='title' value='' /></td>
+			</tr>
+			<tr>
+				<th>关键词(SEO)：</th><td><input type='text' class='form-control' name='keywords' value='' /></td>
+			</tr>
+			<tr>
+				<th>描述简要(SEO)：</th><td><input type='text' class='form-control' name='description' value='' /></td>
+			</tr>
+			<tr>
+				<th></th><td><button class='btn btn-primary' type='submit'>确定</button></td>
+			</tr>
+		</table>
+	</form>
+</div>
+
+<script type='text/javascript'>
+var FromObj = new Form('cat');
+FromObj.init({echo:JSON::encode($this->catRow)});
+</script>

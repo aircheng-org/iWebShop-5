@@ -1,0 +1,34 @@
+<div class="bigweb">
+	<section class="breadcrumb">
+		<span>您当前的位置：</span> <a href="{url:}">首页</a> » {$this->cat_row['name']}
+	</section>
+
+	<section class="web">
+		<section class="main">
+			<h2 class="main_head">{$this->cat_row['name']}</h2>
+			<div class="article_list">
+				<ul>
+					{foreach:items = $this->helpQuery->find()}
+					<li><time>{echo:date('Y-m-d H:i:s',$item['dateline'])}</time><a href="{url:/site/help/id/$item['id']}">{$item['name']}</a></li>
+					{/foreach}
+				</ul>
+				{$this->helpQuery->getPageBar();}
+			</div>
+		</section>
+		<!-- 文章详情侧边 -->
+		<aside class="article_bar">
+			<!-- 帮助侧栏 -->
+			{foreach:items=Api::run('getHelpCategoryLeft',10)}
+			<nav class="news_article_box">
+				<h3 class="news_article_box_head">{$item['name']}</h3>
+				<ul class="news_article_infor">
+				{foreach:items=Api::run('getHelpListByCatidAll',array('#cat_id#',$item['id'])) item=$help_row}
+					<li><a href="{url:/site/help/id/$help_row[id]/}">{$help_row['name']}</a></li>
+				{/foreach}
+				</ul>
+			</nav>
+			{/foreach}
+			<!-- 帮助侧栏 -->
+		</aside>
+	</section>
+</div>

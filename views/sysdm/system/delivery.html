@@ -1,0 +1,76 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">系统</a>
+		</li>
+		<li>
+			<a href="#">配送管理</a>
+		</li>
+		<li class="active">配送方式</li>
+	</ul>
+</div>
+
+<div class="content">
+	<form action="{url:/system/delivery_operate}" method="post">
+	<table class="table list-table">
+		<caption>
+            <a class="btn btn-default" href='{url:/system/delivery_edit}'>
+                <i class="fa fa-plus"></i>添加配送方式
+            </a>
+            <a class="btn btn-default" onclick="selectAll('id[]');">
+                <i class="fa fa-check"></i>全选
+            </a>
+            <a class="btn btn-default" onclick="delModel();">
+                <i class="fa fa-close"></i>批量删除
+            </a>
+            <a class="btn btn-default" href='{url:/system/delivery_recycle}'>
+                <i class="fa fa-trash"></i>回收站
+            </a>
+		</caption>
+
+		<colgroup>
+			<col width="35px" />
+			<col width="250px" />
+			<col />
+		</colgroup>
+
+		<thead>
+			<tr>
+				<th></th>
+				<th>配送方式</th>
+				<th>状态</th>
+				<th>物流保价</th>
+				<th>货到付款</th>
+				<th>排序</th>
+				<th>操作</th>
+			</tr>
+		</thead>
+
+		<tbody>
+			{set:$queryObj=Api::run('getListByDelivery',array('is_delete'=>'0'));$resultData=$queryObj->find()}
+            {foreach:items=$resultData}
+			<tr>
+				<td>
+					<input name="id[]" type="checkbox" value="{$item['id']}" />
+				</td>
+				<td>{$item['name']}</td>
+				<td>{if:$item['status']==1}启用{else:}关闭{/if}</td>
+				<td>{if:$item['is_save_price']==1}是{else:}否{/if}</td>
+				<td>{if:$item['type']==1}是{else:}否{/if}</td>
+				<td>{$item['sort']}</td>
+				<td>
+					<a href="{url:/system/delivery_edit/id/$item['id']}">
+						<i class='operator fa fa-edit'></i>
+					</a>
+					<a href="javascript:delModel({link:'{url:/system/delivery_operate/id/$item['id']}'})">
+						<i class='operator fa fa-close'></i>
+					</a>
+				</td>
+			</tr>
+			{/foreach}
+		</tbody>
+	</table>
+	</form>
+</div>
+{$queryObj->getPageBar()}

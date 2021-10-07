@@ -1,0 +1,64 @@
+<section class="breadcrumb">
+	<span>您当前的位置：</span> <a href="{url:}">首页</a> » 成功提交订单
+</section>
+
+<section class="cart_3">
+	<header class="cart_header">成功提交订单</header>
+	<div class="cart_3_con">
+		{if:$this->user['user_id']}
+		<div class="cart_3_status">
+			<a href="{url:/ucenter/order}">查看订单</a>
+			<strong>订单已提交</strong>
+		</div>
+		{/if}
+		<h3>订单信息</h3>
+		<table>
+			<col width="100">
+			<col>
+			<tr><th>订单编号：</th><td>{$this->order_num}</td></tr>
+			<tr><th>订单金额：</th><td>￥<b>{$this->final_sum}</b></td></tr>
+			<tr><th>支付方式：</th><td>{$this->payment}</td></tr>
+			{if:$this->delivery}
+			<tr><th>收货时间：</th><td>{$accept_time}</td></tr>
+			<tr><th>配送方式：</th><td>{$this->delivery}</td></tr>
+			<tr><th>备货时间：</th><td>{$this->stockup_time}天</td></tr>
+			{/if}
+		</table>
+		<span class="show_more" id="order_a">[查看订单详细信息]</span>
+		<table class="none" id='order_detail'>
+			<col width="100">
+			<col>
+			<tr><th>联系人名：</th><td>{$accept_name}</td></tr>
+			<tr><th>联系方式：</th><td>{$mobile}</td></tr>
+			{if:$this->tax_title}
+			<tr><th>发票抬头：</th><td>{$this->tax_title}</td></tr>
+			{/if}
+		</table>
+
+		<!--不是货到付款并且支付方式为线上支付-->
+		{if:$this->deliveryType == 0  && $this->paymentType == 1}
+		{set:$order_id=$this->order_id;}
+		<form action='{url:/block/doPay/order_id/$order_id}' method='post' target='_blank'>
+			<label class="gobank_pay_btn" onclick="return dopay();" >
+				<input type="submit">
+				<span>立即支付</span>
+			</label>
+		</form>
+		{/if}
+	</div>
+</section>
+
+
+<script>
+$(function(){
+	//查看订单详情按钮
+	$('#order_a').click(function(){
+		$(this).toggleClass('fold');
+		$(this).toggleClass('unfold');
+		$('#order_detail').toggle();
+	});
+});
+function dopay(){
+	confirm('支付是否成功',"window.location.href='{url:/ucenter/order}';");
+}
+</script>

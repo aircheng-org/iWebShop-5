@@ -1,0 +1,41 @@
+<div class="container">
+	<h2 class="text-center">配货清单</h2>
+	<hr/>
+	<p>订单号：{$order_no}</p>
+	<p>下单时间：{$create_time}</p>
+	<hr/>
+
+	{foreach:items=Api::run('getOrderGoodsRowByOrderId',array('id'=>$id))}
+	{set:$goodsRow = JSON::decode($item['goods_array'])}
+	<p>商品货号：{$goodsRow['goodsno']}</p>
+	<p>
+		{$goodsRow['name']} {$goodsRow['value']}
+		{foreach:items=Api::run('getBrandByGoodsId',array('id'=>$item["goods_id"])) item=$brandRow}
+		【{$brandRow['name']}】
+		{/foreach}
+		x {$item['goods_nums']}
+		￥{$item['goods_price']}
+	</p>
+	<p>小计：￥{echo:$item['goods_price'] * $item['goods_nums']}</p>
+	<hr/>
+	{/foreach}
+
+	<p>收货地址：{$address}</p>
+	<p>收货人：{$accept_name}</p>
+	<p>手机：{$mobile}</p>
+
+	{if:$telphone}
+	<p>电话：{$telphone}</p>
+	{/if}
+
+	<p>配送方式：{foreach:items=Api::run('getDeliveryById',array('distribution'=>$distribution))}{$item['name']}{/foreach}</p>
+
+	{if:$postscript}
+	<p>订单附言：{$postscript}</p>
+	{/if}
+
+	<p>订单备注：{$note}</p>
+	<p><strong>签字：________________</strong></p>
+
+	<input type="submit" class="btn btn-success btn-block d-print-none" onclick="window.print();" value="打印" />
+</div>

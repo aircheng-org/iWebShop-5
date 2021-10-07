@@ -1,0 +1,91 @@
+{js:my97date}
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">统计</a>
+		</li>
+		<li>
+			<a href="#">日志操作记录</a>
+		</li>
+		<li class="active">后台操作记录列表</li>
+	</ul>
+</div>
+
+<div class="content">
+	<table class="table list-table">
+		<colgroup>
+			<col width="130px" />
+			<col width="220px" />
+			<col />
+			<col width="160px" />
+		</colgroup>
+		<caption class="row">
+			<form name="serachuser" action="{url:/}" method="get" class="form-inline col-sm-9">
+				<input type='hidden' name='controller' value='market' />
+				<input type='hidden' name='action' value='operation_list' />
+
+				<div class="input-group">
+					<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                	<input class="form-control" name="search[datetime>=]" type="text" value="" onfocus="WdatePicker()" placeholder="起始时间" />
+				</div>
+
+			    <div class="input-group">
+			    	<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+			    	<input class="form-control" name="search[datetime<=]" type="text" value="" onfocus="WdatePicker()" placeholder="结束时间" />
+				</div>
+
+				<input name="search[action-like]" value="" class="form-control" placeholder="动作查询" />
+				<input name="search[content-like]" value="" class="form-control" placeholder="内容查询" />
+
+	            <button class="btn btn-default" type="submit">
+	                <i class="fa fa-search"></i> 搜索
+	            </button>
+			</form>
+
+			<form action="{url:/market/clear_log/type/operation}" method="post" name='clear_log' class="form-inline col-sm-3">
+				<select name='month' class='form-control'>
+					<option value=''>清理时间</option>
+					<option value='1'>一个月以前</option>
+					<option value='3'>三个月以前</option>
+					<option value='6'>六个月以前</option>
+				</select>
+				<button class="btn btn-default" type="button" onclick="delModel({'form':'clear_log'});">
+	                <i class="fa fa-close"></i>记录删除
+	            </button>
+			</form>
+		</caption>
+		<thead>
+			<tr>
+				<th>操作人</th>
+				<th>动作</th>
+				<th>内容</th>
+				<th>时间</th>
+			</tr>
+		</thead>
+
+		<tbody>
+
+			{foreach:items = $this->operationList}
+			<tr>
+				<td>{$item['author']}</td>
+				<td>{$item['action']}</td>
+				<td style="word-break: break-all;">{$item['content']}</td>
+				<td>{$item['datetime']}</td>
+			</tr>
+			{/foreach}
+		</tbody>
+	</table>
+</div>
+{$this->operationObj->getPageBar()}
+
+<script type="text/javascript">
+$(function()
+{
+	var searchData = {echo:JSON::encode(IReq::get('search'))};
+	for(var index in searchData)
+	{
+		$('[name="search['+index+']"]').val(searchData[index]);
+	}
+})
+</script>

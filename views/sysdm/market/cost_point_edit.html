@@ -1,0 +1,137 @@
+{js:my97date}
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">营销</a>
+		</li>
+		<li>
+			<a href="#">营销活动管理</a>
+		</li>
+		<li class="active">编辑积分兑换</li>
+	</ul>
+</div>
+<div class="content">
+	<form action="{url:/market/cost_point_edit_act}"  method="post" name='cost_point_edit'>
+		<input type='hidden' name='id' />
+		<table class="table form-table">
+			<colgroup>
+				<col width="130px" />
+				<col />
+			</colgroup>
+
+			<tr>
+				<th>活动名称：</th>
+				<td><input type='text' class='form-control' name='name' pattern='required'  /></td>
+			</tr>
+			<tr>
+                <th>是否开启：</th>
+                <td>
+                    <label class="radio-inline">
+                        <input type="radio" name="is_close" value="0" checked=checked >是
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="is_close" value="1">否
+                    </label>
+                </td>
+            </tr>
+
+            <tr>
+                <th>允许参与人群：</th>
+                <td>
+                    {foreach:items=Api::run('getUserGroupListAll')}
+                    <label class="checkbox-inline">
+                        <input type="checkbox" name='user_group[]' value='{$item['id']}'>{$item['group_name']}
+                    </label>
+                    {/foreach}
+                    <p class="help-block">* 如果不设置用户组表示不限</p>
+                </td>
+            </tr>
+            <tr>
+                <th>设置兑换商品：</th>
+                <td>
+                    <table class="table table-bordered list-table">
+						<colgroup>
+							<col width="150px" />
+							<col />
+							<col width="110px" />
+							<col width="130px" />
+						</colgroup>
+                        <input type='hidden' name='condition' />
+                        <thead>
+                            <tr>
+                                <td>图片</td>
+                                <td>名称</td>
+                                <td>原价格</td>
+                                <td>兑换积分</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr id='speed_goods'></tr>
+                            <tr>
+                                <td colspan='4'>
+                                    <button type='button' onclick="searchGoods({'callback':searchGoodsCallback});" class='btn btn-default'>选择商品</button>
+                                    <p class="help-block">* 设置要积分兑换的商品，仅能设置一种商品</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+			<tr>
+				<th>排序：</th>
+				<td>
+					<input type='text' class='form-control' name='sort' pattern='int' empty  />
+				</td>
+			</tr>
+			<tr><td></td><td><button class='btn btn-primary' type='submit'>确定</button></td></tr>
+		</table>
+	</form>
+</div>
+
+<script type='text/javascript'>
+//输入筛选商品的条件
+function searchGoodsCallback(goodsList)
+{
+	goodsList.each(function()
+	{
+		var temp = $.parseJSON($(this).attr('data'));
+		var content = {
+			"data":
+			{
+				"id":temp.goods_id,
+				"name":temp.name,
+				"img":temp.img,
+				"sell_price":temp.sell_price
+			}
+		};
+		relationCallBack(content);
+	});
+}
+
+//关联商品回调处理函数
+function relationCallBack(content)
+{
+	if(content)
+	{
+	    $('[name="condition"]').val(content['data']['id']);
+		var imgUrl = webroot(content['data']['img']);
+		var html =   '<td><img src="'+imgUrl+'" title="'+content['data']['name']+'" style="max-width:140px;" /></td>'
+					+'<td>'+content['data']['name']+'</td>'
+					+'<td>'+content['data']['sell_price']+'</td>'
+		            +'<td><input text="text" class="form-control" name="point" pattern="int" placeholder="请填写数字" /></td>';
+
+		$('#speed_goods').html(html);
+	}
+}
+
+jQuery(function()
+{
+	//预定义商品绑定
+	relationCallBack({$this->costPointRow['goodsRow']});
+
+	//表单回填
+	var formObj = new Form('cost_point_edit');
+	formObj.init({echo:JSON::encode($this->costPointRow)});
+});
+</script>

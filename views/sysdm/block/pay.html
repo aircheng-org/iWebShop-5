@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>选择支付方式</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+	<link rel="stylesheet" href="{webroot:public/css/twitter-bootstrap/3.3.7/css/bootstrap.min.css}">
+	<script type='text/javascript' src='{webroot:public/javascript/public.js}'></script>
+	{js:dialog}
+</head>
+
+<body>
+<div class="container-fluid">
+    {set:$order_id = IFilter::act(IReq::get('id'),'int')}
+    {set:$payment_id = IFilter::act(IReq::get('payment'),'int')}
+    <form action="{url:/}" target='_blank' method='get'>
+		<input type='hidden' name='controller' value='block'>
+		<input type='hidden' name='action' value='doPay'>
+		<input type='hidden' name='order_id' value='{$order_id}'>
+
+        <table class="table">
+        {foreach:items = Api::run('getPaymentList')}
+        <tr>
+            <td>
+	            <label>
+	                <input name="payment_id" title="{$item['name']}" type="radio" value="{$item['id']}" {if:$payment_id == $item['id']}checked="checked"{/if} />
+	                <img src='{url:plugins$item['logo']}' width='130px' class='img-thumbnail' />
+	                {$item['name']}
+	            </label>
+            </td>
+        </tr>
+        {/foreach}
+        <tr>
+            <td><input type="submit" class="btn btn-primary" style="width:100%" value="立即支付" onclick="return dopay();" /></td>
+        </tr>
+        </table>
+    </form>
+</div>
+<script>
+//点击支付
+function dopay()
+{
+	confirm('支付是否成功',"window.parent.location.href='{url:/ucenter/order}';");
+}
+</script>
+</body>
+</html>

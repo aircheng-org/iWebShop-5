@@ -1,0 +1,35 @@
+<script type="text/javascript">
+//注册校验码
+function _sendMobileCode(_self)
+{
+	$(_self).prop("disabled",true);
+	var mobile = $('[name="mobile"]').val();
+	var captcha = $('[name="captcha"]').val();
+	$.get("{url:/simple/_sendMobileCode}",{"captcha":captcha,"mobile":mobile},function(content)
+	{
+		if(content)
+		{
+			alert(content);
+			$(_self).prop("disabled",false);
+		}
+		else
+		{
+			//刷新图形验证码
+			changeCaptcha();
+
+			times = 60;
+			timerHandle = setInterval(function(){
+				times--;
+				$(_self).val(times + "秒后再次发送");
+				if(times <= 0)
+				{
+					$(_self).prop("disabled",false);
+					$(_self).val("获取验证码");
+					clearInterval(timerHandle);
+					times = 60;
+				}
+			},1000);
+		}
+	});
+}
+</script>

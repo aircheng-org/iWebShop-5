@@ -1,0 +1,64 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">系统</a>
+		</li>
+		<li>
+			<a href="#">第三方平台</a>
+		</li>
+		<li class="active">oauth登录</li>
+	</ul>
+</div>
+<div class="content">
+	<form action='{url:/system/oauth_edit_act}' method='post' name='oauth'>
+		<input type='hidden' name='id' />
+		<table class="table form-table">
+			<colgroup>
+				<col width="130px" />
+				<col />
+			</colgroup>
+
+			<tr>
+				<th>名称：</th>
+				<td>
+					<input type='text' class='form-control' name='name' value='' pattern='required' alt="填写名称" />
+					<p class="help-block">*登录平台名称（必填）</p>
+				</td>
+			</tr>
+
+			{if:$this->oauthRow['fields']}
+			{set:$configArray = unserialize($this->oauthRow['config'])}
+			{foreach:items = $this->oauthRow['fields']}
+			<tr>
+				<th>{$item['label']}：</th>
+				<td>
+					<input type='text' class='form-control' name='{$key}' value='{$configArray[$key]}' />
+				</td>
+			</tr>
+			{/foreach}
+			{/if}
+
+			<tr>
+				<th>是否开启：</th>
+				<td>
+					<label class='radio-inline'><input type='radio' name='is_close' value='0' checked=checked />开启</label>
+					<label class='radio-inline'><input type='radio' name='is_close' value='1' />关闭</label>
+				</td>
+			</tr>
+			<tr>
+				<th>描述：</th>
+				<td><textarea class="form-control" name='description' pattern='required' alt='请填写文章内容'></textarea></td>
+			</tr>
+			<tr>
+				<th></th><td><button class='btn btn-primary' type='submit'>确定</button></td>
+			</tr>
+		</table>
+	</form>
+</div>
+
+<script type='text/javascript'>
+//表单回填
+var formObj = new Form('oauth');
+formObj.init({echo:JSON::encode($this->oauthRow)});
+</script>

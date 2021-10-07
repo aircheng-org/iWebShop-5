@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>收款单</title>
+{js:jquery}
+{js:dialog}
+{js:form}
+{js:validate}
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="{webroot:public/css/twitter-bootstrap/3.3.7/css/bootstrap.min.css}">
+<script type='text/javascript' src="{webroot:public/javascript/public.js}"></script>
+</head>
+<body style="width:600px;min-height:400px;overflow-x:hidden;">
+<div class="container">
+<form action="{url:/order/order_collection_doc}" method="post" id="pay_form">
+	<input type="hidden" name="id" value="{$order_id}"/>
+	<input type="hidden" name="order_no" value="{$order_no}"/>
+	<input type="hidden" name="user_id" value="{$user_id}"/>
+
+	<table class="table list-table">
+		<colgroup>
+			<col width="120px" />
+			<col />
+		</colgroup>
+
+		<tbody>
+			<tr>
+				<td>订单号:</td>
+				<td>{$order_no}</td>
+			</tr>
+			<tr>
+				<td>下单时间:</td>
+				<td>{$create_time}</td>
+			</tr>
+			<tr>
+				<td>订单金额:</td>
+				<td><input type="text" name="amount" pattern="float" class="form-control" style="width:auto;" value="{$order_amount}" /></td>
+			</tr>
+			<tr>
+				<td>是否开票:</td>
+				<td>{if:$invoice==0}否{else:}是{/if}</td>
+			</tr>
+			<tr>
+				<td>税金:</td><td>￥{$taxes}</td>
+			</tr>
+			<tr>
+				<td>发票信息:</td><td>{echo:CountSum::invoiceText($invoice_info)}</td>
+			</tr>
+			<tr>
+				<td>收款备注:</td>
+				<td>
+					<textarea name="note" id="note" class="form-control" style="height:80px;"></textarea>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</form>
+</div>
+</body>
+</html>

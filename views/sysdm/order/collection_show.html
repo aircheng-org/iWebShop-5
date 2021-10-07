@@ -1,0 +1,55 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">订单</a>
+		</li>
+		<li>
+			<a href="#">单据管理</a>
+		</li>
+		<li class="active">收款单信息</li>
+	</ul>
+</div>
+<div class="content">
+	<table  class="table form-table">
+		<colgroup>
+			<col width="130px" />
+			<col />
+		</colgroup>
+
+		<tbody>
+			<tr>
+				<th>订单号：</th><td>{$order_no}</td>
+			</tr>
+			<tr>
+				<th>订单时间：</th><td>{$create_time}</td>
+			</tr>
+			<tr>
+				<th>支付方式：</th><td>{$pname}</td>
+			</tr>
+			<tr>
+				<th>收款方式：</th><td>{if:$type==1}线上付款{elseif:$type=2}线下方式{/if}</td>
+			</tr>
+			<tr>
+				<th>付款人：</th><td>{$username}</td>
+			</tr>
+			<tr>
+				<th>付款时间：</th><td>{$pay_time}</td>
+			</tr>
+			<tr>
+				<th>金额：</th><td>{$amount}</td>
+			</tr>
+			<tr>
+				<th>操作员：</th><td>
+				{if:$admin_id}
+                {set:$adminRow = Api::run('getAdminInfo',array('admin_id'=>$admin_id))}
+                {$adminRow['admin_name']}
+                {else:}无{/if}
+                </td>
+			</tr>
+			<tr>
+				<th>备注：</th><td>{$note}</td>
+			</tr>
+		</tbody>
+	</table>
+</div>

@@ -1,0 +1,73 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">商品</a>
+		</li>
+		<li>
+			<a href="#">商品管理</a>
+		</li>
+		<li class="active">商品回收站</li>
+	</ul>
+</div>
+<form action="" method="post" name="goodsForm">
+	<div class="content">
+		<table class="table list-table">
+			<colgroup>
+				<col width="35px" />
+				<col />
+				<col width="220px" />
+				<col width="100px" />
+				<col width="100px" />
+				<col width="100px" />
+			</colgroup>
+
+			<caption>
+                <a class="btn btn-default" href='{url:/goods/goods_list}'>
+                    <i class="fa fa-reply"></i>返回列表
+                </a>
+                <a class="btn btn-default" onclick="selectAll('id[]')">
+                    <i class="fa fa-check"></i>全选
+                </a>
+                <a class="btn btn-default" onclick="delModel({'form':'goodsForm','link':'{url:/goods/goods_recycle_del}','name':'id[]'})">
+                    <i class="fa fa-close"></i>批量删除
+                </a>
+                <a class="btn btn-default" onclick="delModel({'form':'goodsForm','link':'{url:/goods/goods_recycle_restore}','name':'id[]','msg':'恢复选择的商品？'})">
+                    <i class="fa fa-recycle"></i>还原
+                </a>
+			</caption>
+
+			<thead>
+				<tr>
+					<th></th>
+					<th>商品名称</th>
+					<th>分类</th>
+					<th>销售价</th>
+					<th>库存</th>
+					<th>操作</th>
+				</tr>
+			</thead>
+
+			<tbody>
+	            {set:$queryObj=Api::run('getGoodsRecycleList');$resultData=$queryObj->find()}
+	            {foreach:items=$resultData}
+				<tr>
+					<td><input name="id[]" type="checkbox" value="{$item['id']}" /></td>
+					<td>{$item['name']}</td>
+					<td>
+					{foreach:items=Api::run('getCategoryExtendNameByCategoryid',array('id'=>$item["id"])) item=$catName}
+						[{$catName['name']}]
+					{/foreach}
+					</td>
+					<td>{$item['sell_price']}</td>
+					<td>{$item['store_nums']}</td>
+					<td>
+						<a onclick="delModel({'link':'{url:/goods/goods_recycle_del/id/$item['id']}'})" ><i class='operator fa fa-close'></i></a>
+					</td>
+				</tr>
+				{/foreach}
+			</tbody>
+		</table>
+	</div>
+</form>
+{$queryObj->getPageBar()}

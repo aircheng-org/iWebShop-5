@@ -1,0 +1,44 @@
+{js:kindeditor}
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">工具</a>
+		</li>
+		<li>
+			<a href="#">公告管理</a>
+		</li>
+		<li class="active">编辑公告</li>
+	</ul>
+</div>
+<div class="content">
+	<form action='{url:/tools/notice_edit_act}' method='post' name='article'>
+		<input type='hidden' name='id' value="" />
+		<table class="table form-table">
+			<colgroup>
+				<col width="130px" />
+				<col />
+			</colgroup>
+			<tr>
+				<th>标题：</th>
+				<td><input type='text' name='title' class='form-control' value='' pattern='required' /></td>
+			</tr>
+			<tr>
+				<th>内容：</th><td><textarea name='content' class="form-control" id='content' style='width:100%;height:350px' pattern='required'></textarea></td>
+			</tr>
+			<tr>
+				<th></th><td><button class='btn btn-primary' type='submit'>确定</button></td>
+			</tr>
+		</table>
+	</form>
+</div>
+
+<script type='text/javascript'>
+//DOM加载完毕
+$(function(){
+	var FromObj = new Form('article');
+	FromObj.init({echo:JSON::encode($this->noticeRow)});
+
+	KindEditor.create('#content');
+});
+</script>

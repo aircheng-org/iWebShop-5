@@ -1,0 +1,93 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">订单</a>
+		</li>
+		<li>
+			<a href="#">单据管理</a>
+		</li>
+		<li class="active">发货单信息</li>
+	</ul>
+</div>
+<div class="content">
+	<table class="table list-table">
+		<colgroup>
+			<col />
+			<col width="120px" />
+		</colgroup>
+
+		<thead>
+			<tr>
+				<th>商品名称</th>
+				<th>商品数量</th>
+			</tr>
+		</thead>
+		<tbody>
+            {foreach:items=Api::run('getOrderGoodsRowByDeliveryId',array('id'=>$id))}
+			{set:$goodsRow = JSON::decode($item['goods_array'])}
+			<tr>
+				<td>
+					{$goodsRow['name']} &nbsp;&nbsp; {$goodsRow['value']}
+				</td>
+				<td>{$item['goods_nums']}</td>
+			</tr>
+			{/foreach}
+		</tbody>
+	</table>
+
+	<hr />
+
+    <form action="{url:/order/delivery_doc_update}" method="post">
+    <input type="hidden" name="id" value="" />
+	<table class="table form-table">
+		<tbody>
+			<tr>
+				<th>订单号：</th><td>{$order_no}</td><th>配送方式：</th><td>{$pname}</td><th>订单时间：</th><td>{$create_time}</td>
+			</tr>
+			<tr>
+				<th>操作员：</th><td>{$admin}</td><th>会员名：</th><td>{$username}</td><th>收货人：</th><td>{$name}</td>
+			</tr>
+			<tr>
+				<th>收货地区：</th><td>{$country}</td><th>收货地址：</th><td>{$address}</td><th>邮编：</th><td>{$postcode}</td>
+			</tr>
+			<tr>
+				<th>电话：</th><td>{$telphone}</td><th>手机：</th><td>{$mobile}</td><th>运费：</th><td>{$freight}</td>
+			</tr>
+			<tr>
+			    <th>物流公司:</th>
+			    <td>
+					<select class="form-control" name="freight_id" alt="物流公司" pattern="required">
+						<option value="">请选择物流公司</option>
+                        {foreach:items=Api::run('getFreightCompany')}
+						<option value="{$item['id']}">{$item['freight_name']}</option>
+						{/foreach}
+					</select>
+			    </td>
+
+				<th>物流单号：</th>
+				<td><input type="text" class="form-control" name="delivery_code" /></td>
+
+				<th>生成时间:</th>
+				<td>{$time}</td>
+			</tr>
+			<tr>
+				<th>备注：</th><td colspan="5">{$note}</td>
+			</tr>
+		</tbody>
+		<tfoot>
+		    <th></th>
+		    <td colspan="5">
+		        <p>{$express_template}</p>
+		        <input type="submit" class="btn btn-primary" value="保存" />
+		        <a href="javascript:window.history.go(-1);" class="btn btn-default">返回</a>
+		    </td>
+		</tfoot>
+	</table>
+    </form>
+</div>
+
+<script>
+var formObj = new Form();
+formObj.init({"freight_id":"{$freight_id}","delivery_code":"{$delivery_code}","id":"{$id}"});
+</script>

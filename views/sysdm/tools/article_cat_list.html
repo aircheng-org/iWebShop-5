@@ -1,0 +1,84 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">工具</a>
+		</li>
+		<li>
+			<a href="#">文章管理</a>
+		</li>
+		<li class="active">分类管理</li>
+	</ul>
+</div>
+<div class="content">
+	<table id="list_table" class="table list-table">
+		<colgroup>
+			<col />
+			<col width="90px" />
+			<col width="150px"  />
+		</colgroup>
+		<caption>
+		<a class="btn btn-default" href='{url:/tools/article_cat_edit}'>
+            <i class="fa fa-plus"></i>添加分类
+        </a>
+		</caption>
+		<thead>
+			<tr>
+				<th>分类名称</th>
+				<th>系统分类</th>
+				<th>操作</th>
+			</tr>
+		</thead>
+
+		<tbody>
+			{foreach:items=Api::run('getArticleCategoryListAll')}
+			<tr id="{$item['id']}" parent={$item['parent_id']}>
+				<td><i style="margin-left:{echo:(substr_count($item['path'],',')-2)*2}0px" class="operator fa fa-minus-square-o" onclick="displayData(this);" title="关闭"></i>{$item['name']}</td>
+				<td>{echo:($item['issys']==1) ? '是':'否'}</td>
+				<td>
+					<a href='{url:/tools/cat_edit/id/$item['id']}'><i class='operator fa fa-edit'></i></a>
+					<a href="javascript:delModel({link:'{url:/tools/cat_del/id/$item['id']}'});"><i class='operator fa fa-close'></i></a>
+				</td>
+			</tr>
+			{/foreach}
+		</tbody>
+	</table>
+</div>
+<script language="javascript">
+//折叠展示
+function displayData(_self)
+{
+	if(_self.title == "关闭")
+	{
+		jqshow($(_self).parent().parent().attr('id'), 'hide');
+		$(_self).removeClass("fa-minus-square-o").addClass("fa-plus-square-o");
+		_self.title = '打开';
+	}
+	else
+	{
+		jqshow($(_self).parent().parent().attr('id'), 'show');
+		$(_self).removeClass("fa-plus-square-o").addClass("fa-minus-square-o");
+		_self.title = '关闭';
+	}
+}
+
+function jqshow(id,isshow)
+{
+	var obj = $("#list_table tr[parent='"+id+"']");
+	if(obj.length > 0)
+	{
+		obj.each(function(i){
+			jqshow($(this).attr('id'),isshow);
+		});
+
+		if(isshow == 'hide')
+		{
+			obj.hide();
+		}
+		else
+		{
+			obj.show();
+		}
+	}
+}
+</script>

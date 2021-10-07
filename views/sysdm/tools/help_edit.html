@@ -1,0 +1,60 @@
+{js:kindeditor}
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">工具</a>
+		</li>
+		<li>
+			<a href="#">帮助管理</a>
+		</li>
+		<li class="active">编辑帮助文档</li>
+	</ul>
+</div>
+
+<div class="content">
+	<form action='{url:/tools/help_edit_act}' method='post' name='article'>
+		<input type="hidden" name="id" />
+
+		<table class="table form-table">
+			<colgroup>
+				<col width="130px" />
+				<col />
+			</colgroup>
+
+			<tr>
+				<th>分类：</th>
+				<td>
+					<select name="cat_id" class="form-control w-auto" pattern="required" alt="请选择分类值" >
+					{foreach:items=Api::run('getHelpCategoryAll')}
+						<option value="{$item['id']}">{$item['name']}</option>
+					{/foreach}
+					</select>
+					<a href="{url:/tools/help_cat_edit}">添加帮助分类</a>
+					<p class="help-block">*选择帮助所属分类（必填）</p>
+				</td>
+			</tr>
+			<tr>
+				<th>标题：</th>
+				<td><input type='text' name='name' class='form-control' value='' pattern='required'/></td>
+			</tr>
+			<tr>
+				<th>排序：</th><td><input type='text' pattern="int" alt="请填写整数" class='form-control' name='sort' value='' /><p class="help-block">数字越小位置越靠前</p></td>
+			</tr>
+
+			<tr>
+				<th>内容：</th><td><textarea id="content" name='content' style='width:100%;height:350px' pattern='required'></textarea></td>
+			</tr>
+			<tr>
+				<th></th><td><button class='btn btn-primary' type='submit'>确定</button></td>
+			</tr>
+		</table>
+	</form>
+</div>
+
+<script type='text/javascript'>
+KindEditor.create('#content');
+
+var formObj = new Form();
+formObj.init({echo:JSON::encode($this->help_row)});
+</script>

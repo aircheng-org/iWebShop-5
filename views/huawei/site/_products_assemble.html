@@ -1,0 +1,50 @@
+<li class="current">
+	<span class="bold red2">{$assemble['limit_nums']}人拼团价： </span>
+	<b class="price red2">￥<span class="f30">{$assemble['assemble_price']}</span></b>
+</li>
+
+<li>
+	销售价：<span class="price light_gray">￥<s class="f30" id="data_sellPrice">{$sell_price}</s></span>
+</li>
+
+{if:$assemble['commanderUser']}
+<li>
+    您可以立刻加入
+    {if:$assemble['commanderUser']['user_ico']}
+    <img src='{url:$assemble['commanderUser']['user_ico']}' width='50px' />
+    {/if}
+    <b class="orange">{$assemble['commanderUser']['user_name']}</b>的团，
+    仅差{echo:$assemble['commanderUser']['limit_nums']-$assemble['commanderUser']['member_nums']}人
+</li>
+{/if}
+
+<script>
+jQuery(function()
+{
+    $('#buyNowButton').html('<i class="fa fa-user"></i><span>我要开团</span>');
+
+    {if:$assemble['commanderUser']}
+    $('#joinCarButton').attr('id','join_assemble');
+    $('#join_assemble').html('<i class="fa fa-group"></i><span>加入已有团</span>');
+	$('#join_assemble').bind('click',function()
+	{
+		//设置必要参数
+		var buyNums = parseInt($.trim($('#buyNums').val()));
+		var id      = {$id};
+		var type    = 'goods';
+
+		if($('#product_id').val())
+		{
+			id   = $('#product_id').val();
+			type = 'product';
+		}
+
+		//普通购买
+		var url = "/simple/cart2/id/"+id+"/num/"+buyNums+"/type/"+type+"/assemble_commander_id/"+{$assemble['commanderUser']['id']};
+
+		//页面跳转
+		window.location.href = creatUrl(url);
+	});
+	{/if}
+});
+</script>

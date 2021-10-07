@@ -1,0 +1,115 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">工具</a>
+		</li>
+		<li>
+			<a href="#">数据库管理</a>
+		</li>
+		<li class="active">恢复数据库</li>
+	</ul>
+</div>
+<div class="content">
+	<form action='{url:/tools/backup_del}' method='post' name='resForm'>
+		<table class="table list-table">
+			<colgroup>
+				<col width="35px" />
+				<col />
+				<col width="120px" />
+				<col width="180px" />
+				<col width="120px" />
+			</colgroup>
+			<caption>
+                <a class="btn btn-default" onclick="selectAll('name[]')">
+                    <i class="fa fa-check"></i>全选
+                </a>
+                <a class="btn btn-default" onclick="delModel()">
+                    <i class="fa fa-close"></i>批量删除
+                </a>
+                <a class="btn btn-default" onclick="confirm('确定要还原么？','res_act()')">
+                    <i class="fa fa-recycle"></i>还原
+                </a>
+                <a class="btn btn-default" onclick="delModel({'form':'resForm','link':'{url:/tools/download_pack}','msg':'确定要打包下载么？'});">
+                    <i class="fa fa-download"></i>打包下载
+                </a>
+                <a class="btn btn-default" onclick="localUpload();">
+                    <i class="fa fa-upload"></i>本地导入
+                </a>
+			</caption>
+			<thead>
+				<tr>
+					<th></th>
+					<th>文件名</th>
+					<th>使用空间</th>
+					<th>备份时间</th>
+					<th>操作</th>
+				</tr>
+			</thead>
+
+			<tbody>
+				{foreach:items=$resList['system']}
+				<tr>
+					<td><input type="checkbox" name="name[]" value="{$item['name']}" /></td>
+					<td>{$item['name']}</td>
+					<td>{$item['size']}KB</td>
+					<td>{$item['time']}</td>
+					<td>
+						<a href="{url:/tools/download/file/$item['name']}"><i class='operator fa fa-download'></i></a>
+						<a href="javascript:delModel({link:'{url:/tools/backup_del/name/$item['name']}'});"><i class='operator fa fa-close'></i></a>
+					</td>
+				</tr>
+				{/foreach}
+			</tbody>
+		</table>
+	</form>
+</div>
+<script type='text/javascript'>
+//还原操作
+function res_act()
+{
+	loadding('正在还原请稍候......');
+	var dataJson = getArray('name[]','checkbox');
+	$.post('{url:/tools/res_act}',{name:dataJson},function(c)
+	{
+		if(c.isError == true)
+			alert(c.message);
+		else
+			window.location.href=c.redirect;
+
+		unloadding();
+	}
+	,'json');
+}
+
+//本地上传附件
+function localUpload()
+{
+	art.dialog.open('{url:/tools/upload_sql}',{
+		id:'uploadSql',
+		title:'上传SQL文件',
+		ok:function(iframeWin, topWin){
+	    	var formObject = iframeWin.document.forms[0];
+	    	formObject.submit();
+	    	loadding();
+	    	return false;
+		},
+		okVal:'上传'
+	});
+}
+
+//上传成功
+function uploadSuccess()
+{
+	window.location.href='{url:/tools/db_bak}';
+}
+
+//上传失败
+function uploadFail(error)
+{
+	unloadding();
+	var msg = error ? error : "请上传正确的SQL文件";
+	alert(msg);
+	art.dialog({id:'uploadSql'}).close();
+}
+</script>

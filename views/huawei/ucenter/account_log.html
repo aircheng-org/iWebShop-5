@@ -1,0 +1,37 @@
+<header class="uc_head">
+	<span class="money">账户预付款：<em>￥{$this->memberRow['balance']}</em></span>
+	<h3 class="current"><a href="{url:/ucenter/account_log}">交易记录</a></h3>
+	<h3><a href='{url:/ucenter/withdraw}'>提现申请</a></h3>
+</header>
+
+<section class="uc_table">
+	<table>
+		<col />
+		<col width="110px" />
+		<col width="110px" />
+		<col width="110px" />
+		<col width="145px" />
+		<thead>
+			<tr>
+				<th>事件</th><th>存入金额</th><th>支出金额</th><th>当前金额</th><th>时间</th>
+			</tr>
+		</thead>
+		<tbody>
+			{set:$queryAccountLogList = Api::run('getUcenterAccoutLog')}
+			{foreach:items = $queryAccountLogList->find()}
+			<tr>
+				<td style="text-align:left;">{$item['note']}</td>
+				<td>{echo:$item['amount'] > 0 ? $item['amount'].'元' : ''}</td>
+				<td>{echo:$item['amount'] < 0 ? $item['amount'].'元' : ''}</td>
+				<td><span class="red">{$item['amount_log']} 元</span></td>
+				<td>{$item['time']}</td>
+			</tr>
+			{/foreach}
+		</tbody>
+	</table>
+</section>
+{$queryAccountLogList->getPageBar()}
+
+{if:!$items}
+<section class="no_tip">暂无数据</section>
+{/if}

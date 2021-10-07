@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="UTF-8">
+	{js:jquery}
+	{js:validate}
+	{js:dialog}
+	{js:artTemplate}
+	{js:form}
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<link href="{webroot:public/css/twitter-bootstrap/3.3.7/css/bootstrap.min.css}" rel="stylesheet">
+</head>
+
+<body>
+<div class="container">
+	<form action="{url:/plugins/seo_update}" method="post" name="wechat">
+		<input name='id' type='hidden' />
+		<table class="table">
+			<colgroup>
+				<col width="180px" />
+				<col />
+			</colgroup>
+			<tr>
+				<th>什么是网站的SEO：</th>
+				<td>
+					可以方便搜索引擎（百度，谷歌...）快速收录您网站的信息，给网站带来强大流量，对客户所需进行精准推介。
+				</td>
+			</tr>
+
+			<tr>
+				<th>全局变量：</th>
+				<td>
+					<code>
+						{foreach:items = $seoVar}
+						{$key}:{$item}
+						{/foreach}
+					</code>
+					<span class='help-block'>
+						变量可以直接写到SEO信息中，比如变量{name}在商品详情"site/products"中的就是商品名称，在"site/article"就是文章名称;<br/>
+						{title},{keywords},{description}在部分模块中有单独设置的地方
+					</span>
+				</td>
+			</tr>
+
+			<tr>
+				<th>名称：</th>
+				<td>
+					<input name='name' type='text' class='form-control' pattern='required' />
+					<span class='help-block'>SEO规则的名称，比如："商品详情","品牌列表"</span>
+				</td>
+			</tr>
+
+			<tr>
+				<th>伪静态地址：</th>
+				<td>
+					<input name='pathinfo' type='text' class='form-control' pattern='required' />
+					<span class='help-block'>pathinfo路径地址(与模板路径相对应)，只有访问到这个路径地址才会启用当前设置的SEO规则，比如："site/index"</span>
+				</td>
+			</tr>
+
+			<tr>
+				<th>网页标题(title)：</th>
+				<td>
+					<input name='title' type='text' class='form-control' pattern='required' />
+				</td>
+			</tr>
+
+			<tr>
+				<th>网页关键词(keywords)：</th>
+				<td>
+					<input name='keywords' type='text' class='form-control' />
+				</td>
+			</tr>
+
+			<tr>
+				<th>网页描述(description)：</th>
+				<td>
+					<input name='description' type='text' class='form-control' />
+				</td>
+			</tr>
+
+			<tr>
+				<td></td>
+				<td>
+					<input type="submit" class="btn btn-success" value="保 存" />
+					<input type="button" class="btn btn-danger" value="返 回" onclick="window.location.href='{url:/plugins/seo_list}';" />
+				</td>
+			</tr>
+		</table>
+	</form>
+</div>
+<script type="text/javascript">
+jQuery(function()
+{
+	var formObj = new Form();
+	formObj.init({echo:JSON::encode($seoData)});
+});
+</script>
+</body>
+</html>

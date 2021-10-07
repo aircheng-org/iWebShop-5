@@ -1,0 +1,68 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">订单</a>
+		</li>
+		<li>
+			<a href="#">单据管理</a>
+		</li>
+		<li class="active">收款单回收站</li>
+	</ul>
+</div>
+
+<div class="content">
+	<form action="" method="post" name="searchForm">
+	<table class="table list-table">
+		<colgroup>
+			<col width="35px" />
+			<col width="200px" />
+			<col width="90px" />
+			<col />
+		</colgroup>
+		<caption>
+            <a class="btn btn-default" href='{url:/order/order_collection_list}'>
+                <i class="fa fa-reply"></i>返回列表
+            </a>
+            <a class="btn btn-default" onclick="selectAll('id[]')">
+                <i class="fa fa-check"></i>全选
+            </a>
+            <a class="btn btn-default" onclick="delModel({msg:'确定要彻底删除所选中的信息吗？',link:'{url:/order/collection_recycle_del}',form:'searchForm'});">
+                <i class="fa fa-close"></i>彻底删除
+            </a>
+            <a class="btn btn-default" onclick="delModel({msg:'确定要还原所选中的信息吗？',link:'{url:/order/collection_recycle_restore}',form:'searchForm'});">
+                <i class="fa fa-recycle"></i>还原
+            </a>
+		</caption>
+		<thead>
+			<tr>
+				<th></th>
+				<th>订单号</th>
+				<th>收款金额</th>
+				<th>付款人</th>
+				<th>支付方式</th>
+				<th>支付状态</th>
+				<th>完成时间</th>
+				<th>操作</th>
+			</tr>
+		</thead>
+
+		<tbody>
+            {set:$queryObj=Api::run('getRecycleListByCollection');$resultData=$queryObj->find()}
+            {foreach:items=$resultData}
+			<tr>
+				<td><input name="id[]" type="checkbox" value="{$item['id']}" /></td>
+				<td>{$item['order_no']}</td>
+				<td>{$item['amount']}</td>
+				<td>{$item['username']}</td>
+				<td>{$item['name']}</td>
+				<td>{if:$item['pay_status']==1}支付完成{else:}准备中{/if}</td>
+				<td>{$item['time']}</td>
+				<td><a href="{url:/order/collection_show/id/$item['id']}"><i class='operator fa fa-eye'></i></a></td>
+			</tr>
+			{/foreach}
+		</tbody>
+	</table>
+	</form>
+</div>
+{$queryObj->getPageBar()}

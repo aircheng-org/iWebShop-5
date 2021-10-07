@@ -1,0 +1,266 @@
+{js:my97date}
+{js:artTemplate}
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">营销</a>
+		</li>
+		<li>
+			<a href="#">促销活动管理</a>
+		</li>
+		<li class="active">编辑促销活动</li>
+	</ul>
+</div>
+
+<div class="content">
+	<form action="{url:/market/pro_rule_edit_act}" method="post" name='pro_rule_edit'>
+		<input type='hidden' name='id' />
+		<table class="table form-table" name="rule_table">
+			<colgroup>
+				<col width="130px" />
+				<col />
+			</colgroup>
+
+			<tr>
+				<th>活动名称：</th>
+				<td><input type='text' class='form-control' name='name' pattern='required' placeholder='请填写活动名称' /></td>
+			</tr>
+			<tr>
+				<th>活动时间：</th>
+				<td>
+                    <div class="row">
+                        <div class="col-xs-4">
+		                    <div class="input-group">
+		                        <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+		                        <input class="form-control" pattern='datetime' type="text" name="start_time" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" value="" placeholder="起始日期" />
+		                    </div>
+                        </div>
+
+                        <div class="col-xs-4">
+		                    <div class="input-group">
+		                        <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+		                        <input class="form-control"  pattern='datetime' type="text" name="end_time" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" value="" placeholder="结束日期" />
+		                    </div>
+                        </div>
+                    </div>
+                    <p class="help-block">* 此活动的使用时间段</p>
+				</td>
+			</tr>
+			<tr>
+				<th>允许参与人群：</th>
+				<td>
+                    {foreach:items=Api::run('getUserGroupListAll')}
+                    <label class="checkbox-inline">
+                        <input type="checkbox" name='user_group[]' value='{$item['id']}'>{$item['group_name']}
+                    </label>
+                    {/foreach}
+                    <p class="help-block">* 如果不设置用户组表示不限</p>
+				</td>
+			</tr>
+			<tr>
+				<th>是否开启：</th>
+				<td>
+                    <label class="radio-inline">
+                        <input type="radio" name="is_close" value="0" checked=checked >是
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="is_close" value="1">否
+                    </label>
+				</td>
+			</tr>
+			<tr>
+				<th>活动规则：</th>
+				<td>
+					<select name="type" class="form-control" pattern='required' onchange='change_rule(this.value);'>
+						<option>请选择...</option>
+						<option value="0">消费金额满足</option>
+						<option value="5">新用户注册</option>
+						<option value="6">在线充值金额满足</option>
+					</select>
+					<p class="help-block">(1)消费金额满足条件，即可获得奖励；(2)新用户注册即可获得奖励；(3)在线充值金额满足条件，即可获得预存款奖励</p>
+				</td>
+			</tr>
+			<tr>
+				<th>活动规则内容：</th>
+				<td id="condContent">请选择活动规则...</td>
+			</tr>
+			<tr>
+				<th>活动奖励：</th>
+				<td>
+					<select class='form-control' name='award_type' pattern='required' alt='请选择活动奖励' onchange="change_gift(this.value);"></select>
+					<p class="help-block">* 选择一种活动奖励</p>
+				</td>
+			</tr>
+			<tr>
+				<th>活动设置：</th>
+				<td id='rule_box'>请选择活动奖励...</td>
+			</tr>
+			<tr>
+				<th>活动介绍：</th>
+				<td><textarea name='intro' class="form-control" rows="3"></textarea></td>
+			</tr>
+			<tr><th></th><td><button class='btn btn-primary' type='submit'>确定</button></td></tr>
+		</table>
+	</form>
+</div>
+
+<!--消费金额满-->
+<script id="buyType" type='text/html'>
+<option value=''>请选择</option>
+<option value='1'>当购物车金额满 M 元时,优惠 N 元</option>
+<option value='2'>当购物车金额满 M 元时,优惠 N% </option>
+<option value='3'>当购物车金额满 M 元时,赠送 N 个积分</option>
+<option value='4'>当购物车金额满 M 元时,赠送一张面值 N 元的优惠券</option>
+<option value='6'>当购物车金额满 M 元时,免运费</option>
+<option value='8'>当购物车金额满 M 元时,赠送 N 经验值</option>
+</script>
+
+<!--新用户注册-->
+<script id="regType" type='text/html'>
+<option value=''>请选择</option>
+<option value='4'>当新用户注册时,赠送一张面值 N 元的优惠券</option>
+</script>
+
+<!--在线充值金额满足-->
+<script id="payType" type='text/html'>
+<option value=''>请选择</option>
+<option value='10'>当在线充值金额满 M 元时,赠送预存款 N 元</option>
+</script>
+
+
+<script type='text/javascript'>
+//修改活动类型
+function change_rule(selectVal)
+{
+	var html = '请选择...';
+	var gift = '<option value="">请选择</option>';
+	switch(selectVal)
+	{
+		case "0":
+		{
+			html = "消费金额满：<input type='text' name='condition' class='form-control w-auto' pattern='float' alt='请填写一个金额数字' /> 元 <p class='help-block'>* 当购物车总金额达到所填写的现金额度时规则生效</p>";
+			gift = template.render("buyType");
+		}
+		break;
+
+		case "5":
+		{
+			html = "所有新注册的用户";
+			gift = template.render("regType");
+		}
+		break;
+
+		case "6":
+		{
+			html = "在线充值金额满：<input type='text' name='condition' class='form-control w-auto' pattern='float' alt='请填写一个金额数字' /> 元 <p class='help-block'>* 当在线充值金额达到所填写的现金额度时规则生效</p>";
+			gift = template.render("payType");
+		}
+		break;
+	}
+
+	$('#condContent').html(html);
+	formObj.setValue('condition',"{$this->promotionRow['condition']}");
+
+	//联动奖励select
+	$('[name="award_type"]').html(gift);
+	$('[name="award_type"]').change();
+}
+
+//修改规则
+function change_gift(selectVal)
+{
+	var html = '请选择活动规则...';
+	switch(selectVal)
+	{
+		case "1":
+		{
+			html = "优惠金额：<input type='text' name='award_value' class='form-control w-auto' pattern='float' alt='请填写一个金额数字' />元 <p class='help-block'>* 优惠的金额，从购物车总金额中减掉此部分金额</p>";
+		}
+		break;
+
+		case "2":
+		{
+			html = "优惠百分比：<input type='text' name='award_value' class='form-control w-auto' pattern='float' alt='请填写一个数字' />% <p class='help-block'>* 优惠的百分比，从购物车总金额中的折扣百分比，如输入10则表示减免10%金额</p>";
+		}
+		break;
+
+		case "3":
+		{
+			html = "赠送积分：<input type='text' name='award_value' class='form-control w-auto' pattern='int' alt='请填写一个数字' /> <p class='help-block'>* 赠送的积分</p>";
+		}
+		break;
+
+		case "4":
+		{
+			html = "设置优惠券：<select class='form-control w-auto' name='award_value' pattern='required'><option value=''>请选择</option></select> <p class='help-block'>* 选择一个优惠券</p>";
+
+			//异步获取优惠券
+			$.getJSON('{url:/market/getTicketList}',{'random':Math.random()},function(content){
+				for(pro in content)
+				{
+					$('select[name="award_value"]').append('<option value="'+content[pro]['id']+'">'+content[pro]['name']+'   面值:'+content[pro]['value']+'元</option>');
+				}
+				//获取后设置默认的优惠券选择
+				formObj.setValue('award_value',"{$this->promotionRow['award_value']}");
+			});
+		}
+		break;
+
+		case "5":
+		{
+
+		}
+		break;
+
+		case "6":
+		{
+			var areaList = {echo:JSON::encode(Api::run('getAreaAll',['parent_id'=>0]))};
+			html = "<select multiple='multiple' class='form-control w-auto' name='award_value[]' pattern='required' style='height:200px;'>";
+			for(var item in areaList)
+			{
+				html += "<option value='"+areaList[item]['area_id']+"'>"+areaList[item]['area_name']+"</option>";
+			}
+			html += "</select> <p class='help-block'>* 不享受包邮的区域，支持多选，默认是全国包邮</p>";
+		}
+		break;
+
+		case "8":
+		{
+			html = "赠送经验：<input type='text' name='award_value' class='form-control w-auto' pattern='int' /> <p class='help-block'>* 赠送的经验</p>";
+		}
+		break;
+
+		case "9":
+		{
+			html = "设置优惠券：<select class='form-control w-auto' name='award_value' pattern='required'><option value=''>请选择</option></select> <p class='help-block'>* 选择一个优惠券</p>";
+
+			//异步获取优惠券
+			$.getJSON('{url:/market/getTicketList}',{'random':Math.random()},function(content){
+				for(pro in content)
+				{
+					$('select[name="award_value"]').append('<option value="'+content[pro]['id']+'">'+content[pro]['name']+'   面值:'+content[pro]['value']+'元</option>');
+				}
+				//获取后设置默认的优惠券选择
+				formObj.setValue('award_value',"{$this->promotionRow['award_value']}");
+			});
+		}
+		break;
+
+		case "10":
+		{
+			html = "赠送预存款：<input type='text' name='award_value' class='form-control w-auto' pattern='float' alt='请填写一个金额数字' />元 <p class='help-block'>* 赠送的金额，直接充值到账户预存款中</p>";
+		}
+		break;
+	}
+	$('#rule_box').html(html);
+	formObj.setValue('award_value',"{$this->promotionRow['award_value']}");
+}
+
+//表单回填
+var formObj = new Form('pro_rule_edit');
+formObj.init({echo:JSON::encode($this->promotionRow)});
+$('[name="type"]').change();
+formObj.setValue('award_type',"{$this->promotionRow['award_type']}");
+$('[name="award_type"]').change();
+</script>

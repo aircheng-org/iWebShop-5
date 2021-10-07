@@ -1,0 +1,174 @@
+{js:my97date}
+<article class="col-lg-12">
+	<div class="card forms">
+		<div class="card-header">
+			<h3>编辑优惠券</h3>
+		</div>
+
+		<div class="card-body">
+			<form action="{url:/seller/ticket_edit_act}" name='ticket_edit' class="form-horizontal" method="post">
+				<input type='hidden' name='id' />
+
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label">优惠券名称</label>
+					<div class="col-sm-10">
+						<input name="name" class="form-control" type="text" pattern="required" placeholder='请填写优惠券名称' />
+						<small class="help-block-none">* 填写优惠券名称</small>
+					</div>
+				</div>
+
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label">优惠券面额</label>
+					<div class="col-sm-10">
+						<input name='value' class="form-control" type="text" pattern='float' placeholder='必须填写数字' />
+						<small class="help-block-none">* 请填写此组优惠券所能抵销的金额</small>
+					</div>
+				</div>
+
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label">设置使用条件</label>
+					<div class="col-sm-10">
+						<select name='type' class="form-control" pattern="required" onchange="createTicket();">
+							<option value="0">店铺全部商品适用</option>
+							<option value="1">店铺某单品适用</option>
+							<option value="2">店铺某分类适用</option>
+						</select>
+						<small class="help-block-none">* 选择优惠券使用条件</small>
+					</div>
+				</div>
+
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label">筛选条件</label>
+					<div class="col-sm-10" id='conditionBox'>
+						请设置使用条件...
+					</div>
+				</div>
+
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label">适用金额限制</label>
+					<div class="col-sm-10">
+						<div class="input-group w-25">
+							<input class="form-control" name='limit_sum' pattern='float' alt='请填写一个金额数字' />
+							<div class="input-group-append"><span class="input-group-text">元</span></div>
+						</div>
+						<small class="help-block-none">当购物总金额达到所填写的额度时才可以使用</small>
+					</div>
+				</div>
+
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label">有效时间段</label>
+					<div class="col-sm-10">
+						<input class="form-control mr-2 w-25 d-inline" id='start_time' type="text" name='start_time' pattern='datetime' onFocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" alt='起始日期' />——
+						<input class="form-control ml-2  w-25 d-inline" type='text'  name='end_time' pattern='datetime' onFocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',minDate:'#F{\$dp.$D(\'start_time\')}'})" alt='结束日期' />
+						<small class="help-block-none">* 此组优惠券的使用时间段</small>
+					</div>
+				</div>
+
+				<div class="form-group row">
+					<div class="col-sm-4 offset-sm-2">
+						<input type="submit" class="btn btn-primary" value="确 定" />
+						<a href="{url:/seller/ticket_list}" class="btn btn-secondary">返 回</a>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</article>
+
+<!--优惠单品模板-->
+<script type="text/html" id="goodsItemTemplate">
+	<tr>
+		<td><input type='hidden' name='goods_id[]' value='<%=templateData['goods_id']%>' /><%=templateData['name']%></td>
+		<td><i class='fa-lg fa fa-close' onclick="$(this).parent().parent().remove();"></i></td>
+	</tr>
+</script>
+
+<!--优惠单品模板-->
+<script type="text/html" id="goodsTemplate">
+	<input type='button' class='btn btn-sm btn-primary mb-2' onclick='searchGoods({"type":"radio","seller_id":{$seller_id},"callback":searchGoodsCallback});' value="选择商品" />
+	<table class="table">
+		<thead class="thead-light"><tr><th>商品名称</th><th>操作</th></tr></thead>
+		<tbody id="goodsListBox"></tbody>
+	</table>
+</script>
+
+<!--优惠分类模板-->
+<script type="text/html" id="categoryTemplate">
+	<div id="__categoryBox" class="mb-2"></div>
+	<input class="btn btn-sm btn-primary" type="button" name="_goodsCategoryButton" value="设置分类" />
+</script>
+{set:plugin::trigger('goodsCategoryWidget',array("type" => "radio","name" => "category[]"))}
+
+<script type='text/javascript'>
+//商品单品回调
+function searchGoodsCallback(goodsList)
+{
+	goodsList.each(function()
+	{
+		var temp         = $.parseJSON($(this).attr('data'));
+		var templateHTML = template.render('goodsItemTemplate',{"templateData":temp});
+		$('#goodsListBox').append(templateHTML);
+	});
+}
+
+//创建优惠券筛选条件
+function createTicket()
+{
+	var typeVal = $('select[name="type"]').val();
+	switch(typeVal)
+	{
+	    case "0":
+	    {
+	        $('#conditionBox').html("无限制");
+	    }
+	    break;
+
+		case "1":
+		{
+			var templateHTML = template.render('goodsTemplate');
+			$('#conditionBox').html(templateHTML);
+		}
+		break;
+
+		case "2":
+		{
+			var templateHTML = template.render('categoryTemplate');
+			$('#conditionBox').html(templateHTML);
+		}
+		break;
+	}
+}
+
+{if:$this->ticketRow}
+jQuery(function() {
+	//表单回填
+	var formObj = new Form('ticket_edit');
+	formObj.init({echo: JSON::encode($this->ticketRow)});
+
+	createTicket();
+
+	//复写优惠条件数据
+	{if:$this->ticketRow['type'] == 1}
+	{set:$goods_id = $this->ticketRow['condition']}
+	{set:$goodsList = Api::run('getGoodSale',array('goods_id'=>$goods_id))}
+	var goodsList = {echo:JSON::encode($goodsList)};
+	for(var i in goodsList)
+	{
+		var temp = goodsList[i];
+		var templateHTML = template.render('goodsItemTemplate',{"templateData":temp});
+		$('#goodsListBox').append(templateHTML);
+	}
+	{elseif:$this->ticketRow['type'] == 2}
+	{set:$categoryId = $this->ticketRow['condition']}
+	{set:$categoryData = Api::run('getCategorySale',array('id'=>$categoryId))}
+	_goodsCategoryWidget.createGoodsCategory({echo:JSON::encode($categoryData)});
+	{/if}
+
+	//当修改操作时禁止修改金额
+	$('[name="value"],[name="type"],[name="limit_sum"]').attr('disabled','disabled');
+    $('#goodsListBox > tr').find('td:eq(1)').remove();
+    $('[value="设置分类"]').remove();
+    $('#conditionBox').find('button').removeAttr("onclick");
+});
+{/if}
+</script>

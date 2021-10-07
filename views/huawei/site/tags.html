@@ -1,0 +1,12 @@
+<div class="bigweb">
+    <section class="breadcrumb">
+    	<span>您当前的位置：</span> <a href="{url:}">首页</a> » 标签
+    </section>
+
+    <section class="tags_box">
+    	{foreach:items=Api::run('getKeywordAllList',100)}
+    	{set:$keyword=urlencode($item['word']);}
+    	<a href="{url:/site/search_list/word/$keyword}">{$item['word']}</a>
+    	{/foreach}
+    </section>
+</div>

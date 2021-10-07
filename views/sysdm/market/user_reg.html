@@ -1,0 +1,97 @@
+{set:
+	$start = IFilter::act(IReq::get('start'));
+	$end   = IFilter::act(IReq::get('end'));
+	$countData = statistics::userReg($start,$end);
+}
+
+{js:my97date}
+{js:chart}
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">统计</a>
+		</li>
+		<li>
+			<a href="#">基础数据统计</a>
+		</li>
+		<li class="active">注册用户统计</li>
+	</ul>
+</div>
+<div class="content">
+	<form action='{url:/}' method='get' class="form-inline" name="searchForm">
+		<input type='hidden' name='controller' value='market' />
+		<input type='hidden' name='action' value='user_reg' />
+
+		<div class="input-group">
+			<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+			<input type="text" name='start' class="form-control" value='{$start}' pattern='date' empty onFocus="WdatePicker()" placeholder="起始时间"/>
+		</div>
+
+		<div class="input-group">
+			<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+			<input type="text" name='end' pattern='date' value='{$end}' class="form-control" empty onFocus="WdatePicker()" placeholder="结束时间"/>
+		</div>
+
+		<button class="btn btn-default" type="button" onclick="submitForm('user_reg');">
+		    <i class="fa fa-search"></i> 查询
+		</button>
+
+		<button class="btn btn-default" onclick="submitForm('user_report')">
+		    <i class="fa fa-file-excel-o"></i> 导出报表
+		</button>
+	</form>
+
+	<div class="box" style="margin-top:20px">
+		<div class="box-header">
+			用户注册统计，可以帮助更好的了解你的shop用户的注册情况，为你下一步的营销计划做出更好的判定！
+		</div>
+		<div class="box-body">
+			<div id="myChart" style="min-height:350px;"></div>
+		</div>
+	</div>
+</div>
+
+<script type='text/javascript'>
+//图表生成
+$(function()
+{
+	//图标模板
+	var option = {
+		title:
+		{
+			text:'注册用户'
+		},
+		xAxis:
+		{
+			name:'时间',
+			data:{echo:JSON::encode(array_keys($countData))},
+		},
+		yAxis:
+		{
+			name:'人数(人)',
+		},
+		series:
+		[
+			{
+				name:'注册人数',
+				type: 'line',
+				data:{echo:JSON::encode(array_values($countData))}
+			}
+		],
+		tooltip:
+		{
+			show:true,
+		}
+	};
+
+	echarts.init(document.getElementById('myChart')).setOption(option);
+});
+
+//修改表单提交内容
+function submitForm(action)
+{
+	$('[name="action"]').val(action);
+	formSubmit("searchForm");
+}
+</script>

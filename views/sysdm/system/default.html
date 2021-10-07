@@ -1,0 +1,349 @@
+<div class="content">
+    <div class="content">
+        <div class="bg-yellow tips">
+            {set:$safeInstance = new safeStrategy();$checkResult = $safeInstance->check();}
+            {if:$checkResult}
+            <ul>
+                {foreach:items=$checkResult}
+                <li>{$item['content']}</li>
+                {/foreach}
+            </ul>
+            {/if}
+        </div>
+
+		<hr />
+
+        <div class="row">
+            <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="info-box">
+                    <span class="info-box-icon bg-aqua">
+                        <i class="fa fa-comments"></i>
+                    </span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">评论待回复</span>
+                        <span class="info-box-number">
+                            <a href="{url:/comment/comment_list/search[c.recomment_time]/=0}">{echo:Api::run('commentWaitCount')}</a>
+                            <small>个</small>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="info-box">
+                    <span class="info-box-icon bg-red">
+                        <i class="fa fa-comments-o"></i>
+                    </span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">建议待回复</span>
+                        <span class="info-box-number">
+                            <a href="{url:/comment/suggestion_list/search[a.re_time=]/0}">{echo:Api::run('suggestionWaitCount')}</a>
+                            <small>个</small>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="info-box">
+                    <span class="info-box-icon bg-green">
+                        <i class="fa fa-twitch"></i>
+                    </span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">咨询待回复</span>
+                        <span class="info-box-number">
+                            <a href="{url:/comment/refer_list/search[r.status=]/0}">{echo:Api::run('referWaitCount')}</a>
+                            <small>个</small>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="info-box">
+                    <span class="info-box-icon bg-orange">
+                        <i class="fa fa-truck"></i>
+                    </span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">付款待发货</span>
+                        <span class="info-box-number">
+                            <a href="{url:/order/order_list/search[distribution_status]/0/search[pay_status]/1/search[status]/2}">{echo:Api::run('orderWaitCount')}</a>
+                            <small>个</small>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="info-box">
+                    <span class="info-box-icon bg-olive">
+                        <i class="fa fa-group"></i>
+                    </span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">团购活动申请</span>
+                        <span class="info-box-number">
+                            <a href="{url:/market/regiment_list}">{echo:Api::run('regimentWaitCount')}</a>
+                            <small>个</small>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="info-box">
+                    <span class="info-box-icon bg-teal">
+                        <i class="fa fa-address-card"></i>
+                    </span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">待审商家</span>
+                        <span class="info-box-number">
+                            <a href="{url:/member/seller_list/search[is_lock=]/1}">{echo:Api::run('getSellerCount',array('is_lock'=>1))}</a>
+                            <small>个</small>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="info-box">
+                    <span class="info-box-icon bg-light-blue">
+                        <i class="fa fa-cube"></i>
+                    </span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">待审商品</span>
+                        <span class="info-box-number">
+                            <a href="{url:/goods/goods_list/search[is_del]/3}">{echo:Api::run('goodsWaitCount')}</a>
+                            <small>个</small>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="info-box">
+                    <span class="info-box-icon bg-purple">
+                        <i class="fa fa-money"></i>
+                    </span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">待审提现</span>
+                        <span class="info-box-number">
+                            <a href="{url:/member/withdraw_list}">{echo:Api::run('withdrawWaitCount')}</a>
+                            <small>个</small>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="info-box">
+                    <span class="info-box-icon bg-yellow">
+                        <i class="fa fa-calculator"></i>
+                    </span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">待结算订单</span>
+                        <span class="info-box-number">
+                            <a href="{url:/market/order_goods_merge}">{echo:Api::run('billWaitCount')}</a>
+                            <small>个</small>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="info-box">
+                    <span class="info-box-icon bg-maroon">
+                        <i class="fa fa-thumbs-o-down"></i>
+                    </span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">退款申请</span>
+                        <span class="info-box-number">
+                            <a href="{url:/order/refundment_list}">{echo:Api::run('refundsCount')}</a>
+                            <small>个</small>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="info-box">
+                    <span class="info-box-icon bg-maroon">
+                        <i class="fa fa-cog"></i>
+                    </span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">维修申请</span>
+                        <span class="info-box-number">
+                            <a href="{url:/order/fix_list}">{echo:Api::run('fixWaitCount')}</a>
+                            <small>个</small>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="info-box">
+                    <span class="info-box-icon bg-maroon">
+                        <i class="fa fa-retweet"></i>
+                    </span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">换货申请</span>
+                        <span class="info-box-number">
+                            <a href="{url:/order/exchange_list}">{echo:Api::run('exchangeWaitCount')}</a>
+                            <small>个</small>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <section class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                <div class="box">
+                    <div class="box-header">
+                        <i class="fa fa-server"></i>
+                        <h3 class="box-title">系统信息</h3>
+                    </div>
+                    <div class="box-body">
+                        <table class="table">
+                            <colgroup>
+                                <col width="120px" />
+                                <col />
+                            </colgroup>
+                            <thead>
+                                <tr>
+                                    <th>购买及服务</th>
+                                    <th>
+                                        <a href='http://wpa.qq.com/msgrd?v=3&uin=846327344&site=qq&menu=yes' target='_blank'>联系我们</a>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <th>当前版本号</th>
+                                    <td>{echo:Common::getLocalVersion()}</td>
+                                </tr>
+                                <tr>
+                                    <th>最新版本号</th>
+                                    <td>...</td>
+                                </tr>
+                                <tr>
+                                    <th>官网地址</th>
+                                    <th><a href='http://www.aircheng.com' target='_blank'>www.aircheng.com</a></th>
+                                </tr>
+                                <tr>
+                                    <th>服务器软件</th>
+                                    <td>{$_SERVER['SERVER_SOFTWARE']}</td>
+                                </tr>
+                                <tr>
+                                    <th>附件上传容量</th>
+                                    <td>{echo:IUpload::getMaxSize()}</td>
+                                </tr>
+                                <tr>
+                                    <th>授权信息</th>
+                                    <td>...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+            <section class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                <div class="box">
+                    <div class="box-header">
+                        <i class="fa fa-line-chart"></i>
+                        <h3 class="box-title">基础统计</h3>
+                    </div>
+                    <div class="box-body">
+                        <table class="table">
+                            <colgroup>
+                                <col width="120px" />
+                                <col />
+                            </colgroup>
+                            <thead>
+                                <tr>
+                                    <th>商家数量</th>
+                                    <td>
+                                        <a href="{url:/member/seller_list}">{echo:Api::run('getSellerCount',array('is_lock'=>0))}</a>
+                                        <small>家</small>
+                                    </td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <th>销售总额</th>
+                                    <td>
+                                        <a href="{url:/market/amount}">{echo:Api::run('getOrderAmount')}</a>
+                                        <small>元</small>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>注册用户</th>
+                                    <td>
+                                        <a href="{url:/member/member_list}">{echo:Api::run('getCountRegUser')}</a>
+                                        <small>个</small>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>产品数量</th>
+                                    <td>
+                                        <a href="{url:/goods/goods_list}">{echo:Api::run('goodsCount')}</a>
+                                        <small>个</small>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>品牌数量</th>
+                                    <td>
+                                        <a href="{url:/brand/brand_list}">{echo:Api::run('getBrandCount')}</a>
+                                        <small>个</small>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>订单数量</th>
+                                    <td>
+                                        <a href="{url:/order/order_list}">{echo:Api::run('getCountOrder')}</a>
+                                        <small>个</small>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>库存预警</th>
+                                    <td>
+                                    	{set:$store_num_warning = $this->_siteConfig->store_num_warning ? $this->_siteConfig->store_num_warning : 20}
+                                        <a href="{url:/goods/goods_list/search[store_nums]/$store_num_warning}">{echo:Api::run('getGoodsWarning',array('store_num_warning'=>$store_num_warning))}</a>
+                                        <small>个</small>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </div>
+        <div class="box box-info">
+            <div class="box-header">
+                <i class="fa fa-file-o"></i>
+                <h3 class="box-title">最新10条等待处理订单</h3>
+            </div>
+            <div class="box-body">
+                <table class="table">
+                    <thead>
+                        <th>订单号</th>
+                        <th>收货人</th>
+                        <th>订单状态</th>
+                        <th>金额</th>
+                        <th>下单时间</th>
+                        <th>操作</th>
+                    </thead>
+                    <tbody>
+                        {foreach:items=Api::run('getNewsOrderList')}
+                        <tr>
+                            <td>{$item['order_no']}</td>
+                            <td>{$item['accept_name']}</td>
+                            <td>{echo:Order_Class::getOrderPayStatusText($item)}</td>
+                            <td><b class="text-red">￥{$item['order_amount']}</b></td>
+                            <td>{$item['create_time']}</td>
+                            <td>
+                                <a href="{url:/order/order_show/id/$item['oid']}">
+                                	<i class='operator fa fa-eye'></i>
+                                </a>
+
+                            	{if:$item['status']==1}
+                            	<a href="{url:/order/order_edit/id/$item['oid']}"><i class='operator fa fa-edit'></i></a>
+                            	{/if}
+
+                                <a href="javascript:delModel({link:'{url:/order/order_del/id/$item['oid']}'})"><i class='operator fa fa-close'></i></a>
+                            </td>
+                        </tr>
+                        {/foreach}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

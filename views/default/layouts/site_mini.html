@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>{$this->_siteConfig->name}</title>
+	<link type="image/x-icon" href="{webroot:favicon.ico}" rel="icon">
+	<link rel="stylesheet" href="{skin:css/index.css}" />
+	{js:jquery}
+	{js:validate}
+	{js:form}
+	{js:dialog}
+	<script type='text/javascript' src='{theme:javascript/site.js}'></script>
+	<script type='text/javascript' src='{webroot:public/javascript/public.js}'></script>
+</head>
+<body class="second">
+	<div class="brand_list container_2">
+		<div class="header">
+			<h1 class="logo"><a title="{$this->_siteConfig->name}" style="background:url({if:$this->_siteConfig->logo}{webroot:$this->_siteConfig->logo}{else:}{skin:images/front/logo.gif}{/if}) center no-repeat;background-size:contain;" href="{url:}">{$this->_siteConfig->name}</a></h1>
+			<ul class="shortcut">
+				<li class="first"><a href="{url:/ucenter/index}">我的账户</a></li>
+				<li><a href="{url:/ucenter/order}">我的订单</a></li>
+				<li><a href="{url:/simple/seller}">申请开店</a></li>
+				<li><a href="{url:/seller/index}">商家管理</a></li>
+		   		<li class='last'><a href="{url:/site/help_list}">使用帮助</a></li>
+			</ul>
+
+			<p class="loginfo">
+			{if:$this->user}
+			{$this->user['username']}您好，欢迎您来到{$this->_siteConfig->name}购物！[<a href="{url:/simple/logout}" class="reg">安全退出</a>]
+			{else:}
+			[<a href="{url:/simple/login}">登录</a><a class="reg" href="{url:/simple/reg}">免费注册</a>]
+			{/if}
+			</p>
+		</div>
+	    {viewcontent}
+		{echo:IFilter::stripSlash($this->_siteConfig->site_footer_code)}
+	</div>
+</body>
+</html>

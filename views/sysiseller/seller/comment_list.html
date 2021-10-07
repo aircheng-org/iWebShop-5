@@ -1,0 +1,118 @@
+{js:my97date}
+<article class="col-lg-12">
+    <div class="card forms">
+    	<div class="card-header d-flex align-items-center justify-content-between">
+    		<h3>商品评价列表</h3>
+    		<div>
+    			<input type="button" class="btn btn-primary" onclick="filterResult();" value="检索" />
+    		</div>
+    	</div>
+
+    	<div class="card-body">
+        	<table class="table">
+        		<colgroup>
+        			<col width="140px" />
+        			<col />
+        			<col width="160px" />
+        			<col width="140px" />
+        			<col width="85px" />
+        		</colgroup>
+
+        		<thead>
+        			<tr>
+        				<th>评价人</th>
+        				<th>评价商品</th>
+        				<th>评价时间</th>
+        				<th>状态</th>
+        				<th>操作</th>
+        			</tr>
+        		</thead>
+
+        		<tbody>
+                    {foreach:items=$this->query->find()}
+        			<tr>
+        				<td>{$item['username']}</td>
+        				<td><a href="{url:/site/products/id/$item['goods_id']}" target="_blank">{$item['goods_name']}</a></td>
+        				<td>{$item['time']}</td>
+        				<td>{if:$item['recomment_time']>0}已回复{else:}未回复{/if}</td>
+        				<td><a href="{url:/seller/comment_edit/cid/$item['id']}"><i class="fa fa-edit fa-lg" title="查看"></i></a></td>
+        			</tr>
+        			{/foreach}
+        		</tbody>
+        	</table>
+        	{$this->query->getPageBar()}
+    	</div>
+	</div>
+</article>
+
+<script type="text/html" id="filterTemplate">
+<form action="{url:/}" method="get" name="filterForm" class="form-horizontal">
+	<input type='hidden' name='controller' value='seller' />
+	<input type='hidden' name='action' value='comment_list' />
+
+	<div class="form-group row">
+	    <div class="col">
+			<select name="search[like]" class="form-control">
+				<option value="u.username">评价人</option>
+				<option value="goods.name">评价商品</option>
+				<option value="c.order_no">订单号</option>
+			</select>
+	    </div>
+	    <div class="col">
+	        <input name="search[likeValue]" class="form-control" value="" type="text"/>
+	    </div>
+	</div>
+
+    <div class="form-group row">
+		<label class="col-sm-4 col-form-label">开始时间</label>
+		<div class="col-sm-8">
+			<input type="text" class="form-control" name="search[time>=]" onfocus="WdatePicker()" />
+		</div>
+	</div>
+
+    <div class="form-group row">
+		<label class="col-sm-4 col-form-label">截止时间</label>
+		<div class="col-sm-8">
+			<input type="text" class="form-control" name="search[time<=]" onfocus="WdatePicker()" />
+		</div>
+	</div>
+
+    <div class="form-group row">
+		<label class="col-sm-4 col-form-label">回复状态</label>
+		<div class="col-sm-8">
+			<select name="search[c.recomment_time]" class="form-control">
+				<option value="">不限</option>
+				<option value="=0">未回复</option>
+				<option value=">0">已回复</option>
+			</select>
+		</div>
+	</div>
+</form>
+</script>
+
+<script type="text/javascript">
+//检索商品
+function filterResult()
+{
+	var filterTemplate = template.render('filterTemplate');
+	art.dialog(
+	{
+		"init":function()
+		{
+			var filterPost = {echo:JSON::encode(IReq::get('search'))};
+			var formObj = new Form('filterForm');
+			for(var index in filterPost)
+			{
+				formObj.setValue("search["+index+"]",filterPost[index]);
+			}
+		},
+		"title":"检索条件",
+		"content":filterTemplate,
+		"okVal":"立即检索",
+		"ok":function(iframeWin, topWin)
+		{
+			iframeWin.document.forms[0].submit();
+		}
+	});
+}
+</script>

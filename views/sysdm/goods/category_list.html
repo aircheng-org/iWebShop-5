@@ -1,0 +1,145 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">商品</a>
+		</li>
+		<li>
+			<a href="#">商品分类管理</a>
+		</li>
+		<li class="active">分类列表</li>
+	</ul>
+</div>
+<form action="{url:/goods/category_del}" method="post" name="category_list">
+<div class="content">
+	<table class="table list-table" id="list_table">
+		<colgroup>
+			<col width="35px" />
+			<col  />
+			<col width="80px" />
+			<col width="90px" />
+			<col width="120px" />
+		</colgroup>
+		<caption>
+            <a class="btn btn-default" href='{url:/goods/category_edit}'>
+                <i class="fa fa-plus"></i> 添加分类
+            </a>
+            <a class="btn btn-default" onclick="delModel()">
+                <i class="fa fa-close"></i>批量删除
+            </a>
+			<button class="btn btn-default" type="button" name="_goodsCategoryButton">
+				<i class='fa fa-cogs'></i> 批量设置
+			</button>
+			{set:plugin::trigger('goodsCategoryWidget',array("name" => "parent_id","callback" => "setCat"))}
+		</caption>
+		<thead>
+			<tr>
+				<th></th>
+				<th>分类名称</th>
+				<th>排序</th>
+				<th>首页显示</th>
+				<th>操作</th>
+			</tr>
+		</thead>
+
+		<tbody>
+			{foreach:items=$category item=$item}
+			<tr id="{$item['id']}" parent={$item['parent_id']}>
+				<td><input type='checkbox' name='cat_id[]' value='{$item['id']}' /></td>
+				<td><i style='margin-left:{echo:$item['floor']*20}px' class="operator fa fa-minus-square-o" onclick="displayData(this);" title="关闭"></i>{$item['name']} {if:$item['img']}<img src="{url:$item['img']}" class="img-thumbnail" style="width:55px;margin-left:10px" />{/if}</td>
+				<td><input class="form-control" id="s{$item['id']}" size="2" type="text" onblur="toSort({$item['id']});" value="{$item['sort']}" /></td>
+				<td>{if:$item['visibility']=='1'}<span class="text-success">是</span>{else:}否{/if}</td>
+				<td>
+					<a href="{url:/goods/category_edit/pid/$item['id']}"><i class='operator fa fa-plus'></i></a>
+					<a href="{url:/goods/category_edit/cid/$item['id']}"><i class='operator fa fa-edit'></i></a>
+					<a onclick="delModel({link:'{url:/goods/category_del/cat_id/$item['id']}'})"><i class='operator fa fa-close'></i></a>
+				</td>
+			</tr>
+			{/foreach}
+		</tbody>
+	</table>
+</div>
+</form>
+
+<script language="javascript">
+//折叠展示
+function displayData(_self)
+{
+	if(_self.title == "关闭")
+	{
+		jqshow($(_self).parent().parent().attr('id'), 'hide');
+		$(_self).removeClass("fa-minus-square-o").addClass("fa-plus-square-o");
+		_self.title = '打开';
+	}
+	else
+	{
+		jqshow($(_self).parent().parent().attr('id'), 'show');
+		$(_self).removeClass("fa-plus-square-o").addClass("fa-minus-square-o");
+		_self.title = '关闭';
+	}
+}
+
+function jqshow(id,isshow) {
+	var obj = $("#list_table tr[parent='"+id+"']");
+	if (obj.length>0)
+	{
+		obj.each(function(i) {
+			jqshow($(this).attr('id'), isshow);
+		});
+		if (isshow=='hide')
+		{
+			obj.hide();
+		}
+		else
+		{
+			obj.show();
+		}
+	}
+}
+//排序
+function toSort(id)
+{
+	if(id!='')
+	{
+		var va = $('#s'+id).val();
+		var part = /^\d+$/i;
+		if(va!='' && va!=undefined && part.test(va))
+		{
+			$.get("{url:/goods/category_sort}",{'id':id,'sort':va}, function(data)
+			{
+				if(data=='1')
+				{
+					tips('修改成功');
+				}
+			});
+		}
+	}
+}
+//设置分类
+function setCat(catData)
+{
+	var parent_id = catData == "" ? 0 : catData[0]['id'];
+	var cat_id    = [];
+	$('[name="cat_id[]"]:checked').each(function(i){
+		cat_id.push($(this).val());
+	});
+
+	if(cat_id && cat_id.length == 0)
+	{
+		alert("请选择分类");
+		return;
+	}
+
+	$.getJSON("{url:/goods/categoryAjax}",{"id":cat_id,"parent_id":parent_id},function(json)
+	{
+		if(json.result == 'success')
+		{
+			window.location.reload();
+		}
+		else
+		{
+			alert('更新失败，当前分类不能设置到其子分类下');
+		}
+	});
+}
+</script>

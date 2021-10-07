@@ -1,0 +1,282 @@
+{set:$data=$this->data_info}
+{js:artTemplate}
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">系统</a>
+		</li>
+		<li>
+			<a href="#">配送管理</a>
+		</li>
+		<li class="active">配送修改</li>
+	</ul>
+</div>
+
+<div class="content">
+	<form action='{url:/system/delivery_update}' method='post' name='form'>
+		<input type="hidden" name="id" value="" />
+
+		<table class="table form-table">
+			<colgroup>
+				<col width="130px" />
+				<col />
+			</colgroup>
+
+			<tr>
+				<th>配送方式名称:</th>
+				<td>
+					<input class="form-control" name="name" value="" type="text" pattern="required" />
+				</td>
+			</tr>
+
+			<tr>
+				<th>类型:</th>
+				<td>
+                    <label class="radio-inline">
+                        <input type="radio" name="type" value="0" checked="checked">先收款后发货
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="type" value="1">货到付款
+                    </label>
+                    <p class="help-block">类型选择货到付款后顾客无需再选择支付方式</p>
+				</td>
+			</tr>
+			<tr>
+				<th>重量设置:</th>
+				<td>
+					<div class="row">
+						<div class="col-xs-3">
+							首重重量
+							<select class="form-control" style="display: inline" name="first_weight" pattern='int'>
+								<option label="500克" value="500">500克</option>
+								<option label="1公斤" value="1000" selected="selected">1公斤</option>
+								<option label="1.2公斤" value="1200">1.2公斤</option>
+								<option label="2公斤" value="2000">2公斤</option>
+								<option label="5公斤" value="5000">5公斤</option>
+								<option label="10公斤" value="10000">10公斤</option>
+								<option label="20公斤" value="20000">20公斤</option>
+								<option label="50公斤" value="50000">50公斤</option>
+							</select>
+						</div>
+
+						<div class="col-xs-3">
+							首重费用/元
+							<input class='form-control' name="first_price" value=""  pattern="float" alt="该项必填且只允许填写数字金额" type="text">
+						</div>
+
+						<div class="col-xs-3">
+							续重重量
+							<select class="form-control" style="display: inline" name="second_weight" pattern='int'>
+								<option label="500克" value="500">500克</option>
+								<option label="1公斤" value="1000" selected="selected">1公斤</option>
+								<option label="1.2公斤" value="1200">1.2公斤</option>
+								<option label="2公斤" value="2000">2公斤</option>
+								<option label="5公斤" value="5000">5公斤</option>
+								<option label="10公斤" value="10000">10公斤</option>
+								<option label="20公斤" value="20000">20公斤</option>
+								<option label="50公斤" value="50000">50公斤</option>
+							</select>
+						</div>
+
+						<div class="col-xs-3">
+							续重费用/元
+							<input class='form-control' name="second_price" value="" pattern="float" alt="该项必填且只允许填写数字金额" type="text">
+						</div>
+					</div>
+					<p class="help-block">根据重量来计算运费，当物品不足《首重重量》时，按照《首重费用》计算，超过部分按照《续重重量》和《续重费用》乘积来计算</p>
+				</td>
+			</tr>
+
+			<tr>
+				<th>支持保价:</th>
+				<td>
+					<label class='checkbox-inline'><input name="is_save_price" value="1" type="checkbox" onclick="$('#protectBox').toggle();">支持物流保价</label>
+
+					<!--支持保价隐藏域-->
+					<div id='protectBox' class='row' style='display:none'>
+						<div class="col-xs-4">
+							<div class="input-group">
+								<span class="input-group-addon">费率</span>
+								<input name="save_rate" value="" class='form-control' pattern="float" type="text" />
+								<span class="input-group-addon">%</span>
+							</div>
+						</div>
+
+						<div class="col-xs-4">
+							<div class="input-group">
+								<span class="input-group-addon">最低保价费</span>
+								<input name="low_price" value="" class='form-control' pattern="float" type="text" />
+								<span class="input-group-addon">元</span>
+							</div>
+						</div>
+					</div>
+					<p class="help-block">按照货物总金额的《费率》计算，但是保价金额最低不低于《最低保价费》</p>
+				</td>
+			</tr>
+
+			<tr>
+				<th>设置地区运费:</th>
+				<td>
+                    <label class="radio-inline">
+                        <input type="radio" name="price_type" value="0" checked='checked' onclick='$("[name=\"areaBox\"]").addClass("hidden");'>统一地区运费
+                    </label>
+
+                    <label class="radio-inline">
+                        <input type="radio" name="price_type" value="1" onclick='$("[name=\"areaBox\"]").removeClass("hidden");'>指定地区运费
+                    </label>
+
+                    <p class="help-block">《统一地区运费》：全部的地区都使用默认的《重量设置》中的计费方式。《指定地区运费》：单独指定部分地区的运费</p>
+				</td>
+			</tr>
+
+			<tr name="areaBox" class="hidden">
+				<th></th>
+				<td>
+					<label class='checkbox-inline'><input name="open_default" value="1" type='checkbox' />其他地区默认运费</label>
+					<p class="help-block">注意：如果不开启此项，那么未设置的地区将无法送达！</p>
+				</td>
+			</tr>
+
+			<tr name="areaBox" class="hidden">
+				<th>支持的配送地区:</th>
+				<td>
+                    <div id="deliveryAreaBox"></div>
+                    <button type="button" class="btn btn-primary" onclick='addArea()'><i class="fa fa-plus"></i> 添加规则</button>
+
+                    <!--地域设定模板-->
+                    <script type='text/html' id='areaTemplate'>
+					<div class="form-inline">
+						<input type='hidden' name='area_groupid[]' value='<%=area_groupid%>' />
+
+						选择地区
+						<select class="form-control">
+							{foreach:items = $this->areaList}
+								<option value="{$item['area_id']}">{$item['area_name']}</option>
+							{/foreach}
+						</select>
+
+						首重费用<input class="form-control" name="firstprice[]" value="<%=firstprice%>" pattern="float" placeholder="填写数字金额" type="text" />
+						续重费用<input class="form-control" name="secondprice[]" value="<%=secondprice%>" pattern="float" placeholder="填写数字金额" type="text" />
+
+						<button type="button" class="btn btn-success" onclick='addProvince(this);'>添加</button>
+						<button type="button" class="btn btn-danger" onclick='$(this).parent().remove();'>删除</button>
+
+						<textarea name="areaName" disabled='disabled' class='form-control' style='width:100%;margin-top:10px;'><%=areaname%></textarea>
+						<p class="help-block">此规则已选择的试用地区</p>
+					</div>
+                    </script>
+				</td>
+			</tr>
+
+			<tr>
+				<th>排序:</th><td><input class='form-control' type="text" name="sort" value="" size="5" pattern="int" alt="请输入排序项正整数" /></td>
+			</tr>
+			<tr>
+				<th>状态:</th>
+				<td>
+                    <label class="radio-inline">
+                        <input type="radio" name="status" value="1" checked=checked >启用
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="status" value="0">关闭
+                    </label>
+				</td>
+			</tr>
+			<tr>
+				<th>详细介绍:</th><td><textarea class="form-control" name="description" rows="5"></textarea></td>
+			</tr>
+			<tr>
+				<th></th><td><button type="submit" class="btn btn-primary">保存</button></td>
+			</tr>
+		</table>
+	</form>
+</div>
+
+<script type='text/javascript'>
+//DOM加载完毕
+$(function()
+{
+	//初始化表单
+	var formInstance = new Form('form');
+	formInstance.init({echo:JSON::encode($data)});
+
+	//设置隐藏域等部分
+	{if:isset($data['is_save_price']) && $data['is_save_price'] == 1}
+	$('#protectBox').show();
+	{/if}
+
+	//设置统一费用
+	{if:isset($data['price_type']) && $data['price_type'] == 1}
+	$('[name="areaBox"]').removeClass('hidden');
+	{/if}
+
+	//具有特殊省份设置
+	{if:isset($data['area_groupid']) && $data['area_groupid']!=''}
+	var area_groupid = {echo:JSON::encode(unserialize($data['area_groupid']))};
+	var firstprice   = {echo:JSON::encode(unserialize($data['firstprice']))};
+	var secondprice  = {echo:JSON::encode(unserialize($data['secondprice']))};
+
+    for(var index in area_groupid)
+    {
+    	var areaname = [];
+    	var idArray  = area_groupid[index].split(';');
+    	for(var i in idArray)
+    	{
+    		if(idArray[i])
+    		{
+    			areaname.push(getAreaName(idArray[i]));
+    		}
+    	}
+		var areaHtml = template.render('areaTemplate',{"area_groupid":area_groupid[index],"areaname":areaname.join(','),"firstprice":firstprice[index],"secondprice":secondprice[index]});
+		$('#deliveryAreaBox').append(areaHtml);
+    }
+	{/if}
+});
+
+//添加地域项
+function addArea()
+{
+	var areaHtml = template.render('areaTemplate',{});
+	$('#deliveryAreaBox').append(areaHtml);
+}
+
+//获取省份名称
+function getAreaName(provinceId)
+{
+	var areaNameList = {echo:JSON::encode($this->area)};
+	return areaNameList[provinceId];
+}
+
+//添加省份
+function addProvince(_self)
+{
+	var parentObject = $(_self).parent();
+	var selectObj    = parentObject.find('select');
+
+	//当前选中的地区ID
+	var areaGroupId = parentObject.find('input[name="area_groupid[]"]').val();
+
+	//当前选中的地区NAME
+	var areaGroupName = parentObject.find('textarea[name="areaName"]').val();
+
+	//填写areaId
+	if(areaGroupId == '')
+	{
+		parentObject.find('input[name="area_groupid[]"]').val(";" + selectObj.val() + ";");
+	}
+	else if(areaGroupId.indexOf(";" + selectObj.val() + ";") == -1)
+	{
+		parentObject.find('input[name="area_groupid[]"]').val(areaGroupId + selectObj.val() + ";");
+	}
+	else
+	{
+		alert('省份已经添加，不要重复添加');
+		return;
+	}
+
+	//添加areaName
+	areaGroupName = areaGroupName == '' ? selectObj.find('option:selected').text() : areaGroupName + "," + selectObj.find('option:selected').text();
+	parentObject.find('textarea[name="areaName"]').val(areaGroupName);
+}
+</script>

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>物流跟踪查询</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+	<link rel="stylesheet" href="{webroot:public/css/twitter-bootstrap/3.3.7/css/bootstrap.min.css}">
+</head>
+
+<body>
+	<div class="container">
+		<ul class="list-group">
+		{foreach:items = $this->data}
+			<li class="list-group-item">
+				<time>{$item['time']}</time>
+				<p>{$item['station']}</p>
+			</li>
+		</tr>
+		{/foreach}
+		</ul>
+	</div>
+</body>
+</html>

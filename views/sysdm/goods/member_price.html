@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>会员价格</title>
+{js:jquery}
+{js:dialog}
+{js:form}
+{js:validate}
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="{webroot:public/css/twitter-bootstrap/3.3.7/css/bootstrap.min.css}">
+</head>
+
+<body>
+<div class="container" style="max-height:500px;margin-top:15px;overflow-y:auto;">
+	<form name="groupPriceForm" class="form-horizontal">
+		{foreach:items=Api::run('getUserGroupListAll')}
+		<div class="form-group">
+			<label class="control-label col-xs-4">会员组</label>
+			<div class="col-xs-8">{$item['group_name']}</div>
+		</div>
+
+		<div class="form-group">
+			<label class="control-label col-xs-4">商品价格</label>
+            <div class="input-group col-xs-7">
+                <span class="input-group-addon">￥</span>
+                <input type="text" name="groupPrice{$item['id']}" class="form-control input-sm col-xs-3" pattern="float" placeholder="自定义价格"  />
+            </div>
+		</div>
+
+		<div class="form-group">
+			<label class="control-label col-xs-4">默认价格</label>
+			<div class="col-xs-8">￥{echo:($item['discount']/100)*$sell_price}</div>
+		</div>
+
+		<div class="form-group">
+			<label class="control-label col-xs-4">折扣率</label>
+			<div class="col-xs-8">{$item['discount']}%</div>
+		</div>
+		<hr />
+		{/foreach}
+	</form>
+
+	{if:!$items}
+    暂无会员组
+	{/if}
+</div>
+
+<script>
+$(function(){
+	var groupPrice = art.dialog.data('groupPrice');
+	if(groupPrice)
+	{
+		var groupPriceObject = $.parseJSON(groupPrice);
+		for(var groupId in groupPriceObject)
+		{
+			$('input[name="groupPrice'+groupId+'"]').val(groupPriceObject[groupId]);
+		}
+	}
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,242 @@
+{js:artTemplate}
+<article class="col-lg-12">
+    <div class="card forms">
+    	<div class="card-header d-flex align-items-center justify-content-between">
+    		<h3>首页幻灯片</h3>
+			<ul class="nav nav-pills">
+				<li><a href="#tab1" data-toggle="pill" class="nav-link active">PC端幻灯片</a></li>
+				<li><a href="#tab2" data-toggle="pill" class="nav-link">移动端幻灯片</a></li>
+			</ul>
+    	</div>
+
+    	<div class="card-body tab-content">
+            <!--pc幻灯片-->
+            <div class="tab-pane active" id="tab1">
+            	<form action='{url:/seller/banner_update/form_index/pc}' class="form-horizontal" method='post' enctype="multipart/form-data">
+            		<input type="hidden" name="type" value="pc">
+            		<table class="table" id='slide_box_pc'>
+            			<colgroup>
+            				<col width="280px" />
+            				<col width="280px" />
+            				<col width="280px" />
+            				<col width="150px" />
+            			</colgroup>
+
+            			<thead>
+            			<tr>
+            				<th>名称</th>
+            				<th>链接地址</th>
+            				<th>图片文件</th>
+            				<th>操作</th>
+            			</tr>
+            			</thead>
+
+            			<tbody></tbody>
+
+            			<tfoot>
+            			<tr>
+            				<td colspan="4">
+            					<input class="btn btn-primary" type="button" onclick="add_slide('pc');" value="新加一个">
+            				</td>
+            			</tfoot>
+
+            			<!--导航行模板-->
+            			<script type='text/html' id='slideTrTemplate_pc'>
+            			<tr>
+            				<td>
+            					<input type='text' name='banner_name[]' class='form-control' value='<%=name%>' pattern='required' />
+            				</td>
+            				<td>
+            					<input type='text' name='banner_url[]' class='form-control' value='<%=url%>' pattern='required' />
+            				</td>
+            				<td>
+            					<%if(img){%><img src="<%=webroot(img)%>" width="150px" /><br /><%}%>
+            					<input type='file' name='banner_pic[]' class='form-control-file' />
+            					<input type="hidden" value="<%=img%>" name="banner_img[]" />
+            				</td>
+            				<td>
+            					<a href="javascript:;"><i class='fa fa-arrow-up fa-lg' alt='向上' title='向上' ></i></a>
+            					<a href="javascript:;"><i class='fa fa-arrow-down fa-lg' alt='向下' title='向下'></i></a>
+            					<a href="javascript:;"><i class='fa fa-close fa-lg' alt='删除' title='删除'></i></a>
+            				</td>
+            			</tr>
+            			</script>
+            		</table>
+            		<div class="form-group row">
+        				<div class="col-sm-4">
+        					<input type="submit" class="btn btn-primary" value="保 存" />
+        					<input type="reset" class="btn btn-secondary" value="重 置" />
+        				</div>
+            		</div>
+            	</form>
+            </div>
+
+            <!--mobile幻灯片-->
+        	<div class="tab-pane" id="tab2">
+        		<form action='{url:/seller/banner_update/form_index/mobile}' class="form-horizontal" method='post' enctype="multipart/form-data">
+        			<input type="hidden" name="type" value="mobile">
+        			<table class="table" id='slide_box_mobile'>
+        				<colgroup>
+        					<col width="280px" />
+        					<col width="280px" />
+        					<col width="280px" />
+        					<col width="150px" />
+        				</colgroup>
+
+        				<thead>
+        				<tr>
+        					<th>名称</th>
+        					<th>链接地址</th>
+        					<th>图片文件</th>
+        					<th>操作</th>
+        				</tr>
+        				</thead>
+
+        				<tbody></tbody>
+
+        				<tfoot>
+        				<tr>
+        					<td colspan="4">
+        						<input class="btn btn-primary" type="button" onclick="add_slide('mobile');" value="新加一个">
+        					</td>
+        				</tfoot>
+
+        				<!--导航行模板-->
+        				<script type='text/html' id='slideTrTemplate_mobile'>
+        				<tr>
+        					<td>
+        						<input type='text' name='banner_name[]' class='form-control' value='<%=name%>' pattern='required' />
+        					</td>
+        					<td>
+        						<input type='text' name='banner_url[]' class='form-control' value='<%=url%>' pattern='required' />
+        					</td>
+        					<td>
+        						<%if(img){%><img src="<%=webroot(img)%>" width="150px" /><br /><%}%>
+        						<input type='file' name='banner_pic[]' class='form-control-file' />
+        						<input type="hidden" value="<%=img%>" name="banner_img[]" />
+        					</td>
+        					<td>
+        						<a href="javascript:;"><i class='fa fa-arrow-up fa-lg' alt='向上' title='向上' ></i></a>
+        						<a href="javascript:;"><i class='fa fa-arrow-down fa-lg' alt='向下' title='向下'></i></a>
+        						<a href="javascript:;"><i class='fa fa-close fa-lg' alt='删除' title='删除'></i></a>
+        					</td>
+        				</tr>
+        				</script>
+        			</table>
+        			<div class="form-group row">
+    					<div class="col-sm-4">
+    						<input type="submit" class="btn btn-primary" value="保 存" />
+    						<input type="reset" class="btn btn-secondary" value="重 置" />
+    					</div>
+    				</div>
+        		</form>
+        	</div>
+        </div>
+    </div>
+</article>
+<script type='text/javascript'>
+//DOM加载完毕
+$(function(){
+    //生成幻灯片
+    {if:$bannerData = Api::run('getBannerConf',$this->seller['seller_id'])}
+    var slideList = {echo:JSON::encode($bannerData)};
+    for(var index in slideList)
+    {
+        add_slide(slideList[index]['type'],slideList[index]);
+    }
+    {/if}
+
+    var typeArr = ['pc','mobile'];
+    for(var index in typeArr)
+    {
+        if ($('#slide_box_'+typeArr[index]+' tbody tr').size() == 0){
+            add_slide(typeArr[index]);
+        }
+    }
+
+    //初始化标签页面
+    {if:IReq::get('form_index') == 'mobile'}
+    $('a[href="#tab2"]').tab('show');
+    {/if}
+ });
+
+//增加幻灯片
+function add_slide(type,data)
+{
+    var data = data ? data : {};
+    var slideTrHtml = template.render('slideTrTemplate_'+type,data);
+    $('#slide_box_'+type+' tbody').append(slideTrHtml);
+    var last_index = $('#slide_box_'+type+' tbody tr').size()-1;
+    buttonInit(last_index,'#slide_box_'+type);
+}
+
+//操作按钮绑定
+function buttonInit(indexValue,ele)
+{
+    ele = ele || "#guide_box";
+    if(indexValue == undefined || indexValue === '')
+    {
+        var button_times = $(ele+' tbody tr').length;
+
+        for(var item=0;item < button_times;item++)
+        {
+            buttonInit(item,ele);
+        }
+    }
+    else
+    {
+        var obj = $(ele+' tbody tr:eq('+indexValue+') .fa-lg')
+
+        //功能操作按钮
+        obj.each(
+            function(i)
+            {
+                switch(i)
+                {
+                    //向上排序
+                    case 0:
+                    {
+                        $(this).click(
+                            function()
+                            {
+                                var insertIndex = $(this).parent().parent().parent().prev().index();
+                                if(insertIndex >= 0)
+                                {
+                                    $(ele+' tbody tr:eq('+insertIndex+')').before($(this).parent().parent().parent());
+                                }
+                            }
+                        )
+                    }
+                    break;
+
+                    //向上排序
+                    case 1:
+                    {
+                        $(this).click(
+                            function()
+                            {
+                                var insertIndex = $(this).parent().parent().parent().next().index();
+                                $(ele+' tbody tr:eq('+insertIndex+')').after($(this).parent().parent().parent());
+                            }
+                        )
+                    }
+                    break;
+
+                    //删除排序
+                    case 2:
+                    {
+                        $(this).click(
+                            function()
+                            {
+                                var obj = $(this);
+                                art.dialog.confirm('确定要删除么？',function(){obj.parent().parent().parent().remove()});
+                            }
+                        )
+                    }
+                    break;
+                }
+            }
+        )
+    }
+}
+</script>

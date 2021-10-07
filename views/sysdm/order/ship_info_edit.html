@@ -1,0 +1,98 @@
+{js:artTemplate}
+{js:areaSelect}
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">订单</a>
+		</li>
+		<li>
+			<a href="#">快递单管理</a>
+		</li>
+		<li class="active">编辑发货信息</li>
+	</ul>
+</div>
+
+<div class="content">
+	<form action="{url:/order/ship_info_update}" method="post">
+	<input type="hidden" name="id" value=""/>
+	<table class="table form-table" >
+		<colgroup>
+			<col width="130px" />
+			<col />
+		</colgroup>
+
+		<tr>
+			<th>发货点名称：</th>
+			<td><input class="form-control" name="ship_name" type="text" pattern="required" value="" alt="发货点名称"//></td>
+		</tr>
+		<tr>
+			<th>发货人姓名：</th>
+			<td><input class="form-control" name="ship_user_name" type="text" pattern="required" value=""  alt="发货人姓名"/></td>
+		</tr>
+		<tr>
+			<th>性别：</th>
+			<td>
+                <label class="radio-inline">
+                    <input type="radio" name="sex" value="1" checked="checked">先生
+                </label>
+                <label class="radio-inline">
+                    <input type="radio" name="sex" value="0" />女士
+                </label>
+            </td>
+		</tr>
+		<tr>
+			<th>地区：</th>
+			<td>
+                <div class="row">
+                    <div class="col-xs-3">
+                        <select name="province" child="city,area" class="form-control"></select>
+                    </div>
+                    <div class="col-xs-3">
+                        <select name="city" child="area" class="form-control"></select>
+                    </div>
+                    <div class="col-xs-3">
+                        <select name="area" pattern="required" class="form-control"></select>
+                    </div>
+                </div>
+			</td>
+		</tr>
+		<tr>
+			<th>地址：</th>
+			<td><input class="form-control" name="address" type="text" pattern="required" value=""  alt="具体地址"/></td>
+		</tr>
+		<tr>
+			<th>邮编：</th>
+			<td><input class="form-control" name="postcode" type="text" pattern="zip" value="" empty alt="邮政编码"/></td>
+		</tr>
+		<tr>
+			<th>手机：</th>
+			<td><input class="form-control" name="mobile" type="text" pattern='mobi' value="" alt="手机号码" /></td>
+		</tr>
+		<tr>
+			<th>电话：</th>
+			<td><input class="form-control" name="telphone" type="text" pattern="phone" empty alt="固定电话号码" value="" /></td>
+		</tr>
+		<tr>
+			<th></th>
+			<td><label class="checkbox-inline"><input type="checkbox" name="is_default" value="1" />设置为默认地址</label></td>
+		</tr>
+		<tr>
+			<th></th>
+			<td><button class='btn btn-primary' type="submit">保存</button></td>
+		</tr>
+	</table>
+	</form>
+</div>
+
+<script type='text/javascript'>
+var formObj = new Form();
+formObj.init({echo:JSON::encode($ship)});
+
+var areaInstance = new areaSelect('province');
+{if:isset($ship) && $ship}
+	areaInstance.init({echo:JSON::encode($ship)});
+{else:}
+	areaInstance.init();
+{/if}
+</script>

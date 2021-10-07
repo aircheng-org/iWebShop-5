@@ -1,0 +1,67 @@
+<header class="uc_head">
+	<h3>在线充值</h3>
+</header>
+<section class="user_form">
+	<form action='{url:/block/doPay}' method='post'>
+		{set:$onlinePromotion = Api::run('getPromotionByOnline')}
+		{if:$onlinePromotion}
+		<dl>
+		    <dt>充值活动：</dt>
+		    <dd>
+		        {foreach:items=$onlinePromotion}
+		        <p>{$item['name']}:{$item['intro']}</p>
+		        {/foreach}
+		    </dd>
+		</dl>
+		{/if}
+
+		<dl>
+			<dt>充值金额：</dt>
+			<dd>
+				<input type='text' class="input_text w100" name="recharge" pattern='float' alt='请输入充值的金额'>
+				<span>元</span>
+			</dd>
+		</dl>
+
+		<dl>
+			<dt class="vt">选择充值方式：</dt>
+			{set:$paymentList=Api::run('getPaymentListByOnline')}
+			<dd>
+				{if:$paymentList}
+				{foreach:items = $paymentList}
+				<p>
+					<label>
+						<input class="radio" name="payment_id" title="{$item['name']}" type="radio" value="{$item['id']}">
+						{$item['name']}
+						{$item['note']}
+					</label>
+				</p>
+				{/foreach}
+				{else:}
+				没有线上支付方式
+				{/if}
+			</dd>
+		</dl>
+		<dl>
+			<dt></dt>
+			<dd><input class="input_submit" type="submit" value="确定充值" /></dd>
+		</dl>
+	</form>
+</section>
+
+<script type='text/javascript'>
+function check_form()
+{
+	if($('[name="payment_id"]:checked').length == 0)
+	{
+		alert('请选择支付方式');
+		return false;
+	}
+
+	if($('[name="recharge"]').val() <= 0)
+	{
+		alert('要充值的金额必须大于0元');
+		return false;
+	}
+}
+</script>

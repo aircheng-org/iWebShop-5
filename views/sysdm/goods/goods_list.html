@@ -1,0 +1,521 @@
+{js:artTemplate}
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">商品</a>
+		</li>
+		<li>
+			<a href="#">商品管理</a>
+		</li>
+		<li class="active">商品列表</li>
+	</ul>
+</div>
+
+<div class="content">
+	<table class="table list-table">
+		<colgroup>
+			<col width="30px" />
+			<col />
+			<col width="200px" />
+			<col width="80px" />
+			<col width="70px" />
+			<col width="85px" />
+			<col width="60px" />
+			<col width="110px" />
+		</colgroup>
+		<caption>
+			 <div class="btn-group">
+                <a href="{url:/goods/goods_edit}" class="btn btn-default"><i class="fa fa-plus"></i> 添加</a>
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                    <span class="caret"></span>
+                    <span class="sr-only"></span>
+                </button>
+                <ul class="dropdown-menu" role="menu">
+                    <li><a href="{url:/goods/goods_edit}">普通商品</a></li>
+                    <li><a href="{url:/goods/goods_edit/type/code}">服务类商品</a></li>
+                    <li><a href="{url:/goods/goods_edit/type/download}">下载类商品</a></li>
+                    <li><a href="{url:/goods/goods_edit/type/preorder}">时间类商品</a></li>
+                </ul>
+            </div>
+
+			<a class="btn btn-default" onclick="selectAll('id[]')">
+			    <i class="fa fa-check"></i>全选
+			</a>
+
+			<div class="btn-group">
+				<button type="button" class="btn btn-default"><i class="fa fa-cogs"></i> 批量操作</button>
+				<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+					<span class="caret"></span>
+					<span class="sr-only"></span>
+				</button>
+				<ul class="dropdown-menu" role="menu">
+					<li><a href="javascript:void(0);" onclick="delModel({'name':'id[]','link':'{url:/goods/goods_stats/type/up}','form':'goodsForm','msg':'选择商品上架？'});">上架</a></li>
+					<li><a href="javascript:void(0);" onclick="delModel({'name':'id[]','link':'{url:/goods/goods_stats/type/down}','form':'goodsForm','msg':'选择商品下架？'});">下架</a></li>
+					<li><a href="javascript:void(0);" onclick="delModel({'name':'id[]','link':'{url:/goods/goods_stats/type/check}','form':'goodsForm','msg':'选择商品待审？'});">待审</a></li>
+					<li><a href="javascript:void(0);" onclick="delModel({'name':'id[]','link':'{url:/goods/goods_del}','form':'goodsForm'})">删除</a></li>
+					<li class="divider"></li>
+					<li><a href="javascript:void(0);" onclick="goodsCommend()">商品推荐</a></li>
+					<li><a href="javascript:void(0);" onclick="goodsShare()">商品共享</a></li>
+					<li class="divider"></li>
+					<li><a href="{url:/goods/goods_report/?$search}" target="_blank">导出Excel</a></li>
+					<li><a href="javascript:goodsImportShow();">导入Excel</a></li>
+				</ul>
+			</div>
+
+			<a class="btn btn-default" href="{url:/goods/goods_recycle_list}">
+			    <i class="fa fa-trash"></i> 回收站
+			</a>
+
+			<a class="btn btn-default" onclick="goodsSetting();">
+		    	<i class="fa fa-edit"></i> 批量编辑
+			</a>
+
+        	<a class="btn btn-default" href="javascript:searchGoods({'submit':filterResult,'mode':'normal','data':'{$search}'});">
+        		<i class="fa fa-search"></i> 检索
+        	</a>
+		</caption>
+		<thead>
+			<tr>
+				<th></th>
+				<th>商品名称</th>
+				<th>分类</th>
+				<th>销售价</th>
+				<th>库存</th>
+				<th>状态</th>
+				<th>排序</th>
+				<th>操作</th>
+			</tr>
+		</thead>
+		<tbody>
+			<form action="" method="post" name="goodsForm">
+			{foreach:items = $this->goodsHandle->find()}
+			<tr>
+				<td><input name="id[]" type="checkbox" value="{$item['id']}" /></td>
+				<td>
+					<img src='{url:/pic/thumb/img/$item['img']/w/70/h/70}' class='pull-left img-thumbnail' />
+					<a href="javascript:jumpUrl('{$item['is_del']}','{url:/site/products/id/$item['id']}')" title="{echo:htmlspecialchars($item['name'])}">{$item['name']}</a>
+				</td>
+				<td>
+				{foreach:items=Api::run('getCategoryExtendNameByCategoryid',array('id'=>$item["id"])) item=$catName}
+					[{$catName['name']}]
+				{/foreach}
+				</td>
+				<td><a href="javascript:quickEdit({$item['id']},'price');"  title="点击更新价格" id="priceText{$item['id']}">{$item['sell_price']}</a></td>
+				<td><a href="javascript:quickEdit({$item['id']},'store');"  title="点击更新库存" id="storeText{$item['id']}">{$item['store_nums']}</a></td>
+				<td>
+					<select class="form-control input-sm" onchange="changeIsDel({$item['id']},this)">
+						<option value="up" {echo:$item['is_del']==0 ? 'selected':''}>上架</option>
+						<option value="down" {echo:$item['is_del']==2 ? 'selected':''}>下架</option>
+						<option value="check" {echo:$item['is_del']==3 ? 'selected':''}>待审</option>
+					</select>
+				</td>
+				<td><input type="text" class="form-control input-sm" value="{$item['sort']}" onchange="changeSort({$item['id']},this);" /></td>
+				<td>
+					<a href="{url:/goods/goods_edit/id/$item['id']/type/$item['type']}"><i class='operator fa fa-edit'></i></a>
+
+					{if:$item['type'] == 'preorder'}
+					<a href='javascript:editPreorder({$item['id']},{echo:$item['spec_array'] ? 1 : 0});'><i class='operator fa fa-calendar'></i></a>
+					{/if}
+
+					<a onclick="delModel({'link':'{url:/goods/goods_del/id/$item['id']}'})" ><i class='operator fa fa-close'></i></a>
+
+					{if:$item['seller_id']}
+					<a href="{url:/site/home/id/$item['seller_id']}" target="_blank"><i class="operator fa fa-user"></i></a>
+					{/if}
+
+					{if:$item['is_share'] == 1}
+					<i class="operator fa fa-share-alt"></i>
+					{/if}
+				</td>
+			</tr>
+			{/foreach}
+			</form>
+		</tbody>
+	</table>
+</div>
+
+{$this->goodsHandle->getPageBar()}
+
+<!--库存更新模板-->
+<script id="goodsStoreTemplate" type="text/html">
+<form name="quickEditForm" style="max-height:450px;overflow-x:hidden;">
+<table class="table">
+	<thead>
+		<tr>
+			<th>商品</th>
+			<th>库存量</th>
+		</tr>
+	</thead>
+	<tbody>
+	<%for(var item in templateData){%>
+		<%item=templateData[item]%>
+		<tr>
+			<td>
+				<%=item['name']%>
+				&nbsp;&nbsp;
+				<%var specArrayList = item['spec_array'] ? JSON().parse(item['spec_array']) : [];%>
+				<%for(var key in specArrayList){%>
+					<%=specArrayList[key]['value']%>
+					&nbsp;&nbsp;
+				<%}%>
+			</td>
+			<td>
+				<input type="text" class="form-control input-sm" name="data[<%=item['id']%>]" value="<%=item['store_nums']%>" />
+			</td>
+		</tr>
+	<%}%>
+	</tbody>
+</table>
+<input type='hidden' name='goods_id' value="<%=item['goods_id']%>" />
+</form>
+</script>
+
+<!--价格更新的模板-->
+<script id="goodsPriceTemplate" type="text/html">
+<form name="quickEditForm" style="max-height:450px;overflow-x:hidden;">
+<table class="table">
+	<thead>
+		<tr>
+			<th>商品</th>
+			<th>市场价</th>
+			<th>销售价</th>
+			<th>成本价</th>
+		</tr>
+	</thead>
+	<tbody>
+	<%for(var item in templateData){%>
+		<%item=templateData[item]%>
+		<tr>
+			<td>
+				<%=item['name']%>
+				&nbsp;&nbsp;&nbsp;
+				<%var specArrayList = item['spec_array'] ? JSON().parse(item['spec_array']) : [];%>
+				<%for(var key in specArrayList){%>
+					<%=specArrayList[key]['value']%>
+					&nbsp;&nbsp;
+				<%}%>
+			</td>
+			<td><input type="text" class="form-control input-sm" name="data[<%=item['id']%>][market_price]" value="<%=item['market_price']%>" /></td>
+			<td><input type="text" class="form-control input-sm" name="data[<%=item['id']%>][sell_price]" value="<%=item['sell_price']%>" /></td>
+			<td><input type="text" class="form-control input-sm" name="data[<%=item['id']%>][cost_price]" value="<%=item['cost_price']%>" /></td>
+		</tr>
+	<%}%>
+	</tbody>
+</table>
+<input type='hidden' name='goods_id' value="<%=item['goods_id']%>" />
+</form>
+</script>
+
+<!--推荐更新模板-->
+<script id="goodsCommendTemplate" type="text/html">
+<form name="commendForm" style="max-height:450px;overflow-x:hidden;">
+<table class="table">
+	<thead>
+		<tr>
+			<th>商品</th>
+			<th>推荐选项</th>
+		</tr>
+	</thead>
+	<tbody>
+	<%for(var item in templateData){%>
+		<%item=templateData[item]%>
+		<tr>
+			<td>
+				<input type="hidden" name="data[<%=item['id']%>][]" value="" />
+				<%=item['name']%>
+			</td>
+			<td>
+                <label class="checkbox-inline">
+                    <input type="checkbox" name="data[<%=item['id']%>][]" value="1" <%if(item['commend'] && item['commend'][1]){%>checked="checked"<%}%> />最新商品
+                </label>
+                <label class="checkbox-inline">
+                    <input type="checkbox" name="data[<%=item['id']%>][]" value="2" <%if(item['commend'] && item['commend'][2]){%>checked="checked"<%}%> />特价商品
+                </label>
+                <label class="checkbox-inline">
+                    <input type="checkbox" name="data[<%=item['id']%>][]" value="3" <%if(item['commend'] && item['commend'][3]){%>checked="checked"<%}%> />热卖商品
+                </label>
+                <label class="checkbox-inline">
+                    <input type="checkbox" name="data[<%=item['id']%>][]" value="4" <%if(item['commend'] && item['commend'][4]){%>checked="checked"<%}%> />推荐商品
+                </label>
+			</td>
+		</tr>
+	<%}%>
+	</tbody>
+</table>
+</form>
+</script>
+
+<!--推荐更新模板-->
+<script id="goodsImportTemplate" type="text/html">
+<form name="goodsImportForm" action="{url:/goods/goods_import}" method="post" enctype="multipart/form-data">
+	<input type='file' name='goods_csv'  />
+</form>
+</script>
+
+<script type="text/javascript">
+//检索商品
+function filterResult(iframeWin)
+{
+	var searchForm   = iframeWin.document.body;
+	var searchString = $(searchForm).find("form").serialize();
+	var jumpUrl      = creatUrl("/goods/goods_list/"+searchString);
+	window.location.href = jumpUrl;
+}
+
+//商品推荐标签
+function goodsCommend()
+{
+	if($('input:checkbox[name="id[]"]:checked').length > 0)
+	{
+		var idString = [];
+		$('input:checkbox[name="id[]"]:checked').each(function(i)
+		{
+			idString.push(this.value);
+		});
+
+		$.getJSON("{url:/block/goodsCommend}",{"id":idString.join(',')},function(json)
+		{
+			var templateHtml = template.render("goodsCommendTemplate",{'templateData':json});
+			art.dialog(
+			{
+			    title:"商品推荐",
+				okVal:"保存",
+			    content: templateHtml,
+			    ok:function(iframeWin)
+			    {
+			    	var formObj = iframeWin.document.forms['commendForm'];
+			    	$.getJSON("{url:/goods/update_commend}",$(formObj).serialize(),function(content)
+			    	{
+			    		if(content.result == 'fail')
+			    		{
+			    			alert(content.data);
+			    		}
+			    	});
+			    }
+			});
+		});
+	}
+	else
+	{
+		alert("请选择您要操作的商品");
+	}
+}
+
+//展示库存
+function quickEdit(gid,typeVal)
+{
+	var submitUrl    = "";
+	var templateName = "";
+	var freshArea    = "";
+
+	switch(typeVal)
+	{
+		case "store":
+		{
+			submitUrl    = "{url:/goods/update_store}";
+			templateName = "goodsStoreTemplate";
+			freshArea    = "storeText";
+		}
+		break;
+
+		case "price":
+		{
+			submitUrl    = "{url:/goods/update_price}";
+			templateName = "goodsPriceTemplate";
+			freshArea    = "priceText";
+		}
+		break;
+	}
+
+	$.getJSON("{url:/block/getGoodsData}",{"id":gid},function(json)
+	{
+		var templateHtml = template.render(templateName,{'templateData':json});
+		art.dialog(
+		{
+		    title:"商品更新",
+			okVal:"保存",
+		    content: templateHtml,
+		    ok:function(iframeWin)
+		    {
+		    	var formObj = iframeWin.document.forms['quickEditForm'];
+		    	$.getJSON(submitUrl,$(formObj).serialize(),function(content)
+		    	{
+		    		if(content.result == 'success')
+		    		{
+		    			$("#"+freshArea+gid).text(content.data);
+		    		}
+		    		else
+		    		{
+		    			alert(content.data);
+		    		}
+		    	});
+		    }
+		});
+	});
+}
+
+//修改排序
+function changeSort(gid,obj)
+{
+	var selectedValue = obj.value;
+	$.getJSON("{url:/goods/ajax_sort}",{"id":gid,"sort":selectedValue});
+}
+
+//修改上下架
+function changeIsDel(gid,obj)
+{
+	var selectedValue = $(obj).find('option:selected').val();
+	$.getJSON("{url:/goods/goods_stats}",{"id":gid,"type":selectedValue});
+}
+
+//upload csv file callback
+function artDialogCallback(message)
+{
+	message ? alert(message) : window.location.reload();
+}
+
+//商品详情的跳转连接
+function jumpUrl(is_del,url)
+{
+	is_del == 0 ? window.open(url) : alert("该商品没有上架无法查看");
+}
+
+//商品批量共享
+function goodsShare()
+{
+	if($('input:checkbox[name="id[]"]:checked').length > 0)
+	{
+		var idString = [];
+		$('input:checkbox[name="id[]"]:checked').each(function(i)
+		{
+			idString.push(this.value);
+		});
+
+		$.get("{url:/goods/goods_share}",{"id":idString.join(',')},function(json)
+		{
+			window.location.reload();
+		});
+	}
+	else
+	{
+		alert("请选择您要操作的商品");
+	}
+}
+
+// 商品批量设置
+function goodsSetting()
+{
+	if($('input:checkbox[name="id[]"]:checked').length > 0)
+	{
+		var idArray = [];
+		var idString = '';
+		$('input:checkbox[name="id[]"]:checked').each(function(i)
+		{
+			idArray.push(this.value);
+		});
+		idString = idArray.join(',');
+
+		var urlVal = "{url:/goods/goods_setting/id/@id@}";
+		urlVal = urlVal.replace("@id@",idString);
+		art.dialog.open(urlVal,{
+			id:'goods_setting',
+			title:'商品批量设置',
+			okVal:'保存设置',
+			ok:function(iframeWin, topWin){
+				var formObject = iframeWin.document.forms[0];
+				if(formObject.onsubmit() == false)
+				{
+					return false;
+				}
+				loadding();
+				formObject.submit();
+				return false;
+			}
+		});
+	}
+	else
+	{
+		alert("请选择您要操作的商品");
+	}
+}
+
+//编辑日期预约价格和库存
+function editPreorder(id,typeVal)
+{
+    switch(typeVal)
+    {
+        //编辑货品预订时间
+        case 2:
+        {
+            var type = 'product';
+        }
+        break;
+
+        //选择货品
+        case 1:
+        {
+            var urlVal = "{url:/block/products_list/goods_id/@id@}";
+            urlVal = urlVal.replace("@id@",id);
+        	art.dialog.open(urlVal,{
+        		id:'productList',
+        		title:'选择规格商品',
+        		okVal:'下一步',
+        		ok:function(iframeWin, topWin)
+        		{
+        			var productObj = $(iframeWin.document).find('input[name="id[]"]:checked');
+        			editPreorder(productObj.val(),2);
+        			return true;
+        		}
+        	});
+        	return;
+        }
+        break;
+
+        //编辑商品预订时间
+        default:
+        {
+            var type = 'goods';
+        }
+        break;
+    }
+
+	var urlVal = "{url:/goods/preorder_setting/id/@id@/type/@type@}";
+	urlVal = urlVal.replace("@id@",id).replace("@type@",type);
+	art.dialog.open(urlVal,{
+		id:'preorder_setting',
+		title:'预订日期设置',
+		okVal:'保存设置',
+		width:'80%',
+		height:'80%',
+		ok:function(iframeWin, topWin)
+		{
+			var formObject = iframeWin.document.forms[0];
+			if(formObject.onsubmit() == false)
+			{
+				return false;
+			}
+			loadding();
+			formObject.submit();
+			return false;
+		}
+	});
+}
+
+//商品导入
+function goodsImportShow()
+{
+	var templateHtml = template.render('goodsImportTemplate');
+	art.dialog(
+	{
+		okVal:"开始导入",
+		content: templateHtml,
+		ok:function(iframeWin)
+		{
+			var formObj = iframeWin.document.forms['goodsImportForm'];
+			formObj.submit();
+			loadding('正在导入请稍候......');
+		}
+	});
+}
+</script>

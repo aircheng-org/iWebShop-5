@@ -1,0 +1,51 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">会员</a>
+		</li>
+		<li>
+			<a href="#">商户管理</a>
+		</li>
+		<li class="active">修改分类手续费</li>
+	</ul>
+</div>
+<div class="content">
+	<form action="{url:/goods/category_rate_save}" method="post" name="category_rate_edit">
+		<table class="table form-table">
+			<colgroup>
+				<col width="130px" />
+				<col />
+			</colgroup>
+
+			<tr>
+				<th>设置分类：</th>
+				<td>
+					<!--分类数据显示-->
+					<span id="__categoryBox" style="margin-bottom:8px"></span>
+					<button class="btn btn-default" type="button" name="_goodsCategoryButton"><i class="fa fa-list"></i> 设置分类</button>
+					{set:plugin::trigger('goodsCategoryWidget',array("name" => "category_id","value" => isset($this->categoryRateRow['category_id']) ? $this->categoryRateRow['category_id'] : ""))}
+					<p class="help-block">如果不选择上级分类，默认为顶级分类</p>
+				</td>
+			</tr>
+			<tr>
+				<th>分类手续费：</th>
+				<td>
+                    <div class="input-group col-md-3">
+                        <input class="form-control" name="category_rate" pattern='float' empty type="text" value="" placeholder="请填写0~100的数字" />
+                        <span class="input-group-addon">%</span>
+                    </div>
+                </td>
+			</tr>
+			<tr><td></td><td><button class='btn btn-primary' type='submit'>确定</button></td></tr>
+		</table>
+	</form>
+</div>
+
+<script type='text/javascript'>
+$(function()
+{
+	var formObj = new Form("category_rate_edit");
+	formObj.init({echo:JSON::encode($this->categoryRateRow)});
+})
+</script>

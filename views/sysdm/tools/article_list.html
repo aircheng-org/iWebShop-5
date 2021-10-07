@@ -1,0 +1,72 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">工具</a>
+		</li>
+		<li>
+			<a href="#">文章管理</a>
+		</li>
+		<li class="active">文章列表</li>
+	</ul>
+</div>
+<div class="content">
+	<form action="{url:/tools/article_del}" method="post" name="article">
+		<table class="table list-table">
+			<colgroup>
+				<col width="35px" />
+				<col width="250px" />
+				<col width="100px" />
+				<col width="150px" />
+				<col width="60px" />
+				<col width="60px" />
+				<col width="60px" />
+				<col width="110px" />
+			</colgroup>
+			<caption>
+                <a class="btn btn-default" href='{url:/tools/article_edit}'>
+                    <i class="fa fa-plus"></i>添加文章
+                </a>
+                <a class="btn btn-default" onclick="selectAll('id[]')">
+                    <i class="fa fa-check"></i>全选
+                </a>
+                <a class="btn btn-default" onclick="delModel()">
+                    <i class="fa fa-close"></i>批量删除
+                </a>
+			</caption>
+			<thead>
+				<tr>
+					<th></th>
+					<th>标题</th>
+					<th>文章分类</th>
+					<th>发布时间</th>
+					<th>展示</th>
+					<th>首页推荐</th>
+					<th>排序</th>
+					<th>操作</th>
+				</tr>
+			</thead>
+
+			<tbody>
+                {set:$queryObj=Api::run('getAllArticleList');$resultData=$queryObj->find()}
+                {foreach:items=$resultData}
+				<tr>
+					<td><input type="checkbox" name="id[]" value="{$item['id']}" /></td>
+					<td><a target="_blank" href='{url:/site/article_detail/id/$item['id']}' title='查看'>{echo:Article::showTitle($item['title'],$item['color'],$item['style'])}</a></td>
+					<td>{$item['name']}</td>
+					<td>{$item['create_time']}</td>
+					<td>{echo:($item['visibility']==1) ? '是':'否'}</td>
+					<td>{echo:($item['top']==1) ? '是':'否'}</td>
+					<td>{$item['sort']}</td>
+					<td>
+						<a href='{url:/tools/article_edit/id/$item['id']}'><i class='operator fa fa-edit'></i></a>
+						<a target="_blank" href='{url:/site/article_detail/id/$item['id']}'><i class='operator fa fa-eye'></i></a>
+						<a href="javascript:delModel({link:'{url:/tools/article_del/id/$item['id']}'});"><i class='operator fa fa-close'></i></a>
+					</td>
+				</tr>
+				{/foreach}
+			</tbody>
+		</table>
+	</form>
+</div>
+{$queryObj->getPageBar()}

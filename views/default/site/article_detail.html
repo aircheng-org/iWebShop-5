@@ -1,0 +1,61 @@
+<div class="position"> <span>您当前的位置：</span> <a href="{url:}"> 首页</a> » <a href="{url:/site/article}">资讯列表</a> » {$this->articleRow['title']} </div>
+<div class="wrapper clearfix container_2">
+	<div class="sidebar f_l">
+		<div class="box m_10">
+			<div class="title">热卖商品</div>
+			<div class="content">
+			  <ul class="ranklist">
+				{foreach:items=Api::run('getCommendHot',5)}
+				<li class='current'><a href="{url:/site/products/id/$item[id]}"><img src="{url:/pic/thumb/img/$item[img]/w/58/h/58}" width="58" height="58" alt="{$item['name']}" /></a><a title="{$item['name']}" class="p_name" href="{url:/site/products/id/$item[id]}">{$item['name']}</a><b>￥{$item['sell_price']}</b></li>
+				{/foreach}
+			  </ul>
+			</div>
+		</div>
+
+		<div class="box m_10">
+			<div class="title">资讯分类</div>
+			<div class="content">
+			  <ul class="ranklist">
+				{foreach:items=Api::run('getArticleCategoryList',10)}
+				<li><a title="{$item['name']}" href="{url:/site/article/id/$item[id]}">{$item['name']}</a></li>
+				{/foreach}
+			  </ul>
+			</div>
+		</div>
+		{echo:Ad::show("文章-公告内容页左册198*120(default)")}
+	</div>
+	<div class="main f_r">
+		<div class="box m_10">
+			<div class="title2">商城资讯</div>
+			<div class="cont">
+				<div class="c_box">
+					<h2>{$this->articleRow['title']}</h2>
+					<div class="partake_bar clearfix">
+						<span class="f_r"></span>发布日期：{$this->articleRow['create_time']}
+					</div>
+					<hr class="m_10" />
+					<div class="textcontent">
+						<p>{$this->articleRow['content']}</p>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		{if:$this->relationList}
+		<div class="box m_10">
+			<div class="title2 m_10">相关商品</div>
+			<div class="parts clearfix">
+				<ul class="prolist">
+					{foreach:items = $this->relationList}
+					<li>
+						<a href="{url:/site/products/id/$item['goods_id']}"><img width="98" height="106" src="{url:/pic/thumb/img/$item[img]/w/98/h/106}" alt="{$item['name']}"></a>
+						<p class="pro_title"><a href="{url:/site/products/id/$item['goods_id']}">{$item['name']}</a></p>
+						<p class="brown"><b>￥{$item['sell_price']}</b></p>
+					</li>
+					{/foreach}
+				</ul>
+			</div>
+		</div>
+		{/if}
+	</div>
+</div>

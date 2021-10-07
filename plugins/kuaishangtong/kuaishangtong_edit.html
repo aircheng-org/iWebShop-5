@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="UTF-8">
+	{js:jquery}
+	{js:validate}
+	{js:dialog}
+	{js:artTemplate}
+	{js:form}
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<link href="{webroot:public/css/twitter-bootstrap/3.3.7/css/bootstrap.min.css}" rel="stylesheet">
+</head>
+
+<body>
+<div class="container">
+<form action="{url:$submitUrl}" method="post" name='service_online'>
+	<table class='table'>
+		<colgroup>
+			<col width="170px" />
+			<col />
+		</colgroup>
+		<tr>
+			<td colspan="2">
+			1.到快商通网站申请账号，注册成功后牢记用户名，密码，公司ID账号。【<a href='http://agent.kuaishang.cn/agent/member/index/425.htm' target='_blank'>免费注册</a>】<br/>
+			2.下载【PC版智慧在线客服】管理软件，登录用户信息，所有客服的管理和处理都基于此系统【<a href='http://www.kuaishang.cn/download.html' target='_blank'>免费下载</a>】<br/>
+			3.获取【浮动客服JS路径】，在【PC版智慧在线客服】管理系统中，顶部菜单【设置中心】——【生成代码】——【获取代码】——【手动添加】——【JS代码】，里面的src就是JS路径<br/>
+			4.获取【链接客服URL路径】，在【PC版智慧在线客服】管理系统中，顶部菜单【设置中心】——【生成代码】——【获取代码】——【链接地址】
+			</td>
+		</tr>
+		<tr>
+			<th>浮动客服JS路径：</th>
+			<td><input type='text' class='form-control' value='' name='float' /><span class="help-block">悬浮客服窗口，注意不要复制script标签，只需要src里面的路径即可。格式：【http://kefu6.kuaishang.cn/...】</span></td>
+		</tr>
+		<tr>
+			<th>链接客服URL路径：</th>
+			<td><input type='text' class='form-control' value='' name='link' pattern='url' empty /><span class="help-block">商品详情页面中点击“联系客服”按钮后跳转的客服相应地址。格式：【http://kefu6.kuaishang.cn/...】</span></td>
+		</tr>
+		<tr>
+			<th>微信小程序启用：</th>
+			<td><select class='form-control' name="is_mini_open"><option value="0">关闭</option><option value="1">开启</option></select><span class="help-block">默认是关闭的，小程序的快商通是需要单独付费开通域名认证才可以用</span></td>
+		</tr>
+
+
+		<tr>
+			<th></th>
+			<td>
+				<input type="submit" class="btn btn-success" value="保 存" />
+				<input type="button" class="btn btn-danger" value="取 消" onclick="art.dialog.close();" />
+			</td>
+		</tr>
+	</table>
+</form>
+</div>
+
+<script type="text/javascript">
+{if:isset($content) && $content}
+var formObj = new Form('service_online');
+formObj.init({echo:JSON::encode($content)});
+{/if}
+</script>
+
+</body>
+</html>

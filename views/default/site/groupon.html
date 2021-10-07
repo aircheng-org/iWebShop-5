@@ -1,0 +1,149 @@
+<div class="position"> <span>您当前的位置：</span> <a href="{url:}"> 首页</a> » 团购 </div>
+<div class="groupon wrapper clearfix">
+	<div class="sidebar f_r">
+		<div class="box org_box m_10">
+			<div class="title">每天订阅团购信息<span></span></div>
+			<div class="cont clearfix">
+				<p>请输入您的邮箱地址</p>
+				<input type="text" name='orderinfo' class="gray_m" placeholder="请输入邮箱...">
+				<label class="btn_orange f_r"><input type="button" value="立即订阅" onclick="orderinfo();"></label>
+			</div>
+			<span class="l"></span><span class="r"></span><span class="b_l"></span><span class="b_r"></span>
+		</div>
+		<div class="box">
+			<div class="title">往期精彩团购<span></span></div>
+
+			<div class="cont">
+				<ul class="prolist clearfix">
+					{foreach:items=$this->ever_list}
+					<li>
+						<a href="{url:/site/products/id/$item['goods_id']}"><img width="145" alt="{$item['title']}" src="{url:$item['img']}"></a>
+						<p class="pro_title"><a href="{url:/site/products/id/$item['goods_id']}" class="blue">{$item['title']}</a></p>
+						<p>原&nbsp;&nbsp;价：<s>￥{$item['sell_price']}</s></p>
+						<p class="orange">团购价：￥{$item['regiment_price']}</p>
+						<p class="red2">销量：{$item['sum_count']}</p>
+					</li>
+					{/foreach}
+				</ul>
+			</div>
+			<span class="l"></span><span class="r"></span><span class="b_l"></span><span class="b_r"></span>
+		</div>
+	</div>
+	<div class="main f_l t_r">
+		{set:$countNumItems = array();}
+		{foreach:items=$this->regiment_list}
+		{set:$countNumItems[] = $item['id'];}
+		<div class="gt_box">
+			<div class="grounpon_title box">
+				<strong>{echo:$key+1} <span>今日团购</span></strong>
+				<span class="l"></span><span class="r"></span>
+			</div>
+		</div>
+
+		<div class="shadow_box m_10 clearfix">
+			<div class="cont clearfix">
+				<h1 class="g_title"><a href="{url:/site/groupon/id/$item['id']}">{$item['title']}</a></h1>
+				<div class="l_part">
+					<div class="g_price m_10">
+						{if:$item['store_nums'] > $item['sum_count']}
+						<div class="price_tag">
+							<p>仅售<strong>{$item['regiment_price']}</strong></p>
+							<a class="buy" href="{url:/site/products/id/$item['goods_id']}">购买</a>
+						</div>
+						{else:}
+						<div class="price_tag disabled">
+							<p>仅售<strong>{$item['regiment_price']}</strong></p>
+							<a class="buy" href="javascript:void(0)">结束</a>
+						</div>
+						{/if}
+					</div>
+					<div class="orange_box m_10">
+						<table class="t_c">
+							<col width="85px" />
+							<col width="50px" />
+							<col width="85px" />
+							<tbody>
+								<tr><th class="normal">原价</th><th class="normal">折扣</th><th class="normal">节省</th></tr>
+								<tr class="bold">
+									<td><s>￥{$item['sell_price']}</s></td>
+									<td>{echo:Util::discount($item['sell_price'],$item['regiment_price'])}</td>
+									<td>￥{echo:$item['sell_price']-$item['regiment_price'];}</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+
+					{if:$item['store_nums'] > $item['sum_count']}
+					<div class="orange_box">
+						<p>团购倒计时：</p>
+						{set:$free_time=strtotime($item['end_time'])-ITime::getNow();}
+						<p class="t_c f14"><span id="cd_hour_{$item['id']}" class="red2 bold">{echo:floor($free_time/3600);}</span>小时<span id="cd_minute_{$item['id']}" class="red2 bold">{echo:floor( ($free_time%3600)/60 );}</span>分钟<span id="cd_second_{$item['id']}" class="red2 bold">{echo:$free_time%60}</span>秒</p>
+					</div>
+					<div class="orange_box g_num">
+						<p class="t_c">
+							销量<span class="red2 bold">{$item['sum_count']}</span>
+							仅剩<span class="red2 bold">{echo:$item['store_nums']-$item['sum_count']}</span>
+						</p>
+					</div>
+					<div class="orange_box g_num m_10">
+						<p class="t_c">
+							限购量：{if:$item['limit_min_count']==$item['limit_max_count']}{$item['limit_min_count']}{else:}{$item['limit_min_count']} ~ {$item['limit_max_count']}{/if}件
+						</p>
+					</div>
+					<div class="dot_box t_c">数量有限，请密切关注！</div>
+					{else:}
+					<div class="orange_box">
+						<p class="t_c">本次团购的商品已售尽！</p>
+						<p class="t_c">销售量<span class="red2 bold">{$item['sum_count']}</span></p>
+					</div>
+					{/if}
+				</div>
+
+				<div class="r_part box">
+					<img class="g_pic" width="480" src="{url:$item['img']}">
+					<div class="g_digest clearfix">{$item['intro']}<a class="g_btn f_r" href="{url:/site/products/id/$item['goods_id']}">查看商品详情</a></div>
+				</div>
+			</div>
+			<span class="l"></span><span class="r"></span><span class="b_l"></span><span class="b_r"></span>
+		</div>
+		{/foreach}
+		<div class="g_notice box">
+		<h3>团购须知：</h3>
+		<p>1、因机会有限下单成功后必须立即支付。</p>
+		<p>2、每个团购活动都有库存量或者购买限制。</p>
+		</div>
+	</div>
+</div>
+
+<script language="javascript">
+$(function()
+{
+	//倒计时
+	var cd_timer = new countdown();
+	{foreach:items = $countNumItems}
+		cd_timer.add({$item});
+	{/foreach}
+});
+
+//电子邮件订阅
+function orderinfo()
+{
+	var email = $('[name="orderinfo"]').val();
+	if(email == '')
+	{
+		alert('请填写正确的email地址');
+	}
+	else
+	{
+		$.getJSON('{url:/site/email_registry}',{email:email},function(content){
+			if(content.isError == false)
+			{
+				alert('订阅成功');
+				$('[name="orderinfo"]').val('');
+			}
+			else
+				alert(content.message);
+		});
+	}
+}
+</script>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="UTF-8">
+	{js:jquery}
+	{js:validate}
+	{js:dialog}
+	{js:artTemplate}
+	{js:form}
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<link href="{webroot:public/css/twitter-bootstrap/3.3.7/css/bootstrap.min.css}" rel="stylesheet">
+</head>
+
+<body>
+<div class="container">
+	<table class="table table-bordered">
+		<caption>
+			<input type="button" onclick="window.location.href='{url:/plugins/seo_edit}';" class="btn btn-info" value="添加规则" />
+		</caption>
+
+		<colgroup>
+			<col width="200px" />
+			<col width="180px" />
+			<col />
+			<col width="150px" />
+		</colgroup>
+
+		<thead>
+			<tr>
+				<th>名称</th>
+				<th>伪静态路径</th>
+				<th>SEO(title)</th>
+				<th>操作</th>
+			</tr>
+		</thead>
+
+		<tbody>
+			{query: name=seo order=id desc}
+			<tr>
+				<td>{$item['name']}</td>
+				<td>{$item['pathinfo']}</td>
+				<td>{echo:$item['title']}</td>
+				<td>
+					<button type="button" class="btn btn-default glyphicon glyphicon-pencil" alt="编辑" title="编辑" onclick="window.location.href='{url:/plugins/seo_edit/id/$item['id']}';"></button>
+					<button type="button" class="btn btn-default glyphicon glyphicon-remove" alt="删除" title="删除" onclick="window.location.href='{url:/plugins/seo_del/id/$item['id']}';"></button>
+				</td>
+			</tr>
+			{/query}
+		</tbody>
+	</table>
+</div>
+</body>
+</html>

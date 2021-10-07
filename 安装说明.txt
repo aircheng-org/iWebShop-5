@@ -1,0 +1,11 @@
+﻿版权所有 (c) 2009
+保留所有权利。
+
+常用路径
+  安装路径: http://您的网站域名/install/index.php
+  前台登陆: http://您的网站域名
+  后台登陆: http://您的网站域名/index.php?controller=admin
+  商户登录：http://您的网站域名/index.php?controller=seller
+
+其他说明
+  开启伪静态和个性化域名:  参考 《url路由配置方法.txt》

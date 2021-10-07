@@ -1,0 +1,98 @@
+{js:my97date}
+<article class="col-lg-12">
+	<div class="card forms">
+		<div class="card-header d-flex align-items-center justify-content-between">
+			<h3>订单列表</h3>
+			<div>
+				<input type="button" class="btn btn-primary" onclick="art.dialog.open('{url:/order/order_code_check/seller_id/$this->seller['seller_id']}',{title:'验证码核销',id:'order_code_check'});" value="验证码核销" />
+				<input type="button" class="btn btn-primary" onclick="window.open('{url:/seller/expresswaybill_list}')" value="快递单配置" />
+				<input type="button" class="btn btn-primary" onclick="searchOrder({'submit':filterResult,'data':'{$searchParam}','seller_id':{$seller_id}});" value="检索" />
+				<input type="button" class="btn btn-primary" onclick="window.open('{url:/seller/order_report/?$searchParam}')" value="导出Excel" />
+			</div>
+		</div>
+
+		<div class="card-body">
+			<table class="table">
+				<colgroup>
+					<col width="160px" />
+					<col />
+					<col width="105px" />
+					<col width="95px" />
+					<col width="95px" />
+					<col width="95px" />
+					<col width="160px" />
+					<col width="80px" />
+					<col width="90px" />
+				</colgroup>
+
+				<thead>
+					<tr>
+						<th>订单号</th>
+						<th>收货人</th>
+						<th>联系电话</th>
+						<th>配送状态</th>
+						<th>支付状态</th>
+						<th>订单状态</th>
+						<th>下单时间</th>
+						<th>打印</th>
+						<th>操作</th>
+					</tr>
+				</thead>
+
+				<tbody>
+					{foreach:items = $this->orderHandle->find()}
+					<tr>
+						<td title="{$item['order_no']}" name="orderStatusColor{$item['status']}"><a href="{url:/seller/order_show/id/$item['id']}">{$item['order_no']}</a></td>
+						<td title="{$item['accept_name']}">{$item['accept_name']}</td>
+						<td title="{$item['mobile']}">{$item['mobile']}</td>
+						<td name="disStatusColor{$item['distribution_status']}">{echo:Order_class::getOrderDistributionStatusText($item)}</td>
+						<td name="payStatusColor{$item['pay_status']}">{echo:Order_class::getOrderPayStatusText($item)}</td>
+						<td>{echo:order_class::orderStatusText(order_class::getOrderStatus($item))}</td>
+						<td title="{$item['create_time']}">{$item['create_time']}</td>
+						<td>
+                            <div class="dropdown">
+                                <button class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown">打印</button>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item" href="{url:/order/shop_template/id/$item['id']/seller_id/$seller_id}" target="_blank">购物清单打印</a>
+                                    <a class="dropdown-item" href="{url:/order/pick_template/id/$item['id']/seller_id/$seller_id}" target="_blank">配货单打印</a>
+                                    <a class="dropdown-item" href="{url:/order/expresswaybill_template/id/$item['id']/seller_id/$seller_id}" target="_blank">发货和快递单打印</a>
+                                </div>
+                            </div>
+						</td>
+						<td>
+							{if:$item['goods_type'] == 'default'}
+							<a href="{if:Order_class::isGoDelivery($item)}{url:/seller/order_deliver/id/$item['id']}{else:}javascript:alert('订单不满足发货条件，请检查订单状态');{/if}"><i class="fa fa-truck fa-lg" title="立即发货" alt="立即发货"></i></a>
+							{else:}
+							<a href="{if:Order_class::isGoDelivery($item)}{url:/seller/order_deliver/id/$item['id']/type/all}{else:}javascript:alert('订单不满足核销条件，请检查订单状态');{/if}"><i class="fa fa-ticket fa-lg" title="立即核销" alt="立即核销"></i></a>
+							{/if}
+							<a href="{url:/seller/order_show/id/$item['id']}"><i class="fa fa-edit fa-lg" title="编辑"></i></a>
+						</td>
+					</tr>
+					{/foreach}
+				</tbody>
+			</table>
+			{$this->orderHandle->getPageBar()}
+		</div>
+	</div>
+</article>
+
+<script type='text/javascript'>
+//检索商品
+function filterResult(iframeWin) {
+	var searchForm = iframeWin.document.body;
+	var searchString = $(searchForm).find("form").serialize();
+	var jumpUrl = creatUrl("/seller/order_list");
+	jumpUrl += jumpUrl.indexOf("?") == -1 ? "?" + searchString : "&" + searchString;
+	window.location.href = jumpUrl;
+}
+
+//DOM加载结束
+$(function () {
+	//高亮色彩
+	$('[name="payStatusColor1"]').addClass('text-green');
+	$('[name="disStatusColor1"]').addClass('text-green');
+	$('[name="orderStatusColor3"]').addClass('text-red');
+	$('[name="orderStatusColor4"]').addClass('text-red');
+	$('[name="orderStatusColor5"]').addClass('text-green');
+});
+</script>

@@ -1,0 +1,58 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">工具</a>
+		</li>
+		<li>
+			<a href="#">帮助管理</a>
+		</li>
+		<li class="active">编辑分类</li>
+	</ul>
+</div>
+
+<div class="content">
+	<form action='{url:/tools/help_cat_edit_act}' method='post' name='cat'>
+		<input type='hidden' name='id' value='' />
+		<table class="table form-table">
+			<colgroup>
+				<col width="160px" />
+				<col />
+			</colgroup>
+
+			<tr>
+				<th>名称：</th>
+				<td>
+					<input type='text' class='form-control' name='name' value='' pattern='required' placeholder='填写帮助信息名称' />
+				</td>
+			</tr>
+			<tr>
+				<th>网站底部显示：</th>
+				<td>
+					<label class='radio-inline'><input type='radio' name='position_foot' value='1' />是</label>
+					<label class='radio-inline'><input type='radio' name='position_foot' value='0' />否</label>
+				</td>
+			</tr>
+			<tr>
+				<th>帮助页左侧显示：</th>
+				<td>
+					<label class='radio-inline'><input type='radio' name='position_left' value='1' />是</label>
+					<label class='radio-inline'><input type='radio' name='position_left' value='0' />否</label>
+				</td>
+			</tr>
+			<tr>
+				<th>排序：</th>
+				<td>
+					<input type='text' class='form-control' name='sort' value='' pattern='int' placeholder='请填写一个数字' />
+				</td>
+			</tr>
+			<tr>
+				<th></th><td><button class='btn btn-primary' type='submit'>确定</button></td>
+			</tr>
+		</table>
+	</form>
+</div>
+<script>
+var formObj = new Form();
+formObj.init({echo:JSON::encode($this->cat_row)});
+</script>

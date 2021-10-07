@@ -1,0 +1,336 @@
+{js:bxSlider}
+<div class="wrapper clearfix">
+	<div class="sidebar f_r">
+
+		<!--cms新闻展示-->
+		<div class="box m_10">
+			<div class="title"><h2>Shop资讯</h2><a class="more" href="{url:/site/article}">更多...</a></div>
+			<div class="cont">
+				<ul class="list">
+				{foreach:items=Api::run('getArtList',5)}
+				<li><a href="{url:/site/article_detail/id/$item['id']}">{echo:Article::showTitle($item['title'],$item['color'],$item['style'])}</a></li>
+				{/foreach}
+				</ul>
+			</div>
+		</div>
+		<!--cms新闻展示-->
+		{echo:Ad::show("首页右上方198*104(default)")}
+	</div>
+
+	<!--幻灯片 开始-->
+	<div class="main f_l">
+		{if:$this->index_slide}
+		<ul class="bxslider">
+			{foreach:items=$this->index_slide}
+			<li title="{$item['name']}"><a href="{url:$item[url]}" target="_blank"><img src="{url:/pic/thumb/img/$item['img']}" width="750px" title="{$item['name']}" /></a></li>
+			{/foreach}
+		</ul>
+		{/if}
+	</div>
+	<!--幻灯片 结束-->
+</div>
+
+{echo:Ad::show("首页中部通栏960*70(default)")}
+
+<div class="wrapper clearfix">
+	<div class="sidebar f_r">
+
+        <!--积分兑换-->
+		<div class="group_on box m_10">
+			<div class="title"><h2>积分兑换</h2><a class="more" href="{url:/site/costpoint}">更多...</a></div>
+			<div class="cont">
+				<ul class="ranklist">
+					{foreach:items=Api::run('getCostPointList',5)}
+					<li class="current">
+						<a href="{url:/site/products/id/$item['goods_id']}"><img width="60px" height="60px" alt="{$item['goods_name']}" src="{url:$item['img']}"></a>
+						<a class="p_name" title="{$item['name']}" href="{url:/site/products/id/$item['goods_id']}">{$item['name']}</a><p class="light_gray">积分兑换：<em>{$item['point']}分</em></p>
+					</li>
+					{/foreach}
+				</ul>
+			</div>
+		</div>
+		<!--积分兑换-->
+
+		<!--团购-->
+		<div class="group_on box m_10">
+			<div class="title"><h2>团购商品</h2><a class="more" href="{url:/site/groupon}">更多...</a></div>
+			<div class="cont">
+				<ul class="ranklist">
+
+					{foreach:items=Api::run('getRegimentList',5)}
+					<li class="current">
+						<a href="{url:/site/groupon/id/$item['id']}"><img width="60px" height="60px" alt="{$item['title']}" src="{url:$item['img']}"></a>
+						<a class="p_name" title="{$item['title']}" href="{url:/site/groupon/id/$item['id']}">{$item['title']}</a><p class="light_gray">团购价：<em>￥{$item['regiment_price']}</em></p>
+					</li>
+					{/foreach}
+
+				</ul>
+			</div>
+		</div>
+		<!--团购-->
+
+		<!--限时抢购-->
+		<div class="buying box m_10">
+			<div class="title"><h2>限时抢购</h2></div>
+			<div class="cont clearfix">
+				<ul class="prolist">
+					{foreach:items=Api::run('getPromotionList',5)}
+					{set:$free_time = ITime::getDiffSec($item['end_time'])}
+					{set:$countNumsItem[] = $item['p_id'];}
+					<li>
+						<p class="countdown">倒计时:<br /><b id='cd_hour_{$item['p_id']}'>{echo:floor($free_time/3600);}</b>时<b id='cd_minute_{$item['p_id']}'>{echo:floor(($free_time%3600)/60);}</b>分<b id='cd_second_{$item['p_id']}'>{echo:$free_time%60;}</b>秒</p>
+						<a href="{url:/site/products/id/$item['goods_id']/promo/time/active_id/$item['p_id']}"><img src="{url:/pic/thumb/img/$item[img]/w/175/h/175}" width="175" height="175" alt="{$item['name']}" title="{$item['name']}" /></a>
+						<p class="pro_title"><a href="{url:/site/products/id/$item['goods_id']}">{$item['name']}</a></p>
+						<p class="light_gray">抢购价：<b>￥{$item['award_value']}</b></p>
+						<div></div>
+					</li>
+					{/foreach}
+				</ul>
+			</div>
+		</div>
+		<!--限时抢购-->
+
+        <!--拼团活动-->
+		<div class="group_on box m_10">
+			<div class="title"><h2>拼团商品</h2><a class="more" href="{url:/site/assemble}">更多...</a></div>
+			<div class="cont">
+				<ul class="ranklist">
+
+					{foreach:items=Api::run('getAssembleList',5)}
+					<li class="current">
+						<a href="{url:/site/assemble/id/$item['id']}"><img width="60px" height="60px" alt="{$item['title']}" src="{url:$item['img']}"></a>
+						<a class="p_name" title="{$item['title']}" href="{url:/site/assemble/id/$item['id']}">{$item['title']}</a><p class="light_gray">拼团价：<em>￥{$item['assemble_price']}</em></p>
+					</li>
+					{/foreach}
+
+				</ul>
+			</div>
+		</div>
+		<!--拼团活动-->
+
+		<!--热卖商品-->
+		<div class="hot box m_10">
+			<div class="title"><h2>热卖商品</h2></div>
+			<div class="cont clearfix">
+				<ul class="prolist">
+					{foreach:items=Api::run('getCommendHot',8)}
+					<li>
+						<a href="{url:/site/products/id/$item['id']}"><img src="{url:/pic/thumb/img/$item[img]/w/85/h/85}" width="85" height="85" alt="{$item['name']}" /></a>
+						<p class="pro_title"><a href="{url:/site/products/id/$item['id']}">{$item['name']}</a></p>
+						<p class="brown"><b>￥{$item['sell_price']}</b></p>
+					</li>
+					{/foreach}
+				</ul>
+			</div>
+		</div>
+		<!--热卖商品-->
+
+		<!--公告通知-->
+		<div class="box m_10">
+			<div class="title"><h2>公告通知</h2><a class="more" href="{url:/site/notice}">更多...</a></div>
+			<div class="cont">
+				<ul class="list">
+					{foreach:items=Api::run('getAnnouncementList',5)}
+					<li><a href="{url:/site/notice_detail/id/$item['id']}">{$item['title']}</a></li>
+					{/foreach}
+				</ul>
+			</div>
+		</div>
+		<!--公告通知-->
+
+		<!--促销规则-->
+		<div class="box m_10">
+			<div class="title"><h2>促销活动</h2></div>
+			<div class="cont">
+				<ul class="list">
+				{foreach:items=Api::run('getProrule')}
+				<li>{$item['info']}</li>
+				{/foreach}
+				</ul>
+			</div>
+		</div>
+		<!--促销规则-->
+
+		<!--关键词-->
+		<div class="box m_10">
+			<div class="title"><h2>关键词</h2><a class="more" href="{url:/site/tags}">更多...</a></div>
+			<div class="tag cont t_l">
+				{foreach:items=Api::run('getKeywordList',5)}
+				{set:$searchWord =urlencode($item['word']);}
+				<a href="{url:/site/search_list/word/$searchWord}" class="orange">{$item['word']}</a>
+				{/foreach}
+			</div>
+		</div>
+		<!--关键词-->
+
+		<!--电子订阅-->
+		<div class="book box m_10">
+			<div class="title"><h2>电子订阅</h2></div>
+			<div class="cont">
+				<p>我们会将最新的资讯发到您的Email</p>
+				<input type="text" class="gray_m light_gray f_l" name='orderinfo' placeholder="输入您的电子邮箱地址" />
+				<label class="btn_orange"><input type="button" onclick="orderinfo();" value="订阅" /></label>
+			</div>
+		</div>
+		<!--电子订阅-->
+	</div>
+
+	<div class="main f_l">
+		<!--商品分类展示-->
+		<div class="category box">
+			<div class="title2">
+				<h2><img src="{skin:images/front/category.gif}" alt="商品分类" width="155" height="36" /></h2>
+				<a class="more" href="{url:/site/sitemap}">全部商品分类</a>
+			</div>
+		</div>
+
+		<table id="index_category" class="sort_table m_10" width="100%">
+			<col width="100px" />
+			<col />
+			{foreach:items=Api::run('getCategoryListTop') item=$first}
+			<tr>
+				<th><a href="{url:/site/pro_list/cat/$first[id]}">{$first['name']}</a></th>
+				<td>
+					{foreach:items=Api::run('getCategoryByParentid',array('#parent_id#',$first['id'])) item=$second}
+					<a href="{url:/site/pro_list/cat/$second[id]}">{$second['name']}</a>
+					{/foreach}
+				</td>
+			</tr>
+			{/foreach}
+		</table>
+		<!--商品分类展示-->
+
+		<!--最新商品-->
+		<div class="box yellow m_10">
+			<div class="title2">
+				<h2><img src="{skin:images/front/new_product.gif}" alt="最新商品" width="160" height="36" /></h2>
+			</div>
+			<div class="cont clearfix">
+				<ul class="prolist">
+					{foreach:items=Api::run('getCommendNew',8)}
+					<li style="overflow:hidden">
+						<a href="{url:/site/products/id/$item['id']}"><img src="{url:/pic/thumb/img/$item[img]/w/175/h/175}" width="175" height="175" alt="{$item['name']}" /></a>
+						<p class="pro_title"><a title="{$item['name']}" href="{url:/site/products/id/$item['id']}">{$item['name']}</a></p>
+						<p class="brown">惊喜价：<b>￥{$item['sell_price']}</b></p>
+						<p class="light_gray">市场价：<s>￥{$item['market_price']}</s></p>
+					</li>
+					{/foreach}
+				</ul>
+			</div>
+		</div>
+		<!--最新商品-->
+
+		<!--首页推荐商品-->
+		{foreach:items=Api::run('getCategoryListTopByVis')  item=$first }
+		<div class="box m_10" name="showGoods">
+			<div class="title title3">
+				<h2><a href="{url:/site/pro_list/cat/$first[id]}"><strong>{$first['name']}</strong></a></h2>
+				<a class="more" href="{url:/site/pro_list/cat/$first[id]}">更多商品...</a>
+				<ul class="category">
+					{foreach:items=Api::run('getCategoryByParentidByVis',array('#parent_id#',$first['id']))  item=$second}
+					<li><a href="{url:/site/pro_list/cat/$second[id]}">{$second['name']}</a><span></span></li>
+					{/foreach}
+				</ul>
+			</div>
+
+			<div class="cont clearfix">
+				<ul class="prolist">
+					{foreach:items=Api::run('getCategoryExtendList',array('#categroy_id#',$first['id']),8)}
+					<li style="overflow:hidden">
+						<a href="{url:/site/products/id/$item[id]}"><img src="{url:/pic/thumb/img/$item[img]/w/175/h/175}" width="175" height="175" alt="{$item['name']}" title="{$item['name']}" /></a>
+						<p class="pro_title"><a title="{$item['name']}" href="{url:/site/products/id/$item[id]}">{$item['name']}</a></p>
+						<p class="brown">惊喜价：<b>￥{$item['sell_price']}</b></p>
+						<p class="light_gray">市场价：<s>￥{$item['market_price']}</s></p>
+					</li>
+					{/foreach}
+				</ul>
+			</div>
+		</div>
+		{/foreach}
+
+		<!--品牌列表-->
+		<div class="brand box m_10">
+			<div class="title2"><h2><img src="{skin:images/front/brand.gif}" alt="品牌列表" width="155" height="36" /></h2><a class="more" href="{url:/site/brand}">&lt;<span>全部品牌</span>&gt;</a></div>
+			<div class="cont clearfix">
+				<ul>
+					{foreach:items=Api::run('getBrandList',6)}
+					<li><a href="{url:/site/brand_zone/id/$item['id']}"><img src="{url:$item['logo']}"  width="110" height="50"/>{$item['name']}</a></li>
+					{/foreach}
+				</ul>
+			</div>
+		</div>
+		<!--品牌列表-->
+
+		<!--最新评论-->
+		<div class="comment box m_10">
+			<div class="title2"><h2><img src="{skin:images/front/comment.gif}" alt="最新评论" width="155" height="36" /></h2></div>
+			<div class="cont clearfix">
+				{foreach:items=Api::run('getCommentList',6)}
+				<dl class="no_bg">
+					<dt><a href="{url:/site/products/id/$item['goods_id']}"><img src="{url:/pic/thumb/img/$item[img]/w/66/h/66}" width="66" height="66" /></a></dt>
+					<dd><a href="{url:/site/products/id/$item['goods_id']}">{$item['name']}</a></dd>
+					<dd><span class="grade-star g-star{$item['point']}"></span></dd>
+					<dd class="com_c">{$item['contents']}</dd>
+				</dl>
+				{/foreach}
+			</div>
+		</div>
+		<!--最新评论-->
+	</div>
+</div>
+
+<script type='text/javascript'>
+//dom载入完毕执行
+jQuery(function()
+{
+	//幻灯片开启
+	$('.bxslider').bxSlider({'mode':'fade','captions':true,'pager':false,'auto':true});
+
+	//index 分类展示
+	$('#index_category tr').hover(
+		function(){
+			$(this).addClass('current');
+		},
+		function(){
+			$(this).removeClass('current');
+		}
+	);
+
+	//显示抢购倒计时
+	var cd_timer = new countdown();
+	{if:isset($countNumsItem) && $countNumsItem}
+	{foreach:items = $countNumsItem}
+		cd_timer.add({$item});
+	{/foreach}
+	{/if}
+
+	//首页商品变色
+	var colorArray = ['green','yellow','purple','black'];
+	$('div[name="showGoods"]').each(function(i)
+	{
+		$(this).addClass(colorArray[i%colorArray.length]);
+	});
+});
+
+//电子邮件订阅
+function orderinfo()
+{
+	var email = $('[name="orderinfo"]').val();
+	if(email == '')
+	{
+		alert('请填写正确的email地址');
+	}
+	else
+	{
+		$.getJSON('{url:/site/email_registry}',{email:email},function(content){
+			if(content.isError == false)
+			{
+				alert('订阅成功');
+				$('[name="orderinfo"]').val('');
+			}
+			else
+				alert(content.message);
+		});
+	}
+}
+</script>

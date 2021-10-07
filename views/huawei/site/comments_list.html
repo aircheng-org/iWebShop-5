@@ -1,0 +1,72 @@
+<div class="bigweb">
+
+<section class="breadcrumb">
+	<span>您当前的位置：</span> <a href="{url:}">首页</a> » <a href="{url:/site/products/id/$this->goods['goods_id']}">评论</a>
+</section>
+
+
+<section class="web">
+	<section class="main">
+		<header class="uc_head">
+			<h3 name="tips"><a href="{url:/site/comments_list/id/$this->goods['goods_id']}">全部评论({$this->commentCount['comment_total']}条)</a></h3>
+			<h3 name="tipsgood"><a href="{url:/site/comments_list/id/$this->goods['goods_id']/type/good}">好评({$this->commentCount['point_grade']['good']}条)</a></h3>
+			<h3 name="tipsmiddle"><a href="{url:/site/comments_list/id/$this->goods['goods_id']/type/middle}">中评({$this->commentCount['point_grade']['middle']}条)</a></h3>
+			<h3 name="tipsbad"><a href="{url:/site/comments_list/id/$this->goods['goods_id']/type/bad}">差评({$this->commentCount['point_grade']['bad']}条)</a></h3>
+		</header>
+		<div class="comment_list">
+
+			{foreach:items=$this->commentQuery->find()}
+			<div class="comment_item">
+				<div class="user">
+					<img src="{url:$item['head_ico']}" width="70px" height="70px" onerror="this.src='{skin:image/user_ico.gif}'" />
+					<span>{$item['username']}</span>
+				</div>
+				<div class="desc">
+					<time>{$item['time']}</time>
+					<div class="star_box">
+						<strong class="item">评分：</strong>
+						<span class="star star_{echo:Common::gradeWidth($item['point'])}"></span>
+					</div>
+					<p class="contents"><strong>评价：</strong><span>{$item['contents']}</span></p>
+
+					{if:$item['img_list']}
+					<p class="contents">
+                        {foreach:items=JSON::decode($item['img_list']) item=$itemImg}
+                        <a href="{url:$itemImg}" target="_blank"><img class="img-thumbnail" style="width:120px;height:120px;border:1px solid #ccc;" src="{url:$itemImg}" /></a>
+                        {/foreach}
+                    </p>
+					{/if}
+				</div>
+			</div>
+			{/foreach}
+		</div>
+		{$this->commentQuery->getPageBar()}
+	</section>
+	<aside class="bar">
+		<div class="bar_box">
+			<h3 class="bar_box_head">商品信息</h3>
+			<div class="bar_goods_big">
+				<a target="_blank" href="{url:/site/products/id/$this->goods['goods_id']}">
+					<img alt="{$this->goods['name']}" src="{url:/pic/thumb/img/$this->goods['img']/w/180/h/180}">
+					<h5>{$this->goods['name']}</h5>
+					<em>￥{$this->goods['sell_price']}</em>
+					<label class="star_box">
+						<span class="item">评分</span>
+						<span class="star star_{echo:Common::gradeWidth($this->commentCount['average_point'])}"></span>
+					</label>
+				</a>
+			</div>
+		</div>
+	</aside>
+</section>
+</div>
+
+<script>
+//DOM加载完毕
+$(function()
+{
+	{set:$type=IFilter::act(IReq::get('type'))}
+	var tipsName = "tips{$type}";
+	$('[name="'+tipsName+'"]').addClass('current');
+});
+</script>

@@ -1,0 +1,93 @@
+<div class="content">
+	<!-- 模板选择区域 -->
+	<div class="alert alert-dismissible">
+		<form action="{url:/system/applyTheme}" method="post" class="form-inline">
+		    <input type="hidden" name="type" value="{echo:IReq::get('type')}" />
+			{foreach:items=IClient::supportClient() item=$client}
+			<div class="input-group">
+				<span class="input-group-addon bg-light-blue">{$client}{$themeTypeName}模板</span>
+				<select class="form-control" name="{$client}">
+				{foreach:items=$themeList key=$theme item=$themeData}
+					{foreach:items=$themeData['skin'] key=$skin item=$skinData}
+					<option value='{"{$theme}":"{$skin}"}' data="{$client}{$theme}{$skin}">{$themeData['name']}【{$skinData['name']}】</option>
+					{/foreach}
+				{/foreach}
+				</select>
+			</div>
+			{/foreach}
+			<button type="submit" class="btn btn-primary">保存主题</button>
+		</form>
+	</div>
+
+	<!--主题数据-->
+	{foreach:items=$themeList key=$theme}
+	<div class="box box-primary {if:themeroute::isThemeUsed($theme)}box-solid{/if}">
+		<div class="box-header with-border">
+			{$item['name']}
+			{if:themeroute::isThemeUsed($theme)}<i class="fa fa-lg fa-check"></i>{/if}
+		</div>
+
+		<div class="box-body">
+			<div class="form-group pull-right">
+				<img src="{echo:$item['thumb']}" style="max-width:200px;max-height:200px;border:1px solid #ccc;" />
+			</div>
+
+			<div class="form-group">
+				目录：{echo:IWeb::$app->getWebViewPath()}{$theme}
+			</div>
+
+			<div class="form-group">
+				版本：{$item['version']}
+			</div>
+
+			<div class="form-group">
+				时间：{$item['time']}
+			</div>
+
+			<div class="form-group">
+				简介：{$item['info']}
+			</div>
+
+			<div class="form-group">
+				皮肤：
+				{foreach:items=Config::getSitePlan('skin',$theme) item=$skinItem}
+				【{$skinItem['name']}】
+				{/foreach}
+			</div>
+		</div>
+
+		{if:isset($item['ad'])}
+		<div class="box-footer">
+			<div class="row">
+			{foreach:items=$item['ad'] item=$adRow}
+				<div class="col-xs-6">
+					{set:$paramAdName = urlencode($adRow)}
+					<a href="{url:/tools/ad_position_edit/name/$paramAdName}">【{$adRow}】</a>
+				</div>
+			{/foreach}
+			</div>
+		</div>
+		{/if}
+	</div>
+	{/foreach}
+</div>
+
+<script type="text/javascript">
+//主题模板数据初始化
+jQuery(function()
+{
+	var theme = {echo:JSON::encode(IWeb::$app->config['theme'])};
+	if(theme)
+	{
+		for(var k in theme)
+		{
+			var childObj = theme[k];
+			for(var i in childObj)
+			{
+				var checkKey = k+i+childObj[i];
+				$("option[data='"+checkKey+"']").prop("selected",true);
+			}
+		}
+	}
+});
+</script>

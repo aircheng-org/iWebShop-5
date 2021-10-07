@@ -1,0 +1,45 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">系统</a>
+		</li>
+		<li>
+			<a href="#">权限管理</a>
+		</li>
+		<li class="active">管理员导航{if:isset($this->navigationRow['id'])}编辑{else:}添加{/if}</li>
+	</ul>
+</div>
+<div class="content">
+	<form action="{url:/system/navigation_update}"  method="post" name="navigation_edit">
+		<input type=hidden name="id" id='id'/>
+		<table class="table form-table">
+			<colgroup>
+				<col width="130px" />
+				<col />
+			</colgroup>
+
+			<tr>
+				<th>导航名称：</th>
+				<td>
+					<input type='text' name='naviga_name' id='naviga_name' class='form-control' pattern='required' alt='请输入导航名称'/>
+					<p class="help-block" id='unique'>* 管理员常用链接的名称</p>
+				</td>
+			</tr>
+			<tr name="pwd">
+				<th>url地址：</th>
+				<td>
+					<input type='text' class='form-control' name='url' id='url' pattern='required' alt='请输入url地址' />
+					<p class="help-block">* 管理员常用链接的链接地址&nbsp;&nbsp;(完整路径)</p>
+				</td>
+			</tr>
+			<tr><td></td><td><button class='btn btn-primary' type='submit'>保存</button></td></tr>
+		</table>
+	</form>
+</div>
+
+<script type='text/javascript'>
+//表单回填
+var formObj = new Form('navigation_edit');
+formObj.init({echo:JSON::encode($this->navigationRow)});
+</script>

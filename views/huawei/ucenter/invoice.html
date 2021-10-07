@@ -1,0 +1,74 @@
+<header class="uc_head">
+	<h3>发票管理</h3>
+</header>
+
+<section class="uc_table">
+	<table>
+    	<colgroup>
+        	<col width="180px" />
+            <col width="160px" />
+            <col width="100px" />
+            <col />
+    	</colgroup>
+		<thead>
+			<tr>
+        		<th>单位名称</th>
+        		<th>纳税人识别码</th>
+        		<th>发票类型</th>
+        		<th>操作</th>
+			</tr>
+		</thead>
+		<tbody>
+			{foreach:items = Api::run("getInvoiceListByUserId")}
+			<tr>
+                <td>{$item['company_name']}</td>
+                <td>{$item['taxcode']}</td>
+                <td>{echo:CountSum::invoiceTypeText($item['type'])}</td>
+                <td class="uc_tab_operation">
+                	<a href="javascript:void(0)" onclick='edit({$item['id']})'><i class="fa fa-pencil" style="font-size: 16px;"></i></a>|
+                	<a href="javascript:void(0)" onclick="delModel({link:'{url:/ucenter/invoice_del/id/$item['id']}'});"><i class="fa fa-remove" style="font-size: 16px;"></i></a>
+                </td>
+			</tr>
+			{/foreach}
+		</tbody>
+	</table>
+</section>
+
+{if:!$items}
+<section class="no_tip">暂无数据</section>
+{/if}
+
+<div class="new_address_btn" onclick="edit();">
+	<i class="fa fa-map-marker"></i>
+	<span>新增发票</span>
+</div>
+<script type='text/javascript'>
+function edit(taxId)
+{
+	art.dialog.open(creatUrl("block/invoice/id/"+taxId),
+	{
+		"id":"taxWindow",
+		"title":"发票编辑",
+		"ok":function(iframeWin, topWin){
+			var formObject = iframeWin.document.forms[0];
+			if(formObject.onsubmit() === false)
+			{
+				alert("请正确填写各项信息");
+				return false;
+			}
+			$.getJSON(formObject.action,$(formObject).serialize(),function(content){
+				if(content.result == false)
+				{
+					alert(content.msg);
+					return;
+				}
+				window.location.reload();
+			});
+			return false;
+		},
+		"okVal":"提交",
+		"cancel":true,
+		"cancelVal":"取消",
+	});
+}
+</script>

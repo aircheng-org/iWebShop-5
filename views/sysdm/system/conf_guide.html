@@ -1,0 +1,156 @@
+{js:artTemplate}
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">系统</a>
+		</li>
+		<li>
+			<a href="#">网站管理</a>
+		</li>
+		<li class="active">网站导航</li>
+	</ul>
+</div>
+
+<div class="content">
+	<form action='{url:/system/guide_update}' method='post'>
+    	<table class="table list-table" id='guide_box'>
+    		<colgroup>
+                <col width="250px" />
+               <col width="350px" />
+               <col width="220px" />
+            </colgroup>
+    	    <thead>
+	            <tr>
+					<th>名称</th>
+					<th>链接地址</th>
+					<th>操作</th>
+	            </tr>
+            </thead>
+
+            <tbody></tbody>
+
+			<!--导航行模板-->
+			<script type='text/html' id='guideTrTemplate'>
+			<tr>
+				<td>
+					<input type='text' name='guide_name[]' class='form-control' value='<%=name%>' pattern='required' alt='请填写导航名' />
+				</td>
+				<td>
+					<input type='text' name='guide_link[]' class='form-control' value='<%=link%>' pattern='required' alt='请填写URL，如：http://www.aircheng.com' />
+				</td>
+				<td>
+					<a href="javascript:;"><i class='operator fa fa-arrow-up' alt='向上' title='向上'></i></a>
+					<a href="javascript:;"><i class='operator fa fa-arrow-down' alt='向下' title='向下'></i></a>
+					<a href="javascript:;"><i class='operator fa fa-close' alt='删除' title='删除'></i></a>
+				</td>
+			</tr>
+			</script>
+
+            <tfoot>
+            <tr>
+            	<td colspan="3">
+					<button type="button" class="btn btn-primary" onclick="add_guide();">新加一个</button>
+					<button type="submit" class="btn btn-primary">保存数据</button>
+            	</td>
+            </tr>
+            </tfoot>
+        </table>
+    </form>
+</div>
+
+<script type='text/javascript'>
+//DOM加载完毕
+$(function(){
+	//生成导航
+	{if:$guideList = Api::run('getGuideList')}
+	var guideList = {echo:JSON::encode($guideList)};
+	for(var index in guideList)
+	{
+		add_guide(guideList[index]);
+	}
+	{else:}
+		add_guide();
+	{/if}
+});
+
+//添加导航
+function add_guide(data)
+{
+	var data = data ? data : {};
+	var guideTrHtml = template.render('guideTrTemplate',data);
+	$('#guide_box tbody').append(guideTrHtml);
+	var last_index = $('#guide_box tbody tr').size()-1;
+	buttonInit(last_index);
+}
+
+//操作按钮绑定
+function buttonInit(indexValue,ele)
+{
+	ele = ele || "#guide_box";
+	if(indexValue == undefined || indexValue === '')
+	{
+		var button_times = $(ele+' tbody tr').length;
+
+		for(var item=0;item < button_times;item++)
+		{
+			buttonInit(item,ele);
+		}
+	}
+	else
+	{
+		var obj = $(ele+' tbody tr:eq('+indexValue+') .operator')
+
+		//功能操作按钮
+		obj.each(
+			function(i)
+			{
+				switch(i)
+				{
+					//向上排序
+					case 0:
+					{
+						$(this).click(
+							function()
+							{
+								var insertIndex = $(this).parent().parent().parent().prev().index();
+								if(insertIndex >= 0)
+								{
+									$(ele+' tbody tr:eq('+insertIndex+')').before($(this).parent().parent().parent());
+								}
+							}
+						)
+					}
+					break;
+
+					//向上排序
+					case 1:
+					{
+						$(this).click(
+							function()
+							{
+								var insertIndex = $(this).parent().parent().parent().next().index();
+								$(ele+' tbody tr:eq('+insertIndex+')').after($(this).parent().parent().parent());
+							}
+						)
+					}
+					break;
+
+					//删除排序
+					case 2:
+					{
+						$(this).click(
+							function()
+							{
+								var obj = $(this);
+								art.dialog.confirm('确定要删除么？',function(){obj.parent().parent().parent().remove()});
+							}
+						)
+					}
+					break;
+				}
+			}
+		)
+	}
+}
+</script>

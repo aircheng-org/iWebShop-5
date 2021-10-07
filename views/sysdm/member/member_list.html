@@ -1,0 +1,152 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">会员</a>
+		</li>
+		<li>
+			<a href="#">会员管理</a>
+		</li>
+		<li class="active">会员列表</li>
+	</ul>
+</div>
+
+<div class="content">
+	<table class="table list-table">
+		<colgroup>
+			<col width="35px" />
+			<col />
+			<col width="100px" />
+			<col width="80px" />
+			<col width="50px" />
+			<col width="100px"/>
+			<col width="90px" />
+			<col width="60px" />
+			<col width="50px" />
+			<col width="100px" />
+			<col width="100px" />
+			<col width="90px" />
+		</colgroup>
+		<caption>
+            <a class="btn btn-default" href='{url:/member/member_edit}'>
+                <i class="fa fa-plus"></i>添加会员
+            </a>
+            <a class="btn btn-default" onclick="selectAll('check[]')">
+                <i class="fa fa-check"></i>全选
+            </a>
+            <a class="btn btn-default" onclick="delModel({'form':'member_list',msg:'确定要删除所选中的会员吗？<br />删除的会员可以从回收站找回。'})">
+                <i class="fa fa-close"></i>批量删除
+            </a>
+            <a class="btn btn-default" href='{url:/member/recycling}'>
+                <i class="fa fa-trash"></i>回收站
+            </a>
+            <a class="btn btn-default" onclick="balance_add()">
+                <i class="fa fa-yen"></i>预付款管理
+            </a>
+            <a class="btn btn-default" href="{url:/member/balance_report}" target="_blank">
+                <i class="fa fa-file-excel-o"></i>导出预存款
+            </a>
+
+			<form name="searchuser" action="{url:/}" method="get" class="pull-right form-inline">
+				<input type='hidden' name='controller' value='member' />
+				<input type='hidden' name='action' value='member_list' />
+				<select class="form-control" name="search">
+					<option value="u.username">用户名</option>
+					<option value="m.true_name">姓名</option>
+					<option value="m.mobile">手机</option>
+					<option value="m.email">Email</option>
+				</select>
+				<input class="form-control" name="keywords" type="text" value="{$keywords}"/>
+				<button class="btn btn-default" type="submit">
+				    <i class="fa fa-search"></i>搜 索
+				</button>
+			</form>
+		</caption>
+		<thead>
+			<tr>
+				<th></th>
+				<th>用户名</th>
+				<th>会员等级</th>
+				<th>姓名</th>
+				<th>性别</th>
+				<th>Email</th>
+				<th>预存款</th>
+				<th>积分</th>
+				<th>状态</th>
+				<th>注册日期</th>
+				<th>手机</th>
+				<th>操作</th>
+			</tr>
+		</thead>
+		<form action="{url:/member/member_reclaim}" method="post" name="member_list" onsubmit="return checkboxCheck('check[]','尚未选中任何记录！')">
+		<tbody>
+           {foreach:items=$this->query->find()}
+			<tr>
+				<td><input name="check[]" type="checkbox" value="{$item['user_id']}" /></td>
+				<td title="{echo:htmlspecialchars($item['username'])}">{$item['username']}</td>
+				<td title="{$group[$item['group_id']]}">{$group[$item['group_id']]}</td>
+				<td title="{echo:htmlspecialchars($item['true_name'])}">{$item['true_name']}</td>
+				<td>{if:$item['sex']=='1'}男{else:}女{/if}</td>
+				<td title="{echo:htmlspecialchars($item['email'])}">{$item['email']}</td>
+				<td title="{$item['balance']}">{$item['balance']}</td>
+				<td title="{$item['point']}">{$item['point']}</td>
+				<td title="{echo:Common::userStatusText($item['status'])}">{echo:Common::userStatusText($item['status'])}</td>
+				<td title="{$item['time']}">{$item['time']}</td>
+				<td title="{echo:htmlspecialchars($item['mobile'])}">{$item['mobile']}</td>
+				<td>
+					<a href="{url:/member/member_edit/uid/$item['user_id']}"><i class='operator fa fa-edit'></i></a>
+					<a onclick="delModel({link:'{url:/member/member_reclaim/check/$item['user_id']}'})"><i class='operator fa fa-close'></i></a>
+				</td>
+			</tr>
+			{/foreach}
+		</tbody>
+		</form>
+	</table>
+</div>
+{$this->query->getPageBar()}
+
+<script language="javascript">
+//预加载
+$(function(){
+	var formObj = new Form('searchuser');
+	formObj.init({'search':'{$search}'});
+})
+
+//预付款管理入口
+function balance_add()
+{
+	if(!checkboxCheck('check[]','请选择要进行预付款操作的用户！'))
+	{
+		return;
+	}
+
+	art.dialog.open("{url:/member/member_balance}",{
+	    title: '预付款管理',
+	    ok:function(iframeWin, topWin)
+	    {
+	    	var formObject = iframeWin.document.forms['balanceForm'];
+	    	if(formObject.onsubmit() == false)
+	    	{
+	    		return false;
+	    	}
+
+	    	//进行post提交
+	    	var postData = $('[name="member_list"]').serialize()+'&'+$(formObject).serialize();
+	    	$.post('{url:/member/member_recharge}',postData,function(json){
+	    		if(json.flag == 'success')
+	    		{
+	    			tips('操作成功');
+	    			window.location.reload();
+	    			return false;
+	    		}
+	    		else
+	    		{
+	    			alert(json.message);
+	    			return false;
+	    		}
+	    	},'json');
+	    	return false;
+		}
+	});
+}
+</script>

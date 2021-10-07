@@ -1,0 +1,46 @@
+<div class="position"> <span>您当前的位置：</span> <a href="{url:}"> 首页</a> » 商品品牌 </div>
+<div class="wrapper clearfix container_2">
+	<div class="sidebar f_l">
+		<div class="box_2 m_10">
+			<div class="title">品牌分类</div>
+			<div class="content">
+				<ul class="brand_list">
+				{foreach:items=Api::run('getBrandCategory',20)}
+				<li {if:$item['id']==$id}class='current'{/if}><a href="{url:/site/brand/id/$item[id]/name/$item[name]}">{$item['name']}</a></li>
+				{/foreach}
+				</ul>
+			</div>
+		</div>
+	</div>
+
+	<div class="main f_r">
+		<div class="box">
+		{if:isset($name) && $name != ''}
+			<div class="title">{$name}</div>
+			<div class="cont">
+				<ul class="piclist_2">
+
+					{foreach:items=Api::run('getBrandListWhere',array('#id#',$id),100)}
+					<li>
+					<a class="pic" href="{url:/site/brand_zone/id/$item['id']}"><img src="{url:$item['logo']}" width="154" height="109" /></a>
+					<a href="{$item['url']}"><h3>{$item['name']}</h3></a>
+					</li>
+					{/foreach}
+				</ul>
+			</div>
+		{else:}
+			<div class="title">推荐品牌</div>
+			<div class="cont">
+				<ul class="piclist_2">
+					{foreach:items=Api::run('getBrandList',40)}
+					<li>
+					<a class="pic" href="{url:/site/brand_zone/id/$item['id']}"><img src="{url:$item['logo']}" width="154px" height="109px" /></a>
+					<a href="{$item['url']}"><h3>{$item['name']}</h3></a>
+					</li>
+					{/foreach}
+				</ul>
+			</div>
+		{/if}
+		</div>
+	</div>
+</div>

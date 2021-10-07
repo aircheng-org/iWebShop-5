@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>用户预存款</title>
+{js:jquery}
+{js:dialog}
+{js:form}
+{js:validate}
+{js:artTemplate}
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="{webroot:public/css/twitter-bootstrap/3.3.7/css/bootstrap.min.css}">
+</head>
+<body>
+<div class="container">
+	<form name="balanceForm" action="#">
+		<div class="form-group">
+			<label>请选择：</label>
+			<select name="type" class="form-control" pattern='required' alt='选择操作内容'>
+				<option value="">请选择操作类型</option>
+				<option value="recharge">充值账户预存款</option>
+				<option value="withdraw">账户预存款提现</option>
+			</select>
+		</div>
+
+		<div class="form-group">
+			<label>请输入金额：</label>
+			<div class="input-group">
+				<span class="input-group-addon"><span class="glyphicon glyphicon-yen"></span></span>
+				<input name="balance" class="form-control" placeholder="填写金额数字" type="text" maxlength="8" pattern='float' alt='填写金额数字' />
+			</div>
+		</div>
+	</form>
+</div>
+</body>
+</html>

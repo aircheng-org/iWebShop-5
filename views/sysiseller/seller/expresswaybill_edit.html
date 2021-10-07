@@ -1,0 +1,63 @@
+<article class="col-lg-12">
+	<div class="card forms">
+		<div class="card-header">
+			<h3>快递公司编辑</h3>
+		</div>
+
+		<div class="card-body">
+			<form action="{url:/seller/expresswaybill_update}" method="post" class="form-horizontal">
+				<input name="id" value="" type="hidden" />
+
+				<div class="form-group row">
+					<label class="col-sm-2">物流公司名称</label>
+					<div class="col-sm-10">{$this->expressRow['freight_name']}</div>
+				</div>
+
+				{if:$this->expressRow['config']}
+				{set:$configParam = JSON::decode($this->expressRow['config'])}
+				{foreach:items = $configParam}
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label">{$key}</label>
+					<div class="col-sm-10">
+						<input class="form-control" name="{$key}" type="text" value="{$item}" pattern="required" />
+					</div>
+				</div>
+				{/foreach}
+				{/if}
+
+				<div class="form-group row">
+					<label class="col-sm-2">打印接口说明</label>
+					<div class="col-sm-10">{$this->expressRow['description']}</div>
+				</div>
+
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label">开启</label>
+					<div class="col-sm-10">
+					    <div class="form-check form-check-inline">
+						    <label class="form-check-label"><input type='radio' name="is_open" value="1" checked=checked class="radio-template form-check-input" />是</label>
+                        </div>
+
+						<div class="form-check form-check-inline">
+						    <label class="form-check-label"><input type='radio' name="is_open" value="0" class="radio-template form-check-input" />否</label>
+					    </div>
+					</div>
+				</div>
+
+				<div class="form-group row">
+					<div class="col-sm-4 offset-sm-2">
+						<input type="submit" class="btn btn-primary" value="确 定" />
+						<input type="reset" class="btn btn-secondary" value="重 置" />
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</article>
+
+<script language="javascript">
+//DOM加载完毕
+$(function(){
+	var formInstance = new Form();
+	formInstance.init({echo:JSON::encode($this->expressRow)});
+});
+</script>

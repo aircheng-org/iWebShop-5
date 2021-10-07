@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    {js:jquery}
+    {js:validate}
+    {js:dialog}
+    {js:artTemplate}
+    {js:form}
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <link href="{webroot:public/css/twitter-bootstrap/3.3.7/css/bootstrap.min.css}" rel="stylesheet">
+    <script type='text/javascript' src='{webroot:public/javascript/public.js}'></script>
+</head>
+
+<body>
+<div class="container">
+    <form action='{url:/seller/ad_del}' method='post' name='adForm'>
+        <input type="button" onclick="window.location.href='{url:/seller/ad_edit}';" class="btn btn-success" value="添加广告" />
+        <input type="button" onclick="selectAll('id[]')" class="btn btn-info" value="全选" />
+        <input type="button" onclick="delModel({'form':'adForm','link':'{url:/seller/ad_del}','name':'id[]'})" class="btn btn-danger" value="批量删除" />
+
+        <div class="table-responsive" style="margin-top:15px">
+        <table class="table table-bordered">
+            <colgroup>
+                <col width="180px" />
+                <col width="150px" />
+                <col width="180px" />
+                <col width="80px" />
+                <col />
+                <col width="150px" />
+            </colgroup>
+
+            <thead>
+            <tr>
+                <th>名称</th>
+                <th>显示类别</th>
+                <th>广告位</th>
+                <th>排序</th>
+                <th>开始时间 ～ 结束时间</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            {set:$queryObj=Api::run('getAdList');$resultData=$queryObj->find()}
+            {foreach:items=$resultData}
+            <tr>
+                <td><input type='checkbox' name='id[]' value='{$item['id']}' /> {$item['name']}</td>
+                <td>{echo:Ad::showType($item['type'])}</td>
+                <td>{$item['adp_name']}</td>
+                <td>{$item['order']}</td>
+                <td>{$item['start_time']} ～ {$item['end_time']} </td>
+                <td>
+                    <button type="button" class="btn btn-success glyphicon glyphicon-edit" alt="编辑" title="编辑" onclick="window.location.href='{url:/seller/ad_edit/id/$item['id']}';"></button>
+                    <button type="button" class="btn btn-danger glyphicon glyphicon-remove" alt="删除" title="删除" onclick="delModel({link:'{url:/seller/ad_del/id/$item['id']}'})"></button>
+                </td>
+            </tr>
+            {/foreach}
+            </tbody>
+        </table>
+        </div>
+    </form>
+    {$queryObj->getPageBar()}
+</div>
+</body>
+</html>

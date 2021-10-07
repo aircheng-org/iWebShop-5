@@ -1,0 +1,129 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">商品</a>
+		</li>
+		<li>
+			<a href="#">模型管理</a>
+		</li>
+		<li class="active">模型编辑</li>
+	</ul>
+</div>
+
+<div class="content">
+	<form action="{url:/goods/model_update}" method="post">
+	<input name="model_id" type="hidden" value="{$id}" />
+		<table class="table form-table">
+			<colgroup>
+				<col width="130px" />
+				<col />
+			</colgroup>
+
+			<tr>
+				<th>模型名称：</th>
+				<td>
+					<input class="form-control" name="model_name" id="model_name" type="text" pattern="required" value="{$name}"  />
+				</td>
+			</tr>
+			<tr>
+				<th>添加扩展属性：</th>
+				<td><button class="btn btn-default" onclick="addAttr()" type="button">添加扩展属性</button></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td>
+					<table class="table">
+						<thead>
+							<tr>
+								<td>属性名</td>
+								<td>操作类型</td>
+								<td>选择项数据【每项数据之间用逗号','做分割】</td>
+								<td>是否为商品筛选项</td>
+								<td>操作</td>
+							</tr>
+						</thead>
+						<tbody id="attr_list"></tbody>
+
+						<!--属性列表-->
+						<script type='text/html' id='attrListTemplate'>
+						<%for(var item in templateData){%>
+						<%include('attrTrTemplate',{'item':templateData[item]})%>
+						<%}%>
+						</script>
+
+						<!--属性单行-->
+						<script type='text/html' id='attrTrTemplate'>
+						<tr>
+							<td>
+								<input name='attr[id][]' type='hidden' value="<%=item['id']%>" />
+								<input name='attr[name][]' class='form-control' type='text' pattern='required' value="<%=item['name']%>" />
+							</td>
+							<td>
+								<select class="form-control" name='attr[show_type][]'>
+									<option value='1' <%if(item['type']=='1'){%>selected<%}%>>单选框</option>
+									<option value='2' <%if(item['type']=='2'){%>selected<%}%>>复选框</option>
+									<option value='3' <%if(item['type']=='3'){%>selected<%}%>>下拉框</option>
+									<option value='4' <%if(item['type']=='4'){%>selected<%}%>>输入框</option>
+								</select>
+							</td>
+							<td>
+								<input class='form-control' name='attr[value][]' type='text' value="<%=item['value']%>" />
+							</td>
+							<td>
+								<input type='checkbox' <%if(item['search']== '1'){%>checked<%}%> onclick="selectCheck(this)" />
+								<input type='hidden' name='attr[is_search][]' value="<%=item['search']?item['search']:0%>" />
+							</td>
+							<td>
+								<a onclick="delAttr(this)"><i class='operator fa fa-close'></i></a>
+							</td>
+						</tr>
+						</script>
+					</table>
+				</td>
+			</tr>
+			<tr>
+				<td></td>
+				<td><button class='btn btn-primary' type="submit">保存</button></td>
+			</tr>
+		</table>
+	</form>
+</div>
+
+<script type='text/javascript'>
+$(function(){
+	//初始化属性
+	{if:isset($model_attr)}
+	var attrListHtml = template.render('attrListTemplate',{'templateData':{echo:JSON::encode($model_attr)}});
+	$('#attr_list').html(attrListHtml);
+	{/if}
+});
+
+//添加一个模型属性
+function addAttr()
+{
+	var attrTrHtml = template.render('attrTrTemplate',{'item':[]});
+	$('#attr_list').append(attrTrHtml);
+}
+
+//删除模型属性
+function delAttr(curr_attr)
+{
+	$(curr_attr).parent().parent().remove();
+}
+
+//设置选择复选框的值
+function selectCheck(_self)
+{
+	var checkValue = $(_self).siblings('[name="attr[is_search][]"]')[0];
+
+	if($(_self).prop("checked"))
+	{
+		checkValue.value = 1;
+	}
+	else
+	{
+		checkValue.value = 0;
+	}
+}
+</script>

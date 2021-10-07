@@ -1,0 +1,28 @@
+<header class="uc_head">
+	<h3>收藏夹</h3>
+</header>
+
+<section class="goods_list">
+	<ul>
+        {set:$favoriteObj = Api::run('getFavorite',IReq::get('cat_id'))}
+		{foreach:items = $favoriteObj->find()}
+		<li>
+			<a target="_blank" href="{url:/site/products/id/$item['goods_id']}">
+				<img alt="{$item['name']}" src="{url:/pic/thumb/img/$item['img']/w/205/h/205}">
+				<p class="goods_title"><span>{$item['name']}</span></p>
+				<p class="goods_sell_price">￥{$item['sell_price']}</p>
+				<p class="goods_market_price">￥{$item['market_price']}</p>
+			</a>
+			<div class="goods_list_btnbox">
+				<div class="add_cart" onclick="joinCart_list({$item['goods_id']});">加入购物车</div>
+				<div class="del_fav" onclick="delModel({link:'{url:/ucenter/favorite_del/id/$item['id']}',msg:'是否取消收藏？'});">取消收藏</div>
+			</div>
+		</li>
+		{/foreach}
+	</ul>
+</section>
+{$favoriteObj->getPageBar()}
+
+{if:!$items}
+<section class="no_tip">暂无数据</section>
+{/if}

@@ -1,0 +1,102 @@
+{js:areaSelect}
+{js:my97date}
+<header class="uc_head">
+	<h3>个人资料</h3>
+</header>
+
+<section class="user_form">
+	<form action='{url:/ucenter/info_edit_act}' method='post' name='user_info'>
+		<dl>
+			<dt>头像：</dt>
+			<dd>
+				<div class="user_ico">
+					<img id="user_ico_img" onclick="$('#userIcoFile').trigger('click');" src="{url:$userData['head_ico']}" onerror="this.src='{skin:image/user_ico.gif}'">
+				</div>
+			</dd>
+		</dl>
+		<dl>
+			<dt>会员组：</dt>
+			<dd>{$userData['group_name']}</dd>
+		</dl>
+		<dl>
+			<dt>姓名：</dt>
+			<dd><input class="input_text" type="text" name="true_name" alt='请填写真实姓名' /></dd>
+		</dl>
+		<dl>
+			<dt>性别：</dt>
+			<dd>
+				<label><input type='radio' name='sex' value='1' />男</label>
+				<label><input type='radio' name='sex' value='2' checked=checked />女</label>
+			</dd>
+		</dl>
+		<dl>
+			<dt>出生日期：</dt>
+			<dd>
+				<input type="text" name="birthday" class="input_text Wdate" pattern='date' empty onFocus="WdatePicker()" />
+			</dd>
+		</dl>
+		<dl>
+			<dt>所在地区：</dt>
+			<dd>
+				<select class="input_select" name="province" child="city,area"></select>
+				<select class="input_select" name="city" child="area"></select>
+				<select class="input_select" name="area"></select>
+			</dd>
+		</dl>
+		<dl>
+			<dt>联系地址：</dt>
+			<dd><input type='text' class='input_text' name='contact_addr' alt='请填写联系地址' /></dd>
+		</dl>
+		<dl>
+			<dt>手机号码：</dt>
+			<dd><input class="input_text" type="text" name='mobile' pattern='mobi' empty alt='请填写正确的手机号码' /></dd>
+		</dl>
+		<dl>
+			<dt>邮箱：</dt>
+			<dd>
+				<input type='text' class='input_text' name='email' pattern='email' empty alt='请填写正确的邮箱地址' />
+			</dd>
+		</dl>
+		<dl>
+			<dt>邮编：</dt>
+			<dd><input type='text' class='input_text' name='zip' pattern='zip' empty alt='请填写正确的邮政编码' /></dd>
+		</dl>
+		<dl>
+			<dt>固定电话：</dt>
+			<dd><input class="input_text" type="text" name='telephone' pattern='phone' empty alt='请填写正确的固定电话' /></dd>
+		</dl>
+		<dl>
+			<dt>QQ：</dt>
+			<dd><input class="input_text" type="text" name='qq' pattern='qq' empty alt='请填写正确的QQ号' /></dd>
+		</dl>
+		<dl>
+			<dt></dt>
+			<dd><input class="input_submit" type="submit" value="保存修改" /></dd>
+		</dl>
+	</form>
+</section>
+{js:fileUpload}
+<input style="display:none;" type="file" accept="image/*" id="userIcoFile" name="userIcoFile" data-url="{url:/ucenter/user_ico_upload}" />
+
+<script type='text/javascript'>
+//jquery图片上传
+$('#userIcoFile').fileupload({
+    dataType: 'json',
+    done: function (e, data)
+    {
+        data.result && data.result.flag == 1 ? $('#user_ico_img').attr('src',data.result.img) : alert(data.result.error);
+    }
+});
+
+//表单回填
+var areaInstance = new areaSelect('province');
+{if:$userData && $userData['area']}
+{set:$area = explode(',',trim($userData['area'],','))}
+areaInstance.init({"province":"{$area[0]}","city":"{$area[1]}","area":"{$area[2]}"});
+{else:}
+areaInstance.init();
+{/if}
+
+var formObj = new Form('user_info');
+formObj.init({echo:JSON::encode($userData)});
+</script>

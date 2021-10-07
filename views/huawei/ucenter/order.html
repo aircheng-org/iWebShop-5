@@ -1,0 +1,35 @@
+<header class="uc_head">
+	<h3>我的订单</h3>
+</header>
+
+<section class="uc_table">
+	<table>
+		<thead>
+			<tr>
+				<th>订单编号</th><th>下单日期</th><th>收货人</th><th>支付方式</th><th>总金额</th><th>订单状态</th>
+			</tr>
+		</thead>
+		<tbody>
+		{set:$queryOrderList = Api::run('getOrderList')}
+		{foreach:items = $queryOrderList->find()}
+		<tr>
+			<td><a href="{url:/ucenter/order_detail/id/$item['id']}">{$item['order_no']}</a></td>
+			<td>{$item['create_time']}</td>
+			<td>{$item['accept_name']}</td>
+			<td>{$this->payments[$item['pay_type']]['name']}</td>
+			<td>￥{echo:($item['order_amount'])}</td>
+			<td>
+				{set:$orderStatus = Order_Class::getOrderStatus($item)}
+				<b class="{if:$orderStatus >= 6}green{else:}orange{/if}">{echo:Order_Class::orderStatusText($orderStatus)}</b>
+			</td>
+		</tr>
+		{/foreach}
+		</tbody>
+	</table>
+</section>
+
+{if:!$items}
+<section class="no_tip">暂无数据</section>
+{/if}
+
+{$queryOrderList->getPageBar()}

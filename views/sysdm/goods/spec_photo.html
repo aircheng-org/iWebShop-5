@@ -1,0 +1,53 @@
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">商品</a>
+		</li>
+		<li>
+			<a href="#">规格管理</a>
+		</li>
+		<li class="active">规格图库</li>
+	</ul>
+</div>
+<div class="content">
+	<form action='{url:/goods/spec_photo_del}' method='post' name="specFrom">
+		<table class="table list-table">
+			<colgroup>
+				<col width="35px" />
+				<col width="70px" />
+				<col />
+				<col width="180px" />
+			</colgroup>
+			<caption>
+                <a class="btn btn-default" onclick="selectAll('id[]')">
+                    <i class="fa fa-check"></i>全选
+                </a>
+                <a class="btn btn-default" onclick="confirm('确定删除么？','formSubmit(\'specFrom\')');">
+                    <i class="fa fa-close"></i>批量删除
+                </a>
+			</caption>
+			<thead>
+				<tr>
+					<th></th>
+					<th>图片</th>
+					<th>图片路径</th>
+					<th>创建时间</th>
+				</tr>
+			</thead>
+
+			<tbody>
+                {set:$queryObj=Api::run('getListBySpecPhoto');$resultData=$queryObj->find()}
+                {foreach:items=$resultData}
+				<tr>
+					<td><input type="checkbox" name="id[]" value="{$item['id']}" /></td>
+					<td><img class="img-thumbnail" style="width:60px;height:60px" src="{url:$item['address']}" /></td>
+					<td>{$item['address']}</td>
+					<td>{$item['create_time']}</td>
+				</tr>
+				{/foreach}
+			</tbody>
+		</table>
+	</form>
+</div>
+{$queryObj->getPageBar()}

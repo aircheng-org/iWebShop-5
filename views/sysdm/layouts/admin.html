@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>后台管理</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" href="{skin:css/admin.css}" />
+    <!--[if lt IE 9]>
+	<script src="{theme:javascript/html5shiv.min.js}"></script>
+	<script src="{theme:javascript/respond.min.js}"></script>
+	<![endif]-->
+    <meta name="robots" content="noindex,nofollow">
+    <link rel="shortcut icon" href="{webroot:favicon.ico}" />
+    {js:jquery} {js:dialog} {js:form} {js:validate} {js:artTemplate} {js:cookie}
+    <script type='text/javascript' src="{webroot:public/javascript/twitter-bootstrap/3.3.7/js/bootstrap.min.js}"></script>
+    <script type='text/javascript' src="{theme:javascript/adminlte.min.js}"></script>
+    <script type='text/javascript' src="{webroot:public/javascript/public.js}"></script>
+</head>
+
+<body class="skin-blue fixed sidebar-mini" style="height: auto; min-height: 100%;">
+    <div class="wrapper" style="height: auto; min-height: 100%;">
+        <header class="main-header">
+            <div class="logo">
+                <span class="logo-mini"><b>iWeb</b></span>
+                <span class="logo-lg"><b>iWebShop</b>后台管理</span>
+            </div>
+            <nav class="navbar navbar-static-top">
+                <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
+                    <span class="sr-only"></span>
+                </a>
+
+                <!--顶部菜单 开始-->
+                <div id="menu" class="navbar-custom-menu">
+                    <ul class="nav navbar-nav" name="topMenu">
+                        {set:$menuData=menu::init($this->admin['role_id']);}
+                        {foreach:items=menu::getTopMenu($menuData)}
+                        <li><a hidefocus="true" href="{url:$item}">{$key}</a></li>
+                        {/foreach}
+                        <li>
+                            <a href="#" data-toggle="control-sidebar"><i class="fa fa-gears"></i></a>
+                        </li>
+                    </ul>
+                </div>
+                 <!--顶部菜单 结束-->
+            </nav>
+        </header>
+
+		<!--左侧菜单 开始-->
+        <aside id="admin_left" class="main-sidebar">
+            <section class="sidebar" style="height: auto;">
+                <div class="user-panel">
+                    <div class="pull-left image">
+                        <i class="fa fa-user"></i>
+                    </div>
+                    <div class="pull-left info">
+                        <p>{$this->admin['admin_name']}</p>
+                        <a href="#">{$this->admin['admin_role_name']}</a>
+                    </div>
+                </div>
+
+                {set:$leftMenu=menu::get($menuData,IWeb::$app->getController()->getId().'/'.IWeb::$app->getController()->getAction()->getId());$modelName = key($leftMenu);$modelValue = current($leftMenu);}
+                <ul class="sidebar-menu tree" data-widget="tree">
+                    <li class="header">{$modelName}模块菜单</li>
+                    {foreach:items=$modelValue}
+                    <li class="treeview">
+                        <a href="#">
+                        	<i class="fa" name="ico" menu="{$key}"></i>
+                            <span>{$key}</span>
+                            <span class="pull-right-container">
+								<i class="fa fa-angle-left pull-right"></i>
+							</span>
+                        </a>
+                        <ul class="treeview-menu" name="leftMenu">
+                            {foreach:items=$item key=$leftKey item=$leftValue}
+                            <li><a href="{url:$leftKey}"><i class="fa fa-circle-o"></i>{$leftValue}</a></li>
+                            {/foreach}
+                        </ul>
+                    </li>
+                    {/foreach}
+
+                    {foreach:items=Api::run('getQuickNavigaAll')}
+                    <li class="header">快速导航</li>
+                    <li><a href="{$item['url']}"><i class="fa fa-star-o"></i> <span>{$item['naviga_name']}</span></a></li>
+                    {/foreach}
+                </ul>
+            </section>
+        </aside>
+        <!--左侧菜单 结束-->
+
+		<!--右侧内容 开始-->
+        <div id="admin_right" class="content-wrapper">
+            {viewcontent}
+        </div>
+        <!--右侧内容 结束-->
+
+		<!--顶部弹出菜单 开始-->
+	    <aside class="control-sidebar control-sidebar-dark">
+	        <ul class="control-sidebar-menu">
+	            <li><a href="{url:/admin/logout}"><i class="fa fa-circle-o text-red"></i> 退出管理</a></li>
+	            <li><a href="{url:/system/admin_repwd}"><i class="fa fa-circle-o text-yellow"></i> 修改密码</a></li>
+	            <li><a href="{url:/system/default}"><i class="fa fa-circle-o text-green"></i> 后台首页</a></li>
+	            <li><a href="{url:}" target='_blank'><i class="fa fa-circle-o text-aqua"></i> 商城首页</a></li>
+	            <li><a href="{url:/system/navigation}"><i class="fa fa-circle-o"></i> 快速导航</a></li>
+	        </ul>
+	    </aside>
+	    <!--顶部弹出菜单 结束-->
+    </div>
+</body>
+<script type='text/javascript'>
+//图标配置
+var icoConfig = {"商品管理":"fa-inbox","商品分类":"fa-list","品牌":"fa-registered","模型":"fa-cubes","搜索":"fa-search","会员管理":"fa-user-o","商户管理":"fa-group","信息处理":"fa-comment-o","订单管理":"fa-file-text","单据管理":"fa-files-o","发货地址":"fa-address-card-o","促销活动":"fa-bullhorn","营销活动":"fa-bell-o","优惠券管理":"fa-ticket","基础数据统计":"fa-bar-chart-o","后台首页":"fa-home","日志操作记录":"fa-file-code-o","商户数据统计":"fa-pie-chart","支付管理":"fa-credit-card","第三方平台":"fa-share-alt","配送管理":"fa-truck","地域管理":"fa-street-view","权限管理":"fa-unlock-alt","数据库管理":"fa-database","文章管理":"fa-file-o","帮助管理":"fa-question-circle-o","广告管理":"fa-flag","公告管理":"fa-bookmark-o","网站地图":"fa-sitemap","插件管理":"fa-cogs","网站管理":"fa-wrench","专题管理":"fa-magic"};
+$('i[name="ico"]').each(function()
+{
+	var menuName = $(this).attr('menu');
+	if(menuName && icoConfig[menuName])
+	{
+		$(this).addClass(icoConfig[menuName]);
+	}
+	else
+	{
+		//默认图标
+		$(this).addClass("fa-circle");
+	}
+});
+
+//兼容IE系列
+$("[name='leftMenu'] [href^='javascript:']").each(function(i)
+{
+	var fun = $(this).attr('href').replace("javascript:","");
+	$(this).attr('href','javascript:void(0)');
+	$(this).on("click",function(){eval(fun)});
+});
+
+//按钮高亮
+var topItem = "{echo:$modelName}";
+$("[name='topMenu']>li:contains('"+topItem+"')").addClass("active");
+
+//获取左侧菜单项
+function matchLeftMenu(leftItem)
+{
+    var matchObject = $('[name="leftMenu"]>li a[href="'+leftItem+'"]');
+    if(matchObject.length > 0)
+    {
+        $.cookie('lastUrl', leftItem);
+        return matchObject;
+    }
+
+    var lastUrl = $.cookie('lastUrl');
+    if(lastUrl)
+    {
+        return $('[name="leftMenu"]>li a[href="'+lastUrl+'"]');
+    }
+    return null;
+}
+
+//左边栏菜单高亮
+var leftItem   = "{echo:IUrl::getUri()}";
+var matchObject = matchLeftMenu(leftItem);
+if(matchObject)
+{
+    matchObject.parent().addClass("active").parent('ul').show().parent('.treeview').addClass('menu-open');
+}
+</script>
+</html>

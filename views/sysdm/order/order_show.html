@@ -1,0 +1,976 @@
+{set:$orderStatus = Order_class::getOrderStatus($this->orderRow)}
+
+<div class="breadcrumbs" id="breadcrumbs">
+	<ul class="breadcrumb">
+		<li>
+			<i class="home-icon fa fa-home"></i>
+			<a href="#">订单</a>
+		</li>
+		<li>
+			<a href="#">订单管理</a>
+		</li>
+		<li class="active">订单查看</li>
+	</ul>
+</div>
+
+<div class="content">
+	<div class="alert" style="background-color:#F5F5F5" id="ctrlButtonArea">
+		<button type="button" class="btn btn-info" id="to_pay" onclick="pay({$order_id});">支付</button>
+		{if:$goods_type == 'default'}
+		<button type="button" class="btn btn-primary" id="to_deliver" onclick="deliver({$order_id});">发货</button>
+		{else:}
+		<button type="button" class="btn btn-primary" id="to_deliver" onclick="checkOrder({$order_id});">核销</button>
+		{/if}
+		<button type="button" class="btn btn-warning" id="to_refundment" onclick="refundment({$order_id});">退款</button>
+		<button type="button" class="btn btn-success" id="to_finish" onclick="complete({$order_id},5)">完成</button>
+		<button type="button" class="btn btn-danger" id="to_cancel" onclick="complete({$order_id},4)">作废</button>
+	</div>
+	<div class="nav-tabs-custom">
+		<ul class="nav nav-tabs">
+			<li class="active"><a href="#tab1" data-toggle="tab">基本信息</a></li>
+			<li><a href="#tab2" data-toggle="tab">收款和售后</a></li>
+			<li><a href="#tab3" data-toggle="tab">发货记录</a></li>
+			<li><a href="#tab4" data-toggle="tab">发票和备注</a></li>
+			<li><a href="#tab5" data-toggle="tab">订单日志</a></li>
+		</ul>
+
+		<div class="tab-content">
+			<div class="tab-pane active" id="tab1">
+				<table class="table list-table">
+					<colgroup>
+						<col />
+						<col width="90px" />
+						<col width="90px" />
+						<col width="90px" />
+						<col width="90px" />
+						<col width="150px" />
+					</colgroup>
+
+					<thead>
+						<tr>
+							<th>商品名称</th>
+							<th>商品原价</th>
+							<th>实际价格</th>
+							<th>商品数量</th>
+							<th>小计</th>
+							<th>状态</th>
+						</tr>
+					</thead>
+					<tbody>
+						{foreach:items=Api::run('getOrderGoodsRowByOrderId',array('id'=>$order_id))}
+						<tr>
+							<td>
+								{set:$goodsRow = JSON::decode($item['goods_array'])}
+								<a href="{url:/site/products/id/$item['goods_id']}" target="_blank">
+									{$goodsRow['name']} &nbsp;&nbsp;
+									{$goodsRow['value']} &nbsp;&nbsp;
+									{$goodsRow['goodsno']} &nbsp;&nbsp;
+									{foreach:items=Api::run('getBrandByGoodsId',array('id'=>$item["goods_id"])) item=$brandRow}
+									【{$brandRow['name']}】
+									{/foreach}
+								</a>
+							</td>
+							<td>￥{$item['goods_price']}</td>
+							<td>￥{$item['real_price']}</td>
+							<td>{$item['goods_nums']}</td>
+							<td>￥{echo:$item['real_price'] * $item['goods_nums']}</td>
+							<td>
+								{echo:Order_Class::goodsSendStatus($item)}
+								{if:$item['delivery_id']}
+								<button class="btn btn-default btn-sm" type="button" onclick="freightLine({$item['delivery_id']})">快递跟踪</button>
+								{/if}
+							</td>
+						</tr>
+						{/foreach}
+					</tbody>
+				</table>
+
+				<div class="row">
+					<div class="col-md-6">
+						<div class="box box-success box-solid">
+							<div class="box-header">
+								订单金额明细
+							</div>
+							<div class="box-body">
+								<table class="table form-table">
+									<colgroup>
+										<col width="120px" />
+										<col />
+									</colgroup>
+
+									<tbody>
+										<tr>
+											<th>商品总额:</th><td>￥{$payable_amount}</td>
+										</tr>
+										<tr>
+											<th>配送费用:</th><td>￥{$real_freight}</td>
+										</tr>
+										<tr>
+											<th>保价费用:</th><td>￥{$insured}</td>
+										</tr>
+										<tr>
+											<th>税金:</th><td>￥{$taxes}</td>
+										</tr>
+										<tr>
+											<th>优惠总额:</th><td>￥{$promotions}</td>
+										</tr>
+										{if:isset($prop) && $prop}
+										<tr>
+											<th>优惠券:</th><td>
+											{foreach:items=Api::run('getPropListAll',array('id'=>$prop))}
+				                            【{$item['card_name']}】 ￥{$item['value']}
+				                            {/foreach}</td>
+										</tr>
+										{/if}
+										<tr>
+											<th>加价或减价:</th><td>￥{$discount}</td>
+										</tr>
+										<tr>
+											<th>订单总额:</th><td>￥{$order_amount}</td>
+										</tr>
+										<tr>
+											<th>已支付金额:</th><td>
+											{set:$item = Api::run('getAmountRowByOrderId',array('order_id'=>$order_id))}
+											￥{$item['amount']}
+				                            </td>
+										</tr>
+										{set:$commissionFee=plugin::trigger('getCommissionFeeByOrderId',$order_id);}
+										{if:$commissionFee > 0}
+										<tr><th>分销佣金:</th><td><a onclick="art.dialog.open('{url:/plugins/commission_order_user/order_id/$order_id}',{width:'50%',height:'50%'});" title="推介者信息">￥{$commissionFee}</a></td></tr>
+										{/if}
+
+										{if:$spend_point > 0}
+				                        <tr>
+				                            <th>已支付积分:</th><td>{$spend_point} 积分</td>
+				                        </tr>
+				                        {/if}
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+
+					<div class="col-md-6">
+
+						<div class="box box-success box-solid">
+						    {if:goods_class::isDelivery($goods_type)}
+							<div class="box-header">收货人信息</div>
+							<div class="box-body">
+								<table class="table form-table">
+									<colgroup>
+										<col width="120px" />
+										<col />
+									</colgroup>
+
+									<tbody>
+										<tr>
+											<th>发货日期:</th><td>{$send_time}</td>
+										</tr>
+										<tr>
+											<th>姓名:</th><td>{$accept_name}</td>
+										</tr>
+										<tr>
+											<th>手机 :</th><td>{$mobile}</td>
+										</tr>
+										<tr>
+											<th>电话:</th><td>{$telphone}</td>
+										</tr>
+										<tr>
+											<th>地区:</th><td>{$area_addr}</td>
+										</tr>
+										<tr>
+											<th>地址:</th><td>{$address}</td>
+										</tr>
+										<tr>
+											<th>邮编:</th><td>{$postcode}</td>
+										</tr>
+										<tr>
+											<th>送货时间:</th><td>{$accept_time}</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+							{elseif:$goods_type == 'code'}
+							<div class="box-header">消费验证码信息</div>
+							<div class="box-body">
+								<table class="table form-table">
+									<colgroup>
+										<col width="120px" />
+										<col />
+									</colgroup>
+
+									<tbody>
+										<tr>
+											<th>消费验证码:</th>
+											<td>
+                        					    {foreach:items=Api::run('getOrderCodeByOrderId',array('id' => $id)) item=$codeRow}
+                        					    <p>{$codeRow['code']} [{if:$codeRow['is_used']}已使用:{$codeRow['use_time']}{else:}未使用{/if}]</p>
+                        					    {/foreach}
+                        					    {if:!isset($codeRow)}付款后由系统生成{/if}
+											</td>
+										</tr>
+										<tr>
+											<th>姓名:</th><td>{$accept_name}</td>
+										</tr>
+										<tr>
+											<th>手机:</th><td>{$mobile}</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+    						{elseif:$goods_type == 'download'}
+							<div class="box-header">文件信息</div>
+							<div class="box-body">
+								<table class="table form-table">
+									<colgroup>
+										<col width="120px" />
+										<col />
+									</colgroup>
+
+									<tbody>
+										<tr>
+											<th>文件下载:</th>
+											<td>
+                        					    {foreach:items=Api::run('getOrderDownloadByOrderId',array('id' => $id)) item=$downloadRow}
+                                                <p>[已下载：{$downloadRow['num']}/{$downloadRow['limit_num']}] 截至 {$downloadRow['end_time']} 过期</p>
+                        					    {/foreach}
+											</td>
+										</tr>
+										<tr>
+											<th>姓名:</th><td>{$accept_name}</td>
+										</tr>
+										<tr>
+											<th>手机:</th><td>{$mobile}</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+							{elseif:$goods_type == 'preorder'}
+							{foreach:items=Api::run('getOrderPreorderByOrderId',array('id' => $id)) item=$preorderRow}
+							<div class="box-header">预订信息</div>
+							<div class="box-body">
+								<table class="table form-table">
+									<colgroup>
+										<col width="120px" />
+										<col />
+									</colgroup>
+
+									<tbody>
+										<tr>
+											<th>预定日期:</th>
+											<td>{$preorderRow['start_date']}——{$preorderRow['end_date']}</td>
+										</tr>
+										<tr>
+											<th>姓名:</th><td>{$accept_name}</td>
+										</tr>
+										<tr>
+											<th>手机:</th><td>{$mobile}</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+							{/foreach}
+    						{/if}
+						</div>
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-md-6">
+						<div class="box box-success box-solid">
+							<div class="box-header">
+								配送支付信息
+							</div>
+							<div class="box-body">
+								<table class="table form-table">
+									<colgroup>
+										<col width="120px" />
+										<col />
+									</colgroup>
+									<tbody>
+									    {if:$distribution}
+										<tr>
+											<th>配送方式:</th><td>{$delivery}</td>
+										</tr>
+										{/if}
+
+										{if:$takeself}
+										<tr>
+											<th>自提地址:</th>
+											<td>
+												{$takeself['province_str']}
+												{$takeself['city_str']}
+												{$takeself['area_str']}
+												{$takeself['address']}
+											</td>
+										</tr>
+										<tr>
+											<th>自提联系方式:</th>
+											<td>
+												座机：{$takeself['phone']} &nbsp;&nbsp;
+												手机：{$takeself['mobile']}
+											</td>
+										</tr>
+										<tr>
+											<th>自提验证码:</th>
+											<td class="green">{$checkcode}</td>
+										</tr>
+										{/if}
+										<tr>
+											<th>商品重量:</th><td>{$goods_weight}</td>
+										</tr>
+										<tr>
+											<th>支付方式:</th><td>{$payment}</td>
+										</tr>
+										<tr>
+											<th>可得积分:</th><td>{$point}</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+
+					<div class="col-md-6">
+						<div class="box box-success box-solid">
+							<div class="box-header">
+								买家信息
+							</div>
+							<div class="box-body">
+								<table class="table form-table">
+									<colgroup>
+										<col width="120px" />
+										<col />
+									</colgroup>
+									<tbody>
+										<tr>
+											<th>用户名:</th><td>{$username}</td>
+										</tr>
+										<tr>
+											<th>姓名:</th><td>{$true_name}</td>
+										</tr>
+										<tr>
+											<th>电话:</th><td>{$u_mobile}</td>
+										</tr>
+										<tr>
+											<th>地区:</th><td>{$contact_addr}</td>
+										</tr>
+										<tr>
+											<th>Email:</th><td>{$email}</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-md-6">
+						<div class="box box-success box-solid">
+							<div class="box-header">
+								订单信息
+							</div>
+							<div class="box-body">
+								<table class="table form-table">
+									<colgroup>
+										<col width="120px" />
+										<col />
+									</colgroup>
+
+									<tbody>
+										<tr>
+											<th>订单号:</th><td>{$order_no}</td>
+										</tr>
+										<tr>
+											<th>当前状态:</th><td class="red">{echo:order_class::orderStatusText($orderStatus)}</td>
+										</tr>
+										<tr>
+											<th>支付状态:</th><td>{echo:order_class::getOrderPayStatusText($this->orderRow)}</td>
+										</tr>
+										<tr>
+											<th>配送状态:</th><td>{echo:order_class::getOrderDistributionStatusText($this->orderRow)}</td>
+										</tr>
+										<tr>
+											<th>订单类型:</th><td>{echo:order_class::getOrderTypeText($this->orderRow)}</td>
+										</tr>
+										<tr><th>订单附言:</th><td>{$postscript}</td></tr>
+										<tr>
+											<th>订单所属:</th>
+											<td>
+												{if:$seller_id}
+				                                {set:$sellerRow = Api::run('getSellerInfo',$seller_id)}
+				                                {$sellerRow['true_name']}
+				                                【{if:$is_checkout == 1}已结算{else:}未结算{/if}】
+				                                {else:}
+				                                平台自营
+				                                {/if}
+											</td>
+										</tr>
+										{set:$batchOrder = Api::run('getBatchOrder',$trade_no)}
+										{if:$batchOrder}
+										<tr><td colspan="2">{foreach:items=$batchOrder}{if:$key == 0}总订单{elseif:$key == 1}，子订单{/if}【{$item['order_no']}】{/foreach}</td></tr>
+										{/if}
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="tab-pane" id="tab2">
+				<div class="row">
+					<div class="col-md-6">
+						<div class="box box-success box-solid">
+							<div class="box-header">
+								收款单据
+							</div>
+							<div class="box-body">
+								<table class="table list-table">
+									<colgroup>
+										<col width="120px" />
+										<col />
+									</colgroup>
+
+									<tbody>
+					                    {foreach:items=Api::run('getCollectionDocByOrderId',array('order_id'=>$order_id))}
+										<tr>
+											<th>付款时间：</th><td>{$item['time']}</td>
+										</tr>
+										<tr>
+											<th>金额：</th><td>{$item['amount']}</td>
+										</tr>
+										<tr>
+											<th>支付方式：</th><td>{$item['name']}</td>
+										</tr>
+										<tr>
+											<th>付款备注：</th><td>{$item['note']}</td>
+										</tr>
+										<tr>
+											<th>状态：</th><td>{if:$item['pay_status']==0}准备中{else:}支付完成{/if}</td>
+										</tr>
+										<tr><th colspan="2"></th></tr>
+										{/foreach}
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+
+					<div class="col-md-6">
+						<div class="box box-success box-solid">
+							<div class="box-header">
+								退款单据
+							</div>
+							<div class="box-body">
+								<table class="table list-table">
+									<colgroup>
+										<col width="120px" />
+										<col />
+									</colgroup>
+
+									<tbody>
+										{foreach:items=Api::run('getRefundmentDocByOrderId',array('order_id'=>$order_id))}
+										<tr>
+											<th colspan="2">
+												{foreach:items=Api::run('getOrderGoodsRowById',array('id'=>$item["order_goods_id"])) item=$orderGoods}
+												{set:$goods = JSON::decode($orderGoods['goods_array'])}
+												<p>
+												<a href="{url:/site/products/id/$orderGoods['goods_id']}" target="_blank" title="{$goods['name']}">{echo:IString::substr($goods['name'],38)} X {echo:order_class::refundsDocNums($item,$orderGoods['id'])}</a>
+												{if:$item['seller_id']}
+												<a href="{url:/site/home/id/$item['seller_id']}" target="_blank"><i class="operator fa fa-user"></i></a>
+												{/if}
+												</p>
+												{/foreach}
+											</th>
+										</tr>
+										<tr>
+											<th>退款金额：</th><td>{$item['amount']}</td>
+										</tr>
+										<tr>
+											<th>申请时间：</th><td>{$item['time']}</td>
+										</tr>
+										<tr>
+											<th>状态：</th><td>{echo:Order_Class::refundmentText($item['pay_status'])}</td>
+										</tr>
+										<tr>
+											<th>退款理由：</th><td>{$item['content']}</td>
+										</tr>
+										<tr>
+											<th>退款方式：</th><td>{echo:Order_Class::refundWay($item['way'])}</td>
+										</tr>
+										<tr><th colspan="2"></th></tr>
+										{/foreach}
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+
+					<div class="col-md-6">
+						<div class="box box-success box-solid">
+							<div class="box-header">
+								换货单据
+							</div>
+							<div class="box-body">
+								<table class="table list-table">
+									<colgroup>
+										<col width="120px" />
+										<col />
+									</colgroup>
+
+									<tbody>
+										{foreach:items=Api::run('getExchangeDocByOrderId',array('order_id'=>$order_id))}
+										<tr>
+											<th colspan="2">
+												{foreach:items=Api::run('getOrderGoodsRowById',array('id'=>$item["order_goods_id"])) item=$orderGoods}
+												{set:$goods = JSON::decode($orderGoods['goods_array'])}
+												<p>
+												<a href="{url:/site/products/id/$orderGoods['goods_id']}" target="_blank" title="{$goods['name']}">{echo:IString::substr($goods['name'],38)} X {echo:order_class::refundsDocNums($item,$orderGoods['id'])}</a>
+												{if:$item['seller_id']}
+												<a href="{url:/site/home/id/$item['seller_id']}" target="_blank"><i class="operator fa fa-user"></i></a>
+												{/if}
+												</p>
+												{/foreach}
+											</th>
+										</tr>
+										<tr>
+											<th>申请时间：</th><td>{$item['time']}</td>
+										</tr>
+										<tr>
+											<th>状态：</th><td>{echo:Order_Class::refundmentText($item['status'])}</td>
+										</tr>
+										<tr>
+											<th>换货理由：</th><td>{$item['content']}</td>
+										</tr>
+
+										{if:$item['user_send_time']}
+										<tr>
+											<th>返还物流：</th>
+											<td>
+											    {$item['user_send_time']}
+											    <p>
+                            				    {foreach:items=Api::run('getFreightCompanyById',array('freight_id'=>$item['user_freight_id'])) item=$tempFreight}
+                                                {$tempFreight['freight_name']}
+                                                {/foreach}
+
+                                                【快递单号：{$item['user_delivery_code']}】
+                                                <button class="btn btn-default btn-sm" type="button" onclick="freightLineByCode({$item['user_freight_id']},'{$item['user_delivery_code']}')">物流跟踪</button>
+											    </p>
+											</td>
+										</tr>
+										{/if}
+
+										{if:$item['seller_send_time']}
+										<tr>
+											<th>重发物流：</th>
+											<td>
+											    {$item['seller_send_time']}
+											    <p>
+                            				    {foreach:items=Api::run('getFreightCompanyById',array('freight_id'=>$item['seller_freight_id'])) item=$tempFreight}
+                                                {$tempFreight['freight_name']}
+                                                {/foreach}
+
+                                                【快递单号：{$item['seller_delivery_code']}】
+                                                <button class="btn btn-default btn-sm" type="button" onclick="freightLineByCode({$item['seller_freight_id']},'{$item['seller_delivery_code']}')">物流跟踪</button>
+											    </p>
+											</td>
+										</tr>
+										{/if}
+
+										<tr><th colspan="2"></th></tr>
+										{/foreach}
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+
+					<div class="col-md-6">
+						<div class="box box-success box-solid">
+							<div class="box-header">
+								维修单据
+							</div>
+							<div class="box-body">
+								<table class="table list-table">
+									<colgroup>
+										<col width="120px" />
+										<col />
+									</colgroup>
+
+									<tbody>
+										{foreach:items=Api::run('getFixDocByOrderId',array('order_id'=>$order_id))}
+										<tr>
+											<th colspan="2">
+												{foreach:items=Api::run('getOrderGoodsRowById',array('id'=>$item["order_goods_id"])) item=$orderGoods}
+												{set:$goods = JSON::decode($orderGoods['goods_array'])}
+												<p>
+												<a href="{url:/site/products/id/$orderGoods['goods_id']}" target="_blank" title="{$goods['name']}">{echo:IString::substr($goods['name'],38)} X {echo:order_class::refundsDocNums($item,$orderGoods['id'])}</a>
+												{if:$item['seller_id']}
+												<a href="{url:/site/home/id/$item['seller_id']}" target="_blank"><i class="operator fa fa-user"></i></a>
+												{/if}
+												</p>
+												{/foreach}
+											</th>
+										</tr>
+										<tr>
+											<th>申请时间：</th><td>{$item['time']}</td>
+										</tr>
+										<tr>
+											<th>状态：</th><td>{echo:Order_Class::refundmentText($item['status'])}</td>
+										</tr>
+										<tr>
+											<th>换货理由：</th><td>{$item['content']}</td>
+										</tr>
+
+										{if:$item['user_send_time']}
+										<tr>
+											<th>返还物流：</th>
+											<td>
+											    {$item['user_send_time']}
+											    <p>
+                            				    {foreach:items=Api::run('getFreightCompanyById',array('freight_id'=>$item['user_freight_id'])) item=$tempFreight}
+                                                {$tempFreight['freight_name']}
+                                                {/foreach}
+
+                                                【快递单号：{$item['user_delivery_code']}】
+                                                <button class="btn btn-default btn-sm" type="button" onclick="freightLineByCode({$item['user_freight_id']},'{$item['user_delivery_code']}')">物流跟踪</button>
+											    </p>
+											</td>
+										</tr>
+										{/if}
+
+										{if:$item['seller_send_time']}
+										<tr>
+											<th>重发物流：</th>
+											<td>
+											    {$item['seller_send_time']}
+											    <p>
+                            				    {foreach:items=Api::run('getFreightCompanyById',array('freight_id'=>$item['seller_freight_id'])) item=$tempFreight}
+                                                {$tempFreight['freight_name']}
+                                                {/foreach}
+
+                                                【快递单号：{$item['seller_delivery_code']}】
+                                                <button class="btn btn-default btn-sm" type="button" onclick="freightLineByCode({$item['seller_freight_id']},'{$item['seller_delivery_code']}')">物流跟踪</button>
+											    </p>
+											</td>
+										</tr>
+										{/if}
+
+										<tr><th colspan="2"></th></tr>
+										{/foreach}
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="tab-pane" id="tab3">
+				<table class="table list-table">
+					<colgroup>
+						<col width="160px" />
+						<col width="120px" />
+						<col width="120px" />
+						<col width="150px" />
+						<col width="150px" />
+						<col />
+					</colgroup>
+
+					<thead>
+						<tr>
+							<th>配送时间</th>
+							<th>配送方式</th>
+							<th>物流公司</th>
+							<th>物流单号</th>
+							<th>收件人</th>
+							<th>备注</th>
+						</tr>
+					</thead>
+
+					<tbody>
+						{foreach:items=Api::run('getDeliveryDocByOrderId',array('order_id'=>$order_id))}
+						<tr>
+							<td>{$item['time']}</td>
+							<td>{$item['pname']}</td>
+							<td>
+							{foreach:items=Api::run('getFreightCompanyById',array('freight_id'=>$item["freight_id"])) item=$tempFreight key=$tempFreightKey}
+                            {$tempFreight['freight_name']}
+                            {/foreach}
+                            </td>
+							<td>{$item['delivery_code']}</td>
+							<td>{$item['name']}</td>
+							<td>{$item['note']}</td>
+						</tr>
+						{/foreach}
+					</tbody>
+				</table>
+			</div>
+
+			<div class="tab-pane" id="tab4">
+				<table class="table form-table">
+				<form action="{url:/order/order_note}" method="post">
+					<input type="hidden" name="order_id" value="{$order_id}"/>
+					<colgroup>
+						<col width="120px" />
+						<col />
+					</colgroup>
+
+					<tbody>
+						<tr>
+							<th>是否开票:</th><td>{if:$invoice==0}否{else:}是{/if}</td>
+						</tr>
+						<tr>
+							<th>发票信息:</th><td>{echo:CountSum::invoiceText($invoice_info)}</td>
+						</tr>
+						<tr>
+							<th>订单备注:</th>
+							<td><textarea class="form-control" name="note" id="note" rows="8" cols="100">{$note}</textarea></td>
+						</tr>
+						<tr>
+							<td></td>
+							<td><button type="submit" class="btn btn-primary">保存</button></td>
+						</tr>
+					</tbody>
+				</form>
+				</table>
+			</div>
+
+			<div class="tab-pane" id="tab5">
+				<table class="table list-table">
+					<colgroup>
+						<col width="180px">
+						<col width="100px">
+						<col width="100px">
+						<col width="70px">
+						<col />
+					</colgroup>
+					<thead>
+						<tr>
+							<th>时间</th>
+							<th>操作人</th>
+							<th>动作</th>
+							<th>结果</th>
+							<th>备注</th>
+						</tr>
+					</thead>
+					<tbody>
+						{foreach:items=Api::run('getOrderLogByOrderId',array('order_id'=>$order_id))}
+						<tr>
+							<td>{$item['addtime']}</td>
+							<td>{$item['user']}</td>
+							<td>{$item['action']}</td>
+							<td>{$item['result']}</td>
+							<td>{$item['note']}</td>
+						</tr>
+						{/foreach}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type='text/javascript'>
+//DOM加载完毕后运行
+$(function()
+{
+	initButton();
+});
+
+/**
+ * 订单操作按钮初始化
+ */
+function initButton()
+{
+	//全部操作区域的按钮锁定
+	$('#ctrlButtonArea button').prop('disabled',true);
+	$('#ctrlButtonArea button').addClass('inactive');
+
+	//作废
+	{if:$orderStatus != 5}
+	$('#to_cancel').removeAttr('disabled');
+	$('#to_cancel').removeClass('inactive');
+	{/if}
+
+	//完成
+	{if:in_array($orderStatus,array(11,3))}
+	$('#to_finish').removeAttr('disabled');
+	$('#to_finish').removeClass('inactive');
+	{/if}
+
+	//付款
+	{if:in_array($orderStatus,array(11,2))}
+	$('#to_pay').removeAttr('disabled');
+	$('#to_pay').removeClass('inactive');
+	{/if}
+
+	//发货
+	{if:Order_class::isGoDelivery($this->orderRow)}
+	$('#to_deliver').removeAttr('disabled');
+	$('#to_deliver').removeClass('inactive');
+	{/if}
+
+	//退款
+	{if:in_array($orderStatus,array(4,6,8,9,10))}
+	$('#to_refundment').removeAttr('disabled');
+	$('#to_refundment').removeClass('inactive');
+	{/if}
+}
+
+//完成或作废订单
+function complete(id,statusVal)
+{
+	$.get("{url:/order/order_complete}",{'order_no':"{$order_no}",'type':statusVal,'id':id}, function(data)
+	{
+		if(data=='success')
+		{
+			actionCallback();
+		}
+		else
+		{
+			alert('发生错误');
+		}
+	});
+}
+
+//退款
+function refundment(id)
+{
+	var tempUrl = '{url:/order/order_refundment/id/@id@}';
+	tempUrl     = tempUrl.replace('@id@',id);
+	art.dialog.open(tempUrl,{
+		id:'refundment',
+		cancelVal:'关闭',
+		okVal:'退款',
+	    title: '订单号:{$order_no}退款操作',
+	    ok:function(iframeWin, topWin){
+	    	var formObject = iframeWin.document.forms[0];
+	    	if(formObject.onsubmit() == false)
+	    	{
+	    		return false;
+	    	}
+
+            {if:$status == 5}
+	    	window.confirm('此订单已完成消费，是否仍要退款？',function()
+	    	{
+	    	    loadding('正在退款请稍后...切勿关闭或者刷新页面！');
+	    	    formObject.submit();
+	    	});
+            {else:}
+            formObject.submit();
+            {/if}
+
+	    	return false;
+	    },
+	    cancel:function(){
+	    	return true;
+		}
+	});
+}
+
+//付款
+function pay(id)
+{
+	var tempUrl = '{url:/order/order_collection/id/@id@}';
+	tempUrl     = tempUrl.replace('@id@',id);
+
+	art.dialog.open(tempUrl,{
+		id:'pay',
+	    title: '订单号:{$order_no}【付款】',
+	    cancelVal:'关闭',
+		okVal:'付款',
+	    ok:function(iframeWin, topWin){
+	    	var formObject = iframeWin.document.forms[0];
+	    	if(formObject.onsubmit() == false)
+	    	{
+	    		return false;
+	    	}
+	    	formObject.submit();
+	    	return false;
+	    },
+	    cancel:function (){
+	    	return true;
+		}
+	});
+}
+
+//发货
+function deliver(id)
+{
+	var tempUrl = '{url:/order/order_deliver/id/@id@}';
+	tempUrl     = tempUrl.replace('@id@',id);
+
+	var deliv = art.dialog.open(tempUrl,{
+		id:'deliver',
+	    title: '订单号:{$order_no}【发货】',
+	    cancelVal:'关闭',
+		okVal:'发货',
+	    ok:function(iframeWin, topWin){
+	    	var checkedNums = $(iframeWin.document).find('[name="sendgoods[]"]:checked').length;
+	    	if(checkedNums == 0)
+	    	{
+	    		alert('请选择要发货的商品');
+	    		return false;
+	    	}
+	    	var isResult = iframeWin.document.forms[0].onsubmit();
+	    	if(isResult != false)
+	    	{
+	    		iframeWin.document.forms[0].submit();
+	    	}
+	    	return false;
+	    },
+	    cancel:function (){
+	    	return true;
+		}
+	});
+}
+
+//执行回调处理
+function actionCallback(msg)
+{
+    unloadding();
+	msg ? alert(msg) : window.location.reload();
+	window.setTimeout(function()
+	{
+		var list = art.dialog.list;
+		for (var i in list)
+		{
+		    list[i].close();
+		};
+	},2500);
+}
+
+//操作失败回调
+function actionFailCallback(msg)
+{
+	var alertText = msg ? msg : '操作失败';
+	alert(alertText);
+}
+
+//快递跟踪
+function freightLine(doc_id)
+{
+	var urlVal = "{url:/block/freight/id/@id@}";
+	urlVal = urlVal.replace("@id@",doc_id);
+	art.dialog.open(urlVal,{title:'轨迹查询',width:'600px',height:'500px'});
+}
+
+//快递跟踪
+function freightLineByCode(doc_id,code)
+{
+	var urlVal = "{url:/block/freight/id/@id@/code/@code@}";
+	urlVal = urlVal.replace("@id@",doc_id).replace("@code@",code);
+	art.dialog.open(urlVal,{title:'轨迹查询',width:'600px',height:'500px'});
+}
+
+//核销订单
+function checkOrder(id)
+{
+	var tempUrl = '{url:/order/order_delivery_doc/id/@id@/type/all}';
+	tempUrl     = tempUrl.replace('@id@',id);
+	art.dialog.open(tempUrl);
+}
+</script>

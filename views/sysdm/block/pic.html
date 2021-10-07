@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title></title>
+{js:jquery}
+{js:dialog}
+{set:$dev = IClient::getDevice()}
+{if:$dev == 'pc'}<style>body{width:695px;overflow-y: hidden;}</style>{/if}
+<script type='text/javascript' src='{webroot:public/javascript/public.js}'></script>
+</head>
+
+<body class="__pic" style="min-height: 400px;">
+<style>
+.__pic,.__pic * {padding: 0;margin: 0;list-style: none;font-size: 12px;}
+.__pic .__pic_box {padding: 1px;}
+.__pic .__pic_box .tab {display: table;width: 100%;}
+.__pic .__pic_box .tab li {display: table-cell;height: 32px;line-height: 32px;background: #fff;box-shadow: 0 0 0 1px #ddd;text-align: center;}
+.__pic .__pic_box .tab li a {color: #555;text-decoration: none;display: block;}
+.__pic .__pic_box .tab li.selected {background: #1C84C6;box-shadow: 0 0 0 1px #1C84C6;}
+.__pic .__pic_box .tab li.selected a {color: #fff;}
+.__pic .__pic_box .uploadbox {margin-top: 10px;}
+.__pic .__pic_box .uploadbox .__upload_label {
+	display: block;width: 100%;height: 36px;line-height: 36px;border-radius: 0;border: none;
+	background: #fafafa;outline: 1px solid #ddd;cursor: pointer;
+}
+.__pic .__pic_box .uploadbox .__upload_label input {display: none;}
+.__pic .__pic_box .uploadbox .__upload_label p {text-indent: 10px;font-size: 14px;}
+.__pic .__pic_box .uploadbox .__upload_label p .__name {margin-left: 10px;color: red;}
+.__pic .__pic_box .uploadbox .tips {line-height: 1.6;padding: 10px;color: orange;}
+.__pic .__pic_box .uploadbox .list_photo {border: 1px solid #ddd;}
+.__pic .__pic_box .uploadbox .list_photo ul {overflow: hidden;height:300px;overflow:auto;}
+.__pic .__pic_box .uploadbox .list_photo li {float: left;}
+.__pic .__pic_box .uploadbox .list_photo li.selected img {background: #f60;}
+.__pic .__pic_box .uploadbox .list_photo li img{padding: 5px;}
+.__pic .__pic_box .uploadbox strong {color: blue;line-height: 2;}
+.__pic .__pic_box .uploadbox .__text{
+	display: block;width: 100%;height: 16px;line-height: 16px;border-radius: 0;padding: 10px 0;border: none;
+	background: #fff;text-indent: 10px;box-shadow: 0 0 0 1px #ddd;
+}
+</style>
+<div class="__pic_box">
+	<ul class="tab" name="menu">
+		<li class="selected"><a href='javascript:void(0)' hidefocus="true">本地上传</a></li>
+		<li><a href='javascript:void(0)' hidefocus="true">使用图库</a></li>
+		<li><a href='javascript:void(0)' hidefocus="true">外部图片</a></li>
+	</ul>
+	<div id='uploadMain'>
+		{set:$specIndex = IReq::get('specIndex')}
+		<form action='{url:/pic/uploadFile/specIndex/$specIndex}' method='post' enctype='multipart/form-data'>
+			<div id='uploadBox_0' class="uploadbox">
+				<label class="__upload_label">
+					<input class='__file' size="45" type="file" name="attach" />
+					<p>点击上传文件<em class="__name"></em></p>
+				</label>
+				<div class="tips">提示：选择的文件大小不超过3M，支持JPG、GIF和BMP格式。</div>
+			</div>
+			<div id='uploadBox_1' class="uploadbox" style="display:none">
+				<strong>从下面图库中选择：</strong>
+				<input type="hidden" name="selectPhoto" />
+				<div class="list_photo">
+					<ul class="clearfix" name="menu">
+					</ul>
+				</div>
+			</div>
+			<div id='uploadBox_2' class="uploadbox" style="display:none">
+				<strong>网络图片地址：</strong>
+				<input type="text" placeholder="请输入图片地址" class="__text" name="outerSrc" />
+				<div class="tips">提示：您只需要找到网络图片的网络地址，复制到下面的输入框，例如：http://www.abc.com/images/pic.jpg</div>
+			</div>
+		</form>
+	</div>
+</div>
+</body>
+</html>
+<script>
+$(function(){
+	$(".__file").on("change", function() {
+		var arr=$(this).val().split('\\');
+        var fileName=arr[arr.length-1];
+        $(".__name").html(fileName);
+	})
+	$("[name='menu']>li").each(
+		function(i){
+			$(this).click(
+				function(){
+					$(this).siblings().removeClass("selected");
+					$(this).addClass("selected");
+					$(".uploadbox").hide();
+					$("#uploadBox_"+i).show();
+					if(i==1)
+					{
+						$.getJSON('{url:/pic/getPhotoList}','',
+							function(dataVal)
+							{
+								var dataStr = '';
+								for(step=0;step<dataVal.length;step++)
+								{
+									dataStr+="<li><img onclick='appandVal(this);' width='50px' height='50px' src='"+webroot(dataVal[step]['address'])+"' title='"+dataVal[step]['address']+"' /></li>";
+								}
+								$('.list_photo ul').html(dataStr);
+							}
+						);
+					}
+				}
+			);
+		}
+	);
+});
+
+//动态增加图片的selected类
+function appandVal(obj)
+{
+	$(obj).parent().siblings().removeClass('selected');
+	$(obj).parent().addClass('selected');
+
+	var imgSrc = $(obj).attr('title');
+	$("input[name='selectPhoto']").val(imgSrc);
+}
+</script>
