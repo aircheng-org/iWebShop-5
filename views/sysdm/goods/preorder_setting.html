@@ -36,9 +36,9 @@
 
 		<div id="dateDiscount">
 		    <div class="form-group">
-		        <button onclick="addDateDiscount();" type="button" class="btn btn-primary"><i class="glyphicon glyphicon-plus"></i> 价格浮动</button>
+		        <button onclick="addDateDiscount();" type="button" class="btn btn-primary"><i class="glyphicon glyphicon-plus"></i> 新增价格</button>
 		    </div>
-            <p class="help-block">某个时间段内在原有价格上的浮动，+ 加价 或者 - 减价</p>
+            <p class="help-block">设置某个时间段内的价格，如果不设置则按照默认商品价格计算。</p>
 		</div>
 
 		<script type="text/html" id="dateDiscountTemplate">
@@ -61,7 +61,7 @@
                 <div class="col-xs-6 col-sm-3">
                     <div class="input-group">
                         <span class="input-group-addon"><span class="glyphicon glyphicon-yen"></span></span>
-                        <input class="form-control" autocomplete="off" pattern="float" type="text" name="discount[]"  value="<%=data['discount']%>" placeholder="价格浮动">
+                        <input class="form-control" autocomplete="off" pattern="float" type="text" name="discount[]"  value="<%=data['discount']%>" placeholder="销售价格">
                     </div>
                 </div>
 
@@ -78,7 +78,7 @@
 		    <div class="form-group">
 		        <button onclick="addDateDisnums();" type="button" class="btn btn-primary"><i class="glyphicon glyphicon-plus"></i> 库存占用</button>
 		    </div>
-            <p class="help-block">某个时间段内在原有库存上的占用</p>
+            <p class="help-block">某个时间段内在原有库存上的占用，相当于库存临时减少。</p>
 		</div>
 
 		<script type="text/html" id="dateDisnumsTemplate">

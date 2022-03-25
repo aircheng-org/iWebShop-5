@@ -287,13 +287,13 @@ class Order extends IController implements adminAuthorization
 		{
 			foreach($refunds_nums as $key => $item)
 			{
-				if(!isset($order_goods_id[$key]))
+				if(!isset($order_goods_id[$key]) || $item <= 0)
 				{
 					unset($refunds_nums[$key]);
 				}
 			}
 
-			if(count($order_goods_id) != count($refunds_nums))
+			if(!$order_goods_id || count($order_goods_id) != count($refunds_nums))
 			{
 				IError::show(403,"退款数量不匹配");
 			}

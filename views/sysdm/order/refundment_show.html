@@ -92,6 +92,8 @@
 			<tr>
 				<th>处理意见:</th><td>{$dispose_idea}</td>
 			</tr>
+
+			<tr><th>审核人员:</th><td>{if:$admin_id}{query:name=admin where=id eq $admin_id item=$adminRow}{$adminRow['admin_name']}{/query}{else:}商家处理{/if}</td></tr>
 			<tr><th></th><td><a href="javascript:window.history.go(-1);" class="btn btn-default">返回</a></td></tr>
 		</tbody>
 	</table>

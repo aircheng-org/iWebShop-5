@@ -103,7 +103,7 @@ class statistics
 			case "m":
 			{
 				$startCondition = $startArray[0].'-'.$startArray[1];
-				$endCondition   = $endArray[1] == 12 ? ($endArray[0]+1) : $endArray[0].'-'.($endArray[1]+1);
+				$endCondition   = $endArray[1] == 12 ? ($endArray[0]+1).'-00' : $endArray[0].'-'.($endArray[1]+1);
 				$db->fields .= ',DATE_FORMAT(`'.$timeCols.'`,"%Y-%m") as xValue';
 				$db->group   = "DATE_FORMAT(`".$timeCols."`,'%Y-%m') having `".$timeCols."` >= '{$startCondition}-00' and `".$timeCols."` < '{$endCondition}-00'";
 			}

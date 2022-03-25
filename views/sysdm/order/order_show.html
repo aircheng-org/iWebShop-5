@@ -500,6 +500,7 @@
 										<tr>
 											<th>退款方式：</th><td>{echo:Order_Class::refundWay($item['way'])}</td>
 										</tr>
+										<tr><th>审核人员：</th><td>{if:$item['admin_id']}{query:name=admin where=id eq $item[admin_id] item=$adminRow}{$adminRow['admin_name']}{/query}{else:}商家处理{/if}</td></tr>
 										<tr><th colspan="2"></th></tr>
 										{/foreach}
 									</tbody>

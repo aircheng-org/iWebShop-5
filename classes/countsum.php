@@ -268,7 +268,7 @@ class CountSum
     			    $disPrice *= count($listDay);
 
     			    //刷新商品销售价
-    			    $typeRow['sell_price'] = array_sum($listDayPrice);
+					$typeRow['sell_price'] = array_sum($listDayPrice);
 
                     //追加预订日期
                     $specArray = [];
@@ -345,14 +345,28 @@ class CountSum
 	    			{
 	    			    $listDayPrice = goods_class::preorderPrice($val['goods_id'],'goods',$listDay);
 
-	    			    //刷新会员价格
-	    			    if($groupPrice)
-	    			    {
-	    			        $groupPrice *= count($listDay);
-	    			    }
+						$orgPrice = $val['sell_price'] * count($listDay);
+						$relPrice = array_sum($listDayPrice);
+
+						if($orgPrice == $relPrice)
+						{
+							//刷新会员价格
+							if($groupPrice)
+							{
+								$groupPrice *= count($listDay);
+							}
+						}
+						else if($orgPrice > $relPrice)
+						{
+							$groupPrice = $relPrice;
+						}
+						else
+						{
+							$orgPrice = $relPrice;
+						}
 
 	    			    //刷新商品销售价
-	    			    $val['sell_price'] = array_sum($listDayPrice);
+						$val['sell_price'] = $orgPrice;
 
                         //追加预订日期
                         $specArray = [];
@@ -370,6 +384,8 @@ class CountSum
 	    			$current_reduce_all        = $goodsList[$key]['reduce'] * $goodsList[$key]['count'];
 	    			$goodsList[$key]['sum']    = round($current_sum_all - $current_reduce_all,2);
 	    			$goodsList[$key]['point'] *= $goodsList[$key]['count'];
+					$goodsList[$key]['sell_price'] = $val['sell_price'];
+
 	    			if(!isset($this->seller[$val['seller_id']]))
 	    			{
 	    				$this->seller[$val['seller_id']] = 0;
@@ -414,14 +430,28 @@ class CountSum
 	    			{
 	    			    $listDayPrice = goods_class::preorderPrice($val['product_id'],'product',$listDay);
 
-	    			    //刷新会员价格
-	    			    if($groupPrice)
-	    			    {
-	    			        $groupPrice *= count($listDay);
-	    			    }
+						$orgPrice = $val['sell_price'] * count($listDay);
+						$relPrice = array_sum($listDayPrice);
+
+						if($orgPrice == $relPrice)
+						{
+							//刷新会员价格
+							if($groupPrice)
+							{
+								$groupPrice *= count($listDay);
+							}
+						}
+						else if($orgPrice > $relPrice)
+						{
+							$groupPrice = $relPrice;
+						}
+						else
+						{
+							$orgPrice = $relPrice;
+						}
 
 	    			    //刷新商品销售价
-	    			    $val['sell_price'] = array_sum($listDayPrice);
+						$val['sell_price'] = $orgPrice;
 
                         //追加预订日期
                         $specArray = [];
@@ -439,6 +469,8 @@ class CountSum
 	    			$current_reduce_all          = $productList[$key]['reduce'] * $productList[$key]['count'];
 	    			$productList[$key]['sum']    = round($current_sum_all - $current_reduce_all,2);
 	    			$productList[$key]['point'] *= $productList[$key]['count'];
+					$productList[$key]['sell_price'] = $val['sell_price'];
+
 	    			if(!isset($this->seller[$val['seller_id']]))
 	    			{
 	    				$this->seller[$val['seller_id']] = 0;

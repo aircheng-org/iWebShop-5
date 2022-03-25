@@ -88,6 +88,10 @@ class Util
 				{
 					$where[] = trim($key,'-like').' like "%'.$val.'%"';
 				}
+				else if(is_numeric($val) || stripos($val,'null') !== false)
+				{
+					$where[] = $key.' '.$val;
+				}
 				else
 				{
 					$where[] = $key."'".$val."'";

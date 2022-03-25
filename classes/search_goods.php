@@ -269,7 +269,7 @@ class search_goods
 
 		//排序类别
 		$order = IReq::get('order');
-		$by    = IReq::get('by') == "desc" ? "desc" : "asc";
+		$by    = IReq::get('by') == "asc" ? "asc" : "desc";
 		if($order == null)
 		{
 			//获取配置信息

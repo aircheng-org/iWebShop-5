@@ -1423,9 +1423,9 @@ class goods_class
         foreach($listDay as $day)
         {
             $price = $dataRow['sell_price'];
-            if(isset($discountDayPool[$day]))
+            if(isset($discountDayPool[$day]) && $discountDayPool[$day] > 0)
             {
-                $price += $discountDayPool[$day];
+                $price = $discountDayPool[$day];
             }
             $result[$day] = $price;
         }

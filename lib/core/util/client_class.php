@@ -128,7 +128,7 @@ class IClient
 	 */
 	public static function isWechat()
 	{
-		if(isset($_SERVER['HTTP_USER_AGENT']) && stripos($_SERVER['HTTP_USER_AGENT'], 'MicroMessenger') && stripos($_SERVER['HTTP_USER_AGENT'], 'miniProgram') === false && ISession::get('_from') != 'miniProgram')
+		if(isset($_SERVER['HTTP_USER_AGENT']) && stripos($_SERVER['HTTP_USER_AGENT'], 'MicroMessenger') && stripos($_SERVER['HTTP_USER_AGENT'], 'miniProgram') === false)
 		{
 			return true;
 		}
@@ -141,7 +141,7 @@ class IClient
 	 */
 	public static function isMini()
 	{
-		if((isset($_SERVER['HTTP_USER_AGENT']) && stripos($_SERVER['HTTP_USER_AGENT'], 'miniProgram')) || ISession::get('_from') == 'miniProgram')
+		if((isset($_SERVER['HTTP_USER_AGENT']) && stripos($_SERVER['HTTP_USER_AGENT'], 'miniProgram')))
 		{
 			return true;
 		}
@@ -154,7 +154,7 @@ class IClient
 	 */
 	public static function isApp()
 	{
-		if(self::getDevice() == self::MOBILE && (stripos($_SERVER['HTTP_USER_AGENT'],'iwebshop_app') === true || self::isAjax() == true))
+		if(self::getDevice() == self::MOBILE && stripos($_SERVER['HTTP_USER_AGENT'],'iwebshop_app') === true)
 		{
 			return true;
 		}

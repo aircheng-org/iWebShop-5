@@ -1,6 +1,7 @@
 {js:kindeditor}
 {js:artTemplate}
 {js:areaSelect}
+{js:my97date}
 <div class="breadcrumbs" id="breadcrumbs">
 	<ul class="breadcrumb">
 		<li>
@@ -100,6 +101,10 @@
 				<tr>
 					<th>积分：</th><td><input class="form-control" name="point" type="text" value="" /></td>
 				</tr>
+				<tr>
+					<th>生日：</th><td><input class="form-control" name="birthday" type="text" pattern="date" empty="" onfocus="WdatePicker()"></td>
+				</tr>
+
 				<tr>
 					<th>状态：</th>
 					<td>

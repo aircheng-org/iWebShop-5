@@ -51,6 +51,7 @@ class Member extends IController implements adminAuthorization
 		$sex        = IFilter::act(IReq::get('sex'),'int');
 		$telephone  = IFilter::act(IReq::get('telephone'));
 		$mobile     = IFilter::act(IReq::get('mobile'));
+		$birthday   = IFilter::act(IReq::get('birthday'));
 		$province   = IFilter::act(IReq::get('province'),'int');
 		$city       = IFilter::act(IReq::get('city'),'int');
 		$area       = IFilter::act(IReq::get('area'),'int');
@@ -118,6 +119,7 @@ class Member extends IController implements adminAuthorization
 			'point'        => $point,
 			'group_id'     => $group_id,
 			'status'       => $status,
+			'birthday'     => $birthday,
 		);
 
 		//添加新会员

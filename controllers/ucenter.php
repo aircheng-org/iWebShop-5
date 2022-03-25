@@ -286,7 +286,7 @@ class Ucenter extends IController implements userAuthorization
 		//过滤多余的商品数量
 		foreach($refunds_nums as $key => $item)
 		{
-			if(!isset($order_goods_id[$key]))
+			if(!isset($order_goods_id[$key]) || $item <= 0)
 			{
 				unset($refunds_nums[$key]);
 			}

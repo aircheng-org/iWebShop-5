@@ -428,6 +428,11 @@ class _userInfo extends pluginBase
 		ISafe::set('head_ico',isset($userRow['head_ico']) ? $userRow['head_ico'] : '');
 		ISafe::set('last_login',isset($userRow['last_login']) ? $userRow['last_login'] : '');
 
+		//延迟写入cache数据
+		$cacheObj = new ICache('file');
+		$cacheObj->set("commission".$userRow['id'],ICookie::get('invite_goods'));
+		ICookie::clear('invite_goods');
+
 		//更新最后一次登录时间
 		$memberObj = new IModel('member');
 		$dataArray = array(
