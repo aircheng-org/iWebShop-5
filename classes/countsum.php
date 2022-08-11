@@ -335,7 +335,7 @@ class CountSum
 	    			if($buyInfo['goods']['data'][$val['goods_id']]['count'] <= 0 || $buyInfo['goods']['data'][$val['goods_id']]['count'] > $val['store_nums'])
 	    			{
 	    				$goodsList[$key]['name'] .= "【无库存】";
-	    				$this->error .= "<商品：".$val['name']."> 购买数量超出库存，请重新调整购买数量。";
+	    				$this->error .= "商品：".$val['name']."，购买数量超出库存，请重新调整购买数量。";
 	    			}
 
 	    			$groupPrice = $this->getGroupPrice($val['goods_id'],'goods');
@@ -420,7 +420,7 @@ class CountSum
 	    			if($buyInfo['product']['data'][$val['product_id']]['count'] <= 0 || $buyInfo['product']['data'][$val['product_id']]['count'] > $val['store_nums'])
 	    			{
 	    				$productList[$key]['name'] .= "【无库存】";
-	    				$this->error .= "<货品：".$val['name']."> 购买数量超出库存，请重新调整购买数量。";
+	    				$this->error .= "货品：".$val['name']."，购买数量超出库存，请重新调整购买数量。";
 	    			}
 
 	    			$groupPrice = $this->getGroupPrice($val['product_id'],'product');

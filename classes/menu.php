@@ -234,7 +234,12 @@ class Menu
 				foreach($val2 as $key3 => $val3)
 				{
 					//把菜单数据里面的路径转化成@符号做权限码比对
-					$tempKey3 = str_replace("/","@",trim($key3,"/"));
+					preg_match("@/(\w+)/(\w+)@",$key3,$match);
+					if(count($match) < 3)
+					{
+						continue;
+					}
+					$tempKey3 = $match[1].'@'.$match[2];
 					if(in_array($key3,$defaultShow) || strpos($adminRights,$tempKey3) !== false)
 					{
 						$result[$key1][$key2][$key3] = $val3;

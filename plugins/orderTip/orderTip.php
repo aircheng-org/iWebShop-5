@@ -81,7 +81,7 @@ class orderTip extends pluginBase
         $seller_id = IFilter::act(IReq::get('seller_id'), 'int');
         $time      = IFilter::act(IReq::get('nowTime'));
         $orderDB   = new IModel('order');
-        $where     = '((pay_status = 1 and pay_time >= "' . $time . '" and seller_id = ' . $seller_id . ') or ( create_time >= "' . $time . '" and pay_type=0 and seller_id = ' . $seller_id . '))';
+        $where     = "seller_id = ".$seller_id." and pay_time >= '".$time."'";
         $orderRow  = $orderDB->getObj($where, 'id,order_no,order_amount,pay_status,distribution_status,status,pay_type', 'id desc');
         if($orderRow)
         {

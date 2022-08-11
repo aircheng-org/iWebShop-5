@@ -110,6 +110,10 @@ class IModel
 
 				$updateArr[] = " `{$key}` = '{$val}' ";
 			}
+			else if($val === null)
+			{
+				$updateArr[] = " `{$key}` = NULL ";
+			}
 			else
 			{
 				$updateArr[] = " `{$key}` = {$val} ";
@@ -135,11 +139,18 @@ class IModel
 			$key = IFilter::stripSlash($key);
 			$key = IFilter::addSlash($key);
 
-			$val = IFilter::stripSlash($val);
-			$val = IFilter::addSlash($val);
-
 			$insertCol[] = '`'.$key.'`';
-			$insertVal[] = '\''.$val.'\'';
+
+			if($val === null)
+			{
+				$insertVal[] = 'NULL';
+			}
+			else
+			{
+				$val = IFilter::stripSlash($val);
+				$val = IFilter::addSlash($val);
+				$insertVal[] = '\''.$val.'\'';
+			}
 		}
 		$sql = 'INSERT INTO '.$this->tableName.' ( '.join(',',$insertCol).' ) VALUES ( '.join(',',$insertVal).' ) ';
 		return $this->db->query($sql);
@@ -195,7 +206,6 @@ class IModel
 	public function query($where=false,$cols='*',$orderBy='',$limit=50000)
 	{
 		IInterceptor::trigger("IModelQueryBefore",$this);
-		$where = preg_replace('/from\s+(\S+)/i',"from {$this->tablePre}$1 ",$where);
 
 		//字段拼接
 		if(is_array($cols))

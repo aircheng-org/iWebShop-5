@@ -18,4 +18,10 @@ interface ILog
      * @param string $logs 日志的内容
      */
     public function write($logs = "");
+
+    /**
+     * @brief 实现日志的读操作接口
+     * @return string 日志内容
+     */
+    public function read();
 }

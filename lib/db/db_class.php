@@ -151,7 +151,7 @@ abstract class IDB
             $result = $this->read($sql);
             if($result === false)
             {
-				throw new IException("{$sql}\n -- ".self::$rLink->error,1000);
+				throw new IException(self::$rLink->error,1000);
 				return false;
             }
 
@@ -166,7 +166,7 @@ abstract class IDB
             $result = $this->write($sql);
             if($result === false)
             {
-				throw new IException("{$sql}\n -- ".self::$wLink->error,1000);
+				throw new IException(self::$wLink->error,1000);
 				return false;
             }
 

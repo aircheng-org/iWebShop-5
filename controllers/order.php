@@ -303,9 +303,11 @@ class Order extends IController implements adminAuthorization
 		$tb_refundment_doc = new IModel('refundment_doc');
 		if($refunds_id)
 		{
-			$updateData = array('amount' => $amount);
-			$tb_refundment_doc->setData($updateData);
-			$tb_refundment_doc->update("id = ".$refunds_id);
+			if($amount > 0)
+			{
+				$tb_refundment_doc->setData(['amount' => $amount]);
+				$tb_refundment_doc->update("id = ".$refunds_id." and pay_status = 0");
+			}
 		}
 		//2,无退款申请单，必须生成退款单
 		else

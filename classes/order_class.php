@@ -1370,45 +1370,51 @@ class Order_Class
 		    return "订单不符合申请售后条件";
 		}
 
-		$order_id     = $orderRow['id'];
-		$goodsOrderDB = new IModel('order_goods');
-		$refundsDB    = new IModel('refundment_doc');
-		$exchangeDB   = new IModel('exchange_doc');
-		$fixDB        = new IModel('fix_doc');
-
-		foreach($orderGoodsIds as $key => $val)
+		$order_id = $orderRow['id'];
+		switch($type)
 		{
-			$goodsOrderRow = $goodsOrderDB->getObj('id = '.$val.' and order_id = '.$order_id);
-			if($goodsOrderRow && $goodsOrderRow['is_send'] == 2)
+			case "refunds":
 			{
-				return "部分商品已经做了退款处理";
-			}
+				//判断是否已经生成了结算申请或者已经结算了
+				if($orderRow['is_checkout'] == 1)
+				{
+					return '此订单金额已被商家结算完毕，请直接与商家联系退款';
+				}
 
-			if( $refundsDB->getObj('if_del = 0 and pay_status not in (1,2) and FIND_IN_SET('.$val.',order_goods_id)') )
-			{
-				return "您已经对此商品提交了退款申请，请耐心等待";
+				$refundsDB = new IModel('refundment_doc');
+				if($refundsDB->getObj('order_id = '.$order_id.' and pay_status not in (2,1)'))
+				{
+					return "您已经提交了退款申请，请耐心等待";
+				}
 			}
+			break;
 
-			if( $exchangeDB->getObj('if_del = 0 and status not in (1,2) and FIND_IN_SET('.$val.',order_goods_id)') )
+			case "fix":
 			{
-				return "您已经对此商品提交了换货申请，请耐心等待";
+				$fixDB = new IModel('fix_doc');
+				if($fixDB->getObj('order_id = '.$order_id.' and status not in (2,1)'))
+				{
+					return "您已经提交了维修申请，请耐心等待";
+				}
 			}
+			break;
 
-			if( $fixDB->getObj('if_del = 0 and status not in (1,2) and FIND_IN_SET('.$val.',order_goods_id)') )
+			case "exchange":
 			{
-				return "您已经对此商品提交了维修申请，请耐心等待";
+				$exchangeDB = new IModel('exchange_doc');
+				if($exchangeDB->getObj('order_id = '.$order_id.' and status not in (2,1)'))
+				{
+					return "您已经提交了换货申请，请耐心等待";
+				}
 			}
+			break;
 		}
 
-        //判断是否已经生成了结算申请或者已经结算了
-		if($type == 'refunds')
+		//申请退款的商品已经是退款状态
+		$goodsOrderDB = new IModel('order_goods');
+		if($goodsOrderDB->getObj('id in ('.join(",",$orderGoodsIds).') and is_send = 2'))
 		{
-    		$billObj = new IModel('bill');
-    		$billRow = $billObj->getObj('FIND_IN_SET('.$order_id.',order_ids)');
-    		if($billRow)
-    		{
-    			return '此订单金额已被商家结算完毕，请直接与商家联系退款';
-    		}
+			return "商品已经退款了";
 		}
 		return true;
 	}
@@ -1943,6 +1949,17 @@ class Order_Class
     //订单是否可以申请售后
 	public static function isRefund($orderRow)
 	{
+		//订单完成时间超过了限制售后时间
+		$low_refunds = IWeb::$app->getController()->_siteConfig->low_refunds;
+		if($orderRow['completion_time'] && $low_refunds)
+		{
+			$passDate = strtotime($orderRow['completion_time']) + $low_refunds * 86400;
+			if(time() >= $passDate)
+			{
+				return false;
+			}
+		}
+
 	    if(in_array($orderRow['status'],[5,7]) || ($orderRow['status'] == 2 && $orderRow['takeself'] > 0))
 	    {
 	        return true;

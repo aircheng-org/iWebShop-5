@@ -84,4 +84,13 @@ class IFileLog implements ILog
 		}
 		return error_log($result."\n\n", 3 ,$fileName);
 	}
+
+	/**
+	 * @brief 读取日志
+	 * @return string 日志内容
+	 */
+	public function read()
+	{
+		return is_file($this->path) ? file_get_contents($this->path) : '';
+	}
 }

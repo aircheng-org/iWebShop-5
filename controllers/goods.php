@@ -411,18 +411,17 @@ class Goods extends IController implements adminAuthorization
 			$uploadInstance->setDir($uploadDir);
 			$result = $uploadInstance->execute();
 			$result = current($result['goods_csv']);
-
 			if(isset($result['error']) && $result['error'] != '上传成功')
 			{
-				$this->redirect('goods_list', false);
-				Util::showMessage($result['error']);
+				$this->redirect('/goods/goods_list/_msg/'.$result['error']);
+				return;
 			}
 
 			//解析内容
 			$csvContent = file_get_contents($result['fileSrc']);
 			$successCount = 0;
 
-			preg_match("#<tr .*>.*</tr>#is",$csvContent,$match);
+			preg_match("#<tr.*>.*</tr>#is",$csvContent,$match);
 			if($match && isset($match[0]) && $match[0])
 			{
 				$goodsDB   = new IModel('goods');

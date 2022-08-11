@@ -644,10 +644,10 @@ class Ucenter extends IController implements userAuthorization
 	    	{
 	    	    plugin::trigger('withdrawApplyFinish',$id);
 	    	}
-	    	$this->redirect('withdraw');
+	    	$this->redirect('/ucenter/withdraw/_msg/申请成功等待审核通过');
 		}
 
-		if($message != '')
+		if($message)
 		{
 			$this->memberRow = array('balance' => $memberRow['balance']);
 			$this->withdrawRow = $dataArray;
