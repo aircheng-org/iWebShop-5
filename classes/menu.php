@@ -142,7 +142,6 @@ class Menu
             	'/system/delivery'  	=> '配送方式',
         		'/system/freight_list'	=> '物流公司',
 	    		'/system/takeself_list' => '自提点列表',
-	    		'/system/takeself_edit' => '添加自提点',
         	),
         	'地域管理'=>array(
         		'/system/area_list' => '地区列表',

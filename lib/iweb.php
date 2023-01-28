@@ -164,7 +164,7 @@ class IWeb
 		'JSON'				=>	'core/util/json_class.php',
 		'Captcha'	        =>	'core/util/captcha_class.php',
 		'IImage'			=>	'core/util/image_class.php',
-		'ILanguage'			=>	'core/util/language_class.php',
+		'ILang'				=>	'core/util/language_class.php',
 		'ISafe'             =>	'core/util/safe_class.php',
 		'ICrypt'            =>	'core/util/crypt_class.php',
 		'IFileLog'			=>	'log/filelog_class.php',
@@ -186,6 +186,9 @@ class IWeb
 		'IInterceptor'		=>	'core/interceptor_class.php',
 		'GD'                =>	'core/util/phpthumb/GD.php',
 		'QRcode'            =>  'core/util/phpqrcode/qrlib.php',
+		'PHPExcel'          =>  'core/util/phpexcel/PHPExcel.php',
+		'PHPExcel_Writer_Excel2007' => 'core/util/phpexcel/PHPExcel/Writer/Excel2007.php',
+		'PHPExcel_Reader_Excel2007' => 'core/util/phpexcel/PHPExcel/Reader/Excel2007.php',
 	);
 }
 

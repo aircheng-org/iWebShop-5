@@ -130,6 +130,12 @@ class _hsms extends pluginBase
 
         //在线充值
         plugin::reg("onlineRechargeFinish",$this,"onlineRechargeFinish");
+
+		//商家货款结算
+		plugin::reg("onSellerOrderfeeFinish",$this,"onSellerOrderfeeFinish");
+
+		//用户预存款更新
+		plugin::reg("updateBalance",$this,"updateBalance");
     }
 
     /*******************************以下为事件处理*************************************/
@@ -676,6 +682,37 @@ class _hsms extends pluginBase
         $mobile = $this->getMobileBySeller($row['seller_id']);
         Hsms::send($mobile,join(",",$data),0);
     }
+
+	//商家货款结算[商家接受]
+	public function onSellerOrderfeeFinish($billId)
+	{
+		$billDB = new IModel('bill');
+		$billRow = $billDB->getObj($billId);
+
+	    //给商家发消息
+	    $data = [
+	        "您的订单货款已结算",
+	        "支付方式：".$billRow['way'],
+			"结算金额：￥".$billRow['amount'],
+			"付款单号：".$billRow['bill_no'],
+	        "请登录您的商家后台查看详情",
+	    ];
+        $mobile = $this->getMobileBySeller($billRow['seller_id']);
+        Hsms::send($mobile,join(",",$data),0);
+	}
+
+	//用户预存款更新
+	public function updateBalance($accountLogRow)
+	{
+		$mobile = $this->getMobileByUser($accountLogRow['user_id']);
+		$data   = [
+			"账户预存款金额变化",
+			"金额：".$accountLogRow['amount'],
+			"事件：".$accountLogRow['eventText'],
+			"请登录您的个人中心查看预存款",
+		];
+		Hsms::send($mobile,join(",",$data),0);
+	}
 
     //维修更新同意或者拒绝
     public function fixDocUpdate($id)

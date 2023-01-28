@@ -48,7 +48,7 @@
             {foreach:items=$resultData}
 			<tr>
 				<td><input name="id[]" type="checkbox" value="{$item['id']}" /></td>
-				<td>{$item['order_no']}</td>
+				<td><a href="{url:/order/order_show/id/$item['order_id']}">{$item['order_no']}</a></td>
 				<td>{$item['amount']}</td>
 				<td>{echo:$item['username']=='' ? '游客' : $item['username']}</td>
 				<td>{echo:Order_Class::refundmentText($item['pay_status'])}</td>

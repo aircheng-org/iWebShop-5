@@ -60,6 +60,11 @@ class AccountLog
 	    6 => "充值奖励",
 	);
 
+	//用户预存款资金用途
+	public static $purpose = [
+		"工资","报销","转账","借款","还款","其他"
+	];
+
 	//获取事件的文字描述
 	public static function eventText($event)
 	{
@@ -108,7 +113,9 @@ class AccountLog
 
 		//写入数据库
 		$finnalAmount = $this->user['balance'] + $this->amount;
-		if($finnalAmount < 0)
+
+		//金额为减少的操作，且余额负数阻止
+		if(in_array($this->allow_event[$this->event],array(2,3)) && $finnalAmount < 0)
 		{
 			$this->error = "用户预存款不足";
 			return false;
@@ -134,6 +141,7 @@ class AccountLog
 			'amount_log'=> $finnalAmount,
 			'type'      => $this->amount >= 0 ? 0 : 1,
 			'time'      => ITime::getDateTime(),
+			'purpose'   => isset($config['purpose']) ? $config['purpose'] : "",
 		);
 		$tb_account_log->setData($insertData);
 		$result = $tb_account_log->add();
@@ -144,6 +152,10 @@ class AccountLog
 			$logObj = new log('db');
 			$logObj->write('operation',array("管理员:".$this->admin['admin_name'],"修改账户金额",$insertData['note']));
 		}
+
+		//发送通知余额更新
+		$insertData['eventText'] = self::eventText($insertData['event']);
+		plugin::trigger('updateBalance',$insertData);
 		return $result;
 	}
 

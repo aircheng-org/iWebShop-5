@@ -54,13 +54,13 @@ class Block extends IController
     {
     	$productId    = IFilter::act(IReq::get("productId"),'int');
     	$goodsId      = IFilter::act(IReq::get("goodsId"),'int');
-    	$province     = IFilter::act(IReq::get("province"),'int');
+    	$region       = IFilter::act(IReq::get("region"),'int');
     	$distribution = IFilter::act(IReq::get("distribution"),'int');
     	$num          = IReq::get("num") ? IFilter::act(IReq::get("num"),'int') : 1;
 		$data         = array();
 		if($distribution)
 		{
-			$data = Delivery::getDelivery($province,$distribution,$goodsId,$productId,$num);
+			$data = Delivery::getDelivery($region,$distribution,$goodsId,$productId,$num);
 		}
 		else
 		{
@@ -68,7 +68,7 @@ class Block extends IController
 			$deliveryList = $delivery->query('is_delete = 0 and status = 1');
 			foreach($deliveryList as $key => $item)
 			{
-				$data[$item['id']] = Delivery::getDelivery($province,$item['id'],$goodsId,$productId,$num);
+				$data[$item['id']] = Delivery::getDelivery($region,$item['id'],$goodsId,$productId,$num);
 			}
 		}
     	echo JSON::encode($data);
@@ -94,14 +94,14 @@ class Block extends IController
 
 			if(empty($orderRow))
 			{
-				IError::show(403,'要支付的订单信息不存在');
+				IError::show(403,ILang::get('订单信息不存在'));
 			}
 
 			//判断订单是否已经支付成功了
 			if($orderRow['pay_status'] == 1)
 			{
 				plugin::trigger('setCallback','/ucenter/order');
-				$this->redirect('/site/success/message/'.urlencode("订单已经支付成功"));
+				$this->redirect('/site/success/message/'.urlencode(ILang::get('订单已经支付成功')));
 				return;
 			}
 
@@ -140,7 +140,7 @@ class Block extends IController
 		}
 		else
 		{
-			IError::show(403,'发生支付错误');
+			IError::show(403,ILang::get('发生支付错误'));
 		}
 
 		$paymentInstance->doPay($sendData);
@@ -157,7 +157,7 @@ class Block extends IController
 
 		if(!is_object($paymentInstance))
 		{
-			IError::show(403,'支付方式不存在');
+			IError::show(403,ILang::get('支付方式不存在'));
 		}
 
 		//初始化参数
@@ -183,10 +183,10 @@ class Block extends IController
 				if(payment::updateRecharge($recharge_no))
 				{
 					plugin::trigger('setCallback','/ucenter/account_log');
-					$this->redirect('/site/success?message='.urlencode("充值成功"));
+					$this->redirect('/site/success?message='.urlencode(ILang::get('充值成功')));
 					return;
 				}
-				IError::show(403,'充值失败');
+				IError::show(403,ILang::get('充值失败'));
 			}
 			else
 			{
@@ -199,18 +199,18 @@ class Block extends IController
 						$order_id = Order_Class::updateOrderStatus($key);
 						if(!$order_id)
 						{
-							IError::show(403,'订单修改失败');
+							IError::show(403,ILang::get('订单修改失败'));
 						}
 					}
 					plugin::trigger('setCallback','/ucenter/order');
-					$this->redirect('/site/success/message/'.urlencode("支付成功"));
+					$this->redirect('/site/success/message/'.urlencode(ILang::get('支付成功')));
 					return;
 				}
 				$message = '付款金额 ['.$money.'] 与订单金额['.array_sum($moreOrder).']不符合';
 			}
 		}
 		//支付失败
-		$message = $message ? $message : '支付失败';
+		$message = $message ? $message : ILang::get('支付失败');
 		IError::show(403,$message);
 	}
 
@@ -230,7 +230,7 @@ class Block extends IController
 
 		//初始化参数
 		$money   = '';
-		$message = '支付失败';
+		$message = ILang::get('支付失败');
 		$orderNo = '';
 
 		//执行接口回调函数
@@ -317,7 +317,7 @@ class Block extends IController
     	$propRow = $propObj->getObj('card_name = "'.$ticket_num.'" and card_pwd = "'.$ticket_pwd.'" and type = 0 and is_userd = 0 and is_send = 1 and is_close = 0 and NOW() between start_time and end_time');
     	if(!$propRow)
     	{
-    		$message = '请确认优惠券信息和使用状态';
+    		$message = ILang::get('请确认优惠券信息和使用状态');
 	    	$result = array(
 	    		'isError' => $isError,
 	    		'message' => $message,
@@ -330,7 +330,7 @@ class Block extends IController
 		$isRev     = $memberObj->query('FIND_IN_SET('.$propRow['id'].',prop)');
 		if($isRev)
 		{
-    		$message = '优惠券已经被领取';
+    		$message = ILang::get('优惠券已经被领取');
 	    	$result = array(
 	    		'isError' => $isError,
 	    		'message' => $message,
@@ -340,7 +340,7 @@ class Block extends IController
 
 		//登录用户
 		$isError = false;
-		$message = '添加成功';
+		$message = ILang::get('添加成功');
 		if($this->user['user_id'])
 		{
 		    ticket::bindByUser($propRow['id'],$this->user['user_id']);
@@ -508,16 +508,16 @@ class Block extends IController
 					}
 					else
 					{
-						die(isset($result['reason']) ? $result['reason'] : '物流接口发生错误');
+						die(isset($result['reason']) ? $result['reason'] : ILang::get('物流接口发生错误'));
 					}
 				}
 				else
 				{
-					die('缺少物流信息');
+					die(ILang::get('缺少物流信息'));
 				}
 			}
 		}
-		die('发货单信息不存在');
+		die(ILang::get('发货单信息不存在'));
 	}
 
 	//收货地址弹出框
@@ -573,7 +573,7 @@ class Block extends IController
         {
         	if(!$val)
         	{
-        		$result = array('result' => false,'msg' => '请完整填写收件信息');
+        		$result = array('result' => false,'msg' => ILang::get('请完整填写收件信息'));
 				die(JSON::encode($result));
         	}
         }
@@ -710,7 +710,7 @@ class Block extends IController
         {
         	if(!$val)
         	{
-        		$result = array('result' => false,'msg' => '请完整填写收件信息');
+        		$result = array('result' => false,'msg' => ILang::get('请完整填写收件信息'));
 				die(JSON::encode($result));
         	}
         }
@@ -755,7 +755,7 @@ class Block extends IController
 	    $takeselfRow = $takeselfDB->getObj($id);
 	    if(!$takeselfRow)
 	    {
-	        die('自提点信息不存在');
+	        die(ILang::get('自提点信息不存在'));
 	    }
 
 	    $takeselfRow['accept_name']  = $accept_name;
@@ -775,7 +775,7 @@ class Block extends IController
 
 	    if(!$start || !$end)
 	    {
-	        die(JSON::encode(['status' => 'fail','msg' => '请选择日期']));
+	        die(JSON::encode(['status' => 'fail','msg' => ILang::get('请选择日期')]));
 	    }
 
 		//游客的user_id默认为0

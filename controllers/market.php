@@ -1442,7 +1442,7 @@ class Market extends IController implements adminAuthorization
 					{
 						$strGoods .= " 规格：".$good['value'];
 					}
-					$strGoods .= "<br style='mso-data-placement:same-cell;'/>";
+					$strGoods .= ";";
 				}
 
 				//计算金额
@@ -1477,6 +1477,7 @@ class Market extends IController implements adminAuthorization
 	}
 
 	//给商家结算货款
+	//数据结构：[transferNo => '转款单号','transferName' => '转款名称','detail' => ['name' => '姓名','amount' => '金额','openid' => 'openid参数']]
 	public function pay_countfee()
 	{
 		set_time_limit(0);
@@ -1489,57 +1490,39 @@ class Market extends IController implements adminAuthorization
 			die('没有选择要结算的商家');
 		}
 
+		//1，拼装数据
+		$billNo = 'B'.Order_Class::createOrderNum();
+		$payList = [];
 		$sellerDB = new IModel('seller');
 		$error = '';
-		$successNum = 0;
-		$failNum    = 0;
+
 		foreach($sellerIds as $seller_id)
 		{
 			$orderGoodsQuery = CountSum::getSellerGoodsFeeQuery($seller_id,0);
-			$result          = CountSum::countSellerOrderFee($orderGoodsQuery->find());
-			$billNo          = 'B'.Order_Class::createOrderNum();
-			$paymentTime     = ITime::getDateTime();
-			$payCheck        = false;
+			$result          = CountSum::countSellerOrderFee($orderGoodsQuery->find());//在$result拼装数据最后送到转账接口里面
+			$result['seller_id'] = $seller_id;
 
 			switch($type)
 			{
 				//微信余额
 				case "wechatBalance":
 				{
-					include_once(dirname(__FILE__)."/../plugins/transfer/wechatBalance.php");
 					$sellerOpenidRelationDB = new IModel('seller_openid_relation');
 
 					//商家有绑定的openid参数
 					$relationRow = $sellerOpenidRelationDB->getObj('seller_id = '.$seller_id);
 					if($relationRow && $relationRow['openid'])
 					{
-						$sellerRow = $sellerDB->getObj($seller_id);
-						//引入微信支付转账接口
-						$data = [
-							'openid'           => $relationRow['openid'],
-							're_user_name'     => $sellerRow['account'],
-							'amount'           => $result['countFee'],
-							'desc'             => IWeb::$app->getController()->_siteConfig->name.'货款结算',
-							'partner_trade_no' => $billNo,
-							'payment_id'       => wechatBalance::WAP_WECHAT_PAYMENT_ID,
-						];
+						$sellerRow = $sellerDB->getObj($seller_id,'account');
 
-						$transferObj = new wechatBalance();
-						$tranResult = $transferObj->run($data);
-
-						if(is_array($tranResult) && $tranResult['result_code'] == 'SUCCESS')
-						{
-							$PayNo    = $tranResult['payment_no'];
-							$payCheck = true;
-						}
-						else
-						{
-							$error .= $tranResult;
-						}
+						$result['amount'] = $result['countFee'];
+						$result['name']   = $sellerRow['account'];
+						$result['openid'] = $relationRow['openid'];
 					}
 					else
 					{
-						die("商家ID：[".$seller_id."] 没有绑定微信");
+						$error .= "商家ID：[".$seller_id."] 没有绑定微信";
+						continue 2;
 					}
 				}
 				break;
@@ -1547,44 +1530,78 @@ class Market extends IController implements adminAuthorization
 				//人工线下
 				case "offline":
 				{
-					$PayNo    = '88888888';
-					$payCheck = true;
+
 				}
 				break;
 			}
 
-			if($payCheck == true)
-			{
-				$orderIdsString = join(',',$result['order_ids']);
-
-				//生成结算货款单子
-				$billDB = new IModel('bill');
-				$billDB->setData([
-					'seller_id'  => $seller_id,
-					'pay_time'   => $paymentTime,
-					'admin_id'   => $this->admin['admin_id'],
-					'log'        => AccountLog::sellerBillTemplate($result),
-					'order_ids'  => $orderIdsString,
-					'amount'     => $result['countFee'],
-					'way'        => $type,
-					'bill_no'    => $billNo,
-					'payment_no' => $PayNo,
-				]);
-				$billDB->add();
-
-				//更新订单结算状态
-				$orderDB = new IModel('order');
-				$orderDB->setData(['is_checkout' => 1]);
-				$orderDB->update('id in ('.$orderIdsString.')');
-
-				$successNum++;
-			}
-			else
-			{
-				$failNum++;
-			}
+			//待结算提现单
+			$payList[] = $result;
 		}
 
-		die('成功：'.$successNum.'个; 失败：'.$failNum.'个; '.$error);
+		//2,调用接口转账
+		switch($type)
+		{
+			//微信余额
+			case "wechatBalance":
+			{
+				include_once(dirname(__FILE__)."/../plugins/transfer/wechatBalance.php");
+				$sendData = [
+					'transferNo'  => $billNo,
+					'transferName'=> '商家货款结算',
+					'detail'      => $payList,
+				];
+				$transferObj = new wechatBalance();
+				$tranResult = $transferObj->run($sendData);
+				if(is_array($tranResult) && isset($tranResult['result_code']) && $tranResult['result_code'] == 'SUCCESS')
+				{
+					$PayNo = $tranResult['payment_no'];
+				}
+				else
+				{
+					$payList = [];
+					$error .= $tranResult;
+				}
+			}
+			break;
+
+			//人工线下
+			case "offline":
+			{
+				$PayNo = '88888888';
+			}
+			break;
+		}
+
+		//3,后续处理
+		foreach($payList as $result)
+		{
+			$orderIdsString = join(',',$result['order_ids']);
+
+			//生成结算货款单子
+			$billDB = new IModel('bill');
+			$billDB->setData([
+				'seller_id'  => $result['seller_id'],
+				'pay_time'   => ITime::getDateTime(),
+				'admin_id'   => $this->admin['admin_id'],
+				'log'        => AccountLog::sellerBillTemplate($result),
+				'order_ids'  => $orderIdsString,
+				'amount'     => $result['countFee'],
+				'way'        => $type,
+				'bill_no'    => $billNo,
+				'payment_no' => $PayNo,
+			]);
+			$billId = $billDB->add();
+
+			//更新订单结算状态
+			$orderDB = new IModel('order');
+			$orderDB->setData(['is_checkout' => 1]);
+			$orderDB->update('id in ('.$orderIdsString.')');
+
+			//事件发送
+			plugin::trigger('onSellerOrderfeeFinish',$billId);
+		}
+
+		die('总共：'.count($sellerIds).'个; 成功：'.count($payList).'个; '.$error);
 	}
 }

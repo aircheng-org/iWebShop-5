@@ -15,118 +15,135 @@
 
         <div class="row">
             <div class="col-md-3 col-sm-6 col-xs-12">
+				<a href="{url:/comment/comment_list/search[c.recomment_time]/=0}">
                 <div class="info-box">
-                    <span class="info-box-icon bg-aqua">
-                        <i class="fa fa-comments"></i>
-                    </span>
-                    <div class="info-box-content">
-                        <span class="info-box-text">评论待回复</span>
-                        <span class="info-box-number">
-                            <a href="{url:/comment/comment_list/search[c.recomment_time]/=0}">{echo:Api::run('commentWaitCount')}</a>
-                            <small>个</small>
-                        </span>
-                    </div>
+					<span class="info-box-icon bg-aqua">
+						<i class="fa fa-comments"></i>
+					</span>
+					<div class="info-box-content">
+						<span class="info-box-text">评论待回复</span>
+						<span class="info-box-number">
+							{echo:Api::run('commentWaitCount')}
+							<small>个</small>
+						</span>
+					</div>
                 </div>
+				</a>
             </div>
             <div class="col-md-3 col-sm-6 col-xs-12">
+				<a href="{url:/comment/suggestion_list/search[a.re_time is]/null}">
                 <div class="info-box">
-                    <span class="info-box-icon bg-red">
-                        <i class="fa fa-comments-o"></i>
-                    </span>
-                    <div class="info-box-content">
-                        <span class="info-box-text">建议待回复</span>
-                        <span class="info-box-number">
-                            <a href="{url:/comment/suggestion_list/search[a.re_time is]/null}">{echo:Api::run('suggestionWaitCount')}</a>
-                            <small>个</small>
-                        </span>
-                    </div>
+					<span class="info-box-icon bg-red">
+						<i class="fa fa-comments-o"></i>
+					</span>
+					<div class="info-box-content">
+						<span class="info-box-text">建议待回复</span>
+						<span class="info-box-number">
+							{echo:Api::run('suggestionWaitCount')}
+							<small>个</small>
+						</span>
+					</div>
                 </div>
+				</a>
             </div>
             <div class="col-md-3 col-sm-6 col-xs-12">
+				<a href="{url:/comment/refer_list/search[r.status=]/0}">
                 <div class="info-box">
-                    <span class="info-box-icon bg-green">
-                        <i class="fa fa-twitch"></i>
-                    </span>
-                    <div class="info-box-content">
-                        <span class="info-box-text">咨询待回复</span>
-                        <span class="info-box-number">
-                            <a href="{url:/comment/refer_list/search[r.status=]/0}">{echo:Api::run('referWaitCount')}</a>
-                            <small>个</small>
-                        </span>
-                    </div>
+					<span class="info-box-icon bg-green">
+						<i class="fa fa-twitch"></i>
+					</span>
+					<div class="info-box-content">
+						<span class="info-box-text">咨询待回复</span>
+						<span class="info-box-number">
+							{echo:Api::run('referWaitCount')}
+							<small>个</small>
+						</span>
+					</div>
                 </div>
+				</a>
             </div>
             <div class="col-md-3 col-sm-6 col-xs-12">
+				<a href="{url:/order/order_list/search[distribution_status]/0/search[pay_status]/1/search[status]/2}">
                 <div class="info-box">
-                    <span class="info-box-icon bg-orange">
-                        <i class="fa fa-truck"></i>
-                    </span>
-                    <div class="info-box-content">
-                        <span class="info-box-text">付款待发货</span>
-                        <span class="info-box-number">
-                            <a href="{url:/order/order_list/search[distribution_status]/0/search[pay_status]/1/search[status]/2}">{echo:Api::run('orderWaitCount')}</a>
-                            <small>个</small>
-                        </span>
-                    </div>
+					<span class="info-box-icon bg-orange">
+						<i class="fa fa-truck"></i>
+					</span>
+					<div class="info-box-content">
+						<span class="info-box-text">付款待发货</span>
+						<span class="info-box-number">
+							{echo:Api::run('orderWaitCount')}
+							<small>个</small>
+						</span>
+					</div>
                 </div>
+				</a>
             </div>
             <div class="col-md-3 col-sm-6 col-xs-12">
+				<a href="{url:/market/regiment_list}">
                 <div class="info-box">
-                    <span class="info-box-icon bg-olive">
-                        <i class="fa fa-group"></i>
-                    </span>
-                    <div class="info-box-content">
-                        <span class="info-box-text">团购活动申请</span>
-                        <span class="info-box-number">
-                            <a href="{url:/market/regiment_list}">{echo:Api::run('regimentWaitCount')}</a>
-                            <small>个</small>
-                        </span>
-                    </div>
+					<span class="info-box-icon bg-olive">
+						<i class="fa fa-group"></i>
+					</span>
+					<div class="info-box-content">
+						<span class="info-box-text">团购活动申请</span>
+						<span class="info-box-number">
+							{echo:Api::run('regimentWaitCount')}
+							<small>个</small>
+						</span>
+					</div>
                 </div>
+				</a>
             </div>
             <div class="col-md-3 col-sm-6 col-xs-12">
+				<a href="{url:/member/seller_list/search[is_lock=]/1}">
                 <div class="info-box">
-                    <span class="info-box-icon bg-teal">
-                        <i class="fa fa-address-card"></i>
-                    </span>
-                    <div class="info-box-content">
-                        <span class="info-box-text">待审商家</span>
-                        <span class="info-box-number">
-                            <a href="{url:/member/seller_list/search[is_lock=]/1}">{echo:Api::run('getSellerCount',array('is_lock'=>1))}</a>
-                            <small>个</small>
-                        </span>
-                    </div>
+					<span class="info-box-icon bg-teal">
+						<i class="fa fa-address-card"></i>
+					</span>
+					<div class="info-box-content">
+						<span class="info-box-text">待审商家</span>
+						<span class="info-box-number">
+							{echo:Api::run('getSellerCount',array('is_lock'=>1))}
+							<small>个</small>
+						</span>
+					</div>
                 </div>
+				</a>
             </div>
             <div class="col-md-3 col-sm-6 col-xs-12">
+				<a href="{url:/goods/goods_list/search[is_del]/3}">
                 <div class="info-box">
-                    <span class="info-box-icon bg-light-blue">
-                        <i class="fa fa-cube"></i>
-                    </span>
-                    <div class="info-box-content">
-                        <span class="info-box-text">待审商品</span>
-                        <span class="info-box-number">
-                            <a href="{url:/goods/goods_list/search[is_del]/3}">{echo:Api::run('goodsWaitCount')}</a>
-                            <small>个</small>
-                        </span>
-                    </div>
+					<span class="info-box-icon bg-light-blue">
+						<i class="fa fa-cube"></i>
+					</span>
+					<div class="info-box-content">
+						<span class="info-box-text">待审商品</span>
+						<span class="info-box-number">
+							{echo:Api::run('goodsWaitCount')}
+							<small>个</small>
+						</span>
+					</div>
                 </div>
+				</a>
             </div>
             <div class="col-md-3 col-sm-6 col-xs-12">
+				<a href="{url:/member/withdraw_list}">
                 <div class="info-box">
-                    <span class="info-box-icon bg-purple">
-                        <i class="fa fa-money"></i>
-                    </span>
-                    <div class="info-box-content">
-                        <span class="info-box-text">待审提现</span>
-                        <span class="info-box-number">
-                            <a href="{url:/member/withdraw_list}">{echo:Api::run('withdrawWaitCount')}</a>
-                            <small>个</small>
-                        </span>
-                    </div>
+					<span class="info-box-icon bg-purple">
+						<i class="fa fa-money"></i>
+					</span>
+					<div class="info-box-content">
+						<span class="info-box-text">待审提现</span>
+						<span class="info-box-number">
+							{echo:Api::run('withdrawWaitCount')}
+							<small>个</small>
+						</span>
+					</div>
                 </div>
+				</a>
             </div>
             <div class="col-md-3 col-sm-6 col-xs-12">
+				<a href="{url:/market/order_goods_merge}">
                 <div class="info-box">
                     <span class="info-box-icon bg-yellow">
                         <i class="fa fa-calculator"></i>
@@ -134,53 +151,60 @@
                     <div class="info-box-content">
                         <span class="info-box-text">待结算订单</span>
                         <span class="info-box-number">
-                            <a href="{url:/market/order_goods_merge}">{echo:Api::run('billWaitCount')}</a>
+                            {echo:Api::run('billWaitCount')}
                             <small>个</small>
                         </span>
                     </div>
                 </div>
+				</a>
             </div>
             <div class="col-md-3 col-sm-6 col-xs-12">
-                <div class="info-box">
-                    <span class="info-box-icon bg-maroon">
-                        <i class="fa fa-thumbs-o-down"></i>
-                    </span>
-                    <div class="info-box-content">
-                        <span class="info-box-text">退款申请</span>
-                        <span class="info-box-number">
-                            <a href="{url:/order/refundment_list}">{echo:Api::run('refundsCount')}</a>
-                            <small>个</small>
-                        </span>
-                    </div>
-                </div>
+				<a href="{url:/order/refundment_list}">
+				<div class="info-box">
+					<span class="info-box-icon bg-maroon">
+						<i class="fa fa-thumbs-o-down"></i>
+					</span>
+					<div class="info-box-content">
+						<span class="info-box-text">退款申请</span>
+						<span class="info-box-number">
+							{echo:Api::run('refundsCount')}
+							<small>个</small>
+						</span>
+					</div>
+				</div>
+				</a>
             </div>
             <div class="col-md-3 col-sm-6 col-xs-12">
-                <div class="info-box">
-                    <span class="info-box-icon bg-maroon">
-                        <i class="fa fa-cog"></i>
-                    </span>
-                    <div class="info-box-content">
-                        <span class="info-box-text">维修申请</span>
-                        <span class="info-box-number">
-                            <a href="{url:/order/fix_list}">{echo:Api::run('fixWaitCount')}</a>
-                            <small>个</small>
-                        </span>
-                    </div>
-                </div>
+				<a href="{url:/order/fix_list}">
+				<div class="info-box">
+					<span class="info-box-icon bg-maroon">
+						<i class="fa fa-cog"></i>
+					</span>
+					<div class="info-box-content">
+						<span class="info-box-text">维修申请</span>
+						<span class="info-box-number">
+							{echo:Api::run('fixWaitCount')}
+							<small>个</small>
+						</span>
+					</div>
+				</div>
+				</a>
             </div>
             <div class="col-md-3 col-sm-6 col-xs-12">
-                <div class="info-box">
-                    <span class="info-box-icon bg-maroon">
-                        <i class="fa fa-retweet"></i>
-                    </span>
-                    <div class="info-box-content">
-                        <span class="info-box-text">换货申请</span>
-                        <span class="info-box-number">
-                            <a href="{url:/order/exchange_list}">{echo:Api::run('exchangeWaitCount')}</a>
-                            <small>个</small>
-                        </span>
-                    </div>
-                </div>
+				<a href="{url:/order/exchange_list}">
+				<div class="info-box">
+					<span class="info-box-icon bg-maroon">
+						<i class="fa fa-retweet"></i>
+					</span>
+					<div class="info-box-content">
+						<span class="info-box-text">换货申请</span>
+						<span class="info-box-number">
+							{echo:Api::run('exchangeWaitCount')}
+							<small>个</small>
+						</span>
+					</div>
+				</div>
+				</a>
             </div>
         </div>
         <div class="row">

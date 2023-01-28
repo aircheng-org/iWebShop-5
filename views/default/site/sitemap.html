@@ -8,13 +8,13 @@
 			<div class="title"><h2>所有商品分类</h2></div>
 
 			<div class="sort_1">
-				{foreach:items=Api::run('getCategoryListTop') item=$first }
+				{foreach:items=Api::run('getCategoryListTopByVis') item=$first }
 				<a onclick="$(this).siblings().removeClass('current');$(this).addClass('current');" href="#sort_{$key}">{$first['name']}</a>
 				{/foreach}
 			</div>
 			<div class="sort_2">
 
-				{foreach:items=Api::run('getCategoryListTop') item=$first }
+				{foreach:items=Api::run('getCategoryListTopByVis') item=$first }
 				<table class="form_table" width="100%">
 					<col width="100px" />
 					<col />

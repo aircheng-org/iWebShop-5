@@ -54,7 +54,7 @@ class Simple extends IController
     	if(is_array($result))
     	{
 			//自定义跳转页面
-			$msg = isset($result['msg']) ? $result['msg'] : "恭喜您~注册成功";
+			$msg = isset($result['msg']) ? $result['msg'] : ILang::get('恭喜您注册成功');
 			$this->redirect('/site/success?message='.urlencode($msg));
     	}
     	else
@@ -129,7 +129,7 @@ class Simple extends IController
 	    	{
 		    	$result = array(
 		    		'isError' => false,
-		    		'message' => '添加成功',
+		    		'message' => ILang::get('添加成功'),
 		    	);
 	    	}
 	    	echo JSON::encode($result);
@@ -201,7 +201,7 @@ class Simple extends IController
 		    	{
     	    		$result = array(
     		    		'isError' => true,
-    		    		'message' => "商品信息不存在",
+    		    		'message' => ILang::get('商品信息不存在'),
     	    		);
 		    	}
 	    	}
@@ -383,7 +383,7 @@ class Simple extends IController
     	{
     		if(ISafe::get('timeKey') == IReq::get('timeKey'))
     		{
-	    		IError::show(403,'订单数据不能被重复提交');
+	    		IError::show(403,ILang::get('订单数据不能被重复提交'));
     		}
     		ISafe::set('timeKey',IReq::get('timeKey'));
     	}
@@ -427,7 +427,7 @@ class Simple extends IController
             $invoiceData = $invoice_id ? Api::run('getInvoiceRowById',array('#id#',$invoice_id)) : ISafe::get('invoice');
             if(!$invoiceData)
             {
-                IError::show(403,"请填写发票信息");
+                IError::show(403,ILang::get('请填写发票信息'));
             }
 		}
 
@@ -442,14 +442,14 @@ class Simple extends IController
     		{
     		    if(!$accept_name || !$accept_mobile)
     		    {
-    		        IError::show(403,"收货人和手机号没有填写");
+    		        IError::show(403,ILang::get('收货人和手机号没有填写'));
     		    }
 
     		    $takeselfDB = new IModel('takeself');
     		    $addressRow = $takeselfDB->getObj($takeself);
     		    if(!$addressRow)
     		    {
-    		        IError::show(403,"自提点信息不存在");
+    		        IError::show(403,ILang::get('自提点信息不存在'));
     		    }
     		    $addressRow['accept_name'] = $accept_name;
     		    $addressRow['mobile']      = $accept_mobile;
@@ -476,13 +476,13 @@ class Simple extends IController
                 $deliveryRow = $deliveryObj->getObj($delivery_id);
                 if (!$deliveryRow)
                 {
-                    IError::show(403, '配送方式不存在');
+                    IError::show(403, ILang::get('配送方式不存在'));
                 }
 
                 //1,在线支付
                 if($deliveryRow['type'] == 0 && $payment == 0)
                 {
-                    IError::show(403,'请选择正确的支付方式');
+                    IError::show(403,ILang::get('请选择正确的支付方式'));
                 }
                 //2,货到付款
                 else if($deliveryRow['type'] == 1)
@@ -493,7 +493,7 @@ class Simple extends IController
 
             if(!$addressRow)
             {
-                IError::show(403,"收货地址信息不存在");
+                IError::show(403,ILang::get('收货地址信息不存在'));
             }
 
             $accept_name   = IFilter::act($addressRow['accept_name'],'name');
@@ -512,7 +512,7 @@ class Simple extends IController
 	        $mobile = $accept_mobile;
             if($payment == 0)
             {
-                IError::show(403,'请选择正确的支付方式');
+                IError::show(403,ILang::get('请选择正确的支付方式'));
             }
         }
 
@@ -529,20 +529,20 @@ class Simple extends IController
     	//判断商品是否存在
     	if(is_string($goodsResult) || !$goodsResult['goodsList'])
     	{
-    		IError::show(403,'商品数据不存在');
+    		IError::show(403,ILang::get('商品数据不存在'));
     	}
 
 		$paymentObj = new IModel('payment');
 		$paymentRow = $paymentObj->getObj('id = '.$payment,'type,name');
 		if(!$paymentRow)
 		{
-			IError::show(403,'支付方式不存在');
+			IError::show(403,ILang::get('支付方式不存在'));
 		}
 		$paymentName= $paymentRow['name'];
 		$paymentType= $paymentRow['type'];
 
 		//最终订单金额计算
-        $orderData = $countSumObj->countOrderFee($goodsResult,isset($province) ? $province : "",isset($delivery_id) ? $delivery_id : "",$taxes,0,$preorderDate);
+        $orderData = $countSumObj->countOrderFee($goodsResult,isset($area) ? $area : "",isset($delivery_id) ? $delivery_id : "",$taxes,0,$preorderDate);
         if(is_string($orderData))
 		{
 			IError::show(403,$orderData);
@@ -562,7 +562,7 @@ class Simple extends IController
 					$ticketRow = $propObj->getObj('id = '.$tid.' and NOW() between start_time and end_time and type = 0 and is_close = 0 and is_userd = 0 and is_send = 1');
 					if(!$ticketRow)
 					{
-						IError::show(403,'优惠券不可用');
+						IError::show(403,ILang::get('优惠券不可用'));
 					}
 
 					//优惠券有效性验证
@@ -662,7 +662,7 @@ class Simple extends IController
     			$dataArray['prop']          = $tid;
     			$dataArray['promotions']   += $ticketRow['value'];
     			$dataArray['order_amount'] -= $ticketRow['value'];
-    			$goodsResult['promotion'][] = array("plan" => "优惠券","info" => "使用了￥".$ticketRow['value']."优惠券");
+    			$goodsResult['promotion'][] = ["plan" => ILang::get('优惠券'),"info" => ILang::get('使用了优惠券').'￥'.$ticketRow['value']];
 
     			//锁定红包状态
     			$propObj->setData(array('is_close' => 2));
@@ -687,7 +687,7 @@ class Simple extends IController
 
 			if($order_id == false)
 			{
-				IError::show(403,'订单生成错误');
+				IError::show(403,ILang::get('订单生成错误'));
 			}
 
 			/*将订单中的商品插入到order_goods表*/
@@ -747,7 +747,7 @@ class Simple extends IController
 		//订单金额为0时，订单自动完成
 		if($this->final_sum <= 0)
 		{
-			$this->redirect('/site/success/message/'.urlencode("订单确认成功，等待发货"));
+			$this->redirect('/site/success/message/'.urlencode(ILang::get('订单确认成功等待发货')));
 		}
 		else
 		{
@@ -762,7 +762,7 @@ class Simple extends IController
 		$user_id  = $this->user['user_id'];
 		if(!$user_id)
 		{
-		    $this->redirect("/simple/login/_msg/请先登录账号");
+		    $this->redirect("/simple/login/_msg/".ILang::get('请先登录账号'));
 		}
 
 		$email    = IFilter::act(IReq::get('email'),'email');
@@ -772,7 +772,7 @@ class Simple extends IController
 
 		if(!$goods_id)
 		{
-			IError::show(403,'商品ID不存在');
+			IError::show(403,ILang::get('商品ID不存在'));
 		}
 
 		$model = new IModel('notify_registry');
@@ -798,13 +798,13 @@ class Simple extends IController
 		$username = IReq::get('username');
 		if($username === null || !IValidate::name($username)  )
 		{
-			IError::show(403,"请输入正确的用户名");
+			IError::show(403,ILang::get('请输入正确的用户名'));
 		}
 
 		$email = IReq::get("email");
 		if($email === null || !IValidate::email($email ))
 		{
-			IError::show(403,"请输入正确的邮箱地址");
+			IError::show(403,ILang::get('请输入正确的邮箱地址'));
 		}
 
 		$tb_user  = new IModel("user as u,member as m");
@@ -813,7 +813,7 @@ class Simple extends IController
 		$user     = $tb_user->getObj(" u.id = m.user_id and u.username='{$username}' AND m.email='{$email}' ");
 		if(!$user)
 		{
-			IError::show(403,"对不起，用户不存在");
+			IError::show(403,ILang::get('用户不存在'));
 		}
 		$hash = IHash::md5( microtime(true) .mt_rand());
 
@@ -827,18 +827,18 @@ class Simple extends IController
 			$content = mailTemplate::findPassword(array("{url}" => $url));
 
 			$smtp   = new SendMail();
-			$result = $smtp->send($user['email'],"您的密码找回",$content);
+			$result = $smtp->send($user['email'],ILang::get('您的密码找回'),$content);
 
 			if($result===false)
 			{
-				IError::show(403,"发信失败,请重试！或者联系管理员查看邮件服务是否开启");
+				IError::show(403,ILang::get('发信失败请重试'));
 			}
 		}
 		else
 		{
-			IError::show(403,"生成HASH重复，请重试");
+			IError::show(403,ILang::get('生成HASH重复请重试'));
 		}
-		$message = "恭喜您，密码重置邮件已经发送！请到您的邮箱中去激活";
+		$message = ILang::get('密码重置邮件已经发送请到您的邮箱中去激活');
 		$this->redirect("/site/success/message/".urlencode($message));
 	}
 
@@ -848,19 +848,19 @@ class Simple extends IController
 		$username = IReq::get('username');
 		if($username === null || !IValidate::name($username))
 		{
-			IError::show(403,"请输入正确的用户名");
+			IError::show(403,ILang::get('请输入正确的用户名'));
 		}
 
 		$mobile = IReq::get("mobile");
 		if($mobile === null || !IValidate::mobi($mobile))
 		{
-			IError::show(403,"请输入正确的电话号码");
+			IError::show(403,ILang::get('请输入正确的电话号码'));
 		}
 
 		$mobile_code = IFilter::act(IReq::get('mobile_code'));
 		if($mobile_code === null)
 		{
-			IError::show(403,"请输入短信校验码");
+			IError::show(403,ILang::get('请输入短信校验码'));
 		}
 
 		$userDB = new IModel('user as u , member as m');
@@ -875,7 +875,7 @@ class Simple extends IController
 				if(time() - $dataRow['addtime'] > 3600)
 				{
 					$findPasswordDB->del("user_id = ".$userRow['user_id']);
-					IError::show(403,"您的短信校验码已经过期了，请重新找回密码");
+					IError::show(403,ILang::get('您的校验码已经过期了请重新找回密码'));
 				}
 				else
 				{
@@ -884,12 +884,12 @@ class Simple extends IController
 			}
 			else
 			{
-				IError::show(403,"您输入的短信校验码错误");
+				IError::show(403,ILang::get('您输入的短信校验码错误'));
 			}
 		}
 		else
 		{
-			IError::show(403,"用户名与手机号码不匹配");
+			IError::show(403,ILang::get('用户名与手机号码不匹配'));
 		}
 	}
 
@@ -901,12 +901,12 @@ class Simple extends IController
 
 		if($username === null || !IValidate::name($username))
 		{
-			die("请输入正确的用户名");
+			die(ILang::get('请输入正确的用户名'));
 		}
 
 		if($mobile === null || !IValidate::mobi($mobile))
 		{
-			die("请输入正确的手机号码");
+			die(ILang::get('请输入正确的手机号码'));
 		}
 
 		$userDB = new IModel('user as u , member as m');
@@ -921,7 +921,7 @@ class Simple extends IController
 			//120秒是短信发送的间隔
 			if( isset($dataRow['addtime']) && (time() - $dataRow['addtime'] <= 120) )
 			{
-				die("申请验证码的时间间隔过短，请稍候再试");
+				die(ILang::get('申请验证码的时间间隔过短请稍候再试'));
 			}
 			$mobile_code = rand(10000,99999);
 			$findPasswordDB->setData(array(
@@ -941,7 +941,7 @@ class Simple extends IController
 		}
 		else
 		{
-			die('手机号码与用户名不符合');
+			die(ILang::get('手机号码与用户名不符合'));
 		}
 	}
 
@@ -955,7 +955,7 @@ class Simple extends IController
 
 		if(!$hash)
 		{
-			IError::show(403,"找不到校验码");
+			IError::show(403,ILang::get('找不到校验码'));
 		}
 		$tb = new IModel("find_password");
 		$addtime = time() - 3600*72;
@@ -965,12 +965,12 @@ class Simple extends IController
 		$row = $tb->getObj($where);
 		if(!$row)
 		{
-			IError::show(403,"校验码已经超时");
+			IError::show(403,ILang::get('校验码已经超时'));
 		}
 
 		if($row['user_id'] != $user_id)
 		{
-			IError::show(403,"验证码不属于此用户");
+			IError::show(403,ILang::get('验证码不属于此用户'));
 		}
 
 		$this->formAction = IUrl::creatUrl("/simple/do_restore_password/hash/$hash/user_id/".$user_id);
@@ -987,7 +987,7 @@ class Simple extends IController
 
 		if(!$hash)
 		{
-			IError::show(403,"找不到校验码");
+			IError::show(403,ILang::get('找不到校验码'));
 		}
 		$tb = new IModel("find_password");
 		$addtime = time() - 3600*72;
@@ -997,12 +997,12 @@ class Simple extends IController
 		$row = $tb->getObj($where);
 		if(!$row)
 		{
-			IError::show(403,"校验码已经超时");
+			IError::show(403,ILang::get('校验码已经超时'));
 		}
 
 		if($row['user_id'] != $user_id)
 		{
-			IError::show(403,"验证码不属于此用户");
+			IError::show(403,ILang::get('验证码不属于此用户'));
 		}
 
 		//开始修改密码
@@ -1010,7 +1010,7 @@ class Simple extends IController
 		$repwd = IReq::get("repassword");
 		if($pwd == null || strlen($pwd) < 6 || $repwd!=$pwd)
 		{
-			IError::show(403,"新密码至少六位，且两次输入的密码应该一致。");
+			IError::show(403,ILang::get('新密码至少六位且两次输入的密码应该一致'));
 		}
 		$pwd = md5($pwd);
 		$tb_user = new IModel("user");
@@ -1018,12 +1018,12 @@ class Simple extends IController
 		$re = $tb_user->update("id='{$row['user_id']}'");
 		if($re !== false)
 		{
-			$message = "修改密码成功";
+			$message = ILang::get('修改密码成功');
 			$tb->del("`hash`='{$hash}'");
 			$this->redirect("/site/success/message/".urlencode($message));
 			return;
 		}
-		IError::show(403,"密码修改失败，请重试");
+		IError::show(403,ILang::get('密码修改失败请重试'));
 	}
 
     //添加收藏夹
@@ -1034,11 +1034,11 @@ class Simple extends IController
 
     	if($goods_id == 0)
     	{
-    		$message = '商品id值不能为空';
+    		$message = ILang::get('商品id值不能为空');
     	}
     	else if(!isset($this->user['user_id']) || !$this->user['user_id'])
     	{
-    		$message = '请先登录';
+    		$message = ILang::get('请先登录');
     	}
     	else
     	{
@@ -1046,7 +1046,7 @@ class Simple extends IController
     		$goodsRow    = $favoriteObj->getObj('user_id = '.$this->user['user_id'].' and goods_id = '.$goods_id);
     		if($goodsRow)
     		{
-    			$message = '您已经收藏过此件商品';
+    			$message = ILang::get('您已经收藏过此件商品');
     		}
     		else
     		{
@@ -1062,7 +1062,7 @@ class Simple extends IController
 	    		);
 	    		$favoriteObj->setData($dataArray);
 	    		$favoriteObj->add();
-	    		$message = '收藏成功';
+	    		$message = ILang::get('收藏成功');
 
 	    		//商品收藏信息更新
 	    		$goodsDB = new IModel('goods');
@@ -1090,7 +1090,7 @@ class Simple extends IController
     	}
     	else
     	{
-    	    IError::show(403,"请选择要登录的平台");
+    	    IError::show(403,ILang::get('请选择要登录的平台'));
     	}
     }
 
@@ -1103,7 +1103,7 @@ class Simple extends IController
 
     	if(!$oauth_name && !$oauthRow)
     	{
-    		IError::show(403,"{$oauth_name} 第三方平台信息不存在");
+    		IError::show(403,ILang::get('第三方平台信息不存在'));
     	}
 		$id       = $oauthRow['id'];
     	$oauthObj = new OauthCore($id);
@@ -1121,12 +1121,12 @@ class Simple extends IController
 	    	}
 	    	else
 	    	{
-	    	    IError::show(403,"登录失败,未获取到oauth信息");
+	    	    IError::show(403,ILang::get('登录失败未获取到oauth信息'));
 	    	}
     	}
     	else
     	{
-    		$this->redirect("/simple/login/_msg/登录失败或者取消");
+    		$this->redirect("/simple/login/_msg/".ILang::get('登录失败或者取消'));
     	}
     }
 
@@ -1149,7 +1149,7 @@ class Simple extends IController
     	//存在绑定账号oauth_user与user表同步正常！
     	if(isset($tempRow) && $tempRow)
     	{
-    		$userRow = plugin::trigger("isValidUser",array($tempRow['username'],$tempRow['password']));
+    		$userRow = _authorization::isValidUser($tempRow['username'],$tempRow['password']);
     		plugin::trigger("userLoginCallback",$userRow);
     		$callback = plugin::trigger('getCallback');
     		$callback = $callback ? $callback : "/ucenter/index";
@@ -1188,10 +1188,10 @@ class Simple extends IController
 
     	if(!$oauth_id || !$oauth_userInfo || !isset($oauth_userInfo['id']))
     	{
-    		IError::show("缺少oauth信息");
+    		IError::show(ILang::get('缺少oauth信息'));
     	}
 
-    	if($userRow = plugin::trigger("isValidUser",array($login_info,md5($password))))
+    	if($userRow = _authorization::isValidUser($login_info,md5($password)))
     	{
     		$oauthUserObj = new IModel('oauth_user');
 
@@ -1208,14 +1208,14 @@ class Simple extends IController
     		plugin::trigger("userLoginCallback",$userRow);
 
 			//自定义跳转页面
-			$this->redirect('/site/success?message='.urlencode("登录成功！"));
+			$this->redirect('/site/success?message='.urlencode(ILang::get('登录成功')));
     	}
     	else
     	{
-    		$this->setError("用户名和密码不匹配");
+    		$this->setError(ILang::get('用户名和密码不匹配'));
     		$_GET['bind_type'] = 'exists';
     		$this->redirect('bind_user',false);
-    		Util::showMessage("用户名和密码不匹配");
+    		Util::showMessage(ILang::get('用户名和密码不匹配'));
     	}
     }
 
@@ -1227,7 +1227,7 @@ class Simple extends IController
 
     	if(!$oauth_id || !$oauth_userInfo || !isset($oauth_userInfo['id']))
     	{
-    		IError::show("缺少oauth信息");
+    		IError::show(ILang::get('缺少oauth信息'));
     	}
 
     	//调用_userInfo注册插件
@@ -1244,7 +1244,7 @@ class Simple extends IController
 			);
 			$oauthUserObj->setData($oauthUserData);
 			$oauthUserObj->add();
-			$msg = isset($result['msg']) ? $result['msg'] : "恭喜您~注册成功";
+			$msg = isset($result['msg']) ? $result['msg'] : ILang::get('恭喜您注册成功');
 			$this->redirect('/site/success?message='.urlencode($msg));
 		}
 		else
@@ -1276,33 +1276,33 @@ class Simple extends IController
 
 		if($password == '')
 		{
-			$errorMsg = '请输入密码！';
+			$errorMsg = ILang::get('请输入密码');
 		}
 
 		if($password != $repassword)
 		{
-			$errorMsg = '两次输入的密码不一致！';
+			$errorMsg = ILang::get('两次输入的密码不一致');
 		}
 
 		if(!$seller_name)
 		{
-			$errorMsg = '填写正确的登陆用户名';
+			$errorMsg = ILang::get('填写正确的登陆用户名');
 		}
 
 		if(!$truename)
 		{
-			$errorMsg = '填写正确的商户真实全称';
+			$errorMsg = ILang::get('填写正确的商户真实全称');
 		}
 
 		//创建商家操作类
 		$sellerDB = new IModel("seller");
 		if($seller_name && $sellerDB->getObj("seller_name = '{$seller_name}'"))
 		{
-			$errorMsg = "登录用户名重复";
+			$errorMsg = ILang::get('登录用户名重复');
 		}
 		else if($truename && $sellerDB->getObj("true_name = '{$truename}'"))
 		{
-			$errorMsg = "商户真实全称重复";
+			$errorMsg = ILang::get('商户真实全称重复');
 		}
 
 		//操作失败表单回填
@@ -1349,7 +1349,7 @@ class Simple extends IController
 
 		//商家注册完成事件
 		plugin::trigger('sellerRegFinish',$seller_id);
-		$this->redirect('/site/success?message='.urlencode("申请成功！请耐心等待管理员的审核"));
+		$this->redirect('/site/success?message='.urlencode(ILang::get('申请成功！请耐心等待管理员的审核')));
 	}
 	//计算购物车中选择的商品
 	public function exceptCartGoodsAjax()

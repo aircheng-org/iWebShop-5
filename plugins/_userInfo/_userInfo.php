@@ -15,20 +15,6 @@ class _userInfo extends pluginBase
 		//用户登录后的操作回调
 		plugin::reg("userLoginCallback",$this,"userLoginCallback");
 
-		//从cookie或者session中获取用户信息
-		plugin::reg("getUser",function(){
-			return self::getUser();
-		});
-
-		//获取验证通过的用户信息
-		plugin::reg("isValidUser",function($data){
-			list($username,$password) = $data;
-			return self::isValidUser($username,$password);
-		});
-
-		//初始化用户数据控制器里面
-		plugin::reg("onBeforeCreateAction",$this,"initUser");
-
 		//注册页面拦截配置
 		plugin::reg("onCreateView@simple@reg",$this,"initUserReg");
 		plugin::reg("onCreateView@simple@bind_user",$this,"initUserReg");
@@ -58,7 +44,7 @@ class _userInfo extends pluginBase
 		//获取保存的路径地址
 		plugin::reg("getCallback",function(){
 		    $callback = IReq::get('callback') ? IReq::get('callback') : ICookie::get('callback');
-			return htmlspecialchars_decode($callback);
+			return htmlspecialchars_decode(IFilter::act($callback,'text'));
 		});
 
 		//保存的路径地址
@@ -105,7 +91,7 @@ class _userInfo extends pluginBase
 	        $callback = IReq::get('callback') ? htmlspecialchars(IReq::get('callback')) : IUrl::getRefRoute();
 	    }
 
-		$notCallback = array('/simple/reg','/simple/login','bind_user','oauth_callback','errors');
+		$notCallback = array('/simple/reg','/simple/login','bind_user','oauth_callback','errors','/simple/index');
 		if($callback)
 		{
 			foreach($notCallback as $key => $url)
@@ -137,7 +123,8 @@ class _userInfo extends pluginBase
     	}
 
     	$password = md5($password);
-		if($userRow = plugin::trigger("isValidUser",array($login_info,$password)))
+
+		if($userRow = _authorization::isValidUser($login_info,$password))
 		{
 			$this->userLoginCallback($userRow);
 
@@ -330,89 +317,6 @@ class _userInfo extends pluginBase
 		{
 			die($result);
 		}
-	}
-
-	/**
-	 * @brief 用户数据初始化赋值给控制器
-	 */
-	public function initUser()
-	{
-		$controller       = self::controller();
-		$controller->user = self::getUser();
-	}
-
-	/**
-	 * @brief 获取通用的注册用户数组
-	 * @return array or null用户数据
-	 */
-	public static function getUser()
-	{
-		$user = array(
-			'username' => ISafe::get('username'),
-			'user_pwd' => ISafe::get('user_pwd'),
-		);
-
-		if($userRow = self::isValidUser($user['username'],$user['user_pwd']))
-		{
-			$user['user_id'] = $userRow['id'];
-			$user['head_ico']= $userRow['head_ico'];
-			return $user;
-		}
-		return null;
-	}
-
-	/**
-	 * @brief  校验注册用户身份信息
-	 * @param  string $login_info 用户名或者email
-	 * @param  string $password   用户名的md5密码
-	 * @return array or false 如果合法则返回用户数据;不合法返回false
-	 */
-	public static function isValidUser($login_info,$password)
-	{
-		$login_info = IFilter::addSlash($login_info);
-		$password   = IFilter::addSlash($password);
-
-		if($login_info && $password)
-		{
-		    //先查找用户名
-		    $userObj   = new IModel('user');
-		    $memberObj = new IModel('member');
-		    $baseRow   = $userObj->getObj("username = '{$login_info}'");
-		    if($baseRow)
-		    {
-		        $memberRow = $memberObj->getObj("user_id = ".$baseRow['id']." and status = 1");
-		    }
-		    //邮箱登陆
-		    else if(IValidate::email($login_info))
-		    {
-		        $memberRow = $memberObj->getObj("email = '{$login_info}' and status = 1");
-		        if($memberRow)
-		        {
-		            $baseRow = $userObj->getObj($memberRow['user_id']);
-		        }
-		    }
-		    //手机号登陆
-		    else if(IValidate::mobi($login_info))
-		    {
-		        $memberRow = $memberObj->getObj("mobile = '{$login_info}' and status = 1");
-		        if($memberRow)
-		        {
-		            $baseRow = $userObj->getObj($memberRow['user_id']);
-		        }
-		    }
-
-		    //合并user和member数据
-		    if($baseRow && isset($memberRow) && $memberRow)
-		    {
-		        $userRow = array_merge($baseRow,$memberRow);
-		    }
-
-    		if(isset($userRow) && $userRow && ($userRow['password'] == $password))
-    		{
-    			return $userRow;
-    		}
-		}
-		return false;
 	}
 
 	/**

@@ -12,6 +12,7 @@ class Order_Class
 	/**
 	 * @brief 产生订单ID
 	 * @return string 订单ID
+	 * @note 前缀表示含义： B表示商家转账；T表示用户提现；
 	 */
 	public static function createOrderNum()
 	{
@@ -395,7 +396,7 @@ class Order_Class
 		{
 			foreach($updateGoodsId as $val)
 			{
-				$totalRow = $productObj->getObj('goods_id = '.$val,'SUM(store_nums) as store');
+				$totalRow = $productObj->getObj('goods_id = '.$val,'MIN(store_nums) as store');
 				$goodsObj->setData(array('store_nums' => $totalRow['store']));
 				$goodsObj->update('id = '.$val);
 			}
@@ -1464,12 +1465,12 @@ class Order_Class
 	public static function isSellerRefund($refundId,$seller_id)
 	{
 		$refundDB = new IModel('refundment_doc');
-		$refundRow= $refundDB->getObj('id = '.$refundId.' and seller_id = '.$seller_id);
+		$refundRow= $refundDB->getObj('id = '.$refundId.' and seller_id = '.$seller_id,'order_id');
 
-		if($refundRow)
+		if($refundRow && $refundRow['pay_status'] == 0)
 		{
 			$orderDB = new IModel('order');
-			$orderRow= $orderDB->getObj('id = '.$refundRow['order_id']);
+			$orderRow= $orderDB->getObj('id = '.$refundRow['order_id'],'is_checkout');
 			if($orderRow['is_checkout'] == 1)
 			{
 				return 1;

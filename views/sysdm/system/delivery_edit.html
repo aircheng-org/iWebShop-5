@@ -1,5 +1,5 @@
-{set:$data=$this->data_info}
 {js:artTemplate}
+{js:areaSelect}
 <div class="breadcrumbs" id="breadcrumbs">
 	<ul class="breadcrumb">
 		<li>
@@ -146,21 +146,23 @@
 
                     <!--地域设定模板-->
                     <script type='text/html' id='areaTemplate'>
-					<div class="form-inline">
+					<div name="areaItem" class="form-inline">
 						<input type='hidden' name='area_groupid[]' value='<%=area_groupid%>' />
 
-						选择地区
-						<select class="form-control">
-							{foreach:items = $this->areaList}
-								<option value="{$item['area_id']}">{$item['area_name']}</option>
-							{/foreach}
-						</select>
+						<p>
+							选择地区
+							<select class="form-control" name="province" child="city,area"></select>
+							<select class="form-control" name="city" child="area"></select>
+							<select class="form-control" name="area"></select>
+						</p>
 
-						首重费用<input class="form-control" name="firstprice[]" value="<%=firstprice%>" pattern="float" placeholder="填写数字金额" type="text" />
-						续重费用<input class="form-control" name="secondprice[]" value="<%=secondprice%>" pattern="float" placeholder="填写数字金额" type="text" />
+						<p>
+							首重费用<input class="form-control" name="firstprice[]" value="<%=firstprice%>" pattern="float" placeholder="填写数字金额" type="text" />
+							续重费用<input class="form-control" name="secondprice[]" value="<%=secondprice%>" pattern="float" placeholder="填写数字金额" type="text" />
 
-						<button type="button" class="btn btn-success" onclick='addProvince(this);'>添加</button>
-						<button type="button" class="btn btn-danger" onclick='$(this).parent().remove();'>删除</button>
+							<button type="button" class="btn btn-success" onclick='addProvince(this);'>添加</button>
+							<button type="button" class="btn btn-danger" onclick="$(this).parents('[name=\'areaItem\']').remove();">删除</button>
+						</p>
 
 						<textarea name="areaName" disabled='disabled' class='form-control' style='width:100%;margin-top:10px;'><%=areaname%></textarea>
 						<p class="help-block">此规则已选择的试用地区</p>
@@ -212,25 +214,16 @@ $(function()
 	{/if}
 
 	//具有特殊省份设置
-	{if:isset($data['area_groupid']) && $data['area_groupid']!=''}
-	var area_groupid = {echo:JSON::encode(unserialize($data['area_groupid']))};
-	var firstprice   = {echo:JSON::encode(unserialize($data['firstprice']))};
-	var secondprice  = {echo:JSON::encode(unserialize($data['secondprice']))};
-
-    for(var index in area_groupid)
+	{if:isset($data['areaConfig']) && $data['areaConfig']}
+	var areaConfig = {echo:JSON::encode($data['areaConfig'])};
+    for(var index in areaConfig)
     {
-    	var areaname = [];
-    	var idArray  = area_groupid[index].split(';');
-    	for(var i in idArray)
-    	{
-    		if(idArray[i])
-    		{
-    			areaname.push(getAreaName(idArray[i]));
-    		}
-    	}
-		var areaHtml = template.render('areaTemplate',{"area_groupid":area_groupid[index],"areaname":areaname.join(','),"firstprice":firstprice[index],"secondprice":secondprice[index]});
+		var areaHtml = template.render('areaTemplate',{"area_groupid":areaConfig[index].area_groupid,"areaname":areaConfig[index].area_names,"firstprice":areaConfig[index].firstprice,"secondprice":areaConfig[index].secondprice});
 		$('#deliveryAreaBox').append(areaHtml);
     }
+	let areaObj = new areaSelect('province');
+	areaObj.defaultText = {"city":"全部城市","area":"全部区域"};
+	areaObj.init();
 	{/if}
 });
 
@@ -239,44 +232,57 @@ function addArea()
 {
 	var areaHtml = template.render('areaTemplate',{});
 	$('#deliveryAreaBox').append(areaHtml);
-}
 
-//获取省份名称
-function getAreaName(provinceId)
-{
-	var areaNameList = {echo:JSON::encode($this->area)};
-	return areaNameList[provinceId];
+	let areaObj = new areaSelect('province');
+	areaObj.defaultText = {"city":"全部城市","area":"全部区域"};
+	areaObj.init();
 }
 
 //添加省份
 function addProvince(_self)
 {
-	var parentObject = $(_self).parent();
-	var selectObj    = parentObject.find('select');
+	var parentObject = $(_self).parents('[name="areaItem"]');
 
-	//当前选中的地区ID
-	var areaGroupId = parentObject.find('input[name="area_groupid[]"]').val();
+	//当前地区ID对象
+	var areaGroupIdObj = parentObject.find('input[name="area_groupid[]"]');
 
-	//当前选中的地区NAME
-	var areaGroupName = parentObject.find('textarea[name="areaName"]').val();
+	//当前地区NAME对象
+	var areaGroupNameObj = parentObject.find('textarea[name="areaName"]');
+
+	var selectAreaId   = '';
+	var selectAreaName = '';
+	parentObject.find('select[name]').each(function(i)
+	{
+		let tempId = $(this).val();
+		if(tempId)
+		{
+			selectAreaId   = tempId;
+			selectAreaName = $(this).find('option:selected').text();
+		}
+	});
+
+	if(!selectAreaId)
+	{
+		alert('请选择区域');
+		return;
+	}
 
 	//填写areaId
-	if(areaGroupId == '')
+	if(areaGroupIdObj.val() == '')
 	{
-		parentObject.find('input[name="area_groupid[]"]').val(";" + selectObj.val() + ";");
+		areaGroupIdObj.val(";"+selectAreaId+";");
 	}
-	else if(areaGroupId.indexOf(";" + selectObj.val() + ";") == -1)
+	else if(areaGroupIdObj.val().indexOf(";"+selectAreaId+";") == -1)
 	{
-		parentObject.find('input[name="area_groupid[]"]').val(areaGroupId + selectObj.val() + ";");
+		areaGroupIdObj.val(areaGroupIdObj.val()+selectAreaId+";");
 	}
 	else
 	{
-		alert('省份已经添加，不要重复添加');
+		alert('地区已经添加，不要重复添加');
 		return;
 	}
 
 	//添加areaName
-	areaGroupName = areaGroupName == '' ? selectObj.find('option:selected').text() : areaGroupName + "," + selectObj.find('option:selected').text();
-	parentObject.find('textarea[name="areaName"]').val(areaGroupName);
+	areaGroupNameObj.val(areaGroupNameObj.val()+"  "+selectAreaName);
 }
 </script>

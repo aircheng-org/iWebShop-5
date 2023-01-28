@@ -78,7 +78,7 @@ function productClass(goods_id,user_id,promo,active_id,type)
 			deliveryTemplate+= '<%=name%>：<b style="color:red"><%=reason%></b>&nbsp;&nbsp;<%}%>';
 
 		//通过省份id查询出配送方式，并且传送总重量计算出运费,然后显示配送方式
-		$.getJSON(creatUrl("block/order_delivery"),{'province':provinceId,'goodsId':goodsId,'productId':productId,'num':buyNums,'random':Math.random},function(json)
+		$.getJSON(creatUrl("block/order_delivery"),{'region':provinceId,'goodsId':goodsId,'productId':productId,'num':buyNums,'random':Math.random},function(json)
 		{
 			//清空配送信息
 			$('#deliveInfo').empty();

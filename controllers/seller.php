@@ -791,7 +791,7 @@ class Seller extends IController implements sellerAuthorization
 			);
 			$tb_refundment_doc = new IModel('refundment_doc');
 			$tb_refundment_doc->setData($updateData);
-			$tb_refundment_doc->update($id);
+			$tb_refundment_doc->update('id = '.$id.' and pay_status = 0');
 
 			//事件通知
 			plugin::trigger('refundDocUpdate',$id);
@@ -812,6 +812,21 @@ class Seller extends IController implements sellerAuthorization
 					$tb_refundment_doc->rollback();
 					IError::show(403,$result);
 				}
+			}
+
+			//拒绝退款记录日志
+			if($pay_status == 1)
+			{
+				$tb_order_log = new IModel('order_log');
+				$tb_order_log->setData(array(
+					'order_id' => $order_id,
+					'user'     => $this->seller['seller_name'],
+					'action'   => '拒绝退款',
+					'result'   => '成功',
+					'note'     => $dispose_idea,
+					'addtime'  => ITime::getDateTime(),
+				));
+				$tb_order_log->add();
 			}
 		}
 		$this->redirect('/seller/order_show/id/'.$order_id);
@@ -1020,30 +1035,51 @@ class Seller extends IController implements sellerAuthorization
 	 */
     public function delivery_edit()
 	{
-		$data = array();
-        $delivery_id = IFilter::act(IReq::get('id'),'int');
+		$data = [];
+		$id   = IFilter::act(IReq::get('id'),'int');
 
-        if($delivery_id)
+        if($id)
         {
             $delivery = new IModel('delivery_extend');
-            $data = $delivery->getObj('delivery_id = '.$delivery_id.' and seller_id = '.$this->seller['seller_id']);
+            $data = $delivery->getObj('delivery_id = '.$id.' and seller_id = '.$this->seller['seller_id']);
 		}
 		else
 		{
-			die('配送方式');
+			die('缺少配送方式');
 		}
 
-		//获取省份
-		$areaData = array();
-		$areaDB = new IModel('areas');
-		$areaList = $areaDB->query('parent_id = 0');
-		foreach($areaList as $val)
-		{
-			$areaData[$val['area_id']] = $val['area_name'];
+        if($id)
+        {
+            $delivery = new IModel('delivery');
+            $data = $delivery->getObj('id = '.$id);
+
+			$area_groupid = unserialize($data['area_groupid']);
+			$firstprice   = unserialize($data['firstprice']);
+			$secondprice  = unserialize($data['secondprice']);
+
+			if($area_groupid)
+			{
+				foreach($area_groupid as $key => $item)
+				{
+					$areaNameString = '';
+					$areaArray = explode(";",trim($item,";"));
+					foreach($areaArray as $v)
+					{
+						$areaData = area::name($v);
+						$areaNameString .= current($areaData).'  ';
+					}
+
+					$data['areaConfig'][] = [
+						'area_groupid' => $area_groupid[$key],
+						'firstprice'   => $firstprice[$key],
+						'secondprice'  => $secondprice[$key],
+						'area_names'   => $areaNameString,
+					];
+				}
+			}
 		}
-		$this->areaList  = $areaList;
-		$this->data_info = $data;
-		$this->area      = $areaData;
+
+		$this->setRenderData(['data' => $data]);
         $this->redirect('delivery_edit');
 	}
 

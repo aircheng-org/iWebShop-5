@@ -122,7 +122,7 @@ class poster
 				{
                     if(!is_file($val['url']))
 					{
-                        self::$errMsg = '图片<' . $val['url'] . '> 不存在';
+                        self::$errMsg = '图片' . $val['url'] . '不存在';
                         return false;
                     }
 
@@ -130,7 +130,7 @@ class poster
                     $function = 'imagecreatefrom' . image_type_to_extension($info[2], false);
                     if (!function_exists($function))
 					{
-                        self::$errMsg = '图片<' . $val['url'] . '>格式不支持';
+                        self::$errMsg = '图片' . $val['url'] . '格式不支持';
                         return false;
                     }
                     $res = $function($val['url']);
@@ -143,7 +143,7 @@ class poster
 				{
                     if($val['radius'] > round($val['width'] / 2))
 					{
-                        self::$errMsg = '图片<' . $val['url'] . '>的圆角度数最大不能超过：' . (round($val['width'] / 2));
+                        self::$errMsg = '图片' . $val['url'] . '的圆角度数最大不能超过：' . (round($val['width'] / 2));
                         return false;
                     }
                     $canvas = self::setRadiusImage($res, $resWidth, $resHeight, $val['width'], $val['height'], $val['radius']);
@@ -191,6 +191,7 @@ class poster
 		{
             $res = ImagePng($bgImgData, $fileName, 8); //保存到本地
             ImageDestroy($bgImgData);
+			unset($bgImgData);
             if(!$res)
 			{
                 self::$errMsg = '图片保存失败';
@@ -208,7 +209,8 @@ class poster
             $content = ob_get_contents();
             ob_end_clean();
             ImageDestroy($bgImgData);
-            if (!$content)
+			unset($bgImgData);
+            if(!$content)
 			{
                 self::$errMsg = '图片数据获取失败';
                 return false;

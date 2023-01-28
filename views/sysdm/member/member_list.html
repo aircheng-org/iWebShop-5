@@ -16,7 +16,7 @@
 		<colgroup>
 			<col width="35px" />
 			<col />
-			<col width="100px" />
+			<col width="120px" />
 			<col width="80px" />
 			<col width="50px" />
 			<col width="100px"/>
@@ -66,7 +66,7 @@
 			<tr>
 				<th></th>
 				<th>用户名</th>
-				<th>会员等级</th>
+				<th>会员组</th>
 				<th>姓名</th>
 				<th>性别</th>
 				<th>Email</th>
@@ -84,7 +84,14 @@
 			<tr>
 				<td><input name="check[]" type="checkbox" value="{$item['user_id']}" /></td>
 				<td title="{echo:htmlspecialchars($item['username'])}">{$item['username']}</td>
-				<td title="{$group[$item['group_id']]}">{$group[$item['group_id']]}</td>
+				<td>
+					<select class="form-control" onchange="updateGroup(this,{$item['user_id']});">
+					<option value="0">请选择</option>
+					{foreach:items=$group key=$gid item=$gname}
+					<option value="{$gid}" {if:$item['group_id'] == $gid}selected{/if}>{$gname}</option>
+					{/foreach}
+					</select>
+				</td>
 				<td title="{echo:htmlspecialchars($item['true_name'])}">{$item['true_name']}</td>
 				<td>{if:$item['sex']=='1'}男{else:}女{/if}</td>
 				<td title="{echo:htmlspecialchars($item['email'])}">{$item['email']}</td>
@@ -148,5 +155,12 @@ function balance_add()
 	    	return false;
 		}
 	});
+}
+
+//更新用户组
+function updateGroup(obj,user_id)
+{
+	let groupId = $(obj).val();
+	$.get("{url:/member/change_group}",{"group_id":groupId,"user_id":user_id});
 }
 </script>

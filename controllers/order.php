@@ -1347,7 +1347,7 @@ class Order extends IController implements adminAuthorization
 				{
 					$strGoods .= " 规格：".$good['value'];
 				}
-				$strGoods .= "<br style='mso-data-placement:same-cell;'/>";
+				$strGoods .= ";";
 			}
 
 			$refundRow = $refundDB->getObj('pay_status = 2 and order_id = '.$val['id'],"SUM(`amount`) as refund_amount");
@@ -1357,7 +1357,7 @@ class Order extends IController implements adminAuthorization
 				$val['completion_time'],
 				$val['distribute_name'],
 				$val['accept_name'],
-				join('&nbsp;',area::name($val['province'],$val['city'],$val['area'])).$val['address'],
+				join(' ',area::name($val['province'],$val['city'],$val['area'])).$val['address'],
 				$val['telphone'].'&nbsp;'.$val['mobile'],
 				$val['order_amount'],
 				$refundRow['refund_amount'],
@@ -1930,5 +1930,51 @@ class Order extends IController implements adminAuthorization
 			$logObj->write('operation',array("管理员:".$this->admin['admin_name'],"更新了发货单",'更新ID：'.$id));
         }
         $this->redirect('order_delivery_list');
+	}
+
+	//导出订单商品excel
+	public function order_goods_report()
+	{
+		//搜索条件
+		$search = IReq::get('search');
+
+		//条件筛选处理
+		list($join,$where) = order_class::getSearchCondition($search);
+		$join .= " left join order_goods as og on og.order_id = o.id ";
+
+		//拼接sql
+		$orderHandle = new IQuery('order as o');
+		$orderHandle->order  = "o.id desc";
+		$orderHandle->fields = "o.*,og.real_price,og.goods_nums,og.goods_weight,og.goods_array";
+		$orderHandle->join   = $join;
+		$orderHandle->where  = $where;
+		$orderList = $orderHandle->find();
+
+		$reportObj = new report('order_goods');
+		$reportObj->setTitle(["商品名称","商品货号","商品规格","商品单价","购买数量","价格小计","重量小计","订单编号","下单日期","收货人","收货地址","电话","收货时间"]);
+		foreach($orderList as $k => $val)
+		{
+			//从json中拆分商品信息
+			$goodsInfo = JSON::decode($val['goods_array']);
+
+			$insertData = [
+				$goodsInfo['name'],
+				$goodsInfo['goodsno'],
+				$goodsInfo['value'],
+				$val['real_price'],
+				$val['goods_nums'],
+				round($val['real_price']*$val['goods_nums'],2),
+				$val['goods_weight'],
+				$val['order_no'],
+				$val['create_time'],
+				$val['accept_name'],
+				join(' ',area::name($val['province'],$val['city'],$val['area'])).$val['address'],
+				$val['mobile'],
+				$val['accept_time'],
+			];
+			$reportObj->setData($insertData);
+		}
+
+		$reportObj->toDownload();
 	}
 }

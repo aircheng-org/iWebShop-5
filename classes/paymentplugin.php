@@ -21,6 +21,7 @@ abstract class paymentPlugin
 	public $serverCallbackUrl   = '';    //支付完成后，异步通知地址
 	public $merchantCallbackUrl = '';	 //支付中断返回
 	public $refundCallbackUrl   = '';    //退款完成后，回调通知地址
+	public $paymentId           = '';
 
 	/**
 	* @brief 构造函数
@@ -28,6 +29,7 @@ abstract class paymentPlugin
 	*/
 	public function __construct($payment_id)
 	{
+		$this->paymentId           = $payment_id;
 		//回调函数地址
 		$this->callbackUrl         = IUrl::getHost().IUrl::creatUrl("/block/callback/_id/".$payment_id);
 		//回调业务处理地址
@@ -117,6 +119,13 @@ OEF;
 	}
 
 	/**
+	 * 原路退款
+	 * @param $paymentInfo array 要传递的支付信息
+	 * @return array
+	 */
+	abstract public function doRefund($paymentInfo);
+
+	/**
 	 * 异步通知停止
 	 */
 	abstract public function notifyStop();
@@ -129,7 +138,7 @@ OEF;
 
 	/**
 	 * 获取要发送的数据数组结构
-	 * @param $payment array 要传递的支付信息
+	 * @param $paymentInfo array 要传递的支付信息
 	 * @return array
 	 */
 	abstract public function getSendData($paymentInfo);
@@ -142,7 +151,7 @@ OEF;
 	 * @param $message      string 信息
 	 * @param $orderNo      string 订单号
 	 */
-	abstract public function callback($ExternalData,&$paymentId,&$money,&$message,&$orderNo);
+	abstract public function callback($externalData,&$paymentId,&$money,&$message,&$orderNo);
 
 	/**
 	 * 同步支付回调
@@ -152,5 +161,5 @@ OEF;
 	 * @param $message      string 信息
 	 * @param $orderNo      string 订单号
 	 */
-	abstract public function serverCallback($ExternalData,&$paymentId,&$money,&$message,&$orderNo);
+	abstract public function serverCallback($externalData,&$paymentId,&$money,&$message,&$orderNo);
 }

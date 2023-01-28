@@ -100,23 +100,22 @@ class IModel
 
 		foreach($this->tableData as $key => $val)
 		{
-			if(!in_array($key,$except))
-			{
-				$val = IFilter::stripSlash($val);
-				$val = IFilter::addSlash($val);
+			$key = IFilter::stripSlash($key);
+			$key = IFilter::addSlash($key);
 
-				$key = IFilter::stripSlash($key);
-				$key = IFilter::addSlash($key);
-
-				$updateArr[] = " `{$key}` = '{$val}' ";
-			}
-			else if($val === null)
+			if($val === null)
 			{
 				$updateArr[] = " `{$key}` = NULL ";
 			}
-			else
+			else if(in_array($key,$except))
 			{
 				$updateArr[] = " `{$key}` = {$val} ";
+			}
+			else
+			{
+				$val = IFilter::stripSlash($val);
+				$val = IFilter::addSlash($val);
+				$updateArr[] = " `{$key}` = '{$val}' ";
 			}
 		}
 		$sql = 'UPDATE '.$this->tableName.' SET '.join(",",$updateArr) . $where;
@@ -182,7 +181,7 @@ class IModel
 	 * @param array or string $cols 查询字段,支持数组格式,如array('cols1','cols2')
 	 * @return array 查询结果
 	 */
-	public function getObj($where = false,$cols = '*')
+	public function getObj($where,$cols = '*')
 	{
 		$result = $this->query($where,$cols,'',1);
 		if(empty($result))
@@ -220,17 +219,20 @@ class IModel
 		$sql = 'SELECT '.$colStr.' FROM '.$this->tableName;
 
 		//条件拼接
-		if(is_numeric($where))
+		if($where !== false)
 		{
-			$sql .= ' WHERE id = '.$where;
-		}
-		else if(is_array($where))
-		{
-		    return [];
-		}
-		else if($where != false)
-		{
-			$sql .=' WHERE '.$where;
+			if(is_numeric($where))
+			{
+				$sql .= ' WHERE id = '.$where;
+			}
+			else if($where)
+			{
+				$sql .=' WHERE '.$where;
+			}
+			else
+			{
+				return [];
+			}
 		}
 
 		//排序拼接

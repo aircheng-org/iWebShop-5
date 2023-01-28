@@ -18,10 +18,21 @@
 			<label>请选择：</label>
 			<select name="type" class="form-control" pattern='required' alt='选择操作内容'>
 				<option value="">请选择操作类型</option>
-				<option value="recharge">充值账户预存款</option>
-				<option value="withdraw">账户预存款提现</option>
+				<option value="recharge">充值账户预存款(增加)</option>
+				<option value="withdraw">提现账户预存款(减少)</option>
 			</select>
 		</div>
+
+		{if:AccountLog::$purpose}
+		<div class="form-group">
+			<label>资金用途：</label>
+			<select name="purpose" class="form-control" pattern='required' alt='选择操作内容'>
+				{foreach:items=AccountLog::$purpose}
+				<option value="{$item}">{$item}</option>
+				{/foreach}
+			</select>
+		</div>
+		{/if}
 
 		<div class="form-group">
 			<label>请输入金额：</label>

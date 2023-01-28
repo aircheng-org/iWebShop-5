@@ -244,6 +244,7 @@ class Member extends IController implements adminAuthorization
     	$id       = IFilter::act(IReq::get('check'),'int');
     	$balance  = IFilter::act(IReq::get('balance'),'float');
     	$type     = IFIlter::act(IReq::get('type')); //操作类型 recharge充值,withdraw提现金
+		$purpose  = IFIlter::act(IReq::get('purpose')); //目的
     	$even     = '';
 
     	if(!$id)
@@ -261,14 +262,15 @@ class Member extends IController implements adminAuthorization
 		{
 			//用户预存款进行的操作记入account_log表
 			$log = new AccountLog();
-			$config=array
-			(
+			$config=[
 				'user_id'  => $value['user_id'],
 				'admin_id' => $this->admin['admin_id'],
 				'event'    => $type,
 				'num'      => $balance,
 				'way'      => '后台手动',
-			);
+				'purpose'  => $purpose,
+			];
+
 			$re = $log->write($config);
 			if($re == false)
 			{
@@ -510,72 +512,41 @@ class Member extends IController implements adminAuthorization
 			die('没有选择要转款的用户');
 		}
 
+		//1，拼装数据
+		$billNo      = 'T'.Order_Class::createOrderNum();
+		$withdrawList= [];
 		$withdrawObj = new IModel('withdraw');
 		$memberDB    = new IModel('member');
 		$error       = '';
-		$successNum  = 0;
-		$failNum     = 0;
+
 		foreach($ids as $id)
 		{
-			$withdrawRow = $withdrawObj->getObj($id);
+			$withdrawRow = $withdrawObj->getObj($id);//在$withdrawRow拼装数据最后送到转账接口里面
 			$memberRow   = $memberDB->getObj('user_id = '.$withdrawRow['user_id'],'balance');
 			if($memberRow['balance'] < $withdrawRow['amount'])
 			{
-				$failNum++;
 				$error .= $withdrawRow['name'].'预存款余额不足';
 				continue;
 			}
 
-			$payCheck = false;
-			$billNo   = 'T'.Order_Class::createOrderNum();
 			switch($type)
 			{
 				//微信余额
 				case "wechatBalance":
 				{
-					include_once(dirname(__FILE__)."/../plugins/transfer/wechatBalance.php");
 					$oauthUserDB = new IModel('oauth_user');
 
 					//用户有绑定的openid参数
 					$relationRow = $oauthUserDB->getObj('user_id = '.$withdrawRow['user_id']);
 					if($relationRow && ($relationRow['openid'] || $relationRow['openid_mini']))
 					{
-						if($relationRow['openid'])
-						{
-							$openid = $relationRow['openid'];
-							$payment_id = wechatBalance::WAP_WECHAT_PAYMENT_ID;
-						}
-						else
-						{
-							$openid = $relationRow['openid_mini'];
-							$payment_id = wechatBalance::MINI_WECHAT_PAYMENT_ID;
-						}
-
-						//引入微信支付转账接口
-						$data = [
-							'openid'           => $openid,
-							're_user_name'     => $withdrawRow['name'],
-							'amount'           => $withdrawRow['amount'],
-							'desc'             => IWeb::$app->getController()->_siteConfig->name.'预存款余额提现',
-							'partner_trade_no' => $billNo,
-							'payment_id'       => $payment_id,
-						];
-
-						$transferObj = new wechatBalance();
-						$tranResult = $transferObj->run($data);
-						if(is_array($tranResult) && $tranResult['result_code'] == 'SUCCESS')
-						{
-							$PayNo    = $tranResult['payment_no'];
-							$payCheck = true;
-						}
-						else
-						{
-							$error .= $tranResult;
-						}
+						$openid = $relationRow['openid'] ? $relationRow['openid'] : $relationRow['openid_mini'];
+						$withdrawRow['openid'] = $openid;
 					}
 					else
 					{
 						$error .= "用户ID：[".$withdrawRow['name']."] 没有绑定微信";
+						continue 2;
 					}
 				}
 				break;
@@ -583,47 +554,77 @@ class Member extends IController implements adminAuthorization
 				//人工线下
 				case "offline":
 				{
-					$PayNo    = '88888888';
-					$payCheck = true;
+
 				}
 				break;
 			}
 
-			if($payCheck == true)
+			//待结算提现单
+			$withdrawList[] = $withdrawRow;
+		}
+
+		//2,调用接口转账
+		switch($type)
+		{
+			//微信余额
+			case "wechatBalance":
 			{
-				//用户预存款进行的操作记入account_log表
-				$log    = new AccountLog();
-				$config = [
-					'user_id'  => $withdrawRow['user_id'],
-					'admin_id' => $this->admin['admin_id'],
-					'event'    => "withdraw",
-					'num'      => $withdrawRow['amount'],
-					'way'      => AccountLog::way($type),
+				include_once(dirname(__FILE__)."/../plugins/transfer/wechatBalance.php");
+				$sendData = [
+					'transferNo'  => $billNo,
+					'transferName'=> '用户提现',
+					'detail'      => $withdrawList,
 				];
-				$result = $log->write($config);
-				if($result == false)
+				$transferObj = new wechatBalance();
+				$tranResult = $transferObj->run($sendData);
+				if(is_array($tranResult) && isset($tranResult['result_code']) && $tranResult['result_code'] == 'SUCCESS')
 				{
-					$failNum++;
-					$error .= "危险：微信转账成功，但是用户".$withdrawRow['name']."没有扣款。".$result->error;
+					$PayNo = $tranResult['payment_no'];
 				}
 				else
 				{
-					$successNum++;
-
-					$withdrawObj->setData(['way' => $config['way'],'status' => 2,'pay_no' => $PayNo,'finish_time' => ITime::getDateTime()]);
-					$withdrawObj->update($id);
-
-					//发送事件
-					plugin::trigger('withdrawStatusUpdate',$id);
+					$withdrawList = [];
+					$error .= $tranResult;
 				}
+			}
+			break;
+
+			//人工线下
+			case "offline":
+			{
+				$PayNo = '88888888';
+			}
+			break;
+		}
+
+		//3,后续处理
+		foreach($withdrawList as $withdrawRow)
+		{
+			//用户预存款进行的操作记入account_log表
+			$log    = new AccountLog();
+			$config = [
+				'user_id'  => $withdrawRow['user_id'],
+				'admin_id' => $this->admin['admin_id'],
+				'event'    => "withdraw",
+				'num'      => $withdrawRow['amount'],
+				'way'      => AccountLog::way($type),
+			];
+			$result = $log->write($config);
+			if($result == false)
+			{
+				$error .= "危险：微信转账成功，但是用户".$withdrawRow['name']."没有扣款。".$result->error;
 			}
 			else
 			{
-				$failNum++;
+				$withdrawObj->setData(['way' => $config['way'],'status' => 2,'pay_no' => $PayNo,'finish_time' => ITime::getDateTime()]);
+				$withdrawObj->update($withdrawRow['id']);
+
+				//发送事件
+				plugin::trigger('withdrawStatusUpdate',$withdrawRow['id']);
 			}
 		}
 
-		die('成功：'.$successNum.'个; 失败：'.$failNum.'个; '.$error);
+		die('总共：'.count($ids).'个; 成功：'.count($withdrawList).'个; '.$error);
 	}
 
 	//[提现管理] 修改提现申请的状态
@@ -889,5 +890,15 @@ class Member extends IController implements adminAuthorization
 			$reportObj->setData($insertData);
 		}
 		$reportObj->toDownload();
+	}
+
+	//更新用户组
+	public function change_group()
+	{
+		$group_id = IFilter::act(IReq::get('group_id'),'int');
+		$user_id = IFilter::act(IReq::get('user_id'),'int');
+		$memberDB = new IModel('member');
+		$memberDB->setData(['group_id' => $group_id]);
+		$memberDB->update('user_id = '.$user_id);
 	}
 }

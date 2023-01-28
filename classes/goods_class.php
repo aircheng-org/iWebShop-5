@@ -166,7 +166,7 @@ class goods_class
 		$goodsUpdateData['sell_price']   = isset($postData['_sell_price'][$defaultKey])   ? IFilter::act($postData['_sell_price'][$defaultKey],'float')   : 0;
 		$goodsUpdateData['cost_price']   = isset($postData['_cost_price'][$defaultKey])   ? IFilter::act($postData['_cost_price'][$defaultKey],'float')   : 0;
 		$goodsUpdateData['weight']       = isset($postData['_weight'][$defaultKey])       ? IFilter::act($postData['_weight'][$defaultKey],'float')       : 0;
-		$goodsUpdateData['store_nums']   = IFilter::act(array_sum($postData['_store_nums']),'int');
+		$goodsUpdateData['store_nums']   = IFilter::act(min($postData['_store_nums']),'int');
 
 		if(isset($postData['_imgList']) && $postData['_imgList'])
 		{
@@ -862,8 +862,8 @@ class goods_class
 	 */
 	public static function statusText($is_del)
 	{
-		$date = array('0' => '上架','1' => '删除','2' => '下架','3' => '等审');
-		return isset($date[$is_del]) ? $date[$is_del] : '';
+		$data = array('0' => '上架','1' => '删除','2' => '下架','3' => '等审');
+		return isset($data[$is_del]) ? $data[$is_del] : '';
 	}
 
 	public static function getGoodsCategory($goods_id)
@@ -1240,7 +1240,7 @@ class goods_class
 
 				$productObj = new IQuery('products as pro');
 				$productObj->where = $whereProducts;
-				$productObj->fields = "pro.goods_id, sum(pro.store_nums) AS sum_store_nums, min(pro.market_price) as min_market_price, min(pro.sell_price) as min_sell_price, min(pro.cost_price) as min_cost_price";
+				$productObj->fields = "pro.goods_id, min(pro.store_nums) AS min_store_nums, min(pro.market_price) as min_market_price, min(pro.sell_price) as min_sell_price, min(pro.cost_price) as min_cost_price";
 				$productObj->group = "pro.goods_id";
 
 				$productList = $productObj->find();
@@ -1248,7 +1248,7 @@ class goods_class
 				foreach ($productList as $key => $val)
 				{
 					$tempData = array(
-						'store_nums' => $val['sum_store_nums'],
+						'store_nums' => $val['min_store_nums'],
 						'market_price' => $val['min_market_price'],
 						'sell_price' => $val['min_sell_price'],
 						'cost_price' => $val['min_cost_price']

@@ -622,7 +622,7 @@ class CountSum
     /**
      * 计算订单信息,其中部分计算都是以商品原总价格计算的$goodsSum
      * @param $goodsResult array CountSum结果集
-     * @param $province_id int 省份ID
+     * @param $region_id int 最小区域ID
      * @param $delievery_id int 配送方式ID
      * @param $payment_id int 支付ID
      * @param $is_invoice int 是否要发票
@@ -630,7 +630,7 @@ class CountSum
      * @param $date array 预约时间段
      * @return $result 最终的返回数组
      */
-    public function countOrderFee($goodsResult,$province_id,$delivery_id,$is_invoice,$discount = 0,$date = [])
+    public function countOrderFee($goodsResult,$region_id,$delivery_id,$is_invoice,$discount = 0,$date = [])
     {
     	//根据商家进行商品分组
     	$sellerGoods = array();
@@ -676,7 +676,7 @@ class CountSum
             //配送方式和运费是否存在(虚拟商品不需要配送)
     		if($delivery_id)
     		{
-    	    	$deliveryList = Delivery::getDelivery($province_id,$delivery_id,$goodsID,$productID,$num);
+    	    	$deliveryList = Delivery::getDelivery($region_id,$delivery_id,$goodsID,$productID,$num);
     	    	if(is_string($deliveryList))
     	    	{
     				return $deliveryList;
@@ -691,13 +691,27 @@ class CountSum
     			//有促销免运费活动
     			if(isset($sellerData['freeFreight']) && $sellerData['freeFreight'])
     			{
-    				foreach($sellerData['freeFreight'] as $sid => $provinceIds)
+    				foreach($sellerData['freeFreight'] as $sid => $exceptRegion)
     				{
-    					if($provinceIds === true || stripos($provinceIds,$province_id) === false)
+						$isSellerFree = true;//默认促销规则免运费
+
+						//收货地址是否满足免运费范围
+    					if($exceptRegion !== true)
     					{
-    						$deliveryList['price'] -= $deliveryList['seller_price'][$sid];
-    						$deliveryList['seller_price'][$sid] = 0;
+							foreach($deliveryList['parent_region'] as $regionParentId)
+							{
+								if(stripos($exceptRegion,$regionParentId) !== false)
+								{
+									$isSellerFree = false;
+								}
+							}
     					}
+
+						if($isSellerFree == true)
+						{
+							$deliveryList['price'] -= $deliveryList['seller_price'][$sid];
+							$deliveryList['seller_price'][$sid] = 0;
+						}
     				}
     			}
     		}
@@ -790,7 +804,7 @@ class CountSum
 	 */
     public static function countSellerOrderFee($orderList)
     {
-    	$result = array(
+    	$result = [
 			'orderAmountPrice' => 0,
 			'refundFee'        => 0,
 			'commissionFee'    => 0,
@@ -799,10 +813,10 @@ class CountSum
 			'platformFee'      => 0,
 			'commission'       => 0,
 			'orderNum'         => count($orderList),
-			'order_ids'        => array(),
-			'orderNoList'      => array(),
+			'order_ids'        => [],
+			'orderNoList'      => [],
 			'deliveryFee'      => 0,
-    	);
+    	];
 
     	if($orderList && is_array($orderList))
     	{

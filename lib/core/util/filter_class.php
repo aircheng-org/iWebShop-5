@@ -278,7 +278,7 @@ class IFilter
 	 */
 	public static function word($str)
 	{
-		$word = ["..\\","../","file://","`","select ","select/*","select%","update ","update/*","update%","delete ","delete/*","delete%","insert into","insert/*","insert%","updatexml","concat","()","/**/","union("];
+		$word = ["file://","select/*","select%","update/*","update%","delete/*","delete%","insert into","insert/*","insert%","updatexml","/**/","union("];
 		foreach($word as $val)
 		{
 			if(stripos($str,$val) !== false)

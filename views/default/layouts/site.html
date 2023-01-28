@@ -86,7 +86,7 @@
 
 			<!--总的商品分类-开始-->
 			<ul class="sortlist" id='div_allsort' style='display:none'>
-				{foreach:items=Api::run('getCategoryListTop')  item=$first}
+				{foreach:items=Api::run('getCategoryListTopByVis')  item=$first}
 				<li>
 					<h2><a href="{url:/site/pro_list/cat/$first['id']}">{$first['name']}</a></h2>
 

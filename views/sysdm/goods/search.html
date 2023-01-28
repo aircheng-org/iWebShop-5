@@ -14,7 +14,7 @@
 </head>
 <body>
 	<div class="container" style="min-width:420px;margin-top:10px;">
-		<form action='{url:/goods/search_result/type/$type}' method='post' name='searchForm'>
+		<form action='{url:/goods/search_result/type/$type}' method='post' name='searchForm' onsubmit="return false;">
 			<input type='hidden' name='is_products' value='{$is_products}' />
 			<input type='hidden' name='search[type]' value='name' />
 			<input type='hidden' name='seller_id' value='{$seller_id}' />

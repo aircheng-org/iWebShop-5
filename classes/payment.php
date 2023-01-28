@@ -68,7 +68,11 @@ class Payment
 	public static function getPaymentById($payment_id,$key = '')
 	{
 		$paymentDB  = new IModel('payment');
-		$paymentRow = $paymentDB->getObj('id = '.$payment_id);
+		$paymentRow = $paymentDB->getObj('id = '.$payment_id.' and status = 0 and type = 1');
+		if(!$paymentRow)
+		{
+			return null;
+		}
 
 		if($key)
 		{
@@ -330,6 +334,7 @@ class Payment
         $payment['M_OrderNO']       = $orderRow['order_no'];
         $payment['M_Amount']        = $orderRow['order_amount'];
         $payment['M_TransactionId'] = $orderRow['trade_no'];
+		$payment['M_REASON']        = $refundsRow['content'];
 
         //获取同一个流水号的所有订单
         if($orderRow['trade_no'])

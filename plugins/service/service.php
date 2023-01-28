@@ -254,7 +254,7 @@ class service extends pluginBase
         $loginInfo = IReq::get('loginInfo');
         $password  = IReq::get('password');
 
-        $userRow  = plugin::trigger("isValidUser",array($loginInfo,md5($password)));
+        $userRow  = _authorization::isValidUser($loginInfo,md5($password));
         if($userRow)
         {
             $userToken = $this->createUserToken($userRow);

@@ -35,7 +35,7 @@ class Errors extends IController
 	//404报错
 	public function error404($data)
 	{
-		$data = "访问的资源地址不存在";
+		$data = ILang::get('访问的资源地址不存在');
 		$this->redirect($this->sence().'/message/'.$data);
 	}
 

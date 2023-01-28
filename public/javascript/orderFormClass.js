@@ -9,7 +9,7 @@ function orderFormClass()
 	//默认数据
 	this.deliveryId   = 0;
 
-	//免运费的商家ID
+	//免运费的商家ID,包括排除免运费区域ID
 	this.freeFreight  = [];
 
 	//订单各项数据
@@ -129,7 +129,7 @@ function orderFormClass()
 	}
 
 	//根据省份地区ajax获取配送方式和运费
-	this.getDelivery = function(province)
+	this.getDelivery = function(area_id)
 	{
 	    //取消自提点选择
 	    $('[name="takeself"]').prop('checked',false);
@@ -152,22 +152,41 @@ function orderFormClass()
 		});
 
 		//获取配送信息和运费
-		$.getJSON(creatUrl("block/order_delivery"),{"province":province,"goodsId":goodsId,"productId":productId,"num":num,"random":Math.random()},function(json){
+		$.getJSON(creatUrl("block/order_delivery"),{"region":area_id,"goodsId":goodsId,"productId":productId,"num":num,"random":Math.random()},function(json){
 			for(indexVal in json)
 			{
 				var content = json[indexVal];
 				//正常可以送达
 				if(content.if_delivery == 0)
 				{
-					for(var sid in _self.freeFreight)
+					//有促销免运费活动
+					if(_self.freeFreight && _self.freeFreight.length > 0)
 					{
-						var sellerId  = sid;
-						var provinceId= _self.freeFreight[sid];
-
-						if(provinceId === true || provinceId.indexOf(province) === -1)
+						for(var sid in _self.freeFreight)
 						{
-							content.price = parseFloat(content.price) - parseFloat(content.seller_price[sellerId]);
-							content.price = content.price <= 0 ? 0 : content.price;
+							let sellerId     = sid;
+							let exceptRegion = _self.freeFreight[sid];
+
+							let isSellerFree = true;//默认促销规则免运费
+
+							//收货地址是否满足免运费范围
+							if(exceptRegion !== true)
+							{
+								for(let j in content.parent_region)
+								{
+									let regionParentId = content.parent_region[j];
+									if(exceptRegion.indexOf(regionParentId) !== -1)
+									{
+										isSellerFree = false;
+									}
+								}
+							}
+
+							if(isSellerFree == true)
+							{
+								content.price = parseFloat(content.price) - parseFloat(content.seller_price[sellerId]);
+								content.price = content.price <= 0 ? 0 : content.price;
+							}
 						}
 					}
 

@@ -27,6 +27,14 @@ class balance extends paymentPlugin
     }
 
 	/**
+	 * @see paymentplugin::doRefund()
+	 */
+    public function doRefund($payment)
+    {
+		return '请直接选择退款到预存款';
+	}
+
+	/**
 	 * @see paymentplugin::getSendData()
 	 */
     public function getSendData($payment)

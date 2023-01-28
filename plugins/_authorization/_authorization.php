@@ -133,6 +133,10 @@ class _authorization extends pluginBase
 		{
 			self::checkUserRights($actionId);
 		}
+		else
+		{
+			$controller->user = self::getUser();
+		}
 	}
 
 	/**
@@ -181,7 +185,18 @@ class _authorization extends pluginBase
 	 */
 	public static function getUser()
 	{
-		return plugin::trigger('getUser');
+		$user = array(
+			'username' => ISafe::get('username'),
+			'user_pwd' => ISafe::get('user_pwd'),
+		);
+
+		if($userRow = self::isValidUser($user['username'],$user['user_pwd']))
+		{
+			$user['user_id'] = $userRow['id'];
+			$user['head_ico']= $userRow['head_ico'];
+			return $user;
+		}
+		return null;
 	}
 
 	/**
@@ -230,7 +245,7 @@ class _authorization extends pluginBase
 			$sellerRow = self::getSeller();
 			if(!$sellerRow)
 			{
-				$object->redirect('/systemseller/index');
+				$object->redirect('/systemseller/index?callback='.urlencode(IUrl::getUrl()));
 				exit;
 			}
 
@@ -377,7 +392,50 @@ class _authorization extends pluginBase
 	 */
 	public static function isValidUser($login_info,$password)
 	{
-		return plugin::trigger('isValidUser',array($login_info,$password));
+		$login_info = IFilter::addSlash($login_info);
+		$password   = IFilter::addSlash($password);
+
+		if($login_info && $password)
+		{
+		    //先查找用户名
+		    $userObj   = new IModel('user');
+		    $memberObj = new IModel('member');
+		    $baseRow   = $userObj->getObj("username = '{$login_info}'");
+		    if($baseRow)
+		    {
+		        $memberRow = $memberObj->getObj("user_id = ".$baseRow['id']." and status = 1");
+		    }
+		    //邮箱登陆
+		    else if(IValidate::email($login_info))
+		    {
+		        $memberRow = $memberObj->getObj("email = '{$login_info}' and status = 1");
+		        if($memberRow)
+		        {
+		            $baseRow = $userObj->getObj($memberRow['user_id']);
+		        }
+		    }
+		    //手机号登陆
+		    else if(IValidate::mobi($login_info))
+		    {
+		        $memberRow = $memberObj->getObj("mobile = '{$login_info}' and status = 1");
+		        if($memberRow)
+		        {
+		            $baseRow = $userObj->getObj($memberRow['user_id']);
+		        }
+		    }
+
+		    //合并user和member数据
+		    if($baseRow && isset($memberRow) && $memberRow)
+		    {
+		        $userRow = array_merge($baseRow,$memberRow);
+		    }
+
+    		if(isset($userRow) && $userRow && ($userRow['password'] == $password))
+    		{
+    			return $userRow;
+    		}
+		}
+		return false;
 	}
 
 	/**
@@ -386,7 +444,7 @@ class _authorization extends pluginBase
 	 * @param string $password 登录密码
 	 * @param array or false
 	 */
-	private static function isValidSeller($login_info,$password)
+	public static function isValidSeller($login_info,$password)
 	{
 		$login_info = IFilter::act($login_info);
 		$password   = IFilter::act($password);
@@ -408,7 +466,7 @@ class _authorization extends pluginBase
 	 * @param string $password 登录密码
 	 * @param array or false
 	 */
-	private static function isValidAdmin($login_info,$password)
+	public static function isValidAdmin($login_info,$password)
 	{
 		$login_info = IFilter::act($login_info);
 		$password   = IFilter::act($password);

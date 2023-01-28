@@ -47,7 +47,7 @@ jQuery(function(){
 						<ul class="addr_list" id="addr_list">
 							{foreach:items=$this->addressList}
 							<li id="addressItem{$item['id']}">
-								<label><input class="radio" name="radio_address" type="radio" value="{$item['id']}" onclick="orderFormInstance.getDelivery({$item['province']});" />{$item['accept_name']} {$item['province_str']} {$item['city_str']} {$item['area_str']} {$item['address']} {$item['mobile']}</label> [<a href="javascript:orderFormInstance.addressEdit({$item['id']});" style="color:#005ea7;">修改地址</a>] [<a href="javascript:orderFormInstance.addressDel({$item['id']});" style="color:#005ea7">删除</a>]
+								<label><input class="radio" name="radio_address" type="radio" value="{$item['id']}" onclick="orderFormInstance.getDelivery({$item['area']});" />{$item['accept_name']} {$item['province_str']} {$item['city_str']} {$item['area_str']} {$item['address']} {$item['mobile']}</label> [<a href="javascript:orderFormInstance.addressEdit({$item['id']});" style="color:#005ea7;">修改地址</a>] [<a href="javascript:orderFormInstance.addressDel({$item['id']});" style="color:#005ea7">删除</a>]
 							</li>
 							{/foreach}
 							<li>
@@ -58,7 +58,7 @@ jQuery(function(){
 						<!--收货地址项模板-->
 						<script type='text/html' id='addressLiTemplate'>
 						<li id="addressItem<%=item['id']%>">
-							<label><input class="radio" name="radio_address" type="radio" value="<%=item['id']%>" onclick="orderFormInstance.getDelivery(<%=item['province']%>);" /><%=item['accept_name']%> <%=item['province_str']%> <%=item['city_str']%> <%=item['area_str']%> <%=item['address']%> <%=item['mobile']%></label> [<a href="javascript:orderFormInstance.addressEdit(<%=item['id']%>);" style="color:#005ea7;">修改地址</a>] [<a href="javascript:orderFormInstance.addressDel(<%=item['id']%>);" style="color:#005ea7">删除</a>]
+							<label><input class="radio" name="radio_address" type="radio" value="<%=item['id']%>" onclick="orderFormInstance.getDelivery(<%=item['area']%>);" /><%=item['accept_name']%> <%=item['province_str']%> <%=item['city_str']%> <%=item['area_str']%> <%=item['address']%> <%=item['mobile']%></label> [<a href="javascript:orderFormInstance.addressEdit(<%=item['id']%>);" style="color:#005ea7;">修改地址</a>] [<a href="javascript:orderFormInstance.addressDel(<%=item['id']%>);" style="color:#005ea7">删除</a>]
 						</li>
 						</script>
 					</div>

@@ -2,16 +2,142 @@
 /**
  * @class wechatBase
  * @brief 微信支付基类
+ * 微信证书分为：商户证书，微信平台证书(通过API接口获取)
+	什么是商户证书？什么是平台证书？
+	商户证书 是指由商户申请的，包含商户的商户号、公司名称、公钥信息的证书。
+	平台证书 是指由微信支付负责申请的，包含微信支付平台标识、公钥信息的证书。
  * @date 2018/2/27 7:38:38
+ * @date 2022/09/10 07:45:00 更新微信v3接口
  */
 abstract class wechatBase extends paymentPlugin
 {
-	/**
-	 * @see paymentplugin::getSubmitUrl()
-	 */
-	public function getSubmitUrl()
+	//全局url提交地址前缀
+	const APIURL = 'https://api.mch.weixin.qq.com';
+
+	//获取商户私钥
+	protected function getMchidPrikey()
 	{
-		return 'https://api.mch.weixin.qq.com/pay/unifiedorder';
+		$SSLKEY_PATH  = dirname(__FILE__).'/key/apiclient_key.pem';
+		$mch_private_key = file_get_contents($SSLKEY_PATH);
+		return $mch_private_key;
+	}
+
+	//获取商户公钥
+	protected function getMchidPubkey()
+	{
+		$SSLCERT_PATH = dirname(__FILE__).'/key/apiclient_cert.pem';
+		$mch_public_key = file_get_contents($SSLKEY_PATH);
+		return $mch_public_key;
+	}
+
+	/**
+	 * @brief 获取微信平台公钥
+	 * 由cache保存主要是json格式： wechatPlantPub => ['expire_time' => 有效期截至 ,'serial_no' => 证书序列号, 'content' => 证书内容]
+	 * @return array
+	 */
+	protected function getPlatPubkey()
+	{
+		$cache    = new ICache('file');
+		$pubJson  = $cache->get('wechatPlantPub');
+		$pubArray = JSON::decode($pubJson);
+		if($pubArray)
+		{
+			return $pubArray;
+		}
+		else
+		{
+			return $this->certificates();
+		}
+	}
+
+	/**
+	 * @brief 获取平台证书通过接口
+	 */
+	public function certificates()
+	{
+		$url = '/v3/certificates';
+		$cipherArray = $this->curlSubmit($url,[],[],'GET');
+
+		if(!$cipherArray || !isset($cipherArray['data']) || !$cipherArray['data'])
+		{
+			throw new IException("异步支付回调密文数据有问题:".var_export($cipherArray,true));
+		}
+
+		$cache  = new ICache('file');
+
+		$config = $this->config();
+		$key    = $config['key'];
+		foreach($cipherArray['data'] as $item)
+		{
+			//有效期
+			$expire_time = $item['expire_time'];
+
+			//证书编号
+			$serial_no   = $item['serial_no'];
+
+			//证书内容
+			$resource    = $item['encrypt_certificate'];
+			$AesUtilObj  = new AesUtil($key);
+			$pem = $AesUtilObj->decryptToString($resource['associated_data'], $resource['nonce'], $resource['ciphertext']);
+
+			$pubKey = ['expire_time' => $expire_time,'serial_no' => $serial_no,'content' => $pem];
+			$cache->set('wechatPlantPub', JSON::encode($pubKey));
+			break;
+		}
+
+		return $pubKey;
+	}
+
+	/**
+	 * @brief 签名
+	 * @param $messageArray 待签名数组，按照次序排列好
+	 * 签名串 每一行为一个参数。行尾以 \n（换行符，ASCII编码值为0x0A）结束，包括最后一行。
+	 * 如果参数本身以\n结束，也需要附加一个\n。
+	 */
+	protected function sign($messageArray)
+	{
+		openssl_sign(join("\n",$messageArray)."\n", $sign, $this->getMchidPrikey(), 'sha256WithRSAEncryption');
+		return base64_encode($sign);
+	}
+
+	/**
+	 * 私密性数据加密
+	 * @note 用平台公钥进行加密(到了微信端后微信用私钥进行解密)
+	 */
+	protected function encode($str)
+	{
+		$pubArray = $this->getPlatPubkey();
+		$plan_public_key = $pubArray['content'];
+		$encrypted = '';
+		if(openssl_public_encrypt($str, $encrypted, $plan_public_key, OPENSSL_PKCS1_OAEP_PADDING))
+		{
+			//base64编码
+			$sign = base64_encode($encrypted);
+			return $sign;
+		}
+		else
+		{
+			throw new Exception('encrypt failed');
+		}
+	}
+
+	/**
+	 * 私密性数据解密
+	 * @note 用商户私钥进行加密(到了微信端后微信用商户公钥进行解密)
+	 */
+	protected function decode($encrypted)
+	{
+		$mch_pri_key = $this->getMchidPrikey();
+		$str = '';
+		if(openssl_private_decrypt(base64_decode($encrypted),$str,$mch_pri_key,OPENSSL_PKCS1_OAEP_PADDING))
+		{
+			return $str;
+		}
+		else
+		{
+			throw new Exception('decrypt failed');
+		}
+		return $str;
 	}
 
 	/**
@@ -19,7 +145,7 @@ abstract class wechatBase extends paymentPlugin
 	 */
 	public function notifyStop()
 	{
-		die("<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>");
+		http_response_code(200);
 	}
 
 	/**
@@ -32,72 +158,80 @@ abstract class wechatBase extends paymentPlugin
 	 */
 	public function serverCallback($callbackData,&$paymentId,&$money,&$message,&$orderNo)
 	{
-		$postXML      = file_get_contents("php://input");
-		$callbackData = $this->converArray($postXML);
+		$ciphertext = file_get_contents("php://input");
+		$cipherArray= JSON::decode($ciphertext);
 
-		if(isset($callbackData['return_code']) && $callbackData['return_code'] == 'SUCCESS')
+		if(!$cipherArray || !isset($cipherArray['resource']))
 		{
-			//除去待签名参数数组中的空值和签名参数
-			$para_filter = $this->paraFilter($callbackData);
-
-			//对待签名参数数组排序
-			$para_sort = $this->argSort($para_filter);
-
-			//生成签名结果
-			$mysign = $this->buildMysign($para_sort,Payment::getConfigParam($paymentId,'key'));
-
-			//验证签名
-			if($mysign == $callbackData['sign'])
-			{
-				if($callbackData['result_code'] == 'SUCCESS')
-				{
-					$orderNo = strstr($callbackData['out_trade_no'],"_",true);
-					$orderNo = $orderNo ? $orderNo : $callbackData['out_trade_no'];
-					$money   = $callbackData['total_fee']/100;
-
-					//记录回执流水号
-					if(isset($callbackData['transaction_id']) && $callbackData['transaction_id'])
-					{
-						$this->recordTradeNo($orderNo,$callbackData['transaction_id']);
-					}
-					return true;
-				}
-				else
-				{
-					$message = $callbackData['err_code_des'];
-				}
-			}
-			else
-			{
-				$message = '签名不匹配';
-			}
+			throw new IException("异步支付回调密文数据有问题:".$ciphertext);
 		}
 
-		$message = $message ? $message : $callbackData['message'];
+		$key = Payment::getConfigParam($paymentId,'key');
+		$AesUtilObj = new AesUtil($key);
+		$json = $AesUtilObj->decryptToString($cipherArray['resource']['associated_data'], $cipherArray['resource']['nonce'], $cipherArray['resource']['ciphertext']);
+		$result = JSON::decode($json);
+
+		if(!$result)
+		{
+			throw new IException("异步支付回调解密json出现问题:".$json);
+		}
+
+		if(isset($result['trade_state']) && $result['trade_state'] == 'SUCCESS')
+		{
+			$orderNo = strstr($result['out_trade_no'],"_",true);
+			$orderNo = $orderNo ? $orderNo : $result['out_trade_no'];
+			$money   = $result['amount']['total']/100;
+
+			//记录回执流水号
+			if(isset($result['transaction_id']) && $result['transaction_id'])
+			{
+				$this->recordTradeNo($orderNo,$result['transaction_id']);
+			}
+			return true;
+		}
 		return false;
 	}
 
 	/**
 	 * @brief 提交数据
-	 * @param xml $xmlData 要发送的xml数据
-	 * @return xml 返回数据
+	 * @param string $url 短ULR
+	 * @param array $data 要发送的数据
+	 * @param array $headerAppend 发送header信息
+	 * @param string $method 提交方式
+	 * @return json 返回数据
 	 */
-	protected function curlSubmit($xmlData)
+	protected function curlSubmit($url, $data = [], $headerAppend = [], $method = 'POST')
 	{
-		//接收xml数据的文件
-		$url = $this->getSubmitUrl();
+		$json      = $data ? JSON::encode($data) : '';
+		$config    = $this->config();
 
-		$ch = curl_init($url);
-		curl_setopt($ch, CURLOPT_URL, $url);
+		$mchid     = $config['mch_id'];
+		$serial_no = $config['serial_no'];
+		$time      = time();
+		$nonce_str = rand(100000,999999);
+
+		//发起请求 所有请求都要带 authorization 参数，属于标准
+		$signature = $this->sign([$method,$url,$time,$nonce_str,$json]);
+		$authorization = 'WECHATPAY2-SHA256-RSA2048 mchid="'.$mchid.'",nonce_str="'.$nonce_str.'",signature="'.$signature.'",timestamp="'.$time.'",serial_no="'.$serial_no.'"';
+		$header = ['User-Agent: iWebShop', 'Accept: application/json', 'Content-Type: application/json', 'Authorization: '.$authorization];
+		$header = array_merge($header,$headerAppend);
+
+		//发起请求
+		$ch = curl_init(self::APIURL.$url);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+
+		if($method == 'POST')
+		{
+			curl_setopt($ch, CURLOPT_POST, 1);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, $json);
+		}
+
 		curl_setopt($ch, CURLOPT_HEADER, false);
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept: application/xml', 'Content-Type: application/xml'));
-		curl_setopt($ch, CURLOPT_POST, 1);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $xmlData);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-		curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+		curl_setopt($ch, CURLOPT_TIMEOUT, 50);
 
 		$response = curl_exec($ch);
 		if(!$response)
@@ -106,122 +240,7 @@ abstract class wechatBase extends paymentPlugin
 			$errorMsg = $errorMsg ? $errorMsg : "CURL异常出错";
 			die($errorMsg);
 		}
-		curl_close($ch);
-		return $response;
-	}
-
-	/**
-	 * @brief 从array到xml转换数据格式
-	 * @param array $arrayData
-	 * @return xml
-	 */
-	protected function converXML($arrayData)
-	{
-		$xml = '<xml>';
-		foreach($arrayData as $key => $val)
-		{
-			$xml .= '<'.$key.'><![CDATA['.$val.']]></'.$key.'>';
-		}
-		$xml .= '</xml>';
-		return $xml;
-	}
-
-	/**
-	 * @brief 从xml到array转换数据格式
-	 * @param xml $xmlData
-	 * @return array
-	 */
-	protected function converArray($xmlData)
-	{
-		$result = array();
-		$xmlHandle = xml_parser_create();
-		xml_parse_into_struct($xmlHandle, $xmlData, $resultArray);
-
-		foreach($resultArray as $key => $val)
-		{
-			if($val['tag'] != 'XML' && isset($val['value']))
-			{
-				$result[$val['tag']] = $val['value'];
-			}
-		}
-		return array_change_key_case($result);
-	}
-
-	/**
-	 * 除去数组中的空值和签名参数
-	 * @param $para 签名参数组
-	 * return 去掉空值与签名参数后的新签名参数组
-	 */
-	protected function paraFilter($para)
-	{
-		$para_filter = array();
-		foreach($para as $key => $val)
-		{
-			if($key == "sign" || $key == "sign_type" || $val == "")
-			{
-				continue;
-			}
-			else
-			{
-				$para_filter[$key] = $para[$key];
-			}
-		}
-		return $para_filter;
-	}
-
-	/**
-	 * 对数组排序
-	 * @param $para 排序前的数组
-	 * return 排序后的数组
-	 */
-	protected function argSort($para)
-	{
-		ksort($para);
-		reset($para);
-		return $para;
-	}
-
-	/**
-	 * 生成签名结果
-	 * @param $sort_para 要签名的数组
-	 * @param $key 支付宝交易安全校验码
-	 * @param $sign_type 签名类型 默认值：MD5
-	 * return 签名结果字符串
-	 */
-	protected function buildMysign($sort_para,$key,$sign_type = "MD5")
-	{
-		//把数组所有元素，按照“参数=参数值”的模式用“&”字符拼接成字符串
-		$prestr = $this->createLinkstring($sort_para);
-		//把拼接后的字符串再与安全校验码直接连接起来
-		$prestr = $prestr.'&key='.$key;
-		//把最终的字符串签名，获得签名结果
-		$mysgin = md5($prestr);
-		return strtoupper($mysgin);
-	}
-
-	/**
-	 * 把数组所有元素，按照“参数=参数值”的模式用“&”字符拼接成字符串
-	 * @param $para 需要拼接的数组
-	 * return 拼接完成以后的字符串
-	 */
-	protected function createLinkstring($para)
-	{
-		$arg  = "";
-		foreach($para as $key => $val)
-		{
-			$arg.=$key."=".$val."&";
-		}
-
-		//去掉最后一个&字符
-		$arg = trim($arg,'&');
-
-		//如果存在转义字符，那么去掉转义
-		if(function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc())
-		{
-			$arg = stripslashes($arg);
-		}
-
-		return $arg;
+		return JSON::decode($response);
 	}
 
 	/**
@@ -230,98 +249,128 @@ abstract class wechatBase extends paymentPlugin
 	 */
 	public function doRefund($payment)
 	{
-		$return = array();
+		$this->certificates();
+		$config = $this->config();
+		$key    = $config['key'];
+		$url    = '/v3/refund/domestic/refunds';
+
+		$data = [];
 
         //基本参数
-        $return['appid']          = $payment['appid'];
-        $return['mch_id']         = $payment['mch_id'];
-        $return['nonce_str']      = rand(100000,999999);
-        $return['transaction_id'] = $payment['M_TransactionId'];
-        $return['out_refund_no']  = $payment['M_RefundNo'];
-        $return['total_fee']      = $payment['M_Amount']*100;
-        $return['refund_fee']     = $payment['M_Refundfee']*100;
+		$data['transaction_id'] = $payment['M_TransactionId'];
+		$data['out_refund_no']  = $payment['M_RefundNo'];
+		$data['amount']         = ['refund' => $payment['M_Refundfee']*100, 'total' => $payment['M_Amount']*100, 'currency' => 'CNY'];
+		if(isset($payment['M_REASON']) && $payment['M_REASON'])
+		{
+			$data['reason'] = $payment['M_REASON'];
+		}
 
-        //除去待签名参数数组中的空值和签名参数
-        $para_filter = $this->paraFilter($return);
-
-        //对待签名参数数组排序
-        $para_sort = $this->argSort($para_filter);
-        //生成签名结果
-        $mysign = $this->buildMysign($para_sort, $payment['key']);
-
-
-        //签名结果与签名方式加入请求提交参数组中
-        $return['sign'] = $mysign;
-
-        $xmlData     = $this->converXML($return);
-        $url         = "https://api.mch.weixin.qq.com/secapi/pay/refund";
-        $response    = self::postXmlCurl($xmlData, $url);
-        $resultArray = $this->converArray($response);
-        if($resultArray['return_code'] == "SUCCESS")
+        $result = $this->curlSubmit($url,$data);
+        if(is_array($result) && $result)
         {
-        	if(isset($resultArray['err_code_des']) && $resultArray['err_code_des'])
-        	{
-        		return $resultArray['err_code_des'];
-        	}
-        	else
-        	{
-	            if(isset($resultArray['refund_id']) && $resultArray['refund_id'])
-	            {
-	                $this->recordRefundTradeNo($payment['M_RefundId'],$resultArray['refund_id']);
-	            }
-	            return true;
-        	}
+			if(isset($result['status']) && in_array($result['status'],['PROCESSING','SUCCESS']))
+			{
+				if(isset($result['refund_id']) && $result['refund_id'])
+				{
+					$this->recordRefundTradeNo($payment['M_RefundId'],$result['refund_id']);
+				}
+				return true;
+			}
+
+			if(isset($result) && $result['message'])
+			{
+				return $result['message'];
+			}
         }
-        else
-        {
-            return $resultArray['return_msg'];
-        }
+		return $result;
 	}
 
-	//发送可加密的xml的post请求
-	protected function postXMLCurl($xml, $url)
-    {
-		$SSLCERT_PATH = dirname(__FILE__).'/key/apiclient_cert.pem';
-		$SSLKEY_PATH  = dirname(__FILE__).'/key/apiclient_key.pem';
+	//获取支付接口的配置参数信息
+	public function config()
+	{
+		if(!$this->paymentId)
+		{
+			$className = get_called_class();
+			$paymentDB = new IModel('payment');
+			$paymentRow= $paymentDB->getObj('class_name = "'.$className.'" and status = 0 and type = 1','id');
+			if($paymentRow)
+			{
+				$this->paymentId = $paymentRow['id'];
+			}
+			else
+			{
+				return null;
+			}
+		}
+		return payment::getConfigParam($this->paymentId);
+	}
+}
 
-        $ch = curl_init();
+/**
+ * @brief AEAD_AES_256_GCM 解密算法
+ */
+class AesUtil
+{
+	/**
+	 * AES key
+	 *
+	 * @var string
+	 */
+	private $aesKey;
 
-        //设置基础设置
-        curl_setopt($ch,CURLOPT_URL, $url);
-        curl_setopt($ch,CURLOPT_SSL_VERIFYPEER,false);
-        curl_setopt($ch,CURLOPT_SSL_VERIFYHOST,2);//严格校验
-        //设置header
-        curl_setopt($ch, CURLOPT_HEADER, FALSE);
-        //要求结果为字符串且输出到屏幕上
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+	const KEY_LENGTH_BYTE = 32;
+	const AUTH_TAG_LENGTH_BYTE = 16;
 
-        //设置证书
-        //使用证书：cert 与 key 分别属于两个.pem文件
-        curl_setopt($ch,CURLOPT_SSLCERTTYPE,'PEM');
-        curl_setopt($ch,CURLOPT_SSLCERT, $SSLCERT_PATH);
-        curl_setopt($ch,CURLOPT_SSLKEYTYPE,'PEM');
-        curl_setopt($ch,CURLOPT_SSLKEY, $SSLKEY_PATH);
+	/**
+	 * Constructor
+	 */
+	public function __construct($aesKey)
+	{
+		if(strlen($aesKey) != self::KEY_LENGTH_BYTE)
+		{
+			throw new IException('无效的ApiV3Key，长度应为32个字节');
+		}
+		$this->aesKey = $aesKey;
+	}
 
-        //post提交方式
-        curl_setopt($ch, CURLOPT_POST, TRUE);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $xml);
-        //运行curl
-        $data = curl_exec($ch);
-        //返回结果
-        if($data)
-        {
-            curl_close($ch);
-            return $data;
-        }
-        else
-        {
-            $error = curl_error($ch);
-            curl_close($ch);
-            if(stripos($error,'not found'))
-            {
-                $error .= "请拷贝微信退款证书在此目录下";
-            }
-            die("curl出错，错误信息:".$error);
-        }
-    }
+	/**
+	 * Decrypt AEAD_AES_256_GCM ciphertext
+	 *
+	 * @param string    $associatedData     AES GCM additional authentication data
+	 * @param string    $nonceStr           AES GCM nonce
+	 * @param string    $ciphertext         AES GCM cipher text
+	 *
+	 * @return string|bool      Decrypted string on success or FALSE on failure
+	 */
+	public function decryptToString($associatedData, $nonceStr, $ciphertext)
+	{
+		$ciphertext = base64_decode($ciphertext);
+		if (strlen($ciphertext) <= self::AUTH_TAG_LENGTH_BYTE)
+		{
+			return false;
+		}
+
+		// ext-sodium (default installed on >= PHP 7.2)
+		if (function_exists('\sodium_crypto_aead_aes256gcm_is_available') && \sodium_crypto_aead_aes256gcm_is_available())
+		{
+			return \sodium_crypto_aead_aes256gcm_decrypt($ciphertext, $associatedData, $nonceStr, $this->aesKey);
+		}
+
+		// ext-libsodium (need install libsodium-php 1.x via pecl)
+		if (function_exists('\Sodium\crypto_aead_aes256gcm_is_available') && \Sodium\crypto_aead_aes256gcm_is_available())
+		{
+			return \Sodium\crypto_aead_aes256gcm_decrypt($ciphertext, $associatedData, $nonceStr, $this->aesKey);
+		}
+
+		// openssl (PHP >= 7.1 support AEAD)
+		if (PHP_VERSION_ID >= 70100 && in_array('aes-256-gcm', \openssl_get_cipher_methods()))
+		{
+			$ctext = substr($ciphertext, 0, -self::AUTH_TAG_LENGTH_BYTE);
+			$authTag = substr($ciphertext, -self::AUTH_TAG_LENGTH_BYTE);
+
+			return openssl_decrypt($ctext, 'aes-256-gcm', $this->aesKey, OPENSSL_RAW_DATA, $nonceStr, $authTag, $associatedData);
+		}
+
+		throw new Exception('AEAD_AES_256_GCM需要PHP 7.1以上或者安装libsodium-php');
+	}
 }

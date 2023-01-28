@@ -101,7 +101,7 @@ class Ucenter extends IController implements userAuthorization
 
         if(!$this->order_info)
         {
-        	IError::show(403,'订单信息不存在');
+        	IError::show(403,ILang::get('订单信息不存在'));
         }
         $this->redirect('order_detail',false);
     }
@@ -280,7 +280,7 @@ class Ucenter extends IController implements userAuthorization
 
         if(!$content || !$order_goods_id)
         {
-            IError::show(403,"请填写售后原因和商品");
+            IError::show(403,ILang::get('请填写售后原因和商品'));
         }
 
 		//过滤多余的商品数量
@@ -294,7 +294,7 @@ class Ucenter extends IController implements userAuthorization
 
 		if(count($order_goods_id) != count($refunds_nums))
 		{
-			IError::show(403,"退款数量不匹配");
+			IError::show(403,ILang::get('退款数量不匹配'));
 		}
 
         $orderDB      = new IModel('order');
@@ -323,7 +323,7 @@ class Ucenter extends IController implements userAuthorization
                 $img_list = array_filter($img_list);
                 if(count($img_list) > 5)
                 {
-                    IError::show(403,"最多上传5张图片");
+                    IError::show(403,ILang::get('最多上传5张图片'));
                 }
 
                 $img_list = JSON::encode($img_list);
@@ -404,14 +404,14 @@ class Ucenter extends IController implements userAuthorization
         	else
         	{
 	        	$this->redirect('refunds',false);
-	        	Util::showMessage("没有找到要退款的商品");
+	        	Util::showMessage(ILang::get('没有找到要退款的商品'));
         	}
         	$this->redirect('refunds_detail');
         }
         else
         {
         	$this->redirect('refunds',false);
-        	Util::showMessage("退款信息不存在");
+        	Util::showMessage(ILang::get('退款信息不存在'));
         }
     }
     /**
@@ -471,7 +471,7 @@ class Ucenter extends IController implements userAuthorization
         $id     = IFilter::act( IReq::get('id'),'int' );
         $msgObj = new Mess($this->user['user_id']);
         $content= $msgObj->readMessage($id);
-        $result = array('status' => 'fail','error' => '读取内容错误');
+        $result = array('status' => 'fail','error' => ILang::get('读取内容错误'));
         if($content)
         {
             $msgObj->writeMessage($id,1);
@@ -495,15 +495,15 @@ class Ucenter extends IController implements userAuthorization
 
 		if(!preg_match('|\w{6,32}|',$password))
 		{
-			$message = '密码格式不正确，请重新输入';
+			$message = ILang::get('密码格式不正确');
 		}
     	else if($password != $repassword)
     	{
-    		$message  = '二次密码输入的不一致，请重新输入';
+    		$message  = ILang::get('二次密码输入的不一致');
     	}
     	else if(md5($fpassword) != $userRow['password'])
     	{
-    		$message  = '原始密码输入错误';
+    		$message  = ILang::get('原始密码输入错误');
     	}
     	else
     	{
@@ -517,11 +517,11 @@ class Ucenter extends IController implements userAuthorization
 	    	if($result)
 	    	{
 	    		ISafe::set('user_pwd',$passwordMd5);
-	    		$message = '密码修改成功';
+	    		$message = ILang::get('密码修改成功');
 	    	}
 	    	else
 	    	{
-	    		$message = '密码修改失败';
+	    		$message = ILang::get('密码修改失败');
 	    	}
 		}
 
@@ -552,7 +552,7 @@ class Ucenter extends IController implements userAuthorization
 			$memberRow = $memberObj->getObj('user_id != '.$user_id.' and email = "'.$email.'"');
 			if($memberRow)
 			{
-				IError::show('邮箱已经被注册');
+				IError::show(ILang::get('邮箱已经被注册'));
 			}
 		}
 
@@ -561,7 +561,7 @@ class Ucenter extends IController implements userAuthorization
 			$memberRow = $memberObj->getObj('user_id != '.$user_id.' and mobile = "'.$mobile.'"');
 			if($memberRow)
 			{
-				IError::show('手机已经被注册');
+				IError::show(ILang::get('手机已经被注册'));
 			}
 		}
 
@@ -625,15 +625,15 @@ class Ucenter extends IController implements userAuthorization
 		//提现金额范围
 		if($amount <= $mixAmount)
 		{
-			$message = '提现的金额必须大于'.$mixAmount.'元';
+			$message = ILang::get('提现的金额必须大于').':￥'.$mixAmount;
 		}
 		else if($amount > $memberRow['balance'])
 		{
-			$message = '提现的金额不能大于您的帐户预存款';
+			$message = ILang::get('提现的金额不能大于您的帐户余额');
 		}
 		else if($withdrawDB->getObj('user_id = '.$this->user['user_id'].' and status in (0,1)'))
 		{
-		    $message = '您已经提交过申请，请耐心等待';
+		    $message = ILang::get('您已经提交申请请耐心等待');
 		}
 		else
 		{
@@ -644,7 +644,7 @@ class Ucenter extends IController implements userAuthorization
 	    	{
 	    	    plugin::trigger('withdrawApplyFinish',$id);
 	    	}
-	    	$this->redirect('/ucenter/withdraw/_msg/申请成功等待审核通过');
+	    	$this->redirect('/ucenter/withdraw/_msg/'.ILang::get('申请成功等待审核通过'));
 		}
 
 		if($message)
@@ -706,11 +706,11 @@ class Ucenter extends IController implements userAuthorization
 
     	if(!$id)
     	{
-    		$result['message'] = '收藏夹ID值丢失';
+    		$result['message'] = ILang::get('收藏夹ID值丢失');
     	}
     	else if(!$summary)
     	{
-    		$result['message'] = '请填写正确的备注信息';
+    		$result['message'] = ILang::get('请填写正确的备注信息');
     	}
     	else
     	{
@@ -726,7 +726,7 @@ class Ucenter extends IController implements userAuthorization
 
 	    	if($is_success === false)
 	    	{
-	    		$result['message'] = '更新信息错误';
+	    		$result['message'] = ILang::get('更新信息错误');
 	    	}
 	    	else
 	    	{
@@ -764,7 +764,7 @@ class Ucenter extends IController implements userAuthorization
 		else
 		{
 			$this->redirect('favorite',false);
-			Util::showMessage('请选择要删除的数据');
+			Util::showMessage(ILang::get('请选择要删除的数据'));
 		}
     }
 
@@ -796,7 +796,7 @@ class Ucenter extends IController implements userAuthorization
 					$pointConfig = array(
 						'user_id' => $this->user['user_id'],
 						'point'   => '-'.$ticketRow['point'],
-						'log'     => '积分兑换优惠券，扣除了 -'.$ticketRow['point'].'积分',
+						'log'     => ILang::get('积分兑换优惠券').': -'.$ticketRow['point'],
 					);
 					$pointObj = new Point;
 					$pointObj->update($pointConfig);
@@ -809,7 +809,7 @@ class Ucenter extends IController implements userAuthorization
 		}
 		else
 		{
-			$this->setError('优惠券不存在');
+			$this->setError(ILang::get('优惠券不存在'));
 		}
 
     	$error = $this->getError();
@@ -829,11 +829,11 @@ class Ucenter extends IController implements userAuthorization
     	{
 			if(IReq::get('isAjax'))
 			{
-				die(JSON::encode(['status' => 'success','msg' => '优惠券获取成功']));
+				die(JSON::encode(['status' => 'success','msg' => ILang::get('优惠券获取成功')]));
 			}
 			else
 			{
-				$this->redirect('/ucenter/redpacket/_msg/优惠券获取成功');
+				$this->redirect('/ucenter/redpacket/_msg/'.ILang::get('优惠券获取成功'));
 			}
     	}
     }
@@ -858,7 +858,7 @@ class Ucenter extends IController implements userAuthorization
 		$paymentRow = $paymentDB->getObj('class_name = "balance" ');
 		if(!$paymentRow)
 		{
-			IError::show(403,'预存款支付方式不存在');
+			IError::show(403,ILang::get('预存款支付方式不存在'));
 		}
 
 		$paymentInstance = Payment::createPaymentInstance($paymentRow['id']);
@@ -873,13 +873,13 @@ class Ucenter extends IController implements userAuthorization
 
     	if(empty($memberRow))
     	{
-    		IError::show(403,'用户信息不存在');
+    		IError::show(403,ILang::get('用户信息不存在'));
     	}
 
     	if($memberRow['balance'] < $return['total_fee'])
     	{
     	    $recharge = $return['total_fee'] - $memberRow['balance'];
-    	    $this->redirect('/ucenter/online_recharge/_msg/预存款不足请充值 ￥'.$recharge);
+    	    $this->redirect('/ucenter/online_recharge/_msg/'.ILang::get('预存款不足请充值').':'.$recharge);
     	    return;
     	}
 
@@ -888,7 +888,7 @@ class Ucenter extends IController implements userAuthorization
 		$orderRow = $orderObj->getObj('order_no  = "'.$return['order_no'].'" and pay_status = 0 and status = 1 and user_id = '.$user_id);
 		if(!$orderRow)
 		{
-			IError::show(403,'订单号【'.$return['order_no'].'】已经被处理过，请查看订单状态');
+			IError::show(403,ILang::get('订单已被处理'));
 		}
 
 		//扣除预存款并且记录日志
@@ -903,7 +903,7 @@ class Ucenter extends IController implements userAuthorization
 		if(!$is_success)
 		{
 			$orderObj->rollback();
-			IError::show(403,$logObj->error ? $logObj->error : '用户预存款更新失败');
+			IError::show(403,$logObj->error ? $logObj->error : ILang::get('用户预存款更新失败'));
 		}
 
 		//订单批量结算缓存机制
@@ -916,19 +916,19 @@ class Ucenter extends IController implements userAuthorization
 				if(!$order_id)
 				{
 					$orderObj->rollback();
-					IError::show(403,'订单修改失败');
+					IError::show(403,ILang::get('订单修改失败'));
 				}
 			}
 		}
 		else
 		{
 			$orderObj->rollback();
-			IError::show(403,'付款金额与订单金额不符合');
+			IError::show(403,ILang::get('付款金额与订单金额不符合'));
 		}
 
 		//支付成功结果
 		plugin::trigger('setCallback','/ucenter/order');
-		$this->redirect('/site/success/message/'.urlencode("支付成功"));
+		$this->redirect('/site/success/message/'.urlencode(ILang::get('支付成功')));
     }
 
     //发票删除
@@ -967,37 +967,37 @@ class Ucenter extends IController implements userAuthorization
         $goodsDownloadRelationRow = $goodsDownloadRelationObj->getObj($id);
         if(!$goodsDownloadRelationRow || $goodsDownloadRelationRow['user_id'] != $user_id)
         {
-            IError::show(403,'未找到记录');
+            IError::show(403,ILang::get('未找到记录'));
         }
 
         $goodsExtendDownloadObj = new IModel('goods_extend_download');
         $goodsExtendDownloadRow = $goodsExtendDownloadObj->getObj('goods_id = '.$goodsDownloadRelationRow['goods_id'],'url,end_time,limit_num');
         if(!$goodsExtendDownloadRow)
         {
-            IError::show(403,'未找到资源');
+            IError::show(403,ILang::get('未找到资源'));
         }
 
         if(ITime::getDateTime() > $goodsExtendDownloadRow['end_time'])
         {
-            IError::show(403,'资源到期,停止下载,到期时间:'.$goodsExtendDownloadRow['end_time']);
+            IError::show(403,ILang::get('资源到期停止下载'));
         }
 
         if($goodsDownloadRelationRow['num'] >= $goodsExtendDownloadRow['limit_num'])
         {
-            IError::show(403,'资源限制下载'.$goodsExtendDownloadRow['limit_num'].'次');
+            IError::show(403,ILang::get('超过下载限制次数'));
         }
 
         $file = $goodsExtendDownloadRow['url'];
         if(stripos($file,"http") !== 0 && !file_exists($file))
         {
-            IError::show(403,'资源已失效');
+            IError::show(403,ILang::get('资源已失效'));
         }
 
 		//检查订单完成状态
 		$orderDB = new IModel('order');
 		if(!$orderDB->getObj('id = '.$goodsDownloadRelationRow['order_id'].' and status = 5 and if_del = 0'))
 		{
-			IError::show(403,'当前订单未完成付款');
+			IError::show(403,ILang::get('当前订单未完成付款'));
 		}
 
         //更新下载次数
@@ -1044,14 +1044,14 @@ class Ucenter extends IController implements userAuthorization
         	else
         	{
 	        	$this->redirect('exchange',false);
-	        	Util::showMessage("没有找到申请售后的商品");
+	        	Util::showMessage(ILang::get('没有找到申请售后的商品'));
         	}
         	$this->redirect('exchange_detail');
         }
         else
         {
         	$this->redirect('exchange',false);
-        	Util::showMessage("申请信息不存在");
+        	Util::showMessage(ILang::get('申请信息不存在'));
         }
     }
 
@@ -1085,14 +1085,14 @@ class Ucenter extends IController implements userAuthorization
         	else
         	{
 	        	$this->redirect('fix',false);
-	        	Util::showMessage("没有找到申请售后的商品");
+	        	Util::showMessage(ILang::get('没有找到申请售后的商品'));
         	}
         	$this->redirect('fix_detail');
         }
         else
         {
         	$this->redirect('fix',false);
-        	Util::showMessage("申请信息不存在");
+        	Util::showMessage(ILang::get('申请信息不存在'));
         }
     }
 

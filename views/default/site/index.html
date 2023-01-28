@@ -187,7 +187,7 @@
 		<table id="index_category" class="sort_table m_10" width="100%">
 			<col width="100px" />
 			<col />
-			{foreach:items=Api::run('getCategoryListTop') item=$first}
+			{foreach:items=Api::run('getCategoryListTopByVis') item=$first}
 			<tr>
 				<th><a href="{url:/site/pro_list/cat/$first[id]}">{$first['name']}</a></th>
 				<td>

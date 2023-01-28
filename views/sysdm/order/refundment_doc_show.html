@@ -131,6 +131,7 @@ function refundment(id,refundsId)
 		okVal:'退款',
 	    title: '订单号:{$order_no}退款',
 	    ok:function(iframeWin, topWin){
+			loadding('退款中请稍候......');
 	    	var formObject = iframeWin.document.forms[0];
 	    	if(formObject.onsubmit() == false)
 	    	{
@@ -155,6 +156,7 @@ function actionCallback(msg)
 		return;
 	}
 	document.forms[0].submit();
+	unloadding();
 }
 
 //表单提交

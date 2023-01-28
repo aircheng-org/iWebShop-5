@@ -18,11 +18,12 @@ CREATE TABLE `{pre}account_log` (
   `admin_id` int(11) unsigned default '0' COMMENT '管理员ID',
   `user_id` int(11) unsigned default NULL COMMENT '用户id',
   `type` tinyint(1) NOT NULL default '0' COMMENT '0增加,1减少',
-  `event` tinyint(3) NOT NULL COMMENT '操作类型 1,充值到预存款 2,从预存款提现 3,从预存款支付 4,退款到预存款 5,佣金提现到预存款 6,充值奖励',
+  `event` tinyint(3) NOT NULL COMMENT '操作类型 1,充值预存款 2,提现预存款 3,预存款支付 4,退款到预存款 5,佣金提现到预存款 6,充值奖励',
   `time` datetime NOT NULL COMMENT '发生时间',
   `amount` decimal(15,2) NOT NULL COMMENT '金额',
   `amount_log` decimal(15,2) NOT NULL COMMENT '每次增减后面的金额记录',
   `note` text COMMENT '备注',
+  `purpose` varchar(50) NOT NULL default '' COMMENT '资金用途',
   PRIMARY KEY  (`id`),
   index (`user_id`),
   index (`admin_id`)
@@ -803,7 +804,7 @@ CREATE TABLE `{pre}group_price` (
   index (`goods_id`),
   index (`group_id`),
   index (`product_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='记录某件商品对于某组会员的价格关系表，优先权大于组设定的折扣率';
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='用户组商品价格';
 
 -- --------------------------------------------------------
 
@@ -1199,7 +1200,7 @@ CREATE TABLE `{pre}promotion` (
   `sort` smallint(5) NOT NULL COMMENT '顺序',
   `condition` text NOT NULL COMMENT '活动生效条件 当type=0<促销规则消费额度>,当type=1<限时抢购商品ID>,type=2<特价商品分类ID>,type=3<特价商品ID>,type=4<特价商品品牌ID>,type=5<无意义>,type=6<充值金额>',
   `type` tinyint(1) NOT NULL default '0' COMMENT '活动类型 0:购物车促销规则 1:商品限时抢购 2:商品分类特价 3:商品单品特价 4:商品品牌特价 5:新用户注册促销规则 6:在线充值活动',
-  `award_value` varchar(255) default NULL COMMENT '奖励值 type=0,5<奖励值>,type=1<抢购价格>,type=2,3,4<特价折扣>,type=6<充值奖励预存款>',
+  `award_value` varchar(255) default NULL COMMENT '奖励值 type=0,5<奖励值,包邮排除省份>,type=1<抢购价格>,type=2,3,4<特价折扣>,type=6<充值奖励预存款>',
   `name` varchar(255) NOT NULL COMMENT '活动名称',
   `intro` text COMMENT '活动介绍',
   `award_type` tinyint(1) NOT NULL default '0' COMMENT '奖励方式:0商品限时抢购 1减金额 2奖励折扣 3赠送积分 4赠送优惠券 5赠送赠品 6免运费 7商品特价 8赠送经验',
@@ -49806,6 +49807,7 @@ INSERT INTO `{pre}right` VALUES (NULL, '[商品]搜索', 'tools@keyword_edit,too
 INSERT INTO `{pre}right` VALUES (NULL, '[会员]会员列表', 'member@member_list,member@balance_report', 0);
 INSERT INTO `{pre}right` VALUES (NULL, '[会员]会员添加修改', 'member@member_edit,member@member_save', 0);
 INSERT INTO `{pre}right` VALUES (NULL, '[会员]会员删除', 'member@member_reclaim', 0);
+INSERT INTO `{pre}right` VALUES (NULL, '[会员]会员修改组', 'member@change_group', 0);
 INSERT INTO `{pre}right` VALUES (NULL, '[会员]会员回收站', 'member@member_del,member@member_restore,member@recycling', 0);
 INSERT INTO `{pre}right` VALUES (NULL, '[会员]会员预付款操作', 'member@member_balance,member@member_recharge', 0);
 INSERT INTO `{pre}right` VALUES (NULL, '[会员]会员组列表', 'member@group_list', 0);
@@ -49883,7 +49885,7 @@ INSERT INTO `{pre}right` VALUES (NULL, '[订单]退款申请单删除', 'order@r
 INSERT INTO `{pre}right` VALUES (NULL, '[订单]退款申请单修改', 'order@refundment_doc_show_save', 0);
 INSERT INTO `{pre}right` VALUES (NULL, '[订单]订单退款操作', 'order@order_refundment_doc', 0);
 INSERT INTO `{pre}right` VALUES (NULL, '[订单]配货单详情', 'order@delivery_show', 0);
-INSERT INTO `{pre}right` VALUES (NULL, '[订单]订单导出excel', 'order@order_report', 0);
+INSERT INTO `{pre}right` VALUES (NULL, '[订单]订单导出excel', 'order@order_report,order@order_goods_report', 0);
 INSERT INTO `{pre}right` VALUES (NULL, '[订单]换货申请单列表', 'order@exchange_list', 0);
 INSERT INTO `{pre}right` VALUES (NULL, '[订单]换货申请单详情', 'order@exchange_doc_show', 0);
 INSERT INTO `{pre}right` VALUES (NULL, '[订单]换货申请单删除', 'order@exchange_doc_del', 0);
@@ -49979,6 +49981,7 @@ INSERT INTO `{pre}payment` VALUES (NULL, '微信H5支付', 1, 'h5_wechat', '微�
 INSERT INTO `{pre}payment` VALUES (NULL, '微信小程序支付', 1, 'mini_wechat', '微信小程序支付接口，去微信公众平台申请。<a href="https://mp.weixin.qq.com/cgi-bin/registermidpage?action=index" target="_blank">立即申请</a>', '/payments/logos/pay_mini_wechat.png', 1, 99, NULL,NULL,2);
 INSERT INTO `{pre}payment` VALUES (NULL, '线下转账', 2, 'offline', '线下转账结算，通过银行柜台，电汇等方式付款', '/payments/logos/pay_offline.gif', 1, 99, NULL,NULL,3);
 INSERT INTO `{pre}payment` VALUES (NULL, '偶可贝', 1, 'allpay', '偶可贝跨境在线收款服务，支持支付宝，财付通，银联 <a href="https://www.allpayx.com" target="_blank">立即申请</a>', '/payments/logos/pay_allpay.jpg', 1, 99, NULL,NULL,1);
+INSERT INTO `{pre}payment` VALUES (NULL, 'Stripe', 1, 'stripe', '国际支付接口，数百万各种规模的商家——从初创公司到大型企业——都在使用 Stripe 的软件和 API 进行收款、发送提现及管理线上业务。 <a href="https://www.stripe.com" target="_blank">立即申请</a>', '/payments/logos/pay_stripe.jpg', 1, 99, NULL,NULL,3);
 
 --
 -- 建立外键关系
@@ -50007,7 +50010,7 @@ ALTER TABLE `{pre}oauth_user` ADD foreign key(user_id) references `{pre}user`(id
 ALTER TABLE `{pre}online_recharge` ADD foreign key(user_id) references `{pre}user`(id) ON UPDATE CASCADE ON DELETE CASCADE;
 ALTER TABLE `{pre}point_log` ADD foreign key(user_id) references `{pre}user`(id) ON UPDATE CASCADE ON DELETE CASCADE;
 ALTER TABLE `{pre}member` ADD foreign key(user_id) references `{pre}user`(id) ON UPDATE CASCADE ON DELETE CASCADE;
-ALTER TABLE `{pre}help` ADD foreign key(cat_id) references `{pre}help_category`(id) on delete SET NULL on update SET NULL;;
+ALTER TABLE `{pre}help` ADD foreign key(cat_id) references `{pre}help_category`(id) on delete SET NULL on update SET NULL;
 ALTER TABLE `{pre}goods_car` ADD foreign key(user_id) references `{pre}user`(id) ON UPDATE CASCADE ON DELETE CASCADE;
 ALTER TABLE `{pre}goods_attribute` ADD foreign key(attribute_id) references `{pre}attribute`(id) ON UPDATE CASCADE ON DELETE CASCADE;
 ALTER TABLE `{pre}goods_attribute` ADD foreign key(goods_id) references `{pre}goods`(id) ON UPDATE CASCADE ON DELETE CASCADE;

@@ -39,7 +39,7 @@ class Delivery
 
 	/**
 	 * @brief 配送方式计算管理模块
-	 * @param $province    int 省份的ID
+	 * @param $region      int 最小区域级别ID
 	 * @param $delivery_id int 配送方式ID
 	 * @param $goods_id    array 商品ID
 	 * @param $product_id  array 货品ID
@@ -58,7 +58,7 @@ class Delivery
 	 *  reason => 不能配送原因
 	 *	)
 	 */
-	public static function getDelivery($province,$delivery_id,$goods_id,$product_id = 0,$num = 1)
+	public static function getDelivery($region,$delivery_id,$goods_id,$product_id = 0,$num = 1)
 	{
 		//获取默认的配送方式信息
 		$delivery    = new IModel('delivery');
@@ -67,6 +67,9 @@ class Delivery
 		{
 			return "配送方式不存在";
 		}
+
+		//获取region区域所有得父级
+		$parent_region = area::parent($region);
 
 		//最终返回结果
 		$result = array(
@@ -81,6 +84,7 @@ class Delivery
 			'seller_price'         => [],
 			'seller_protect_price' => [],
 			'reason'               => "",
+			'parent_region'        => $parent_region,
 		);
 
 		//读取全部商品,array('goodsSum' => 商品总价,'weight' => 商品总重量)
@@ -177,15 +181,18 @@ class Delivery
     				$area_groupid = unserialize($deliveryRow['area_groupid']);
     				if($area_groupid)
     				{
-    					foreach($area_groupid as $key => $item)
+    					foreach($area_groupid as $key => $ids)
     					{
-    						//匹配到了特殊的省份运费价格
-    						if(strpos($item,';'.$province.';') !== false)
-    						{
-    							$matchKey = $key;
-    							$flag     = true;
-    							break;
-    						}
+							foreach($parent_region as $child)
+							{
+								//匹配到了特殊的省份运费价格
+								if(strpos($ids,';'.$child.';') !== false)
+								{
+									$matchKey = $key;
+									$flag     = true;
+									break;
+								}
+							}
     					}
     				}
 

@@ -56,9 +56,9 @@
 						<th>所属商户：</th>
 						<td>
 							<select class="form-control" name="seller_id">
-								<option value="0">商城平台自营 </option>
+								<option value="0">商城平台自营</option>
 								{foreach:items=Api::run('getSellerListAll')}
-								<option value="{$item['id']}">{$item['true_name']}-{$item['seller_name']}</option>
+								<option value="{$item['id']}">{$item['true_name']}</option>
 								{/foreach}
 							</select>
 							<p class="help-block"><a href='{url:/member/seller_edit}'>请点击添加商户</a></p>
@@ -271,7 +271,7 @@
 		                            <select class='form-control' onchange='selSpecVal(this);' id='specNameSel'>
 		                                <option value=''>选规格名称</option>
 		                                {foreach:items=Api::run('getSpecListAll')}
-		                                <option value='{$item['id']}'>{$item['name']}</option>
+		                                <option value='{$item['id']}'>{$item['name']} {if:$item['note']}【{$item['note']}】{/if}</option>
 		                                {/foreach}
 		                            </select>
 		                        </div>

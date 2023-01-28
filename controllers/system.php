@@ -91,26 +91,41 @@ class System extends IController implements adminAuthorization
 	 */
     public function delivery_edit()
 	{
-		$data = array();
-        $id = IFilter::act(IReq::get('id'),'int');
+		$data = [];
+        $id   = IFilter::act(IReq::get('id'),'int');
 
         if($id)
         {
             $delivery = new IModel('delivery');
             $data = $delivery->getObj('id = '.$id);
+
+			$area_groupid = unserialize($data['area_groupid']);
+			$firstprice   = unserialize($data['firstprice']);
+			$secondprice  = unserialize($data['secondprice']);
+
+			if($area_groupid)
+			{
+				foreach($area_groupid as $key => $item)
+				{
+					$areaNameString = '';
+					$areaArray = explode(";",trim($item,";"));
+					foreach($areaArray as $v)
+					{
+						$areaData = area::name($v);
+						$areaNameString .= current($areaData).'  ';
+					}
+
+					$data['areaConfig'][] = [
+						'area_groupid' => $area_groupid[$key],
+						'firstprice'   => $firstprice[$key],
+						'secondprice'  => $secondprice[$key],
+						'area_names'   => $areaNameString,
+					];
+				}
+			}
 		}
 
-		//获取省份
-		$areaData = array();
-		$areaDB = new IModel('areas');
-		$areaList = $areaDB->query('parent_id = 0');
-		foreach($areaList as $val)
-		{
-			$areaData[$val['area_id']] = $val['area_name'];
-		}
-		$this->areaList  = $areaList;
-		$this->data_info = $data;
-		$this->area      = $areaData;
+		$this->setRenderData(['data' => $data]);
         $this->redirect('delivery_edit');
 	}
 

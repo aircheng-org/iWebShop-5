@@ -11,6 +11,11 @@
  * @date 2016/9/15 23:30:28
  * @author nswe
  * @content 重构了写入方式和方法
+
+ * @update 5.13
+ * @date 14:44 2022/9/23
+ * @author nswe
+ * @content 用phpexcel重写,生成原生的excel
  */
 class report
 {
@@ -20,10 +25,14 @@ class report
 	//数据内容
 	private $_data    = "";
 
+	//phpexcel对象
+	private $phpexcel = null;
+
 	//构造函数
 	public function __construct($fileName = '')
 	{
 		$this->setFileName($fileName);
+		$this->phpexcel = new PHPExcel();
 	}
 
 	//设置要导出的文件名
@@ -36,13 +45,12 @@ class report
 	 * @brief 写入标题操作
 	 * @param $data array 一维数组
 	 */
-	public function setTitle($data = array())
+	public function setTitle($data = [])
 	{
-		array_walk($data,function(&$val,$key)
+		foreach($data as $indexNum => $col)
 		{
-			$val = "<th style='text-align:center;background-color:green;color:#fff;font-size:12px;vnd.ms-excel.numberformat:@'>".$val."</th>";
-		});
-		$this->_data = "<tr>".join($data)."</tr>" . $this->_data;
+			$this->phpexcel->getActiveSheet()->setCellValueByColumnAndRow($indexNum,1,$col);
+		}
 	}
 
 	/**
@@ -51,12 +59,11 @@ class report
 	 */
 	public function setData($data = array())
 	{
-		array_walk($data,function(&$val,$key)
+		$lastNum = $this->phpexcel->getActiveSheet(0)->getHighestRow()+1;
+		foreach($data as $indexNum => $col)
 		{
-			$dataType = is_numeric($val) && strlen($val) >= 10 ? "vnd.ms-excel.numberformat:@" : "";
-			$val = "<td style='text-align:center;font-size:12px;".$dataType."'>".$val."</td>";
-		});
-		$this->_data .= "<tr>".join($data)."</tr>";
+			$this->phpexcel->getActiveSheet()->setCellValueByColumnAndRow($indexNum,$lastNum,$col);
+		}
 	}
 
 	/**
@@ -65,19 +72,18 @@ class report
 	 */
 	public function setTail($data = array())
 	{
-		array_walk($data,function(&$val,$key)
+		$lastNum = $this->phpexcel->getActiveSheet(0)->getHighestRow()+1;
+		foreach($data as $indexNum => $col)
 		{
-			$val = "<th style='text-align:center;background-color:orange;color:#fff;font-size:12px;vnd.ms-excel.numberformat:@'>".$val."</th>";
-		});
-		$this->_data = $this->_data . "<tr>".join($data)."</tr>";
+			$this->phpexcel->getActiveSheet()->setCellValueByColumnAndRow($indexNum,$lastNum,$col);
+		}
 	}
 
 	//开始下载
 	public function toDownload($data = '')
 	{
-		// Redirect output to a client’s web browser (Excel5)
-		header('Content-Type: application/vnd.ms-excel');
-		header('Content-Disposition: attachment;filename='.$this->fileName.'_'.date('Y-m-d').'.xls');
+		header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+		header('Content-Disposition: attachment;filename='.$this->fileName.'_'.date('Y-m-d').'.xlsx');
 		header('Cache-Control: max-age=0');
 		// If you're serving to IE 9, then the following may be needed
 		header('Cache-Control: max-age=1');
@@ -88,14 +94,7 @@ class report
 		header ('Cache-Control: cache, must-revalidate'); // HTTP/1.1
 		header ('Pragma: public'); // HTTP/1.0
 
-		$result = $data ? $data : "<table border='1'>".$this->_data."</table>";
-echo <<< OEF
-<html>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<body>
-	{$result}
-	</body>
-</html>
-OEF;
+		$phpexcel = new PHPExcel_Writer_Excel2007($this->phpexcel);
+		$phpexcel->save('php://output');
 	}
 }

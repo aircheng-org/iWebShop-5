@@ -121,7 +121,7 @@ class Goods extends IController implements adminAuthorization
 		$product_id = IFilter::act(IReq::get('product_id'),'int');
 		$sell_price = IFilter::act(IReq::get('sell_price'),'float');
 
-		$date = array(
+		$data = array(
 			'sell_price' => $sell_price
 		);
 
@@ -132,10 +132,10 @@ class Goods extends IController implements adminAuthorization
 
 			$priceRelationObject = new IModel('group_price');
 			$priceData = $priceRelationObject->query($where);
-			$date['price_relation'] = $priceData;
+			$data['price_relation'] = $priceData;
 		}
 
-		$this->setRenderData($date);
+		$this->setRenderData($data);
 		$this->redirect('member_price');
 	}
 	/**
@@ -336,7 +336,23 @@ class Goods extends IController implements adminAuthorization
 		$this->redirect("goods_list");
 	}
 
-	//商品导出 Excel
+	/**
+	 * @brief 商品导出 Excel
+	 *
+	    excel列对应数据关系
+		A  货号
+		B  名称
+		C  销售价格
+		D  市场价格
+		E  成本价格
+		F  商品分类(与商城名称一致，逗号分隔)
+		G  重量(g)
+		H  基本单位(个、件、箱)
+		I  库存量
+		J  规格数据(规格名称1:规格值1,规格名称2:规格值2)
+		K  自营或商家名称
+		L  图片目录
+	 */
 	public function goods_report()
 	{
 		//搜索条件
@@ -347,22 +363,38 @@ class Goods extends IController implements adminAuthorization
 		//拼接sql
 		$goodsHandle = new IQuery('goods as go');
 		$goodsHandle->order    = "go.id desc";
-		$goodsHandle->fields   = "go.id,goods_no,go.name,go.sell_price,go.store_nums,go.sale,go.is_del,go.create_time,go.seller_id,pro.products_no,pro.store_nums as p_store_nums,pro.sell_price as p_sell_price,pro.spec_array";
+		$goodsHandle->fields   = "go.id,goods_no,go.unit,go.name,go.weight,go.sell_price,go.market_price,go.cost_price,go.store_nums,go.seller_id,pro.weight as p_weight,pro.products_no,pro.store_nums as p_store_nums,pro.sell_price as p_sell_price,pro.market_price as p_market_price,pro.cost_price as p_cost_price,pro.spec_array";
 		$goodsHandle->join     = $join;
 		$goodsHandle->where    = $where;
 		$goodsList = $goodsHandle->find();
 
+		//获取商家名称匹配
+		$sellerMap = ["0" => "自营"];
+		$sellerIds = [];
+		foreach($goodsList as $val)
+		{
+			$sellerIds[] = $val['seller_id'];
+		}
+		$sellerIds = array_unique($sellerIds);
+		if($sellerIds)
+		{
+			$sellerDB = new IModel('seller');
+			$sellerList = $sellerDB->query('id in ('.join(",",$sellerIds).')','id,seller_name');
+			foreach($sellerList as $val)
+			{
+				$sellerMap[$val['id']] = $val['seller_name'];
+			}
+		}
+
 		//构建 Excel table;
 		$reportObj = new report('goods');
-        $catMax    = 1;
+		$titleArray = ["货号","名称","销售价格","市场价格","成本价格","商品分类","重量","基本单位","库存量","规格数据","所属商家","图片目录(主图:main; 详情图:detail)"];
+		$reportObj->setTitle($titleArray);
+
 		foreach($goodsList as $k => $val)
 		{
+			//分类数组
 		    $catArray = goods_class::getGoodsCategory($val['id']);
-		    $itemCount= count($catArray);
-		    if($itemCount > $catMax)
-		    {
-		        $catMax = $itemCount;
-		    }
 
 			//处理规格
 			$specArray = [];
@@ -375,38 +407,50 @@ class Goods extends IController implements adminAuthorization
 				}
 			}
 
+			$sellerName = isset($sellerMap[$val['seller_id']]) ? $sellerMap[$val['seller_id']] : "";
 			$insertData = [
-				$val['name'],
 				$val['products_no']  ? $val['products_no']  : $val['goods_no'],
-				join(',',$specArray),
+				$val['name'],
 				$val['p_sell_price'] ? $val['p_sell_price'] : $val['sell_price'],
+				$val['p_market_price'] ? $val['p_market_price'] : $val['market_price'],
+				$val['p_cost_price'] ? $val['p_cost_price'] : $val['cost_price'],
+				join(",",$catArray),
+				$val['p_weight'] ? $val['p_weight'] : $val['weight'],
+				$val['unit'],
 				$val['p_store_nums'] ? $val['p_store_nums'] : $val['store_nums'],
-				$val['sale'],
-				$val['create_time'],
-				goods_class::statusText($val['is_del']),
-				$val['seller_id'] ? "商家" : "自营",
+				join(',',$specArray),
+				$sellerName,
+				"",
 			];
-			$insertData = array_merge($insertData,$catArray);
 			$reportObj->setData($insertData);
 		}
-		$titleArray = ["商品名称","货号","规格","售价","库存","销量","发布时间","状态","归属"];
-		for($i = 1;$catMax >= $i;$i++)
-		{
-		    $titleArray[] = "分类".$i;
-		}
-
-		$reportObj->setTitle($titleArray);
 		$reportObj->toDownload();
 	}
 
-	//商品数据导入
+	/**
+	 * @brief 商品数据导入
+	 *
+	    excel列对应数据关系
+		A  货号
+		B  名称
+		C  销售价格
+		D  市场价格
+		E  成本价格
+		F  商品分类(与商城名称一致，逗号分隔)
+		G  重量(g)
+		H  基本单位(个、件、箱)
+		I  库存量
+		J  规格数据(规格名称1:规格值1,规格名称2:规格值2)
+		K  自营或商家名称
+		L  图片目录
+	 */
 	public function goods_import()
 	{
 		//附件上传$_FILE
 		if ($_FILES && isset($_FILES['goods_csv']))
 		{
 			//处理上传
-			$uploadInstance = new IUpload(9999999, ['html']);
+			$uploadInstance = new IUpload(9999999, ['xlsx']);
 			$uploadDir      = 'upload/excel/' . date('Y-m-d');
 			$uploadInstance->setDir($uploadDir);
 			$result = $uploadInstance->execute();
@@ -417,57 +461,379 @@ class Goods extends IController implements adminAuthorization
 				return;
 			}
 
+			$successCount = 0; //成功数量
+			$goodsIds  = [];//更新商品ID
+			$goodsCategoryRelation = [];//goods_id => cat_name ，商品ID与分类名称对应
+			$categoryMap = [];//cat_name => cat_id ，分类名称与分类ID对应
+			$goodsSellerRelation = [];//商品ID => 商家ID
+			$sellerNames = [];//商家名称数组
+			$sellerMap = ["自营" => 0];//商家名称和数据对应关系
+			$goodsImgRelation = [];//商品ID => 图片目录
+
+			$goodsDB = new IModel('goods');
+			$productDB = new IModel('products');
+			$categoryDB = new IModel('category');
+			$categoryExtendDB = new IModel('category_extend');
+			$goodsPhotoDB = new IModel('goods_photo');
+			$goodsPhotoRelationDB = new IModel('goods_photo_relation');
+
 			//解析内容
-			$csvContent = file_get_contents($result['fileSrc']);
-			$successCount = 0;
+			$PHPReader = new PHPExcel_Reader_Excel2007();
+			$PHPExcel  = $PHPReader->load($result['fileSrc']);
+			$sheet     = $PHPExcel->getActiveSheet();
+			$startIndex= 'A2';
+			$endIndex  = 'L'.$sheet->getHighestRow();
 
-			preg_match("#<tr.*>.*</tr>#is",$csvContent,$match);
-			if($match && isset($match[0]) && $match[0])
+			$contentArray = $sheet->rangeToArray($startIndex.':'.$endIndex);
+			foreach($contentArray as $cols)
 			{
-				$goodsDB   = new IModel('goods');
-				$productDB = new IModel('products');
-
-				$matchArray = explode('</tr>',$match[0]);
-				foreach($matchArray as $key => $line)
+				if(count($cols) != 12)
 				{
-					if(!$line)
-					{
-						continue;
-					}
+					die('数据字段非'.count($cols).'列无法对应');
+				}
 
-					$items = explode('</td>',$line);
-					$goods_name = trim(strip_tags($items[0]));
-					$goods_no   = trim(strip_tags($items[1]));
-					$spec_array = trim(strip_tags($items[2]));
-					$sell_price = trim(strip_tags($items[3]));
-					$store_nums = trim(strip_tags($items[4]));
+				$cols = array_map(function($param){
+					return trim(trim($param),'"');
+				},$cols);
 
-					//如果价格和库存非数字则忽略
-					if(is_numeric($store_nums) == false || is_numeric($sell_price) == false)
+				//存在规格数据表示(处理货品规格)
+				$specArray = [];
+				if($cols[9])
+				{
+					$specItems = explode(',',$cols[9]);
+					foreach($specItems as $t)
 					{
-						continue;
+						$specTempArray = explode(':',$t);
+						if(count($specTempArray) != 2)
+						{
+							die($cols[9].':规格数据异常');
+						}
+						$specArray[] = ["id" => md5($specTempArray[0]),"value" => $specTempArray[1],"name" => $specTempArray[0],"image" => ""];
 					}
+				}
 
-					//货品更新
-					if($spec_array)
+				//货品类型
+				if($specArray)
+				{
+					//货品表数据
+					$productData = [
+						'products_no' => $cols[0],
+						'sell_price'  => $cols[2],
+						'market_price' => $cols[3],
+						'cost_price' => $cols[4],
+						'weight' => $cols[6],
+						'store_nums' => $cols[8],
+						'spec_array' => JSON::encode($specArray),
+					];
+
+					$productRow = $productDB->getObj('products_no = "'.$cols[0].'"','id,goods_id');
+
+					//1,如果货品存在则直接更新货品
+					if($productRow)
 					{
-						$productDB->setData(['store_nums' => $store_nums,'sell_price' => $sell_price]);
-						$productDB->update('products_no = "'.$goods_no.'"');
+						$productDB->setData($productData);
+						$productDB->update($productRow['id']);
+						$gid = $productRow['goods_id'];
 					}
-					//商品更新
 					else
 					{
-						$goodsDB->setData(['store_nums' => $store_nums,'sell_price' => $sell_price]);
-						$goodsDB->update('goods_no = "'.$goods_no.'"');
+						//根据名称判断商品是否存在
+						$goodsRow = $goodsDB->getObj('name="'.$cols[1].'"','id');
+
+						//2,如果商品存在则新增货品到其名下
+						if($goodsRow)
+						{
+							$productData['goods_id'] = $goodsRow['id'];
+							$productDB->setData($productData);
+							$productDB->add();
+							$gid = $goodsRow['id'];
+						}
+						//3,无商品则新建商品并且新增货品到其名下
+						else
+						{
+							//商品数据更新
+							$goodsData = [
+								'goods_no' => $cols[0],
+								'name' => IFilter::act($cols[1]),
+								'sell_price'  => $cols[2],
+								'market_price' => $cols[3],
+								'cost_price' => $cols[4],
+								'weight' => $cols[6],
+								'store_nums' => $cols[8],
+								'create_time' => ITime::getDateTime(),
+							];
+							$goodsDB->setData($goodsData);
+							$gid = $goodsDB->add();
+
+							$productData['goods_id'] = $gid;
+							$productDB->setData($productData);
+							$productDB->add();
+						}
 					}
-					$successCount++;
 				}
-				$this->redirect('/goods/goods_list/_msg/共更新完成'.$successCount.'条记录');
+				//商品类型
+				else
+				{
+					//商品数据
+					$goodsData = [
+						'goods_no' => $cols[0],
+						'name' => IFilter::act($cols[1]),
+						'sell_price'  => $cols[2],
+						'market_price' => $cols[3],
+						'cost_price' => $cols[4],
+						'weight' => $cols[6],
+						'store_nums' => $cols[8],
+					];
+
+					$goodsRow = $goodsDB->getObj('goods_no = "'.$cols[0].'"','id');
+
+					//1,商品更新
+					if($goodsRow)
+					{
+						$goodsDB->setData($goodsData);
+						$goods_id = $goodsDB->update($goodsRow['id']);
+
+						$gid = $goodsRow['id'];
+					}
+					//2,商品新增
+					else
+					{
+						$goodsData['create_time'] = ITime::getDateTime();
+						$goodsDB->setData($goodsData);
+						$gid = $goodsDB->add();
+					}
+				}
+
+				//商品待更新IDS
+				$goodsIds[] = $gid;
+
+				//根据分类名称对应分类ID关系
+				if($cols[5])
+				{
+					$catArray = explode(',',$cols[5]);
+					foreach($catArray as $catName)
+					{
+						if(!$categoryMap || !isset($categoryMap[$catName]))
+						{
+							$catRow = $categoryDB->getObj('name = "'.$catName.'"','id');
+							if($catRow)
+							{
+								$categoryMap[$catName] = $catRow['id'];
+							}
+						}
+					}
+				}
+
+				//商品ID和商品分类关系
+				if(!$goodsCategoryRelation || !isset($goodsCategoryRelation[$gid]))
+				{
+					$goodsCategoryRelation[$gid] = $cols[5];
+				}
+
+				//匹配商品和商家名称
+				$goodsSellerRelation[$gid] = $cols[10];
+				if($cols[10] != '自营')
+				{
+					$sellerNames[] = $cols[10];
+				}
+
+				//匹配商品和图片目录
+				$goodsImgRelation[$gid] = $cols[11];
+
+				$successCount++;
 			}
-			else
+
+			//根据商家名称匹配sellerID
+			$sellerNames = array_unique($sellerNames);
+			if($sellerNames)
 			{
-				$this->redirect('/goods/goods_list/_msg/无法解析文件');
+				$sellerDB = new IModel('seller');
+				$sellerList = $sellerDB->query('seller_name in ("'.join('","',$sellerNames).'")','id,seller_name');
+				foreach($sellerList as $v)
+				{
+					$sellerMap[$v['seller_name']] = $v['id'];
+				}
 			}
+
+			//更新规格数据
+			foreach($goodsIds as $goodsId)
+			{
+				//更新商品规格
+				$goodsSpec = [];
+				$productList = $productDB->query('goods_id = '.$goodsId,'spec_array');
+				foreach($productList as $proRow)
+				{
+					$proSpecArray = JSON::decode($proRow['spec_array']);
+					foreach($proSpecArray as $v)
+					{
+						$specId = $v['id'];
+						if(!isset($goodsSpec[$specId]))
+						{
+							$goodsSpec[$specId] = ["id" => $specId,"name" => $v['name'],"value" => []];
+						}
+
+						if(!in_array($v['value'],$goodsSpec[$specId]['value']))
+						{
+							$goodsSpec[$specId]['value'][] = [$v['value'] => $v['image']];
+						}
+					}
+				}
+				$updateData = ['spec_array' => JSON::encode($goodsSpec)];
+
+				//更新商家所属商家
+				$sellerName = $goodsSellerRelation[$goodsId];
+				$updateData['seller_id'] = isset($sellerMap[$sellerName]) ? $sellerMap[$sellerName] : 0;
+
+				//更新商品图片
+				if($goodsImgRelation && isset($goodsImgRelation[$goodsId]) && $goodsImgRelation[$goodsId])
+				{
+					$imgsrc = $goodsImgRelation[$goodsId];
+
+					//导入商品主图
+					$mainPath = $this->app->getBasePath().'upload/'.$imgsrc.'/main/';
+					$mainPathWeb = 'upload/'.$imgsrc.'/main/';
+					if(is_dir($mainPath))
+					{
+						$dirRes = opendir($mainPath);
+						$tempDirs = [];
+						while(false !== ($dir = readdir($dirRes)))
+						{
+							if($dir[0] == "." || (stripos($dir,'.jpg') === false && stripos($dir,'.png') === false))
+							{
+								continue;
+							}
+							$tempDirs[] = $dir;
+						}
+						if($tempDirs)
+						{
+							//删除之前商品主图
+							$goodsPhotoRelationDB->del('goods_id = '.$goodsId);
+
+							//重新排序目录按照名称
+							asort($tempDirs);
+							foreach($tempDirs as $dir)
+							{
+								$md5 = md5_file($mainPath.$dir);
+								$goodsPhotoDB->setData([
+									'id'  => $md5,
+									'img' => $mainPathWeb.$dir,
+								]);
+								$goodsPhotoDB->replace();
+
+								$goodsPhotoRelationDB->setData([
+									'goods_id' => $goodsId,
+									'photo_id' => $md5,
+								]);
+								$goodsPhotoRelationDB->add();
+							}
+							//设置商品默认图片
+							$updateData['img'] = $mainPathWeb.$tempDirs[0];
+						}
+					}
+
+					//导入商品详情图
+					$content = '';
+					$detailPath = $this->app->getBasePath().'upload/'.$imgsrc.'/detail/';
+					$detailPathWeb = IUrl::creatUrl().'upload/'.$imgsrc.'/detail/';
+					if(is_dir($detailPath))
+					{
+						$dirRes = opendir($detailPath);
+						while(false !== ($dir = readdir($dirRes)))
+						{
+							if($dir[0] == "." || (stripos($dir,'.jpg') === false && stripos($dir,'.png') === false))
+							{
+								continue;
+							}
+							$web = $detailPathWeb.$dir;
+							$content .= "<img src='".$web."' class='product-detail' />";
+						}
+						//设置商品详情
+						if($content)
+						{
+							$updateData['content'] = $content;
+						}
+					}
+				}
+				$goodsDB->setData($updateData);
+				$goodsDB->update($goodsId);
+			}
+
+			//更新商品分类数据
+			if($goodsCategoryRelation)
+			{
+				foreach($goodsCategoryRelation as $goods_id => $catNames)
+				{
+					//新的商品分类
+					$newCatIds = [];
+					$catArray = explode(',',$catNames);
+					foreach($catArray as $catName)
+					{
+						if(isset($categoryMap[$catName]))
+						{
+							$newCatIds[] = $categoryMap[$catName];
+						}
+					}
+					sort($newCatIds);
+
+					//旧的商品分类
+					$oldCatIds = [];
+					$categoryExtendList = $categoryExtendDB->query('goods_id = '.$goods_id,'id,category_id');
+					if($categoryExtendList)
+					{
+						foreach($categoryExtendList as $catExtRow)
+						{
+							$oldCatIds[] = $catExtRow['category_id'];
+						}
+					}
+					sort($oldCatIds);
+
+					//如果新增分类正好与旧分类一致则无需更新
+					if($newCatIds == $oldCatIds)
+					{
+						continue;
+					}
+
+					if($newCatIds)
+					{
+						//新旧分类匹配进行剔除
+						foreach($newCatIds as $key => $cid)
+						{
+							if(in_array($cid,$oldCatIds))
+							{
+								unset($newCatIds[$key]);
+
+								$oldKey = array_search($cid,$oldCatIds);
+								unset($oldCatIds[$oldKey]);
+							}
+						}
+
+						//新增分类
+						if($newCatIds)
+						{
+							foreach($newCatIds as $cid)
+							{
+								$categoryExtendDB->setData([
+									'goods_id' => $goods_id,
+									'category_id' => $cid,
+								]);
+								$categoryExtendDB->add();
+							}
+						}
+
+						//删除旧分类
+						if($oldCatIds)
+						{
+							$categoryExtendDB->del('goods_id = '.$goods_id.' and category_id in ('.join(",",$oldCatIds).')');
+						}
+					}
+					else
+					{
+						$categoryExtendDB->del('goods_id = '.$goods_id);
+					}
+				}
+			}
+
+			$this->redirect('/goods/goods_list/_msg/共更新完成'.$successCount.'条记录');
 		}
 		else
 		{

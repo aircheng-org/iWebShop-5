@@ -428,7 +428,7 @@ class Tools extends IController implements adminAuthorization
 		//2,新增操作
 		else
 		{
-			$max_id  = $catObj->getObj('','max(id) as max_id');
+			$max_id  = $catObj->getObj(false,'max(id) as max_id');
 			$localId = $max_id['max_id'] ? $max_id['max_id']+1 : 1;
 		}
 

@@ -73,7 +73,7 @@ class Site extends IController
 		}
 		else
 		{
-			IError::show(403,'请输入正确的查询关键词');
+			IError::show(403,ILang::get('请输入正确的查询关键词'));
 		}
 		$this->cat_id = $cat_id;
 		$this->redirect('search_list');
@@ -115,7 +115,7 @@ class Site extends IController
 
 		if(!IValidate::email($email))
 		{
-			$result['message'] = '请填写正确的email地址';
+			$result['message'] = ILang::get('请填写正确的email地址');
 		}
 		else
 		{
@@ -124,7 +124,7 @@ class Site extends IController
 
 			if($emailRow)
 			{
-				$result['message'] = '此email已经订阅过了';
+				$result['message'] = ILang::get('此email已经订阅过了');
 			}
 			else
 			{
@@ -137,12 +137,12 @@ class Site extends IController
 				{
 					$result = array(
 						'isError' => false,
-						'message' => '订阅成功',
+						'message' => ILang::get('订阅成功'),
 					);
 				}
 				else
 				{
-					$result['message'] = '订阅失败';
+					$result['message'] = ILang::get('订阅失败');
 				}
 			}
 		}
@@ -168,14 +168,14 @@ class Site extends IController
 		$this->goods_id = IFilter::act(IReq::get('id'),'int');
 		if($this->goods_id == 0)
 		{
-			IError::show(403,'缺少商品ID参数');
+			IError::show(403,ILang::get('缺少商品ID参数'));
 		}
 
 		$goodsObj   = new IModel('goods');
 		$goodsRow   = $goodsObj->getObj('id = '.$this->goods_id);
 		if(!$goodsRow)
 		{
-			IError::show(403,'商品数据不存在');
+			IError::show(403,ILang::get('商品数据不存在'));
 		}
 
 		//获取次商品的评论数和平均分
@@ -196,15 +196,15 @@ class Site extends IController
 
     	if(!$captcha || !$_captcha || $captcha != $_captcha)
     	{
-    		$message = '验证码输入不正确';
+    		$message = ILang::get('验证码输入不正确');
     	}
     	else if(!$question)
     	{
-    		$message = '咨询内容不能为空';
+    		$message = ILang::get('咨询内容不能为空');
     	}
     	else if(!$goods_id)
     	{
-    		$message = '商品ID不能为空';
+    		$message = ILang::get('商品ID不能为空');
     	}
     	else
     	{
@@ -212,7 +212,7 @@ class Site extends IController
     		$goodsRow = $goodsObj->getObj('id = '.$goods_id);
     		if(!$goodsRow)
     		{
-    			$message = '不存在此商品';
+    			$message = ILang::get('不存在此商品');
     		}
     	}
 
@@ -243,7 +243,7 @@ class Site extends IController
 		$this->notice_id = IFilter::act(IReq::get('id'),'int');
 		if($this->notice_id == '')
 		{
-			IError::show(403,'缺少公告ID参数');
+			IError::show(403,ILang::get('缺少公告ID参数'));
 		}
 		else
 		{
@@ -251,7 +251,7 @@ class Site extends IController
 			$this->noticeRow = $noObj->getObj('id = '.$this->notice_id);
 			if(empty($this->noticeRow))
 			{
-				IError::show(403,'公告信息不存在');
+				IError::show(403,ILang::get('公告信息不存在'));
 			}
 			$this->redirect('notice_detail');
 		}
@@ -273,7 +273,7 @@ class Site extends IController
 		$this->article_id = IFilter::act(IReq::get('id'),'int');
 		if($this->article_id == '')
 		{
-			IError::show(403,'缺少咨询ID参数');
+			IError::show(403,ILang::get('缺少咨询ID参数'));
 		}
 		else
 		{
@@ -281,7 +281,7 @@ class Site extends IController
 			$this->articleRow = $articleObj->getObj('id = '.$this->article_id);
 			if(empty($this->articleRow))
 			{
-				IError::show(403,'资讯文章不存在');
+				IError::show(403,ILang::get('资讯文章不存在'));
 				exit;
 			}
 
@@ -298,7 +298,7 @@ class Site extends IController
 
 		if(!$goods_id)
 		{
-			IError::show(403,"传递的参数不正确");
+			IError::show(403,ILang::get('传递的参数不正确'));
 		}
 
 		//使用商品id获得商品信息
@@ -306,7 +306,7 @@ class Site extends IController
 		$goods_info = $tb_goods->getObj('id='.$goods_id." AND is_del=0");
 		if(!$goods_info)
 		{
-			IError::show(403,"这件商品不存在");
+			IError::show(403,ILang::get('这件商品不存在'));
 		}
 
 		//品牌名称
@@ -385,7 +385,7 @@ class Site extends IController
 			$sellerData = $sellerDB->getObj($goods_info['seller_id']);
 			if(!$sellerData)
 			{
-			    IError::show(403,"商家信息不存在");
+			    IError::show(403,ILang::get('商家信息不存在'));
 			}
 			$goods_info['seller'] = $sellerData;
 		}
@@ -421,15 +421,15 @@ class Site extends IController
 
 		if(!$this->user['user_id'])
 		{
-			$return['message'] = '请先登录系统';
+			$return['message'] = ILang::get('请先登录系统');
 		}
     	else if(!$captcha || !$_captcha || $captcha != $_captcha)
     	{
-    		$return['message'] = '验证码输入不正确';
+    		$return['message'] = ILang::get('验证码输入不正确');
     	}
     	else if(trim($content) == '')
     	{
-    		$return['message'] = '内容不能为空';
+    		$return['message'] = ILang::get('内容不能为空');
     	}
     	else
     	{
@@ -460,7 +460,7 @@ class Site extends IController
 		$specJSON = IReq::get('specJSON');
 		if(!$specJSON || !is_array($specJSON))
 		{
-			echo JSON::encode(array('flag' => 'fail','message' => '规格值不符合标准'));
+			echo JSON::encode(array('flag' => 'fail','message' => ILang::get('规格值不符合标准')));
 			exit;
 		}
 
@@ -471,7 +471,7 @@ class Site extends IController
 		//匹配到货品数据
 		if(!$procducts_info)
 		{
-			echo JSON::encode(array('flag' => 'fail','message' => '没有找到相关货品'));
+			echo JSON::encode(array('flag' => 'fail','message' => ILang::get('没有找到相关货品')));
 			exit;
 		}
 
@@ -616,7 +616,7 @@ class Site extends IController
 		$this->goods        = Api::run('getGoodsInfo',array("#id#",$id));
 		if(!$this->goods)
 		{
-			IError::show("商品信息不存在");
+			IError::show(ILang::get('商品信息不存在'));
 		}
 		$this->redirect('comments_list');
 	}
@@ -628,12 +628,12 @@ class Site extends IController
 
 		if(!$id)
 		{
-			IError::show(403,"传递的参数不完整");
+			IError::show(403,ILang::get('传递的参数不完整'));
 		}
 
 		if(!isset($this->user['user_id']) || $this->user['user_id']==null )
 		{
-			IError::show(403,"登录后才允许评论");
+			IError::show(403,ILang::get('登录后才允许评论'));
 		}
 
 		$result = Comment_Class::can_comment($id,$this->user['user_id']);
@@ -647,7 +647,7 @@ class Site extends IController
 		$this->goods        = Comment_Class::goodsInfo($id);
 		if(!$this->goods)
 		{
-			IError::show("商品信息不存在");
+			IError::show(ILang::get('商品信息不存在'));
 		}
 		$this->redirect("comments");
 	}
@@ -663,12 +663,12 @@ class Site extends IController
 
 		if(!$id || !$content)
 		{
-			IError::show(403,"填写完整的评论内容");
+			IError::show(403,ILang::get('填写完整的评论内容'));
 		}
 
 		if(!isset($this->user['user_id']) || !$this->user['user_id'])
 		{
-			IError::show(403,"未登录用户不能评论");
+			IError::show(403,ILang::get('未登录用户不能评论'));
 		}
 
 		$data = array(
@@ -681,7 +681,7 @@ class Site extends IController
 
 		if($data['point']==0)
 		{
-			IError::show(403,"请选择分数");
+			IError::show(403,ILang::get('请选择分数'));
 		}
 
         if(isset($img_list) && $img_list)
@@ -689,7 +689,7 @@ class Site extends IController
             $img_list   = trim($img_list,',');
             $img_list   = explode(",",$img_list);
             if(count($img_list) > 5){
-                IError::show(403,"最多上传5张图片");
+                IError::show(403,ILang::get('最多上传5张图片'));
             }
             $img_list   = array_filter($img_list);
             $img_list   = JSON::encode($img_list);
@@ -729,7 +729,7 @@ class Site extends IController
 		}
 		else
 		{
-			IError::show(403,"评论失败");
+			IError::show(403,ILang::get('评论失败'));
 		}
 	}
 
@@ -741,7 +741,7 @@ class Site extends IController
 		$item = Api::run('getGoodsInfo',array('#id#',$id));
 		if(!$item)
 		{
-			IError::show(403,'商品信息不存在');
+			IError::show(403,ILang::get('商品信息不存在'));
 		}
 		$photo = Api::run('getGoodsPhotoRelationList',array('#id#',$id));
 		$this->setRenderData(array("id" => $id,"item" => $item,"photo" => $photo));
@@ -764,7 +764,7 @@ class Site extends IController
 
 		if(!isset($cat_row) || !$cat_row)
 		{
-			IError::show(403,"帮助信息或者帮助分类不存在");
+			IError::show(403,ILang::get('帮助信息或者帮助分类不存在'));
 		}
 
 		$this->redirect("help");
@@ -785,7 +785,7 @@ class Site extends IController
 		else
 		{
 			$this->helpQuery = Api::run('getHelpList');
-			$this->cat_row   = array('id' => 0,'name' => '站点帮助');
+			$this->cat_row   = array('id' => 0,'name' => ILang::get('站点帮助'));
 		}
 		$this->redirect("help_list");
 	}
@@ -808,7 +808,7 @@ class Site extends IController
 
 		if(!$this->regiment_list)
 		{
-			IError::show('当前没有可以参加的团购活动');
+			IError::show(ILang::get('当前没有可以参加的团购活动'));
 		}
 
 		//往期团购
@@ -832,7 +832,7 @@ class Site extends IController
 		$brandRow = Api::run('getBrandInfo',$brandId);
 		if(!$brandRow)
 		{
-			IError::show(403,'品牌信息不存在');
+			IError::show(403,ILang::get('品牌信息不存在'));
 		}
 		$this->setRenderData(array('brandId' => $brandId,'brandRow' => $brandRow));
 		$this->redirect('brand_zone');
@@ -846,7 +846,7 @@ class Site extends IController
 		$sellerRow = Api::run('getSellerInfo',$seller_id);
 		if(!$sellerRow)
 		{
-			IError::show(403,'商户信息不存在');
+			IError::show(403,ILang::get('商户信息不存在'));
 		}
 		$this->setRenderData(array('sellerRow' => $sellerRow,'seller_id' => $seller_id,'cat_id' => $cat_id));
 		$this->redirect('home');
@@ -870,7 +870,7 @@ class Site extends IController
 
 		if(!$this->assemble_list)
 		{
-			IError::show('当前没有可以参加的拼团活动');
+			IError::show(ILang::get('当前没有可以参加的拼团活动'));
 		}
 		$this->redirect("assemble");
 	}
@@ -908,12 +908,12 @@ jQuery(function()
 OEF;
 			if($word && !$this->goodsData)
 			{
-				IError::show('当前专题无此商品');
+				IError::show(ILang::get('当前专题无此商品'));
 			}
 	    }
 	    else
 	    {
-	        IError::show('当前专题不存在');
+	        IError::show(ILang::get('当前专题不存在'));
 	    }
 	}
 }

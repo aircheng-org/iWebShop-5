@@ -23,7 +23,7 @@ class IJSPackage
 		'form' => ['js' => 'form/form.js'],
 
 		'dialog' => [
-			'js' => ['artdialog/artDialog.js?v=20200606','artdialog/plugins/iframeTools.js'],
+			'js' => ['artdialog/artDialog.js?v=20200606','artdialog/plugins/iframeTools.js?v=2023'],
 			'css' => 'artdialog/skins/white.css'
 		],
 
