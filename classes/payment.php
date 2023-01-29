@@ -68,7 +68,7 @@ class Payment
 	public static function getPaymentById($payment_id,$key = '')
 	{
 		$paymentDB  = new IModel('payment');
-		$paymentRow = $paymentDB->getObj('id = '.$payment_id.' and status = 0 and type = 1');
+		$paymentRow = $paymentDB->getObj($payment_id);
 		if(!$paymentRow)
 		{
 			return null;
