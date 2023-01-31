@@ -6,13 +6,16 @@ iWebShop是一款基于PHP语言及MYSQL数据库开发的B2B2C多用户商城�
 #### 软件架构
 基于iWeb框架mvc模式
 
+#### 在线演示
+iWebShop现在演示官网： https://www.aircheng.com/product
+
 
 #### 安装教程
 
 1.  下载源码后直接浏览器运行目录，即可进入安装界面install。
 2.  检测各项环境，数据mysql账号密码开始安装数据库。
 
-#### 使用说明
+#### 使用协议
 
 iWebShop软件授权协议 适用所有语种用户
 版权所有 (c) 2009-2099，www.aircheng.com 保留所有权利。
