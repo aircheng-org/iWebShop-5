@@ -320,6 +320,34 @@ $('[name="_goodsFile"]').fileupload({
     }
 });
 
+//jquery规格图片上传更新
+jQuery(function(){
+	$('[name="spec-image"]').fileupload({
+		dataType: 'json',
+		done: function (e, data)
+		{
+			if(data.result && data.result.flag == 1)
+			{
+				let specObj = $(this).parent().find('[name^="_spec_array"]');
+				let specValueObj = JSON.parse(specObj.val());
+				specValueObj.image = data.result.img;
+				specObj.val(JSON.stringify(specValueObj));
+
+				//更新图片显示(移除旧的添加新的)
+				let imgFullUrl = _webRoot+data.result.img;
+				$(this).parent().find('img.img-thumbnail').remove();
+
+				let imgHtml = '<img class="img-thumbnail" width="40px" height="40px" src="'+imgFullUrl+'">';
+				$(this).parent().prepend(imgHtml);
+			}
+			else
+			{
+				alert(data.result.error);
+			}
+		}
+	});
+})
+
 /**
  * 会员价格
  * @param obj 按钮所处对象

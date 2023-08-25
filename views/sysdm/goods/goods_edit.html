@@ -232,15 +232,17 @@
 									<%var isProduct = false;%>
 									<%var specArrayList = typeof item['spec_array'] == 'string' && item['spec_array'] ? JSON().parse(item['spec_array']) : item['spec_array'];%>
 									<%for(var result in specArrayList){%>
-									<%result = specArrayList[result]%>
-									<input type='hidden' name="_spec_array[<%=i%>][]" value='<%=JSON().stringify(result)%>' />
-									<%isProduct = true;%>
 									<td>
+										<%result = specArrayList[result]%>
+										<input type='hidden' name="_spec_array[<%=i%>][]" value='<%=JSON().stringify(result)%>' />
+										<%isProduct = true;%>
+
 										<%if(result['image']){%>
 										    <img class="img-thumbnail" width="40px" height="40px" src="<%=webroot(result['image'])%>" />
 										<%}else{%>
 										    <%=result['value']%>
 										<%}%>
+										<input name="spec-image" type="file" style="display:inline;width:80px;" class="btn btn-sm" accept="image/*" value="上传规格" data-url="{url:/goods/goods_img_upload}">
 									</td>
 									<%}%>
 									<td><input class="form-control input-sm" name="_store_nums[<%=i%>]" type="text" pattern="int" value="<%=item['store_nums']?item['store_nums']:100%>" style="width:70px" /></td>

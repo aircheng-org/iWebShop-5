@@ -112,10 +112,7 @@ OEF;
 	 */
 	public function configParam()
 	{
-		return array(
-			'M_PartnerId'  => '商户ID号',
-			'M_PartnerKey' => '商户KEY密钥',
-		);
+		return [];
 	}
 
 	/**

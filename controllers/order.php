@@ -1328,6 +1328,7 @@ class Order extends IController implements adminAuthorization
 
 		$reportObj = new report('order');
 		$reportObj->setTitle(array("订单编号","下单日期","完成日期","配送方式","收货人","收货地址","电话","订单金额","退款金额","商户手续费","支付方式","支付状态","发货状态","商品信息","订单备注"));
+		$reportObj->dataStringCols = [0,6];
 
 		//订单退款单
 		$refundDB = new IModel('refundment_doc');
@@ -1358,7 +1359,7 @@ class Order extends IController implements adminAuthorization
 				$val['distribute_name'],
 				$val['accept_name'],
 				join(' ',area::name($val['province'],$val['city'],$val['area'])).$val['address'],
-				$val['telphone'].'&nbsp;'.$val['mobile'],
+				$val['telphone'].' '.$val['mobile'],
 				$val['order_amount'],
 				$refundRow['refund_amount'],
 				$val['servicefee_amount'],
@@ -1952,6 +1953,7 @@ class Order extends IController implements adminAuthorization
 
 		$reportObj = new report('order_goods');
 		$reportObj->setTitle(["商品名称","商品货号","商品规格","商品单价","购买数量","价格小计","重量小计","订单编号","下单日期","收货人","收货地址","电话","收货时间"]);
+		$reportObj->dataStringCols = [0,1,2,7,11];
 		foreach($orderList as $k => $val)
 		{
 			//从json中拆分商品信息

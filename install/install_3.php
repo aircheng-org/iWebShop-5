@@ -89,7 +89,7 @@
 							<hr />
 
 							<strong>安装选择</strong>
-							<label><input class="radio" type="radio" name='install_type' value='all' />带测试数据版本【<a href="http://www.aircheng.com/notice/107-iwebshop" target="_blank" style="color:red">必须提前手动下载商品图片包108MB</a>】</label><br />
+							<label><input class="radio" type="radio" name='install_type' value='all' />带测试数据版本【<a href="https://www.aircheng.com/content-107.html" target="_blank" style="color:red">必须提前手动下载商品图片包108MB</a>】</label><br />
 							<label><input class="radio" type="radio" name='install_type' checked="checked" value='simple' />绿色纯净版本</label>
 
 							<hr />

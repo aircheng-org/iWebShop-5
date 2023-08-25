@@ -1046,7 +1046,7 @@ return array(
     'getQuickNavigaAll'=> array(
         'query' => array(
             'name'  => 'quick_naviga',
-            'where' => 'admin_id = '.IWeb::$app->getController()->admin['admin_id']. ' and is_del = 0',
+            'where' => 'admin_id = '.(isset(IWeb::$app->getController()->admin['admin_id']) ? IWeb::$app->getController()->admin['admin_id'] : 0). ' and is_del = 0',
         )
     ),
 
@@ -1054,7 +1054,7 @@ return array(
     'getListByQuickNaviga'=> array(
         'query' => array(
             'name'  => 'quick_naviga',
-            'where' => 'admin_id = '.IWeb::$app->getController()->admin['admin_id']. ' and is_del = #is_del#',
+            'where' => 'admin_id = '.(isset(IWeb::$app->getController()->admin['admin_id']) ? IWeb::$app->getController()->admin['admin_id'] : 0). ' and is_del = #is_del#',
             'page'  => IReq::get('page') ? IReq::get('page') : 1,
         )
     ),

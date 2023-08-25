@@ -73,9 +73,9 @@ function productClass(goods_id,user_id,promo,active_id,type)
 		var goodsId   = _self.goods_id;
 
 		//物流显示模板
-		var deliveryTemplate = '<%if(if_delivery == 0){%><%=name%>：<b style="color:#fe6c00">￥<%=price%></b>（<%=description%>）&nbsp;&nbsp;';
+		var deliveryTemplate = '<%if(if_delivery == 0){%><%=name%>：<%if(price>0){%><b style="color:#fe6c00">￥<%=price%></b>（<%=description%>）<%}else{%><b style="color:#fe6c00">包邮</b>（<%=description%>）<%}%>';
 			deliveryTemplate+= '<%}else{%>';
-			deliveryTemplate+= '<%=name%>：<b style="color:red"><%=reason%></b>&nbsp;&nbsp;<%}%>';
+			deliveryTemplate+= '<%=name%>：<b style="color:red"><%=reason%></b><%}%>';
 
 		//通过省份id查询出配送方式，并且传送总重量计算出运费,然后显示配送方式
 		$.getJSON(creatUrl("block/order_delivery"),{'region':provinceId,'goodsId':goodsId,'productId':productId,'num':buyNums,'random':Math.random},function(json)
@@ -209,6 +209,16 @@ function productClass(goods_id,user_id,promo,active_id,type)
 			$("[specId='"+$(this).attr('specId')+"']").removeClass('current');
 			$(this).addClass('current');
 
+			let specData = $(this).data('specData');
+
+			//存在规格图片切换
+			if(specData.image)
+			{
+				$('#picShow').css({'width':'100%','height':'100%','object-fit':'contain'});
+				$('#picShow').attr('rel',_webRoot+specData.image);
+				$('#picShow').attr('src',_webRoot+specData.image);
+			}
+
 			//检查是否选择完成
 			if(_self.checkSpecSelected() == true)
 			{
@@ -223,7 +233,6 @@ function productClass(goods_id,user_id,promo,active_id,type)
 						return;
 					}
 					specData = typeof(specData) == 'string' ? JSON.parse(specData) : specData;
-
 					specJSON.push({
 						"id":specData.id,
 						"value":specData.value,

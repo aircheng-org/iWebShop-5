@@ -862,6 +862,7 @@ class Seller extends IController implements sellerAuthorization
 				$val['goods_no'] .= '-'.$this->seller['seller_id'];
 				$val['name']      = IFilter::act($val['name'],'text');
 				$val['content']   = IFilter::act($val['content'],'text');
+				$val['spec_array']= IFilter::act($val['spec_array']);
 
 				$goodsDB->setData($val);
 				$goods_id = $goodsDB->add();
@@ -901,6 +902,7 @@ class Seller extends IController implements sellerAuthorization
 						unset($v['id']);
 						$v['products_no'].= '-'.$this->seller['seller_id'];
 						$v['goods_id']    = $goods_id;
+						$v['spec_array']  = IFilter::act($v['spec_array']);
 						$productsDB->setData($v);
 						$productsDB->add();
 					}

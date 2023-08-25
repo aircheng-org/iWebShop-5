@@ -33,6 +33,11 @@ class offline extends paymentPlugin
 	public function getSubmitUrl(){}
 
 	/**
+	 * @see paymentplugin::doRefund()
+	 */
+	public function doRefund($paymentInfo){}
+
+	/**
 	 * @see paymentplugin::getSendData()
 	 */
 	public function getSendData($paymentInfo){}

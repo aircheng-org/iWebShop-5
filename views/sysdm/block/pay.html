@@ -19,7 +19,7 @@
 		<input type='hidden' name='order_id' value='{$order_id}'>
 
         <table class="table">
-        {foreach:items = Api::run('getPaymentList')}
+        {foreach:items = Api::run('getPaymentListByOnline')}
         <tr>
             <td>
 	            <label>

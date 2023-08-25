@@ -234,7 +234,7 @@ class IUpload
             		$fileInfo[$key]['flag'] = -9;
             	}
             	//4,上传类型不符合
-            	else if(!in_array($fileext,$this->allowType))
+            	else if(!in_array(strtolower($fileext),$this->allowType))
             	{
             		$fileInfo[$key]['flag'] = -7;
             	}

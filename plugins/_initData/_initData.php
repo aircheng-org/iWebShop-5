@@ -138,6 +138,15 @@ EOF;
 echo <<< EOF
 <script type="text/javascript">
 _webUrl = "$url";_themePath = "$themePath";_skinPath = "$skinPath";_webRoot = "$webroot";
+
+if($('[data-oembed-url]') && $('[data-oembed-url]').length > 0)
+{
+	$('[data-oembed-url]').each(function()
+	{
+		$(this).find('source').attr("src",$(this).attr('data-oembed-url'));
+		$(this).find('video').load();
+	});
+}
 </script>
 EOF;
 	}

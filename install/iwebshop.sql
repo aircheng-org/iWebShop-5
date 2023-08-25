@@ -205,7 +205,7 @@ CREATE TABLE `{pre}ad_manage` (
 DROP TABLE IF EXISTS `{pre}ad_position`;
 CREATE TABLE `{pre}ad_position` (
   `id` int(11) unsigned NOT NULL auto_increment COMMENT '广告位ID',
-  `name` varchar(30) NOT NULL COMMENT '广告位名称',
+  `name` varchar(255) NOT NULL COMMENT '广告位名称',
   `width` varchar(255) NOT NULL COMMENT '广告位宽度,px或者%',
   `height` varchar(255) NOT NULL COMMENT '广告位高度,px或者%',
   `fashion` tinyint(1) NOT NULL COMMENT '1:轮显;2:随即',

@@ -28,6 +28,9 @@ class report
 	//phpexcel对象
 	private $phpexcel = null;
 
+	//字符串类型的列数
+	public $dataStringCols = [];
+
 	//构造函数
 	public function __construct($fileName = '')
 	{
@@ -62,7 +65,14 @@ class report
 		$lastNum = $this->phpexcel->getActiveSheet(0)->getHighestRow()+1;
 		foreach($data as $indexNum => $col)
 		{
-			$this->phpexcel->getActiveSheet()->setCellValueByColumnAndRow($indexNum,$lastNum,$col);
+			if($this->dataStringCols && in_array($indexNum,$this->dataStringCols))
+			{
+				$this->phpexcel->getActiveSheet()->setCellValueExplicitByColumnAndRow($indexNum,$lastNum,$col);
+			}
+			else
+			{
+				$this->phpexcel->getActiveSheet()->setCellValueByColumnAndRow($indexNum,$lastNum,$col);
+			}
 		}
 	}
 

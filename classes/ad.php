@@ -207,6 +207,22 @@ OEF;
 	}
 
 	/**
+	 * @brief 获取广告位置的信息
+	 * @param $position mixed 广告位ID 或者 广告位名称
+	 * @return array
+	 */
+	public static function getAdRow($position,$seller_id=0)
+	{
+		$adPositionRow = self::getPositionInfo($position);
+		if($adPositionRow)
+		{
+			$adDB = new IModel("ad_manage");
+			return $adDB->getObj("position_id = ".$adPositionRow['id']);
+		}
+		return [];
+	}
+
+	/**
 	 * @brief 获取当前时间段正在使用的广告数据
 	 * @param $position int 广告位ID
 	 * @param $goods_cat_id 商品分类ID

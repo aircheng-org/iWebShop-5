@@ -38,7 +38,7 @@
 					<p>{foreach:items=$spec_array item=$specValue key=$specName}{$specName}：{$specValue} &nbsp;&nbsp;{/foreach}</p>
 				</td>
 				<td>￥{$item['sell_price']}</td>
-				<td><img src="{url:$item['img']}" width="45px" /></td>
+				<td><img src="{url:/pic/thumb/img/$item['img']/w/45/h/45}" width="45px" /></td>
 			</tr>
 			{/foreach}
 			{else:}

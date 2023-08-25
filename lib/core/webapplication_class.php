@@ -57,7 +57,10 @@ class IWebApplication extends IApplication
 		$this->clientType = IClient::getDevice();
 		ini_set('default_charset','UTF-8');
 		ini_set('upload_tmp_dir',$this->getRuntimePath());
-		libxml_disable_entity_loader(true);
+		if(PHP_VERSION_ID < 80000)
+		{
+			libxml_disable_entity_loader(true);
+		}
 		$this->defaultViewDir = isset($this->config['viewPath']) ? $this->config['viewPath'] : $this->defaultViewDir;
 		$this->defaultSkinDir = isset($this->config['skinPath']) ? $this->config['skinPath'] : $this->defaultSkinDir;
 	}
@@ -87,7 +90,7 @@ class IWebApplication extends IApplication
     	$ctrlObject = null;
     	$ctrlFile   = $this->basePath."controllers/".$ctrlId.".php";
 
-    	if(is_file($ctrlFile) && (class_exists($ctrlId) || include($ctrlFile)))
+    	if(is_file($ctrlFile) && include_once($ctrlFile))
     	{
     		$ctrlObject = new $ctrlId($this,$ctrlId);
     	}
