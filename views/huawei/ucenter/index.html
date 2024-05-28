@@ -1,6 +1,6 @@
 {if:$msgNum>0}
 <div class="prompt">
-	<strong>温馨提示：</strong> 您有<span class="red">{$msgNum}</span> 条站内未读短信息，<a href="{url:/ucenter/message}">现在去看看</a>
+	<strong>{echo:ILang::get('温馨提示')}：</strong> <span class="red">{$msgNum}</span>{echo:ILang::get('短消息未读')}<a href="{url:/ucenter/message}">{echo:ILang::get('现在去看看')}</a>
 </div>
 {/if}
 
@@ -10,34 +10,34 @@
 		<img id="user_ico_img" onclick="$('#userIcoFile').trigger('click');" src="{url:$user_ico}" onerror="this.src='{skin:image/user_ico.gif}'">
 	</div>
 	<div class="user_info">
-		<h2>{$this->user['username']}，欢迎您</h2>
+		<h2>{$this->user['username']}，{echo:ILang::get('欢迎光临')}</h2>
 		<ol class="user_baseinfo">
-			<li>总积分：<a href="{url:/ucenter/integral}"><strong>{$user['point']}</strong> 分</a></li>
-			<li>交易总数量：<a href="{url:/ucenter/order}"><strong>{$statistics['num']}</strong> 笔</a></li>
-			<li>总消费额：<strong>￥{$statistics['amount']}</strong></li>
+			<li>{echo:ILang::get('总积分')}：<a href="{url:/ucenter/integral}"><strong>{$user['point']}</strong></a></li>
+			<li>{echo:ILang::get('交易总数量')}：<a href="{url:/ucenter/order}"><strong>{$statistics['num']}</strong></a></li>
+			<li>{echo:ILang::get('总消费额')}：<strong>￥{$statistics['amount']}</strong></li>
 		</ol>
 		<ol class="user_stat">
-			<li>预存款预付款：<strong>￥{$user['balance']}</strong></li>
-			<li>优惠券：<strong>{$propData['prop_num']}</strong> 张</li>
-			<li>经验值：<strong>{$user['exp']}</strong></li>
+			<li>{echo:ILang::get('预存款')}：<strong>￥{$user['balance']}</strong></li>
+			<li>{echo:ILang::get('优惠券')}：<strong>{$propData['prop_num']}</strong></li>
+			<li>{echo:ILang::get('经验值')}：<strong>{$user['exp']}</strong></li>
 		</ol>
 		<ol class="user_stat">
-			<li>待评价商品：(<strong>{echo:statistics::countUserWaitComment()}</strong>)</li>
-			<li>待付款订单：(<strong>{echo:statistics::countUserWaitPay()}</strong>)</li>
-			<li>待确认收货：(<strong><a href="{url:/ucenter/order}">{echo:statistics::countUserWaitCommit()}</a></strong>)</li>
+			<li>{echo:ILang::get('待评价商品')}：(<strong>{echo:statistics::countUserWaitComment()}</strong>)</li>
+			<li>{echo:ILang::get('待付款订单')}：(<strong>{echo:statistics::countUserWaitPay()}</strong>)</li>
+			<li>{echo:ILang::get('待确认收货')}：(<strong><a href="{url:/ucenter/order}">{echo:statistics::countUserWaitCommit()}</a></strong>)</li>
 		</ol>
 	</div>
 </section>
 
 <header class="uc_head mt30">
-	<h3>我的订单</h3>
-	<a href="{url:/ucenter/order}" class="more">更多 ></a>
+	<h3>{echo:ILang::get('我的订单')}</h3>
+	<a href="{url:/ucenter/order}" class="more">{echo:ILang::get('更多')} ></a>
 </header>
 <section class="uc_table">
 	<table>
 		<thead>
 			<tr>
-				<th>订单编号</th><th>下单日期</th><th>收货人</th><th>支付方式</th><th>总金额</th><th>订单状态</th>
+				<th>{echo:ILang::get('订单编号')}</th><th>{echo:ILang::get('下单日期')}</th><th>{echo:ILang::get('收货人')}</th><th>{echo:ILang::get('支付方式')}</th><th>{echo:ILang::get('总金额')}</th><th>{echo:ILang::get('订单状态')}</th>
 			</tr>
 		</thead>
 		<tbody>

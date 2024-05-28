@@ -70,6 +70,12 @@ class Site extends IController
 				$tb_sear->setData(array('keyword'=>$this->word,'num'=>1));
 				$tb_sear->add();
 			}
+
+			//COOKIE中增加记录搜索历史
+			$searchHistory = ICookie::get('searchHistory');
+			$searchHistory = $searchHistory ? $searchHistory : [];
+			$searchHistory[] = $this->word;
+			ICookie::set('searchHistory',JSON::encode(array_unique($searchHistory)));
 		}
 		else
 		{
@@ -414,7 +420,7 @@ class Site extends IController
 	function discussUpdate()
 	{
 		$goods_id = IFilter::act(IReq::get('id'),'int');
-		$content  = IFilter::act(IReq::get('content'),'text');
+		$content  = IFilter::act(IReq::get('content'));
 		$captcha  = IReq::get('captcha');
 		$_captcha = ISafe::get('captcha');
 		$return   = array('isError' => true , 'message' => '');

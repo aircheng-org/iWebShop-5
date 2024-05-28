@@ -1,0 +1,91 @@
+<div id="pageInfo" data-title="地址管理"></div>
+<section id="address_list" class="address_list">
+	<ul>
+		<!-- 这里两个class default 代表是否是默认地址 on 代表当前是否选中 -->
+		{foreach:items=$this->address}
+		<li data-value="1" {if:$item['is_default']==1}class="default"{/if}>
+			<header class="address_list_header">
+				<strong class="name">{$item['accept_name']}</strong>
+				<span class="phone">{$item['mobile']}</span>
+			</header>
+			<section class="address_list_section">
+				{$this->areas[$item['province']]} {$this->areas[$item['city']]} {$this->areas[$item['area']]} {$item['address']}
+			</section>
+			<footer class="address_list_footer">
+				<span class="address_btn" onclick='editAddress({$item['id']})'>修改</span>
+				<span class="address_btn" onclick="delModel({link:'{url:/ucenter/address_del/id/$item['id']}'});">删除</span>
+				{if:$item['is_default']==1}
+				<a class="address_btn" href="{url:/ucenter/address_default/id/$item['id']/is_default/0}">取消默认</a>
+				{else:}
+				<a class="address_btn" href="{url:/ucenter/address_default/id/$item['id']/is_default/1}">设为默认</a>
+				{/if}
+			</footer>
+		</li>
+		{/foreach}
+	</ul>
+
+	{if:!$items}
+	<section class="no_tip">暂无记录</section>
+	{/if}
+</section>
+
+<footer id="viewport_bottom">
+    {if:$this->address}
+	<div class="address_edit_btn" id="address_edit_btn">编辑</div>
+	{/if}
+	<div class="btn_bottom">
+		<input type="button" value="添加新地址" class="btn_submit" onclick="editAddress();" />
+	</div>
+</footer>
+<script>
+$(function(){
+	// 内页隐藏页底导航
+	hideNav();
+
+	// 打开关闭编辑模式
+	$("#address_edit_btn").on('click',function(){
+		var t = $(this),
+			v = t.data('v');
+		if(v==1)
+		{
+			t.html("编辑").data('v', '0');
+			$('.address_list_footer').hide();
+		}
+		else
+		{
+			t.html("取消").data('v', '1');
+			$('.address_list_footer').css('display','table');
+		}
+	});
+});
+
+//地址修改
+function editAddress(addressId)
+{
+	art.dialog.open(creatUrl("block/address/id/"+addressId),
+	{
+		"id":"addressWindow",
+		"title":"收货地址",
+		"ok":function(iframeWin, topWin){
+			var formObject = iframeWin.document.forms[0];
+			if(formObject.onsubmit() === false)
+			{
+				alert("请正确填写各项信息");
+				return false;
+			}
+			$.getJSON(formObject.action,$(formObject).serialize(),function(content){
+				if(content.result == false)
+				{
+					alert(content.msg);
+					return;
+				}
+				window.location.reload();
+			});
+			return false;
+		},
+		"okVal":"提交",
+		"cancel":true,
+		"cancelVal":"取消",
+	});
+}
+</script>

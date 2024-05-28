@@ -196,8 +196,8 @@
     									<td><input class="form-control form-control-sm" name="_store_nums[<%=i%>]" type="text" pattern="int" value="<%=item['store_nums']?item['store_nums']:100%>" style="width:65px" /></td>
     									<td><input class="form-control form-control-sm" name="_market_price[<%=i%>]" type="text" pattern="float" value="<%=item['market_price']%>" style="width:65px" /></td>
     									<td>
-    										<input type='hidden' name="_groupPrice[<%=i%>]" value="<%=item['groupPrice']%>" />
     										<div class="d-flex">
+												<input type='hidden' name="_groupPrice[<%=i%>]" value="<%=item['groupPrice']%>" />
     										    <input class="form-control form-control-sm mr-1" name="_sell_price[<%=i%>]" type="text" pattern="float" value="<%=item['sell_price']%>" style="width:65px" />
     										    <input type="button" class="btn btn-success btn-sm" onclick="memberPrice(this,{$seller_id});" value="会员价格 <%if(item['groupPrice']){%>*<%}%>" />
     									    </div>

@@ -12,24 +12,26 @@ function cartCount(obj)
 
 	var countInput = $('#count_'+obj.goods_id+'_'+obj.product_id);
 	var countInputVal = parseInt(countInput.val());
+	let min_buy_num = parseInt(obj.min_buy_num);
+	let max_buy_num = parseInt(obj.store_nums) > parseInt(obj.max_buy_num) ? parseInt(obj.max_buy_num) : parseInt(obj.store_nums);
 
 	//之前商品数量的基数，以这个为参考增减量
 	var oldNum = countInput.data('oldNum') ? countInput.data('oldNum') : obj.count;
 
 	//商品数量大于1件
-	if(isNaN(countInputVal) || (countInputVal <= 0))
+	if(isNaN(countInputVal) || (countInputVal < min_buy_num))
 	{
 	    __openUpdateStatus = true;
-		alert('购买的数量必须大于1件');
-		countInput.val(1);
+		alert('购买的数量不能低于'+ min_buy_num);
+		countInput.val(min_buy_num);
 		countInput.change();
 	}
 	//商品数量小于库存量
-	else if(countInputVal > parseInt(obj.store_nums))
+	else if(countInputVal > max_buy_num)
 	{
 	    __openUpdateStatus = true;
-		alert('购买的数量不能大于此商品的库存量');
-		countInput.val(parseInt(obj.store_nums));
+		alert('购买的数量不能大于'+ max_buy_num);
+		countInput.val(max_buy_num);
 		countInput.change();
 	}
 	else
@@ -37,6 +39,7 @@ function cartCount(obj)
 		var diff = parseInt(countInputVal) - parseInt(oldNum);
 		if(diff == 0)
 		{
+			__openUpdateStatus = true;
 			return;
 		}
 		var goods_id   = obj.product_id > 0 ? obj.product_id : obj.goods_id;

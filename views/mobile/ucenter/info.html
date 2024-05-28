@@ -1,0 +1,75 @@
+{js:artTemplate} {js:areaSelect} {js:my97date}
+<div id="pageInfo" data-title="个人资料"></div>
+
+<section class="reg input_li">
+	<div class="form">
+		<form action='{url:/ucenter/info_edit_act}' name='user_info' method="POST" role="form">
+			<input type="hidden" name='callback' value="{$callback}" />
+			<ul>
+				<li>
+					<span class="input_item">姓名</span>
+					<input type="text" name="true_name" class="input_text" pattern="required">
+				</li>
+				<li>
+					<span class="li_item">性别：</span>
+					<label class="input_radio">
+						<input type="radio" name="sex" value="1"><span>男</span>
+					</label>
+					<label class="input_radio">
+						<input type="radio" name="sex" value="2" checked="checked"><span>女</span>
+					</label>
+				</li>
+				<li>
+					<span class="input_item">生日</span>
+					<input type="text" name="birthday" class="input_text" pattern='date' onFocus="WdatePicker()" empty />
+				</li>
+				<li>
+					<span class="input_item">所在地区</span>
+					<select name="province" child="city,area" class="input_select f3"></select>
+					<select name="city" child="area" class="input_select f3"></select>
+					<select name="area" class="input_select f3"></select>
+				</li>
+				<li>
+					<span class="input_item">地址</span>
+					<input type="text" name='contact_addr' class="input_text" empty>
+				</li>
+				<li>
+					<span class="input_item">手机</span>
+					<input type="text" name='mobile' class="input_text" empty>
+				</li>
+				<li>
+					<span class="input_item">邮编</span>
+					<input type="text" name='zip' class="input_text" empty>
+				</li>
+				<li>
+					<span class="input_item">电话</span>
+					<input type="text" name='telephone' class="input_text" empty>
+				</li>
+				<li>
+					<span class="input_item">QQ</span>
+					<input type="text" name='qq' class="input_text" empty >
+				</li>
+				<li>
+					<input type="submit" class="input_submit" value="保存基本信息">
+				</li>
+			</ul>
+		</form>
+	</div>
+</section>
+
+<script>
+// 内页隐藏页底导航
+hideNav();
+
+//表单回填
+var areaInstance = new areaSelect('province');
+{if:$userData && $userData['area']}
+{set:$area = explode(',',trim($userData['area'],','))}
+areaInstance.init({"province":"{$area[0]}","city":"{$area[1]}","area":"{$area[2]}"});
+{else:}
+areaInstance.init();
+{/if}
+
+var formObj = new Form('user_info');
+formObj.init({echo:JSON::encode($userData)});
+</script>

@@ -1,0 +1,70 @@
+{js:artTemplate}
+{js:areaSelect}
+
+<div id="pageInfo" data-title="申请加盟商户"></div>
+<section class="input_li">
+	<form action="{url:/simple/seller_reg}" method="post" enctype='multipart/form-data' name="sellerForm">
+		<ul>
+			<li>
+				<span class="input_item">登陆用户名 <em>*</em></span>
+				<input class="input_text" name="seller_name" type="text" value="" pattern="required" alt="所填内容有误" />
+			</li>
+			<li>
+				<span class="input_item">密码 <em>*</em></span>
+				<input class="input_text" name="password" type="password" bind='repassword' pattern="required" />
+			</li>
+			<li>
+				<span class="input_item">确认密码 <em>*</em></span>
+				<input class="input_text" name="repassword" type="password" bind='password' pattern="required" />
+			</li>
+			<li>
+				<span class="input_item">商户真实全称 <em>*</em></span>
+				<input class="input_text" name="true_name" type="text" value="" pattern="required" alt="所填内容有误" />
+			</li>
+			<li>
+				<span class="input_item">商户资质材料</span>
+				<input class="input_file" type='file' name='paper_img' />
+			</li>
+			<li>
+				<span class="input_item">固定电话 <em>*</em></span>
+				<input type="text" class="input_text" name="phone" pattern="phone" alt="所填内容有误" />
+			</li>
+			<li>
+				<span class="input_item">手机号码 <em>*</em></span>
+				<input type="text" class="input_text" name="mobile" pattern="mobi" alt="所填内容有误" />
+			</li>
+			<li>
+				<span class="input_item">邮箱 <em>*</em></span>
+				<input type="text" class="input_text" name="email" pattern="email" alt="所填内容有误" />
+			</li>
+			<li>
+				<span class="input_item">地区</span>
+				<select class="input_select f3" name="province" child="city,area"></select>
+				<select class="input_select f3" name="city" child="area"></select>
+				<select class="input_select f3" name="area"></select>
+			</li>
+			<li>
+				<span class="input_item">详细地址 </span>
+				<input class="input_text" name="address" type="text" empty value="" />
+			</li>
+			<li>
+				<span class="input_item">企业官网</span>
+				<input class="input_text" name="home_url" type="text" pattern="url" empty value="" placeholder="如：http://www.aircheng.com" />
+			</li>
+			<li>
+				<input type="submit" class="input_submit" value="申请加盟">
+			</li>
+
+		</ul>
+	</form>
+</section>
+<script>
+//DOM加载结束
+$(function(){
+	// 给底部导航加上当前样式
+	$(".footer_nav").hide();
+	$(".footer_login").hide();
+	var areaInstance = new areaSelect('province');
+	areaInstance.init();
+});
+</script>

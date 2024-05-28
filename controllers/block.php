@@ -12,6 +12,17 @@ class Block extends IController
 
 	}
 
+    //删除COOKIE查询记录
+    public function removeHistory()
+    {
+        $word = IReq::get('word');
+        $data = ICookie::get('searchHistory');
+        $data = JSON::decode($data);
+        $key  = array_search($word,$data);
+        unset($data[$key]);
+        ICookie::set('searchHistory',JSON::encode($data));
+    }
+
  	/**
 	 * @brief Ajax获取规格值
 	 */

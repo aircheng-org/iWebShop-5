@@ -1,11 +1,11 @@
 <div class="bigweb">
 <section class="breadcrumb">
-	<span>您当前的位置：</span> <a href="{url:}">首页</a> > 商城公告
+	<span>{echo:ILang::get('您当前的位置')}：</span> <a href="{url:}">{echo:ILang::get('首页')}</a> > {echo:ILang::get('商城公告')}
 </section>
 
 <section class="web">
 	<section class="article_main">
-		<h2 class="main_head">公告列表</h2>
+		<h2 class="main_head">{echo:ILang::get('公告列表')}</h2>
 		<div class="article_list">
 			<ul>
 				{set:$queryNotice = Api::run('getNoticeList')}
@@ -15,8 +15,8 @@
 					<li><time>{$item['time']}</time><a href="{url:/site/notice_detail/id/$item['id']}">{$item['title']}</a></li>
 					{/foreach}
 				{else:}
-				<p class="no_tip">暂无相关信息</p>
-				{/if}	
+				<p class="no_tip">{echo:ILang::get('暂无相关信息')}</p>
+				{/if}
 			</ul>
 			{$queryNotice->getPageBar()}
 		</div>
@@ -25,7 +25,7 @@
 	<aside class="article_bar">
 		<!-- 资讯分类 -->
 		<nav class="news_article_box">
-			<h3 class="news_article_box_head">资讯分类</h3>
+			<h3 class="news_article_box_head">{echo:ILang::get('资讯分类')}</h3>
 			<ul class="news_article_infor">
 				{foreach:items=Api::run('getArticleCategoryList', 10)}
 				<li><a title="{$item['name']}" href="{url:/site/article/id/$item['id']}">{$item['name']}</a></li>
@@ -34,7 +34,7 @@
 		</nav>
 		<!-- 资讯分类 -->
 		<div class="products_bar_box">
-			<h3 class="products_bar_box_head">热卖排行</h3>
+			<h3 class="products_bar_box_head">{echo:ILang::get('热卖排行')}</h3>
 			<ul class="products_bar_hot">
 				{foreach:items=Api::run('getCommendHot', 8)}
 				<li>

@@ -1,6 +1,6 @@
 <div class="bigweb">
 <section class="breadcrumb">
-	<span>您当前的位置：</span> <a href="{url:}">首页</a> > <a href="{url:/site/article}">资讯列表</a> > {$this->articleRow['title']}
+	<span>{echo:ILang::get('您当前的位置')}：</span> <a href="{url:}">{echo:ILang::get('首页')}</a> > <a href="{url:/site/article}">{echo:ILang::get('资讯列表')}</a> > {$this->articleRow['title']}
 </section>
 
 
@@ -9,13 +9,13 @@
 		<section class="article article_infor">
 			<header>
 				<h1 class="article_title">{$this->articleRow['title']}</h1>
-				<time class="article_date">发布日期：{$this->articleRow['create_time']}</time>
+				<time class="article_date">{echo:ILang::get('发布日期')}：{$this->articleRow['create_time']}</time>
 			</header>
 			<article class="article_content">{$this->articleRow['content']}</article>
 		</section>
 		{if:$this->relationList}
 		<section class="artice_goods">
-			<h3>相关商品</h3>
+			<h3>{echo:ILang::get('相关商品')}</h3>
 			<ul>
 				{foreach:items = $this->relationList}
 				<li>
@@ -34,7 +34,7 @@
 	<aside class="article_bar">
 		<!-- 资讯分类 -->
 		<nav class="news_article_box">
-			<h3 class="news_article_box_head">资讯分类</h3>
+			<h3 class="news_article_box_head">{echo:ILang::get('资讯分类')}</h3>
 			<ul class="news_article_infor">
 				{foreach:items=Api::run('getArticleCategoryList',10)}
 				<li><a title="{$item['name']}" href="{url:/site/article/id/$item['id']}">{$item['name']}</a></li>

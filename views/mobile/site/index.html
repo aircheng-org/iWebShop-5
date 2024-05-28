@@ -1,0 +1,202 @@
+<script src="{theme:javascript/jquery.slider.js}"></script>
+<!--幻灯片 开始-->
+<div class="home_banner">
+    {if:$this->index_slide}
+    <ul>
+        {foreach:items=$this->index_slide}
+        <li>
+            <a href="{$item['url']}"><img src="{url:/pic/thumb/img/$item[img]}" alt="{$item['name']}"></a>
+        </li>
+        {/foreach}
+    </ul>
+    {/if}
+</div>
+<!-- 首页菜单 -->
+<nav class="home_nav mbb">
+    <ul>
+        <li class="map"><a href="{url:site/sitemap}"><i class="fa fa-th-list"></i><span>全部分类</span></a></li>
+        <li class="cart"><a href="{url:simple/cart}"><i class="fa fa-shopping-cart"></i><span>购物车</span></a></li>
+        <li class="groupon"><a href="{url:site/groupon}"><i class="fa fa-legal"></i><span>今日团购</span></a></li>
+        <li class="favorite"><a href="{url:ucenter/favorite}"><i class="fa fa-star"></i><span>我的收藏</span></a></li>
+    </ul>
+</nav>
+{echo:Ad::show("首页顶部通栏100%*120(mobile)")}
+
+{set:$tuanitems=Api::run('getRegimentList',10)}
+{if:$tuanitems}
+<h2 class="home_title">
+	<i class="fa fa-bookmark"></i><strong>团购</strong>
+</h2>
+
+<section class="home_tuan_goods">
+	<ul>
+		{foreach:items=$tuanitems}
+		<li>
+			<a href="{url:/site/products/id/$item['goods_id']}">
+				<img class="jImg" data-src="{url:/pic/thumb/img/$item[img]/w/200/h/200}">
+				<h3>{$item['title']}</h3>
+				<em>{$item['regiment_price']}</em>
+			</a>
+		</li>
+		{/foreach}
+	</ul>
+</section>
+{/if}
+
+{set:$qiangitems=Api::run('getPromotionList',6);}
+{if:$qiangitems}
+<h2 class="home_title">
+	<i class="fa fa-time"></i><strong>限时抢购</strong>
+</h2>
+
+<section class="home_xianshi_goods">
+	<ul>
+		{foreach:items=$qiangitems}
+		{set:$free_time = ITime::getDiffSec($item['end_time'])}
+		{set:$countNumsItem[] = $item['p_id'];}
+		<li>
+			<a href="{url:/site/products/id/$item['goods_id']}">
+				<img class="jImg" data-src="{url:/pic/thumb/img/$item[img]/w/200/h/200}">
+				<h3>{$item['name']}</h3>
+				<em>{$item['award_value']}</em>
+				<time>
+					<span id='cd_hour_{$item['p_id']}'>{echo:floor($free_time/3600);}</span> 时
+					<span id='cd_minute_{$item['p_id']}'>{echo:floor(($free_time%3600)/60);}</span> 分
+					<span id='cd_second_{$item['p_id']}'>{echo:$free_time%60;}</span> 秒
+				</time>
+			</a>
+		</li>
+		{/foreach}
+	</ul>
+</section>
+{/if}
+<h2 class="home_title">
+	<i class="fa fa-bookmark"></i><a href="{url:/site/assemble}"><strong>拼团</strong></a>
+</h2>
+
+<section class="home_tuan_goods">
+	<ul>
+		{foreach:items=Api::run('getAssembleList',5)}
+		<li>
+			<a href="{url:/site/assemble/id/$item['id']}">
+				<img class="jImg" data-src="{url:$item['img']}">
+				<h3>{$item['title']}</h3>
+				<em class="pingou">{$item['assemble_price']}</em>
+			</a>
+		</li>
+		{/foreach}
+	</ul>
+</section>
+<!-- 首页推荐商品列表 -->
+<h2 class="home_title"><i class="fa fa-gift"></i><strong>推荐商品</strong></h2>
+<section class="home_goods">
+    <ul>
+        {foreach:items = Api::run('getCommendRecom',8)}
+        <li>
+            <a href="{url:/site/products/id/$item['id']}">
+                <img data-src="{url:/pic/thumb/img/$item[img]/w/300/h/300}" alt="{$item['name']}">
+                <span>{$item['name']}</span>
+                <em>￥{$item['sell_price']}</em>
+            </a>
+        </li>
+        {/foreach}
+    </ul>
+</section>
+
+{echo:Ad::show("首页中部通栏100%*200(mobile)")}
+
+<!-- 首页热门商品列表 -->
+<h2 class="home_title"><i class="fa fa-heart"></i><strong>热门商品</strong></h2>
+<section class="home_goods">
+    <ul>
+        {foreach:items = Api::run('getCommendHot',8)}
+        <li>
+            <a href="{url:/site/products/id/$item['id']}">
+                <img data-src="{url:/pic/thumb/img/$item[img]/w/300/h/300}" alt="{$item['name']}">
+                <span>{$item['name']}</span>
+                <em>￥{$item['sell_price']}</em>
+            </a>
+        </li>
+        {/foreach}
+    </ul>
+</section>
+
+<!-- 首页特价商品列表 -->
+<h2 class="home_title"><i class="fa fa-money"></i><strong>特价商品</strong></h2>
+<section class="home_goods">
+    <ul>
+        {foreach:items = Api::run('getCommendPrice',8)}
+        <li>
+            <a href="{url:/site/products/id/$item['id']}">
+                <img data-src="{url:/pic/thumb/img/$item[img]/w/300/h/300}" alt="{$item['name']}">
+                <span>{$item['name']}</span>
+                <em>￥{$item['sell_price']}</em>
+            </a>
+        </li>
+        {/foreach}
+    </ul>
+</section>
+
+<!-- 首页新品商品列表 -->
+{if:$pointData = Api::run('getCostPointList',4)}
+<!-- 积分兑换商品列表 -->
+<h2 class="home_title"><a href="{url:/site/costpoint}"><i class="fa fa-diamond"></i><strong>积分兑换</strong></a></h2>
+<section class="home_goods">
+    <ul class="costpoint">
+        {foreach:items=$pointData}
+        <li>
+            <a href="{url:/site/products/id/$item['goods_id']}">
+                <img data-src="{url:/pic/thumb/img/$item[img]/w/300/h/300}" alt="{$item['name']}">
+                <span>{$item['name']}</span>
+                <em>{$item['point']}分</em>
+            </a>
+        </li>
+        {/foreach}
+    </ul>
+</section>
+<!-- 积分兑换商品列表 -->
+{/if}
+<!-- 首页新品商品列表 -->
+<h2 class="home_title"><i class="fa fa-bell"></i><strong>最新商品</strong></h2>
+<section class="home_goods">
+    <ul>
+        {foreach:items = Api::run('getCommendNew',8)}
+        <li>
+            <a href="{url:/site/products/id/$item['id']}">
+                <img data-src="{url:/pic/thumb/img/$item[img]/w/300/h/300}" alt="{$item['name']}">
+                <span>{$item['name']}</span>
+                <em>￥{$item['sell_price']}</em>
+            </a>
+        </li>
+        {/foreach}
+    </ul>
+</section>
+
+<!-- 首页顶级栏目分类 -->
+<h2 class="home_title"><i class="fa fa-list"></i><strong>畅销商品分类</strong></h2>
+<nav class="home_goods_nav">
+    <ul>
+        {foreach:items=Api::run('getCategoryListTopByVis') item=$first }
+        <li><a href="{url:/site/pro_list/cat/$first[id]}">{$first['name']}</a><i class="fa fa-chevron-right"></i></li>
+        {/foreach}
+    </ul>
+</nav>
+
+<script>
+$(function() {
+    // 设置首页导航为当前
+    $(".nav_home").addClass('on');
+    // 设置焦点图
+    $(".home_banner").MobileSlider({
+        width: 720,
+        height: 360
+    });
+    //显示抢购倒计时
+    	var cd_timer = new countdown();
+    	{if:isset($countNumsItem) && $countNumsItem}
+    	{foreach:items = $countNumsItem}
+    		cd_timer.add({$item});
+    	{/foreach}
+    	{/if}
+})
+</script>

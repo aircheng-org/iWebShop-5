@@ -62,7 +62,7 @@
 				<th>是否开启：</th>
 				<td>
                     <label class="radio-inline">
-                        <input type="radio" name="is_close" value="0" checked=checked >是
+                        <input type="radio" name="is_close" value="0" checked="checked">是
                     </label>
                     <label class="radio-inline">
                         <input type="radio" name="is_close" value="1">否
@@ -77,8 +77,9 @@
 						<option value="0">消费金额满足</option>
 						<option value="5">新用户注册</option>
 						<option value="6">在线充值金额满足</option>
+						<option value="7">订单获得积分数</option>
 					</select>
-					<p class="help-block">(1)消费金额满足条件，即可获得奖励；(2)新用户注册即可获得奖励；(3)在线充值金额满足条件，即可获得预存款奖励</p>
+					<p class="help-block">(1)消费金额满足条件，即可获得奖励；(2)新用户注册即可获得奖励；(3)在线充值金额满足条件，即可获得预存款奖励；(4)订单中获得积分总数。</p>
 				</td>
 			</tr>
 			<tr>
@@ -93,7 +94,7 @@
 				</td>
 			</tr>
 			<tr>
-				<th>活动设置：</th>
+				<th>活动奖励内容：</th>
 				<td id='rule_box'>请选择活动奖励...</td>
 			</tr>
 			<tr>
@@ -114,6 +115,7 @@
 <option value='4'>当购物车金额满 M 元时,赠送一张面值 N 元的优惠券</option>
 <option value='6'>当购物车金额满 M 元时,免运费</option>
 <option value='8'>当购物车金额满 M 元时,赠送 N 经验值</option>
+<option value='5'>当购物车金额满 M 元时,赠送礼品</option>
 </script>
 
 <!--新用户注册-->
@@ -128,6 +130,17 @@
 <option value='10'>当在线充值金额满 M 元时,赠送预存款 N 元</option>
 </script>
 
+<!--订单积分满足-->
+<script id="pointType" type='text/html'>
+<option value=''>请选择</option>
+<option value='1'>当订单积分满 M 分时,优惠 N 元</option>
+<option value='2'>当订单积分满 M 分时,优惠 N% </option>
+<option value='3'>当订单积分满 M 分时,赠送 N 个积分</option>
+<option value='4'>当订单积分满 M 分时,赠送一张面值 N 元的优惠券</option>
+<option value='6'>当订单积分满 M 分时,免运费</option>
+<option value='8'>当订单积分满 M 分时,赠送 N 经验值</option>
+<option value='5'>当订单积分满 M 分时,赠送礼品</option>
+</script>
 
 <script type='text/javascript'>
 //修改活动类型
@@ -157,10 +170,17 @@ function change_rule(selectVal)
 			gift = template.render("payType");
 		}
 		break;
+
+		case "7":
+		{
+			html = "订单获得积分：<input type='text' name='condition' class='form-control w-auto' pattern='int' alt='请填写一个积分数字' /> 分 <p class='help-block'>* 当订单获得积分达到所填写的数量时规则生效</p>";
+			gift = template.render("pointType");
+		}
+		break;
 	}
 
 	$('#condContent').html(html);
-	formObj.setValue('condition',"{$this->promotionRow['condition']}");
+	formObj.setValue('condition','{$this->promotionRow["condition"]}');
 
 	//联动奖励select
 	$('[name="award_type"]').html(gift);
@@ -202,48 +222,53 @@ function change_gift(selectVal)
 					$('select[name="award_value"]').append('<option value="'+content[pro]['id']+'">'+content[pro]['name']+'   面值:'+content[pro]['value']+'元</option>');
 				}
 				//获取后设置默认的优惠券选择
-				formObj.setValue('award_value',"{$this->promotionRow['award_value']}");
+				formObj.setValue('award_value','{$this->promotionRow["award_value"]}');
 			});
 		}
 		break;
 
 		case "5":
 		{
-
+			html = `
+            <table class="table table-bordered list-table">
+            	<colgroup>
+            		<col width="20%" />
+            		<col />
+            		<col width="20%" />
+					<col width="15%" />
+					<col width="10%" />
+            	</colgroup>
+                <thead>
+                    <tr>
+                        <td>图片</td>
+                        <td>名称</td>
+                        <td>价格</td>
+						<td>数量</td>
+						<td>操作</td>
+                    </tr>
+                </thead>
+                <tbody id='goods-list'></tbody>
+				<tfoot>
+                    <tr>
+                        <td colspan='4'>
+                            <button type='button' onclick="searchGoods({'callback':searchGoodsCallback,'type':'checkbox'});" class='btn btn-default'>选择礼品</button>
+                            <p class="help-block">* 赠送的礼品在订单付款后直接加入到订单中</p>
+                        </td>
+                    </tr>
+				</tfoot>
+            </table>`;
 		}
 		break;
 
 		case "6":
 		{
-			var areaList = {echo:JSON::encode(Api::run('getAreaAll',['parent_id'=>0]))};
-			html = "<select multiple='multiple' class='form-control w-auto' name='award_value[]' pattern='required' style='height:200px;'>";
-			for(var item in areaList)
-			{
-				html += "<option value='"+areaList[item]['area_id']+"'>"+areaList[item]['area_name']+"</option>";
-			}
-			html += "</select> <p class='help-block'>* 不享受包邮的区域，支持多选，默认是全国包邮</p>";
+			html = "免运费";
 		}
 		break;
 
 		case "8":
 		{
 			html = "赠送经验：<input type='text' name='award_value' class='form-control w-auto' pattern='int' /> <p class='help-block'>* 赠送的经验</p>";
-		}
-		break;
-
-		case "9":
-		{
-			html = "设置优惠券：<select class='form-control w-auto' name='award_value' pattern='required'><option value=''>请选择</option></select> <p class='help-block'>* 选择一个优惠券</p>";
-
-			//异步获取优惠券
-			$.getJSON('{url:/market/getTicketList}',{'random':Math.random()},function(content){
-				for(pro in content)
-				{
-					$('select[name="award_value"]').append('<option value="'+content[pro]['id']+'">'+content[pro]['name']+'   面值:'+content[pro]['value']+'元</option>');
-				}
-				//获取后设置默认的优惠券选择
-				formObj.setValue('award_value',"{$this->promotionRow['award_value']}");
-			});
 		}
 		break;
 
@@ -254,7 +279,50 @@ function change_gift(selectVal)
 		break;
 	}
 	$('#rule_box').html(html);
-	formObj.setValue('award_value',"{$this->promotionRow['award_value']}");
+	formObj.setValue('award_value','{$this->promotionRow["award_value"]}');
+}
+
+//输入筛选商品的条件
+function searchGoodsCallback(goodsList)
+{
+	let content = [];
+	goodsList.each(function()
+	{
+		let temp = $.parseJSON($(this).attr('data'));
+		content.push({
+			"id":temp.goods_id,
+			"name":temp.name,
+			"img":temp.img,
+			"sell_price":temp.sell_price,
+			"num":1
+		});
+	});
+	relationCallBack(content);
+}
+
+//关联商品回调处理函数
+function relationCallBack(content)
+{
+	if(content)
+	{
+		let html = '';
+		for(let obj of content)
+		{
+			let imgUrl = webroot(obj.img);
+			html+='<tr><td><img src="'+imgUrl+'" title="'+obj.name+'" style="max-width:140px;" /><input type="hidden" name="gift_id[]" value="'+obj.id+'" /></td>'
+				+'<td>'+obj.name+'</td>'
+				+'<td>'+obj.sell_price+'</td>'
+				+'<td><input text="number" class="form-control" name="gift_num[]" pattern="int" placeholder="请填写数字" value="'+obj.num+'" min="1" /></td>'
+				+'<td><a href="javascript:void(0)" onclick="del(this)">删除</a></td></tr>';
+		}
+		$('#goods-list').append(html);
+	}
+}
+
+//删除商品
+function del(obj)
+{
+	$(obj).parents('tr:eq(0)').remove();
 }
 
 //表单回填
@@ -263,4 +331,10 @@ formObj.init({echo:JSON::encode($this->promotionRow)});
 $('[name="type"]').change();
 formObj.setValue('award_type',"{$this->promotionRow['award_type']}");
 $('[name="award_type"]').change();
+
+{if:$this->goodsList}
+jQuery(function(){
+	relationCallBack({echo:JSON::encode($this->goodsList)})
+})
+{/if}
 </script>

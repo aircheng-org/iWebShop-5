@@ -1,0 +1,19 @@
+{set:$msg = IReq::get('message') ? IReq::get('message') : '发生错误'}
+<div id="pageInfo" data-title="出错啦"></div>
+
+<section class="nothing">
+    <i class="fa fa-remove red"></i>
+    <p class="red">{echo:htmlspecialchars($msg,ENT_QUOTES)}</p>
+    <div class="tips">
+        <a href="{url:/ucenter/index}">个人中心</a>
+        <a href="{url:/site/index}">网站首页</a>
+    </div>
+</section>
+
+<script>
+$(function(){
+    // 隐藏底部导航
+    hideNav();
+    $(".footer_login").hide();
+});
+</script>

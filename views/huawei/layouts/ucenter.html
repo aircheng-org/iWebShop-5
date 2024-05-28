@@ -21,13 +21,13 @@
 <div class="header_top">
 	<div class="web">
 		<div class="welcome">
-			欢迎您来到 {echo:$this->_siteConfig->name}！
+			{echo:ILang::get('欢迎光临')} {echo:$this->_siteConfig->name}！
 		</div>
 		<ul class="top_tool">
-			<li><a href="{url:ucenter/index}">个人中心</a></li>
-			<li><a href="{url:/simple/seller}">申请开店</a></li>
-			<li><a href="{url:/seller/index}">商家管理</a></li>
-			<li><a href="{url:/site/help_list}">使用帮助</a></li>
+			<li><a href="{url:ucenter/index}">{echo:ILang::get('个人中心')}</a></li>
+			<li><a href="{url:/simple/seller}">{echo:ILang::get('申请开店')}</a></li>
+			<li><a href="{url:/seller/index}">{echo:ILang::get('商家管理')}</a></li>
+			<li><a href="{url:/site/help_list}">{echo:ILang::get('使用帮助')}</a></li>
 		</ul>
 	</div>
 </div>
@@ -62,24 +62,24 @@
 						<div class="myorder">
 							<dl class="clearfix">
 								<dt>
-									<span class="fl">我的订单</span>
-									<a class="fr" href="{url:/ucenter/index}">更多&gt;</a>
+									<span class="fl">{echo:ILang::get('我的订单')}</span>
+									<a class="fr" href="{url:/ucenter/index}">{echo:ILang::get('更多')}&gt;</a>
 								</dt>
-								<dd><a href="{url:/ucenter/integral}">我的积分</a></dd>
-								<dd><a href="{url:/ucenter/account_log}">账户预付款</a></dd>
-								<dd><a href="{url:/ucenter/evaluation}">待评价</a></dd>
-								<dd><a href="{url:/ucenter/refunds}">退换货</a></dd>
-								<dd><a href="{url:/ucenter/consult}">商品咨询</a></dd>
+								<dd><a href="{url:/ucenter/integral}">{echo:ILang::get('我的积分')}</a></dd>
+								<dd><a href="{url:/ucenter/account_log}">{echo:ILang::get('账户预付款')}</a></dd>
+								<dd><a href="{url:/ucenter/evaluation}">{echo:ILang::get('待评价')}</a></dd>
+								<dd><a href="{url:/ucenter/refunds}">{echo:ILang::get('退换货')}</a></dd>
+								<dd><a href="{url:/ucenter/consult}">{echo:ILang::get('商品咨询')}</a></dd>
 							</dl>
 						</div>
-						<div class="myshop"><a href="{url:/ucenter/index}">我的商城</a></div>
-						<div class="logout"><a href="{url:/simple/logout}">退出登录</a></div>
+						<div class="myshop"><a href="{url:/ucenter/index}">{echo:ILang::get('我的商城')}</a></div>
+						<div class="logout"><a href="{url:/simple/logout}">{echo:ILang::get('退出登录')}</a></div>
 					</div>
 				{else:}
 					<div class="body_toolbar_btn login_reg">
-						<a href="{url:/simple/login}">登录</a>
+						<a href="{url:/simple/login}">{echo:ILang::get('登录')}</a>
 						<em> | </em>
-						<a class="reg" href="{url:/simple/reg}">注册</a>
+						<a class="reg" href="{url:/simple/reg}">{echo:ILang::get('注册')}</a>
 					</div>
 				{/if}
 			</div>
@@ -88,7 +88,7 @@
 			<div class="header_cart" name="mycart">
 				<a href="{url:/simple/cart}" class="go_cart">
 					<i class="fa fa-shopping-cart"></i>
-					<em class="sign_total" name="mycart_count"]>0</em>
+					<em class="sign_total" name="mycart_count">0</em>
 				</a>
 				<div class="cart_simple" id="div_mycart"></div>
 			</div>
@@ -114,22 +114,22 @@
 					<!-- 购物车物品统计 -->
 					<div class="cart_total">
 						<p>
-							共<span name="mycart_count"><%=goodsCount%></span>件
-							总额：<em name="mycart_sum">￥<%=goodsSum%></em>
+							{echo:ILang::get('数量')}：<span name="mycart_count"><%=goodsCount%></span>
+							{echo:ILang::get('总额')}：<em name="mycart_sum">￥<%=goodsSum%></em>
 						</p>
-						<a href="{url:simple/cart}">结算</a>
+						<a href="{url:simple/cart}">{echo:ILang::get('结算')}</a>
 					</div>
 					<!-- 购物车物品统计 -->
 				<%}else{%>
 					<!-- 购物车无内容 -->
-					<div class='cart_no'>购物车空空如也~</div>
+					<div class='cart_no'>{echo:ILang::get('购物车是空的')}</div>
 				<%}%>
 			</div>
 			</script>
 			<!--购物车模板 结束-->
 			<!-- 搜索框 -->
 			<div class="search_box">
-					<!-- 搜索内容 -->
+				<!-- 搜索内容 -->
 				<form method='get' action='{url:/}'>
 					<input type='hidden' name='controller' value='site'>
 					<input type='hidden' name='action' value='search_list'>
@@ -160,12 +160,12 @@
 			<div class="category_list">
 				<!-- 全部商品 -->
 				<a class="all_goods_sort" href="" target="_blank">
-					<h3 class="all">全部商品</h3>
+					<h3 class="all">{echo:ILang::get('全部商品')}</h3>
 				</a>
 				<!-- 全部商品 -->
 				<!-- 分类列表-详情 -->
 				<ul class="cat_list none">
-					{foreach:items=Api::run('getCategoryListTop')  item=$first}
+					{foreach:items=Api::run('getCategoryListTopByVis')  item=$first}
 					<li>
 						<!-- 分类列表-导航模块 -->
 						<div class="cat_nav">
@@ -216,7 +216,7 @@
 			<!-- 导航索引 -->
 			<div class="nav_index">
 				<ul class="nav">
-					<li class="user_nav_index"><a href="{url:/site/index}"><span>首 页</span></a></li>
+					<li class="user_nav_index"><a href="{url:/site/index}"><span>{echo:ILang::get('首页')}</span></a></li>
 					{foreach:items=Api::run('getGuideList')}
 					<li class="user_nav_index"><a href="{url:$item[link]}"><span>{$item['name']}</span></a></li>
 					{/foreach}
@@ -230,7 +230,7 @@
 <!-- 个人中心内容 -->
 <div class="center_content">
 	<section class="breadcrumb">
-		<span></span> <a href="{url:}">首页</a> \ <a href="{url:/ucenter/index}">我的账户</a>
+		<span></span> <a href="{url:}">{echo:ILang::get('首页')}</a> \ <a href="{url:/ucenter/index}">{echo:ILang::get('我的账户')}</a>
 	</section>
 
 
@@ -243,7 +243,7 @@
 			<aside class="ucenter_bar">
 				<!-- 我的商城 -->
 				<div class="ucenter_bar_wapper">
-					<a href="{url:/ucenter/index}">我的商城</a>
+					<a href="{url:/ucenter/index}">{echo:ILang::get('我的商城')}</a>
 				</div>
 				<!-- 我的商城 -->
 				<!-- 功能栏 -->
@@ -264,7 +264,7 @@
 			<!-- 个人中心内容-功能栏 -->
 		</div>
 		<section class="ucenter_goods">
-			<h3>也许你会对下列商品感兴趣</h3>
+			<h3>{echo:ILang::get('也许你会对下列商品感兴趣')}</h3>
 			<ul>
 				{foreach:items=Api::run('getGoodsByCommendgoods',8)}
 				<li>
@@ -286,19 +286,19 @@
 		<ul>
 			<li class="item1">
 				<i class="fa fa-star"></i>
-				<strong>正品优选</strong>
+				<strong>{echo:ILang::get('正品优选')}</strong>
 			</li>
 			<li class="item2">
 				<i class="fa fa-globe"></i>
-				<strong>上市公司</strong>
+				<strong>{echo:ILang::get('上市公司')}</strong>
 			</li>
 			<li class="item3">
 				<i class="fa fa-inbox"></i>
-				<strong>300家连锁门店</strong>
+				<strong>{echo:ILang::get('300家连锁门店')}</strong>
 			</li>
 			<li class="item4">
 				<i class="fa fa-map-marker"></i>
-				<strong>上百家维修网点 全国联保</strong>
+				<strong>{echo:ILang::get('全国联保')}</strong>
 			</li>
 		</ul>
 	</section>
@@ -320,8 +320,8 @@
 		<div class="contact">
 			<p class="line"></p>
 			<em>{$this->_siteConfig->phone}</em>
-			<span>24小时在线客服(仅收市话费)</span>
-			<a href="#"><i class="fa fa-comments"></i> 在线客服</a>
+			<span>{echo:ILang::get('24小时在线客服')}</span>
+			<a href="#"><i class="fa fa-comments"></i> {echo:ILang::get('在线客服')}</a>
 		</div>
 	</section>
 	<section class="copy">

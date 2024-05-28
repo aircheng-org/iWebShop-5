@@ -1,0 +1,55 @@
+
+<div id="pageInfo" data-title="用户登录"></div>
+<section class="login input_li">
+	<form action='{url:/simple/login_act}' method='post'>
+		<input type="hidden" name='callback' value="{$callback}" />
+		<ul>
+			<li>
+				<input type="text" class="input_text" placeholder="请输入用户名" initmsg="验证通过" name="login_info" id="login_info" value="{echo:ICookie::get('loginName');}" pattern='required' alt='填写用户名或邮箱' />
+			</li>
+			<li>
+				<input type="password" class="input_text" placeholder="密码" name="password" pattern='^\S{6,32}$' alt='填写密码' />
+			</li>
+			<li>
+				<input type="submit" class="input_submit" value="立即登录">
+			</li>
+			<li>
+				<a href="{url:simple/reg}" class="link fl">快速注册</a>
+				<a href="{url:simple/find_password}" class="link fr">找回密码</a>
+			</li>
+			{set:$items=Api::run('getOauthList')}
+			{if:$items}
+			<li>
+				<div class="other_login">
+					<h3>第三方快捷登陆</h3>
+					{foreach:$items}
+					<a href="{url:/simple/oauth_login/id/$item['id']}"><img src='{webroot:$item[logo]}' /></a>
+					{/foreach}
+				</div>
+			</li>
+			{/if}
+		</ul>
+	</form>
+</section>
+<script>
+//DOM加载结束
+$(function(){
+	// 给底部导航加上当前样式
+	$(".nav_user").addClass('on');
+	$(".footer_login").hide();
+});
+
+//下一步操作
+function next_step(){
+	var step_val = $('[name="next_step"]:checked').val();
+	if(step_val == 'acount')
+	{
+		{set:$url = plugin::trigger('getCallback')."/tourist/yes"}
+		window.location.href = '{url:$url}';
+	}
+	else if(step_val == 'reg')
+	{
+		window.location.href = '{url:/simple/reg}';
+	}
+}
+</script>

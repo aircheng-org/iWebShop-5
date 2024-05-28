@@ -1,0 +1,36 @@
+<div id="pageInfo" data-title="积分兑换"></div>
+{set:$costpointDB = Api::run('getCostPointList');$costpointData = $costpointDB->find();}
+{if:$costpointData}
+<section class="goods_list">
+	<ul>
+		{foreach:items=$costpointData}
+		<li>
+			<a href="{url:/site/products/id/$item['goods_id']}">
+				<i class="photo"><img class="goods_photo" data-src="{url:/pic/thumb/img/$item[img]/w/200/h/200}" alt="{$item['name']}"></i>
+				<h3 class="name"><strong>{$item['name']}</strong></h3>
+				<del class="old_price">￥{$item['sell_price']}</del>
+				<em class="price">{$item['point']}积分</em>
+			</a>
+		</li>
+		{/foreach}
+	</ul>
+</section>
+{$costpointDB->getPageBar()}
+{else:}
+<section class="no_tip">商品进货中，请稍后关注上架情况</section>
+{/if}
+
+<script>
+$(function(){
+	// 隐藏底部导航
+	hideNav();
+    // 切换导航样式
+    var order    = getUrlParam("order");
+    var by       = getUrlParam("by");
+    var sortBtn  = $(".goods_sort").children('.sort_btn');
+    var iconDown = '<i class="fa fa-angle-down"></i>';
+    var iconUp   = '<i class="fa fa-angle-up"></i>';
+    var conf     = {"sale":0,"cpoint":1,"price":2,"new":3};
+    sortBtn.eq(conf[order]).addClass('on').append(by == "desc" ? iconDown : iconUp);
+});
+</script>

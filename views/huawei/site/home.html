@@ -1,7 +1,7 @@
 {set:$goodsObj = search_goods::find(array('go.seller_id' => $seller_id,'category_extend_seller' => $cat_id),20);$resultData = $goodsObj->find();}
 <div class="bigweb">
 <section class="breadcrumb">
-	<span>您当前的位置：</span> <a href="{url:}">首页</a> » <a href="{url:/site/home/id/$sellerRow['id']}">商户主页</a>
+	<span>{echo:ILang::get('您当前的位置')}：</span> <a href="{url:}">{echo:ILang::get('首页')}</a> » <a href="{url:/site/home/id/$sellerRow['id']}">{echo:ILang::get('商户主页')}</a>
 </section>
 
 <section class="web">
@@ -30,25 +30,25 @@
 
 			{else:}
 			<p class="no_tip">
-				对不起，没有找到相关商品
+				{echo:ILang::get('对不起，没有找到相关商品')}
 			</p>
 			{/if}
 		</section>
 	</section>
 	<aside class="bar">
 		<div class="bar_box">
-			<h3 class="bar_box_head">商户信息</h3>
+			<h3 class="bar_box_head">{echo:ILang::get('商户信息')}</h3>
 			<div class="bar_seller">
 				<h1>{$sellerRow['true_name']}</h1>
 				<p><img src="{url:$sellerRow['logo']}" style="width:100%" onerror="this.src='http://www.aircheng.com/images/public/default_logo.png'" /></p>
 				<div class="star_box">
-					<strong class="item">评分：</strong>
+					<strong class="item">{echo:ILang::get('评分')}：</strong>
 					<span class="star star_{echo:statistics::gradeSeller($sellerRow['id'])}"></span>
 				</div>
-				<p>销量：{echo:statistics::sellCountSeller($sellerRow['id'])} 件</p>
-				<p>官网：<a href="{$sellerRow['home_url']}" target="_blank">点击进入</a></p>
-				<p>联系电话：{$sellerRow['phone']}</p>
-				<p>所在地：{echo:join(' ',area::name($sellerRow['province'],$sellerRow['city'],$sellerRow['area']))} {$sellerRow['address']}</p>
+				<p>{echo:ILang::get('销量')}：{echo:statistics::sellCountSeller($sellerRow['id'])}</p>
+				<p>{echo:ILang::get('官网')}：<a href="{$sellerRow['home_url']}" target="_blank">{echo:ILang::get('点击进入')}</a></p>
+				<p>{echo:ILang::get('联系电话')}：{$sellerRow['phone']}</p>
+				<p>{echo:ILang::get('所在地')}：{echo:join(' ',area::name($sellerRow['province'],$sellerRow['city'],$sellerRow['area']))} {$sellerRow['address']}</p>
 				<p>{set:plugin::trigger("onServiceButton",$sellerRow['id'])}</p>
 			</div>
 		</div>
@@ -57,7 +57,7 @@
 		{set:$catSide = Api::run('catTreeSeller',$sellerRow['id'])}
 		{if:$catSide}
 		<nav class="bar_box bar_goods_nav">
-			<h3 class="bar_box_head">店内分类</h3>
+			<h3 class="bar_box_head">{echo:ILang::get('店内分类')}</h3>
 			{foreach:items=$catSide item=$first}
 			<dl>
 				<dt><a href="{url:/site/home/id/$sellerRow['id']/cat/$first['id']}">{$first['name']}</a></dt>
@@ -71,7 +71,7 @@
 		<!--侧边栏分类-->
 
 		<div class="bar_box">
-			<h3 class="bar_box_head">销售排行榜</h3>
+			<h3 class="bar_box_head">{echo:ILang::get('销售排行榜')}</h3>
 			<ul class="bar_goods ranking">
 				{foreach:items=Api::run('getGoodsListBySellerid',array('#seller_id#',$seller_id),10,'sale-')}
 				<li>
@@ -86,7 +86,7 @@
 		</div>
 
 		<div class="bar_box">
-			<h3 class="bar_box_head">促销活动</h3>
+			<h3 class="bar_box_head">{echo:ILang::get('促销活动')}</h3>
 			<ul class="bar_nav">
 				{foreach:items=Api::run('getProrule',$seller_id)}
 				<li>{$item['info']}</li>
@@ -95,7 +95,7 @@
 		</div>
 
 		<div class="bar_box">
-			<h3 class="bar_box_head">商家推荐</h3>
+			<h3 class="bar_box_head">{echo:ILang::get('商家推荐')}</h3>
 			<ul class="bar_goods">
 				{foreach:items=Api::run('getGoodsListBySellerid',array('#seller_id#',$seller_id),10)}
 				<li>

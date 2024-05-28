@@ -1,0 +1,100 @@
+<div id="pageInfo" data-title="我的优惠券"></div>
+<section class="us_tab">
+    <ul>
+        <li class="on">优惠券列表</li>
+        <li>优惠券兑换</li>
+    </ul>
+</section>
+
+<section class="uc_con">
+    <div class="uc_con_box">
+        <section class="integral_ex">
+            {set:$queryPropList = Api::run('getPropList')}
+            {foreach:items = $queryPropList->find()}
+            <div class="coupon-item">
+                <div class="style">
+                    <div class="info-box">
+                        <p class="nick">{$item['name']} (截至{echo:substr($item['end_time'],0,10)})</p>
+                        <div class="coupon-money">
+                            <div class="lay of">￥<em>{$item['value']}</em><i></i></div>
+                            <div class="lay">
+                                <p class="demand">{echo:ticket::noteFull($item['condition'])}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="{echo:ticket::useUrl($item)}" class="get-btn c55">
+                        {echo:ticket::statusText(ticket::status($item))}
+                    </a>
+                </div>
+            </div>
+            {/foreach}
+        </section>
+        {$queryPropList->getPageBar()}
+
+        {if:!$items}
+        <section class="no_tip">您当前暂无优惠券</section>
+        {/if}
+    </div>
+
+    <div class="uc_con_box none">
+        <section class="integral_ex">
+			{foreach:items=Api::run('getTicketList')}
+            <form action='{url:/ucenter/trade_ticket}' method='post'>
+                <div class="coupon-item">
+                    <div class="style">
+                        <div class="info-box">
+                            <p class="nick">{$item['name']} ({echo:substr($item['start_time'],5,5)}至{echo:substr($item['end_time'],5,5)})</p>
+                            <div class="coupon-money">
+                                <div class="lay of">￥<em>{$item['value']} </em><p<i>需{$item['point']}分</i></div>
+                                <div class="lay">
+                                    <p class="demand">{echo:ticket::noteFull($item['id'])}</p>
+                                </div>
+                            </div>
+                        </div>
+                        {if:$items}
+                        <a href="javascript:;" class="get-btn">
+                            <input type="hidden" name='ticket_id' value="{$item['id']}" />
+                            <input type="submit" value="立即兑换" />
+                        </a>
+                        {/if}
+                    </div>
+                </div>
+            </form>
+			{/foreach}
+        </section>
+
+        {if:!$items}
+        <section class="no_tip">暂时没有可以兑换的优惠券</section>
+        {/if}
+    </div>
+</section>
+
+<script>
+    $(function () {
+        // 隐藏底部导航
+        hideNav();
+
+        // 简易选项卡切换JS
+        var $tab = $(".us_tab");
+        var $con = $(".uc_con"),
+            $conBox = $con.children('.uc_con_box');
+        $tab.on('click', 'li', function () {
+            var t = $(this), i = t.index();
+            t.addClass('on').siblings('li').removeClass('on');
+            $conBox.eq(i).removeClass('none').siblings('.uc_con_box').addClass('none');
+            if (i === 0) {
+                $('.btn_bottom').addClass('none');
+            } else {
+                $('.btn_bottom').removeClass('none');
+            }
+        });
+
+        // 兑换积分百叶窗
+        var $exList = $(".integral_ex");
+        $exList.on('click', 'li', function () {
+            var t = $(this);
+            t.children('p').stop().slideDown(100);
+            t.siblings('li').children('p').stop().slideUp(100);
+        });
+    })
+</script>

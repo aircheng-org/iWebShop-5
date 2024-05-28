@@ -1,0 +1,23 @@
+{set:$id = IFilter::act(IReq::get('id'),'int')}
+{query:name=goods where=id eq $id}{/query}
+
+<div id="pageInfo" data-title="商品详情"></div>
+
+{if:isset($item['content'])}
+<section class="article_detail">
+	{$item['content']}
+</section>
+{else:} 暂无详情数据 {/if}
+
+<script>
+$(function(){
+	// 隐藏底部导航
+	hideNav();
+	// 清除详情页面所有元素的内联属性(很可能是PC版的样式要求,不符合移动版,移动版统一用CSS控制)
+	$(".article_detail *").attr({
+		style: '',
+		width: '',
+		height: '',
+	});
+})
+</script>

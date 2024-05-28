@@ -3,7 +3,7 @@
 
 <div class="bigweb">
 <section class="breadcrumb">
-	<span>您当前的位置：</span> <a href="{url:}">首页</a> » 搜索"{$this->word}"
+	<span>{echo:ILang::get('您当前的位置')}：</span> <a href="{url:}">{echo:ILang::get('首页')}</a> » {echo:ILang::get('搜索')} "{$this->word}"
 </section>
 
 <section class="web">
@@ -12,7 +12,7 @@
 		{set:$catExt = Api::run('getGoodsCategoryExtend',array('#word#',$this->word))}
 		{if:$catExt}
 		<section class="search_class">
-			<strong>搜索结果分类：</strong>
+			<strong>{echo:ILang::get('搜索结果分类')}：</strong>
 			<div class="search_class_content">
 				{foreach:items=$catExt}
 				{set:$tmpWord=urlencode($this->word);}
@@ -46,7 +46,7 @@
 
 			{else:}
 			<p class="no_tip">
-				对不起，没有找到相关商品
+				{echo:ILang::get('对不起，没有找到相关商品')}
 			</p>
 			{/if}
 		</section>

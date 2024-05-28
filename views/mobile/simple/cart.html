@@ -1,0 +1,96 @@
+<script type='text/javascript' src="{webroot:public/javascript/cart.js}"></script>
+<div id="pageInfo" data-title="购物车"></div>
+{if:$this->count == 0}
+<!-- 无商品显示 -->
+<section class="no_tip">购物车中空空如也哦~</section>
+{else:}
+<!-- 优惠信息 -->
+<section class="cart_prompt" style="display:none" id="cart_prompt">
+	<h4>恭喜，您的订单已经满足了以下优惠活动！</h4>
+	<ol id="cart_prompt_box"></ol>
+</section>
+
+<!--促销模板-->
+<script type="text/html" id="promotionTemplate">
+	<li><%=item['plan']%>，<%=item['info']%></li>
+</script>
+
+<!-- 商品列表 -->
+<section class="cart_list">
+	<ul>
+		{foreach:items = $this->goodsList key=$goodsKey}
+		<script>var item{$goodsKey} = {echo:JSON::encode($item)};</script>
+		<li>
+			<div class="cart_list_goods">
+				<div class="cart_check_box">
+					<input id="check{$goodsKey}" type="checkbox" name="selectCartGoods[{$item['seller_id']}][]" value="{$item['goods_id']}_{$item['product_id']}" />
+					<label for="check{$goodsKey}"></label>
+				</div>
+				<div class="cart_list_photo" onclick="gourl('{url:/site/products/id/$item['goods_id']}')">
+					<img src="{url:/pic/thumb/img/$item[img]/w/80/h/80}" alt="{$item['name']}">
+				</div>
+				<div class="cart_list_info">
+					<h3 class="cart_list_info_title">{$item['name']}</h3>
+					<p class="cart_list_info_info">
+						{if:isset($item['spec_array'])} {set:$spec_array=goods_class::show_spec($item['spec_array']);}
+						{foreach:items=$spec_array item=$specValue key=$specName}
+						{$specName}：{$specValue}&nbsp;
+						{/foreach}
+						{/if}
+					</p>
+					<em class="cart_list_info_price">单价：￥{$item['sell_price']}</em>
+				</div>
+			</div>
+			<del class="del" onclick='javascript:removeCartByJSON(item{$goodsKey});'>删除</del>
+			<div class="goods_num_adjust">
+				<span onclick='cart_reduce(item{$goodsKey});'>-</span>
+				<input type='text' onchange='cartCount(item{$goodsKey});' id="count_{$item['goods_id']}_{$item['product_id']}" value="{$item['count']}">
+				<span onclick='cart_increase(item{$goodsKey});'>+</span>
+			</div>
+			<div class="count">小结：￥<span id="sum_{$item['goods_id']}_{$item['product_id']}">{$item['sum']}</span></div>
+		</li>
+		{/foreach}
+	</ul>
+</section>
+<!-- 统计信息 -->
+<section class="cart_count">
+	<h4>购物车统计</h4>
+	<table>
+		<tr>
+			<th>总重量</th>
+			<th>总金额</th>
+			<th>商品优惠</th>
+			<th>促销优惠</th>
+		</tr>
+		<tr>
+			<td><span id='weight'>{$this->weight}</span></td>
+			<td>￥<span id='origin_price'>{$this->sum}</span></td>
+			<td>￥<span id='discount_price'>{$this->reduce}</span></td>
+			<td>￥<span id='promotion_price'>{$this->proReduce}</span></td>
+		</tr>
+	</table>
+</section>
+
+<footer id="viewport_bottom">
+	<div class="cart_footer">
+		<div class="cart_checkall">
+			<input id="checkall" type="checkbox" name="_selectCartGoods" onchange="selectAll('selectCartGoods');" />
+			<label for="checkall"></label>
+		</div>
+		<div class="buy btn_pay" id="btn_pay" onclick="gourl('{url:/simple/cart2}')">
+			去结算
+		</div>
+		<div class="count">
+			<span>合计:</span>
+			<em>￥<i id='sum_price'>{$this->final_sum}</i></em>
+			<u>不含运费</u>
+		</div>
+	</div>
+</footer>
+{/if}
+<script>
+$(function(){
+	// 隐藏底部导航
+	hideNav();
+})
+</script>

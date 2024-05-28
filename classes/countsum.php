@@ -179,6 +179,7 @@ class CountSum
     	$this->freeFreight = [];//商家免运费,免运费的商家ID,自营ID为0
     	$this->tax         = 0; //商品税金
     	$this->seller      = [];//商家商品总额统计, 商家ID => 商品金额
+		$this->sellerPoint = [];//商家商品积分统计, 商家ID => 积分数量
     	$this->spend_point = 0; //商品所需积分
     	$this->takeself    = [];//自提点
 
@@ -293,6 +294,12 @@ class CountSum
     			}
     			$this->seller[$typeRow['seller_id']] += $typeRow['sum'];
 
+    			if(!isset($this->sellerPoint[$typeRow['seller_id']]))
+    			{
+    				$this->sellerPoint[$typeRow['seller_id']] = 0;
+    			}
+    			$this->sellerPoint[$typeRow['seller_id']] += $typeRow['point']  * $ac_buy_num;
+
     			//全局统计
 		    	$this->weight += $typeRow['weight'] * $ac_buy_num;
 		    	$this->point  += $typeRow['point']  * $ac_buy_num;
@@ -325,7 +332,7 @@ class CountSum
 	    		$goodsIdStr = join(',',$buyInfo['goods']['id']);
 	    		$goodsObj   = new IQuery('goods as go');
 	    		$goodsObj->where = 'go.id in ('.$goodsIdStr.') and go.is_del = 0';
-	    		$goodsObj->fields= 'go.name,go.cost_price,go.id as goods_id,go.img,go.sell_price,go.point,go.weight,go.store_nums,go.exp,go.goods_no,0 as product_id,go.seller_id,go.type';
+	    		$goodsObj->fields= 'go.min_buy_num,go.max_buy_num,go.name,go.cost_price,go.id as goods_id,go.img,go.sell_price,go.point,go.weight,go.store_nums,go.exp,go.goods_no,0 as product_id,go.seller_id,go.type';
 	    		$goodsList       = $goodsObj->find();
 
 	    		//开始优惠情况判断
@@ -392,6 +399,12 @@ class CountSum
 	    			}
 	    			$this->seller[$val['seller_id']] += $goodsList[$key]['sum'];
 
+					if(!isset($this->sellerPoint[$val['seller_id']]))
+					{
+						$this->sellerPoint[$val['seller_id']] = 0;
+					}
+					$this->sellerPoint[$val['seller_id']] += $val['point']  * $goodsList[$key]['count'];
+
 	    			//全局统计
 			    	$this->weight += $val['weight'] * $goodsList[$key]['count'];
 			    	$this->point  += $val['point']  * $goodsList[$key]['count'];
@@ -410,7 +423,7 @@ class CountSum
 	    		$productIdStr = join(',',$buyInfo['product']['id']);
 	    		$productObj   = new IQuery('products as pro,goods as go');
 	    		$productObj->where  = 'pro.id in ('.$productIdStr.') and go.id = pro.goods_id';
-	    		$productObj->fields = 'pro.sell_price,pro.cost_price,pro.weight,pro.id as product_id,pro.spec_array,pro.goods_id,pro.store_nums,pro.products_no as goods_no,go.name,go.point,go.exp,go.img,go.seller_id,go.type';
+	    		$productObj->fields = 'go.min_buy_num,go.max_buy_num,pro.sell_price,pro.cost_price,pro.weight,pro.id as product_id,pro.spec_array,pro.goods_id,pro.store_nums,pro.products_no as goods_no,go.name,go.point,go.exp,go.img,go.seller_id,go.type';
 	    		$productList  = $productObj->find();
 
 	    		//开始优惠情况判断
@@ -477,6 +490,12 @@ class CountSum
 	    			}
 	    			$this->seller[$val['seller_id']] += $productList[$key]['sum'];
 
+					if(!isset($this->sellerPoint[$val['seller_id']]))
+					{
+						$this->sellerPoint[$val['seller_id']] = 0;
+					}
+					$this->sellerPoint[$val['seller_id']] += $val['point']  * $productList[$key]['count'];
+
 	    			//全局统计
 			    	$this->weight += $val['weight'] * $productList[$key]['count'];
 			    	$this->point  += $val['point']  * $productList[$key]['count'];
@@ -494,7 +513,7 @@ class CountSum
 	    		//计算每个商家促销规则
 	    		foreach($this->seller as $seller_id => $sum)
 	    		{
-			    	$proObj = new ProRule($sum,$seller_id);
+			    	$proObj = new ProRule($sum,$seller_id,$this->sellerPoint[$seller_id]);
 			    	$proObj->setUserGroup($group_id);
 					$freeFreight = $proObj->isFreeFreight();
 			    	if($freeFreight)
@@ -798,7 +817,7 @@ class CountSum
 	 * @param array $orderList 订单数据关联
 	 * @return array(
 	 * 'orderAmountPrice' => 订单金额,'refundFee' => 退款金额, 'commissionFee' => 分销佣金金额, 'orgCountFee' => 原始结算金额,
-	 * 'countFee' => 实际结算金额, 'platformFee' => 平台促销活动金额(优惠券等平台补贴给商家),'commission' => 手续费 ,
+	 * 'countFee' => 实际结算金额, 'platformFee' => 平台促销活动金额(优惠券等平台补贴给商家),'commission' => 平台手续费 ,
 	 * 'orderNum' => 订单数量, 'order_ids' => 订单IDS,'orderNoList' => 订单编号,'deliveryFee' => 运费
 	 * ),
 	 */

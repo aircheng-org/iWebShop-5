@@ -256,6 +256,9 @@ function createProductList(specData,specValueData)
 	{
 		initProductTable();
 	}
+
+	//初始化上传按钮
+	initSpecImageUpload();
 }
 
 /**
@@ -321,7 +324,8 @@ $('[name="_goodsFile"]').fileupload({
 });
 
 //jquery规格图片上传更新
-jQuery(function(){
+function initSpecImageUpload()
+{
 	$('[name="spec-image"]').fileupload({
 		dataType: 'json',
 		done: function (e, data)
@@ -346,7 +350,8 @@ jQuery(function(){
 			}
 		}
 	});
-})
+}
+jQuery(function(){initSpecImageUpload()})
 
 /**
  * 会员价格

@@ -2,13 +2,13 @@
 <div class="bigweb">
 
 <section class="breadcrumb">
-	<span>您当前的位置：</span> <a href="{url:}">首页</a> » <a href="{url:/site/seller}">商家列表</a>
+	<span>{echo:ILang::get('您当前的位置')}：</span> <a href="{url:}">{echo:ILang::get('首页')}</a> » <a href="{url:/site/seller}">{echo:ILang::get('商家列表')}</a>
 </section>
 
 
 <section class="web">
 	<section class="main">
-		<h2 class="main_head">商家列表</h2>
+		<h2 class="main_head">{echo:ILang::get('商家列表')}</h2>
 		<section class="seller_list">
 			{set:$queryObj=Api::run('getSellerList');$resultData=$queryObj->find()}
 				{if:$resultData}
@@ -19,10 +19,10 @@
 							<h3>{$item['true_name']}</h3>
 							<img src="{url:$item['logo']}" style="width:100%" onerror="this.src='http://www.aircheng.com/images/public/default_logo.png'" />
 							<div class="star_box">
-								<strong class="item">评分：</strong>
+								<strong class="item">{echo:ILang::get('评分')}：</strong>
 								<span class="star stat_{echo:Common::gradeWidth(statistics::gradeSeller($item['id']))}"></span>
 							</div>
-							<span>销量：{echo:statistics::sellCountSeller($item['id'])} 件</span>
+							<span>{echo:ILang::get('销量')}：{echo:statistics::sellCountSeller($item['id'])}</span>
 							<address>{echo:join(' ',area::name($item['province'],$item['city'],$item['area']))}</address>
 						</a>
 					</li>
@@ -33,7 +33,7 @@
 				{$queryObj->getPageBar()}
 				{else:}
 				<p class="no_tip">
-					对不起，当前系统没有商家
+					{echo:ILang::get('对不起，当前系统没有商家')}
 				</p>
 				{/if}
 		</section>
@@ -41,7 +41,7 @@
 	<aside class="bar">
 
 		<nav class="bar_box">
-			<h3 class="bar_box_head">VIP商家</h3>
+			<h3 class="bar_box_head">{echo:ILang::get('VIP商家')}</h3>
 			<ul class="bar_nav">
 				{foreach:items=Api::run('getVipSellerList')}
 				<li><a href="{url:/site/home/id/$item['id']}">{$item['true_name']}</a></li>
@@ -49,7 +49,7 @@
 			</ul>
 		</nav>
 		<div class="bar_box">
-			<h3 class="bar_box_head">热卖商品</h3>
+			<h3 class="bar_box_head">{echo:ILang::get('热卖商品')}</h3>
 			<ul class="bar_goods">
 				{foreach:items=Api::run('getCommendHot',5)}
 				<li>

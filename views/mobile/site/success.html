@@ -1,0 +1,25 @@
+{set:$callback = plugin::trigger('getCallback')}
+<div id="pageInfo" data-title="操作成功！"></div>
+
+<section class="nothing">
+    <i class="fa fa-ok green"></i>
+    <p class="green">恭喜您,您已 {echo:IReq::get('message') ? IFilter::act(IReq::get('message'),'text') : '操作成功！'} 现在去?</p>
+    <div class="tips">
+    	{if:$callback}
+    	<a href="{url:$callback}">继续操作</a>
+    	{/if}
+        <a href="{url:/ucenter/index}">个人中心</a>
+        <a href="{url:/site/index}">网站首页</a>
+    </div>
+</section>
+
+<script>
+{if:$callback}
+$('#pageInfo').attr('data-goback','{url:$callback}');
+{/if}
+$(function(){
+    // 隐藏底部导航
+    hideNav();
+    $(".footer_login").hide();
+});
+</script>

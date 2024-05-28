@@ -1,0 +1,89 @@
+<div id="pageInfo" data-title="订单已提交" data-goback="{url:/ucenter/order}"></div>
+
+<section class="cart_3">
+    <ul class="aui-list">
+        <li class="aui-list-item aui-list-item-middle">
+            <div class="aui-list-item-inner">
+                <div class="aui-list-item-title">订单编号</div>
+                <div class="aui-list-item-right">{$this->order_num}</div>
+            </div>
+        </li>
+        <li class="aui-list-item aui-list-item-middle">
+            <div class="aui-list-item-inner">
+                <div class="aui-list-item-title">订单金额</div>
+                <div class="aui-list-item-right">￥{$this->final_sum}</div>
+            </div>
+        </li>
+        <li class="aui-list-item aui-list-item-middle">
+            <div class="aui-list-item-inner">
+                <div class="aui-list-item-title">支付方式</div>
+                <div class="aui-list-item-right">{$this->payment}</div>
+            </div>
+        </li>
+        <li class="aui-list-item aui-list-item-middle">
+            <div class="aui-list-item-inner">
+                <div class="aui-list-item-title">订单金额</div>
+                <div class="aui-list-item-right">￥{$this->final_sum}</div>
+            </div>
+        </li>
+
+        {if:$this->delivery}
+        <li class="aui-list-item aui-list-item-middle">
+            <div class="aui-list-item-inner">
+                <div class="aui-list-item-title">备货时间</div>
+                <div class="aui-list-item-right">{$this->stockup_time}天</div>
+            </div>
+        </li>
+        <li class="aui-list-item aui-list-item-middle">
+            <div class="aui-list-item-inner">
+                <div class="aui-list-item-title">配送方式</div>
+                <div class="aui-list-item-right">{$this->delivery}</div>
+            </div>
+        </li>
+        <li class="aui-list-item aui-list-item-middle">
+            <div class="aui-list-item-inner">
+                <div class="aui-list-item-title">收货时间</div>
+                <div class="aui-list-item-right">{$accept_time}</div>
+            </div>
+        </li>
+        {/if}
+
+        <li class="aui-list-item aui-list-item-middle">
+            <div class="aui-list-item-inner">
+                <div class="aui-list-item-title">联系人名</div>
+                <div class="aui-list-item-right">{$accept_name}</div>
+            </div>
+        </li>
+        <li class="aui-list-item aui-list-item-middle">
+            <div class="aui-list-item-inner">
+                <div class="aui-list-item-title">联系方式</div>
+                <div class="aui-list-item-right">{$mobile}</div>
+            </div>
+        </li>
+
+        {if:$this->tax_title}
+        <li class="aui-list-item aui-list-item-middle">
+            <div class="aui-list-item-inner">
+                <div class="aui-list-item-title">发票抬头</div>
+                <div class="aui-list-item-right">{$this->tax_title}</div>
+            </div>
+        </li>
+        {/if}
+    </ul>
+</section>
+{if:$this->deliveryType == 0 && $this->paymentType == 1}
+{set:$order_id=$this->order_id;}
+<footer id="viewport_bottom">
+	<div class="btn_bottom">
+	    <form action='{url:/block/doPay/order_id/$order_id}' method='post'>
+	        <input type="submit" value="立即支付" class="btn_submit pink" />
+	    </form>
+	</div>
+</footer>
+{/if}
+<script>
+$(function(){
+    // 隐藏底部导航
+    hideNav();
+})
+</script>

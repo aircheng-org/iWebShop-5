@@ -186,6 +186,13 @@ class IPaging
 			unset($params['page']);
 			unset($params['_msg']);
 
+			foreach($params as $k => $v)
+			{
+				$k = IFilter::act($k,'text');
+				$v = IFilter::act($v,'text');
+				$params[$k] = $v;
+			}
+
 			//再次构建url
 			$url = $parse['path'].'?'.http_build_query($params);
 		}

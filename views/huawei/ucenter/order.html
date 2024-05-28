@@ -1,12 +1,12 @@
 <header class="uc_head">
-	<h3>我的订单</h3>
+	<h3>{echo:ILang::get('我的订单')}</h3>
 </header>
 
 <section class="uc_table">
 	<table>
 		<thead>
 			<tr>
-				<th>订单编号</th><th>下单日期</th><th>收货人</th><th>支付方式</th><th>总金额</th><th>订单状态</th>
+				<th>{echo:ILang::get('订单编号')}</th><th>{echo:ILang::get('下单日期')}</th><th>{echo:ILang::get('收货人')}</th><th>{echo:ILang::get('支付方式')}</th><th>{echo:ILang::get('总金额')}</th><th>{echo:ILang::get('订单状态')}</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -29,7 +29,7 @@
 </section>
 
 {if:!$items}
-<section class="no_tip">暂无数据</section>
+<section class="no_tip">{echo:ILang::get('暂无数据')}</section>
 {/if}
 
 {$queryOrderList->getPageBar()}

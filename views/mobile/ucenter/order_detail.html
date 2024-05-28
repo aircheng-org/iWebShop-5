@@ -1,0 +1,405 @@
+{set:$item = $this->order_info;}
+<div id="pageInfo" data-title="订单详情" data-goback="{url:/ucenter/order}"></div>
+<section class="user_order_detail">
+		<ul class="aui-list">
+			<li class="aui-list-item aui-list-item-middle">
+				<div class="aui-list-item-inner">
+					<div class="aui-list-item-title">订单编号</div>
+					<div class="aui-list-item-right">{$item['order_no']}</div>
+				</div>
+			</li>
+			<li class="aui-list-item aui-list-item-middle">
+				<div class="aui-list-item-inner">
+					<div class="aui-list-item-title">下单日期</div>
+					<div class="aui-list-item-right">{$item['create_time']}</div>
+				</div>
+			</li>
+			<li class="aui-list-item aui-list-item-middle">
+				<div class="aui-list-item-inner">
+					<div class="aui-list-item-title">订单状态</div>
+					<div class="aui-list-item-right">{echo:Order_Class::orderStatusText(Order_Class::getOrderStatus($this->order_info))}</div>
+				</div>
+			</li>
+			<li class="aui-list-item aui-list-item-middle">
+				<div class="aui-list-item-inner">
+					<div class="aui-list-item-title">订单操作</div>
+					<div class="aui-list-item-right">
+						{if:order_class::isCancel($this->order_info)}
+						<input class="btn" type="button" value="取消订单" onclick='window.location.href="{url:/ucenter/order_status/order_id/$this->order_info['order_id']/op/cancel}"' />
+						{/if}
+
+						{if:order_class::isGoPay($this->order_info)}
+						<input class="btn" type="button" value="立即付款" onclick="art.dialog.open('{url:/block/pay/id/$this->order_info['order_id']/payment/$this->order_info['pay_type']}',{title:'选择支付方式',width:'100%',height:'100%'})" />
+						{/if}
+
+						{if:order_class::isConfirm($this->order_info)}
+						<input class="btn" type="button" value="确认收货" onclick='window.location.href="{url:/ucenter/order_status/order_id/$this->order_info['order_id']/op/confirm}"' />
+						{/if}
+
+						{if:order_class::isRefund($this->order_info)}
+						<input class="btn" type="button" value="申请售后" onclick='window.location.href="{url:/ucenter/refunds_edit/order_id/$this->order_info['order_id']}"' />
+						{/if}
+					</div>
+				</div>
+			</li>
+		</ul>
+		<ul class="aui-list">
+			<li class="aui-list-item aui-list-item-middle">
+				<div class="aui-list-item-inner">
+					<div class="aui-list-item-title">订单价格</div>
+					<div class="aui-list-item-right">
+						商品总金额：￥{$item['payable_amount']}
+
+						{if:$item['real_freight'] > 0}
+						<span class="red">+</span> 运费：￥{$item['real_freight']}
+						{/if}
+
+						{if:$item['taxes'] > 0}
+						<span class="red">+</span> 税金：￥{$item['taxes']}
+						{/if}
+						{if:$item['insured'] > 0}
+						<span class="red">+</span> 保价：￥{$item['insured']}
+						{/if}
+						{if:$item['discount'] > 0}
+						<span class="red">+</span> 订单涨价：￥{$item['discount']}
+						{/if}
+						{if:$item['discount'] < 0}
+						<span class="red">-</span> 订单折扣：￥{$item['discount']}
+						{/if}
+						{if:$item['promotions'] > 0}
+						<span class="red">-</span> 促销优惠金额：￥{$item['promotions']}
+						{/if}
+					</div>
+				</div>
+			</li>
+			<li class="aui-list-item aui-list-item-middle">
+				<div class="aui-list-item-inner">
+					<div class="aui-list-item-title">共需支付</div>
+					<div class="aui-list-item-right">￥{$item['order_amount']}</div>
+				</div>
+			</li>
+		</ul>
+
+        {if:$this->order_info['type'] == 'assemble' && $assemRow = Api::run('getAssembleCommanderByOrderNo',['order_no' => $this->order_info['order_no']])}
+        {set:$assemPer = $assemRow['member_nums']/$assemRow['limit_nums']*100}
+        <style type="text/css">
+        .progress-wrap {
+            margin:0 auto;
+            width:100%;
+            background: #eee;
+            height:15px;
+            border: solid 1px #bbb;
+            border-radius: 8px 8px;
+        }
+        .bar {
+            background: #ff410f;
+            height: 15px;
+            border-radius: 8px 8px;
+        }
+        </style>
+        <!--拼团活动-->
+		<ul class="aui-list">
+            <li class="tc">
+                <div class="progress-wrap">
+                    <div class="bar progress" style="width:{$assemPer}%;"></div>
+                </div>
+
+                {if:$assemRow['is_finish'] == 1}
+                恭喜您，拼团成功，欢迎下次参与
+                {elseif:$assemRow['is_pay'] == 1}
+                {$assemRow['limit_nums']}人成团，还差{echo:$assemRow['limit_nums']-$assemRow['member_nums']}人，
+
+                {set:$shareUrl=Active::assembleUrl($this->order_info['order_no'])}
+                <a href="{$shareUrl}" class="blue" target="_blank">立即邀请好友</a>
+
+                {set:$shareUrl=urlencode($shareUrl)}
+                <img src='{url:/pic/qrcode?data=$shareUrl}' width='100px' />
+                {else:}
+                付款后邀请更多好友加团
+                {/if}
+            </li>
+		</ul>
+        {/if}
+
+		{if:goods_class::isDelivery($this->order_info['goods_type'])}
+		<ul class="aui-list">
+			<li class="aui-list-item aui-list-item-middle">
+				<div class="aui-list-item-inner">
+					<div class="aui-list-item-title">收货人</div>
+					<div class="aui-list-item-right">{$item['accept_name']}</div>
+				</div>
+			</li>
+			<li class="aui-list-item aui-list-item-middle">
+				<div class="aui-list-item-inner">
+					<div class="aui-list-item-title">收货地址</div>
+					<div class="aui-list-item-right">
+					    {$this->order_info['province_str']} {$this->order_info['city_str']}
+						{$this->order_info['area_str']} {$this->order_info['address']}
+					</div>
+				</div>
+			</li>
+			<li class="aui-list-item aui-list-item-middle">
+				<div class="aui-list-item-inner">
+					<div class="aui-list-item-title">邮编</div>
+					<div class="aui-list-item-right">{$this->order_info['postcode']}</div>
+				</div>
+			</li>
+			<li class="aui-list-item aui-list-item-middle">
+				<div class="aui-list-item-inner">
+					<div class="aui-list-item-title">固定电话</div>
+					<div class="aui-list-item-right">{$item['telphone']}</div>
+				</div>
+			</li>
+			<li class="aui-list-item aui-list-item-middle">
+				<div class="aui-list-item-inner">
+					<div class="aui-list-item-title">手机号码</div>
+					<div class="aui-list-item-right">{$item['mobile']}</div>
+				</div>
+			</li>
+			{if:$this->order_info['distribution']}
+			<li class="aui-list-item aui-list-item-middle">
+				<div class="aui-list-item-inner">
+					<div class="aui-list-item-title">配送方式</div>
+					<div class="aui-list-item-right">{$this->order_info['delivery']}</div>
+				</div>
+			</li>
+			<li class="aui-list-item aui-list-item-middle">
+				<div class="aui-list-item-inner">
+					<div class="aui-list-item-title">运费</div>
+					<div class="aui-list-item-right">{$item['real_freight']}</div>
+				</div>
+			</li>
+			{/if}
+		</ul>
+		{elseif:$this->order_info['goods_type'] == 'code'}
+		<ul class="aui-list">
+			<li class="aui-list-item aui-list-item-middle">
+				<div class="aui-list-item-inner">
+					<div class="aui-list-item-title">消费验证码</div>
+					<div class="aui-list-item-right">
+					    {foreach:items=Api::run('getOrderCodeByOrderId',array('id' => $this->order_info['order_id'])) item=$codeRow}
+						<p>{$codeRow['code']} [{if:$codeRow['is_used']}已使用:{$codeRow['use_time']}{else:}未使用{/if}]</p>
+						{/foreach}
+						{if:!isset($codeRow)}付款后自动显示{/if}
+					</div>
+				</div>
+			</li>
+		</ul>
+		{elseif:$this->order_info['goods_type'] == 'download'}
+		<ul class="aui-list">
+			<li class="aui-list-item aui-list-item-middle">
+				<div class="aui-list-item-inner">
+					<div class="aui-list-item-title">文件下载</div>
+					<div class="aui-list-item-right">
+						{foreach:items=Api::run('getOrderDownloadByOrderId',array('id' => $this->order_info['order_id'])) item=$downloadRow}
+						<p>
+						    <a href="{url:/ucenter/download/id/$downloadRow['id']}" class="orange">点击下载</a>
+							[已下载：{$downloadRow['num']}/{$downloadRow['limit_num']}] 截至 {$downloadRow['end_time']} 过期
+						</p>
+						{/foreach}
+						{if:!isset($downloadRow)}付款后自动显示{/if}
+					</div>
+				</div>
+			</li>
+		</ul>
+    	{elseif:$this->order_info['goods_type'] == 'preorder'}
+    	<!--预订信息-->
+    	{foreach:items=Api::run('getOrderPreorderByOrderId',array('id' => $this->order_info['order_id'])) item=$preorderRow}
+		<ul class="aui-list">
+			<li class="aui-list-item aui-list-item-middle">
+				<div class="aui-list-item-inner">
+					<div class="aui-list-item-title">预订信息</div>
+					<div class="aui-list-item-right">{$preorderRow['start_date']}——{$preorderRow['end_date']}</div>
+				</div>
+			</li>
+		</ul>
+    	{/foreach}
+		{/if}
+
+		<ul class="aui-list">
+			{if:$this->order_info['takeself']}
+			<li class="aui-list-item aui-list-item-middle">
+				<div class="aui-list-item-inner">
+					<div class="aui-list-item-title">自提地址</div>
+					<div class="aui-list-item-right">
+						{$this->order_info['takeself']['province_str']}
+						{$this->order_info['takeself']['city_str']}
+						{$this->order_info['takeself']['area_str']}
+						{$this->order_info['takeself']['address']}
+					</div>
+				</div>
+			</li>
+			<li class="aui-list-item aui-list-item-middle">
+				<div class="aui-list-item-inner">
+					<div class="aui-list-item-title">自提联系</div>
+					<div class="aui-list-item-right">
+						座机：{$this->order_info['takeself']['phone']} &nbsp;&nbsp;
+						手机：{$this->order_info['takeself']['mobile']}
+					</div>
+				</div>
+			</li>
+			<li class="aui-list-item aui-list-item-middle">
+				<div class="aui-list-item-inner">
+					<div class="aui-list-item-title">自提码</div>
+					<div class="aui-list-item-right">
+					    {$this->order_info['checkcode']}
+					</div>
+				</div>
+			</li>
+			{else:}
+			<li class="aui-list-item aui-list-item-middle">
+				<div class="aui-list-item-inner">
+					<div class="aui-list-item-title">物流公司</div>
+					<div class="aui-list-item-right">
+						{$item['freight']['freight_name']}
+					</div>
+				</div>
+			</li>
+			<li class="aui-list-item aui-list-item-middle">
+				<div class="aui-list-item-inner">
+					<div class="aui-list-item-title">快递单号</div>
+					<div class="aui-list-item-right">
+						{$item['freight']['delivery_code']}
+					</div>
+				</div>
+			</li>
+			{/if}
+		</ul>
+		<ul class="aui-list">
+			<li class="aui-list-item aui-list-item-middle">
+				<div class="aui-list-item-inner">
+					<div class="aui-list-item-title">支付方式</div>
+					<div class="aui-list-item-right">
+						{$item['payment']}
+					</div>
+				</div>
+			</li>
+
+			{if:$this->order_info['paynote']}
+			<li class="aui-list-item aui-list-item-middle">
+				<div class="aui-list-item-inner">
+					<div class="aui-list-item-title">支付说明</div>
+					<div class="aui-list-item-right">
+						{$this->order_info['paynote']}
+					</div>
+				</div>
+			</li>
+			{/if}
+
+			{if:$item['invoice']==1}
+			<li class="aui-list-item aui-list-item-middle">
+				<div class="aui-list-item-inner">
+					<div class="aui-list-item-title">所需税金</div>
+					<div class="aui-list-item-right">
+						{$item['taxes']}
+					</div>
+				</div>
+			</li>
+			<li class="aui-list-item aui-list-item-middle">
+				<div class="aui-list-item-inner">
+					<div class="aui-list-item-title">发票抬头</div>
+					<div class="aui-list-item-right">
+						{echo:CountSum::invoiceText($item['invoice_info'])}
+					</div>
+				</div>
+			</li>
+			{/if}
+		</ul>
+
+	{set:$order_id=$item['id']}
+	{foreach:items=Api::run('getOrderGoodsListByGoodsid',array('#order_id#',$order_id)) item=$good} {set:$good_info = JSON::decode($good['goods_array'])}
+	<ul class="aui-list">
+		<li class="aui-list-item aui-list-item-middle">
+			<div class="aui-list-item-inner">
+				<div class="aui-list-item-title">商品图片</div>
+				<div class="aui-list-item-right">
+					<a href="{url:/site/products/id/$good['goods_id']}">
+						<img src="{url:/pic/thumb/img/$good['img']/w/140/h/140}">
+					</a>
+				</div>
+			</div>
+		</li>
+		{if:$good_info['value']!=''}
+		<li class="aui-list-item aui-list-item-middle">
+			<div class="aui-list-item-inner">
+				<div class="aui-list-item-title">商品规格</div>
+				<div class="aui-list-item-right">
+					{$good_info['value']}
+				</div>
+			</div>
+		</li>
+		{/if}
+		{if:$good['delivery_id']}
+		<li class="aui-list-item aui-list-item-middle">
+			<div class="aui-list-item-inner">
+				<div class="aui-list-item-title">物流信息</div>
+				<div class="aui-list-item-right">
+					<input type='button' class='btn' value='点击查询' onclick="freightLine({$good['delivery_id']});" />
+				</div>
+			</div>
+		</li>
+		{/if}
+		<li class="aui-list-item aui-list-item-middle">
+			<div class="aui-list-item-inner">
+				<div class="aui-list-item-title">商品单价</div>
+				<div class="aui-list-item-right">
+					￥{$good['real_price']}
+				</div>
+			</div>
+		</li>
+		<li class="aui-list-item aui-list-item-middle">
+			<div class="aui-list-item-inner">
+				<div class="aui-list-item-title">商品数量</div>
+				<div class="aui-list-item-right">
+					x {$good['goods_nums']}
+				</div>
+			</div>
+		</li>
+		<li class="aui-list-item aui-list-item-middle">
+			<div class="aui-list-item-inner">
+				<div class="aui-list-item-title">赠送积分</div>
+				<div class="aui-list-item-right">
+					{echo:$good['point']*$good['goods_nums']}
+				</div>
+			</div>
+		</li>
+		<li class="aui-list-item aui-list-item-middle">
+			<div class="aui-list-item-inner">
+				<div class="aui-list-item-title">优惠金额</div>
+				<div class="aui-list-item-right">
+					￥{echo:$good['goods_price']-$good['real_price']}
+				</div>
+			</div>
+		</li>
+		<li class="aui-list-item aui-list-item-middle">
+			<div class="aui-list-item-inner">
+				<div class="aui-list-item-title">商品状态</div>
+				<div class="aui-list-item-right">
+					{echo:Order_Class::goodsSendStatus($good)}
+				</div>
+			</div>
+		</li>
+	</ul>
+	{/foreach}
+</section>
+<script>
+$(function(){
+	hideNav()
+})
+//快递跟踪
+function freightLine(doc_id)
+{
+	var urlVal = "{url:/block/freight/id/@id@}";
+	urlVal = urlVal.replace("@id@", doc_id);
+	art.dialog.open(urlVal, {
+		'title': '轨迹查询'
+	});
+}
+
+//修改表单信息
+function editForm()
+{
+	$('#acceptShow').toggle();
+	$('#acceptForm').toggle();
+}
+</script>

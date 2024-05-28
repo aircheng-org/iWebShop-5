@@ -462,7 +462,7 @@ class sellerDecorate extends pluginBase
 	{
 	    $cat_id    = IFilter::act(IReq::get('id'),'int');//店内分类检索
 	    $word      = IFilter::act(IReq::get('word'),'text');//店内商品名称检索
-	    $seller_id = IFilter::act(IReq::get('seller_id'));//店内商品名称检索
+	    $seller_id = IFilter::act(IReq::get('seller_id'),'int');//店内商品名称检索
 
 	    if($cat_id)
 	    {

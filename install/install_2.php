@@ -40,7 +40,7 @@ $checkObj = new checkConfig();
 						<strong>PHP版本及环境设置</strong>
 						<?php //phpversion检查
 						$phpVersion_pass = $checkObj->c_phpVersion();?>
-						<p><img src="images/<?php echo $phpVersion_pass ? 'success' : 'failed';?>.gif" width="16" height="16" />PHP <?php echo $checkObj->getPHPVersion();?></p>
+						<p><img src="images/<?php echo $phpVersion_pass ? 'success' : 'failed';?>.gif" width="16" height="16" />PHP 5.5 —— 7.3</p>
 
 						<?php //phpini检查
 						$phpiniArray = $checkObj->c_phpIni();

@@ -125,7 +125,7 @@
 			<dl class="m_10 clearfix">
 				<dt>购买数量：</dt>
 				<dd>
-					<input class="gray_t f_l" type="text" id="buyNums" value="1" maxlength="5" />
+					<input class="gray_t f_l" type="text" id="buyNums" value="{$min_buy_num}" maxlength="5" />
 					<div class="resize">
 						<a class="add" id="buyAddButton" href="javascript:void(0);"></a>
 						<a class="reduce" id="buyReduceButton" href="javascript:void(0);"></a>
@@ -442,6 +442,10 @@
 $(function(){
 	//初始化商品详情对象
 	var productInstance = new productClass("{$id}","{$this->user['user_id']}","{$promo}","{$active_id}","{$type}");
+
+	//购买数量限制
+	$('#buyNums').attr("minNums",{$min_buy_num});
+	$('#buyNums').attr("maxNums",{$max_buy_num});
 
 	//初始化商品轮换图
 	$('#goodsPhotoList').bxSlider({

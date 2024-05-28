@@ -1,0 +1,25 @@
+<section class="content topic-box">
+	<!--专题内容-->
+	{$this->data['content']}
+
+	<!--专题商品-->
+	<ul>
+		{foreach:items=$this->goodsData}
+		<li>
+			<div class="topic-box-img">
+				<a href="{url:/site/products/id/$item['id']}" alt="{$item['name']}" title="{$item['name']}">
+					<img src="{url:/pic/thumb/img/$item['img']/w/110/h/110}" alt="{$item['name']}">
+				</a>
+			</div>
+
+			<div class="topic-box-title">
+				<a href="{url:/site/products/id/$item['id']}"  title="{$item['name']}">{$item['name']}</a>
+			</div>
+
+			<div class="topic-box-priceBox">
+				￥{$item['sell_price']}
+			</div>
+		</li>
+		{/foreach}
+	</ul>
+</section>

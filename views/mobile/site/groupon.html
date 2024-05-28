@@ -1,0 +1,46 @@
+<div id="pageInfo" data-title="团购"></div>
+
+<section class="group_list">
+	<ul>
+		{set:$countNumItems = array();}
+		{foreach:items=$this->regiment_list}
+		{set:$countNumItems[] = $item['id'];}
+		<li>
+			{if:$item['store_nums'] > $item['sum_count']}
+			<a class="buy" href="{url:/site/products/id/$item[goods_id]}">
+				{set:$free_time=strtotime($item['end_time'])-ITime::getNow();}
+				<div class="countdown">
+					<i class="fa fa-time"></i>
+					<em id="cd_hour_{$item['id']}">{echo:floor($free_time/3600);}</em><span>小时</span>
+					<em id="cd_minute_{$item['id']}">{echo:floor( ($free_time%3600)/60 );}</em><span>分钟</span>
+					<em id="cd_second_{$item['id']}">{echo:$free_time%60}</em><span>秒</span>
+				</div>
+				<div class="count">仅剩 <em>{echo:$item['store_nums']-$item['sum_count']}</em> 件</div>
+				<div class="max_count">每人限购 <em>{if:$item['limit_min_count']==$item['limit_max_count']}{$item['limit_min_count']}{else:}{$item['limit_min_count']} ~ {$item['limit_max_count']}{/if}件</em> 件</div>
+			{else:}
+			<a class="nobuy" href="{url:/site/products/id/$item['goods_id']}">
+			{/if}
+				<span class="key">{echo:$key+1}</span>
+				<h3 class="name"><strong>{$item['title']}</strong></h3>
+				<i class="photo"><img class="goods_photo" data-src="{url:/pic/thumb/img/$item[img]/w/400/h/400}" alt="{$item['title']}"></i>
+				<del class="old_price">￥{$item['sell_price']}</del>
+				<em class="price">￥{$item['regiment_price']}</em>
+				<span class="sale">{echo:Util::discount($item['sell_price'],$item['regiment_price'])}</span>
+			</a>
+		</li>
+		{/foreach}
+	</ul>
+</section>
+
+
+<script>
+$(function(){
+    // 隐藏底部导航
+    hideNav();
+    //倒计时
+	var cd_timer = new countdown();
+	{foreach:items = $countNumItems}
+		cd_timer.add({$item});
+	{/foreach}
+});
+</script>

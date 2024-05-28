@@ -21,7 +21,7 @@ return array(
 	'skinPath' => 'skin',
     'classes' => 'classes.*',
     'rewriteRule' =>'url',
-	'theme' => array('pc' => array('default' => 'default','sysdm' => 'default','sysiseller' => 'default'),'mobile' => array('mobile' => 'default','sysdm' => 'default','sysiseller' => 'default')),
+	'theme' => array('pc' => array('huawei' => 'default','sysdm' => 'default','sysiseller' => 'default'),'mobile' => array('mobile' => 'default','sysdm' => 'default','sysiseller' => 'default')),
 	'timezone'	=> 'Etc/GMT-8',
 	'upload' => 'upload',
 	'dbbackup' => 'backup/database',

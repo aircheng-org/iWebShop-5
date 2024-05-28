@@ -3,7 +3,7 @@
 <head>
 	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<title>{$item['name']}_商品清晰图</title>
+	<title>{$item['name']}</title>
 	<link type="image/x-icon" href="{webroot:favicon.ico}" rel="icon">
 	<link rel="stylesheet" href="{webroot:public/css/twitter-bootstrap/3.3.7/css/bootstrap.min.css}">
 	{js:jquery}
@@ -42,7 +42,7 @@
 
 <div class="goodsTitle red2">
 	<a href="{url:/site/products/id/$id}">{$item['name']}</a>
-	<span style="float:right"><a href="{url:/site/products/id/$id}">返回商品页面</a></span>
+	<span style="float:right"><a href="{url:/site/products/id/$id}">{echo:ILang::get('返回商品页面')}</a></span>
 </div>
 
 <ul class="pic_thumb">

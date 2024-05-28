@@ -3,7 +3,7 @@
 
 <div class="bigweb">
 	<section class="breadcrumb">
-		<span>您当前的位置：</span> <a href="{url:}">首页</a>
+		<span>{echo:ILang::get('您当前的位置')}：</span> <a href="{url:}">{echo:ILang::get('首页')}</a>
 		{foreach:items=$breadGuide} >
 		<a href='{url:/site/pro_list/cat/$item['id']}'>{$item['name']} </a>
 		{/foreach}
@@ -16,7 +16,7 @@
 			{set:$catSide = Api::run('catTree',$this->catId)}
 			{if:$catSide}
 			<nav class="bar_goods_nav">
-				<h3><div>分类:</div></h3>
+				<h3><div>{echo:ILang::get('分类')}:</div></h3>
 				<ul>
 					{foreach:items=$catSide item=$first}
 					<li><a href="{url:/site/pro_list/cat/$first[id]}">{$first['name']}</a></li>
@@ -50,7 +50,7 @@
 
 				{else:}
 				<p class="no_tip">
-					对不起，没有找到相关商品
+					{echo:ILang::get('对不起，没有找到相关商品')}
 				</p>
 				{/if}
 			</section>

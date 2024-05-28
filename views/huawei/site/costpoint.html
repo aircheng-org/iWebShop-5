@@ -1,7 +1,7 @@
 <div class="bigweb">
 	<section class="breadcrumb">
-		<span>您当前的位置：</span> 
-		<a href="{url:}"> 首页</a> » 积分兑换
+		<span>{echo:ILang::get('您当前的位置')}：</span>
+		<a href="{url:}"> {echo:ILang::get('首页')}</a> » {echo:ILang::get('积分兑换')}
 	</section>
 	<section class="web">
 		<section class="prolist_main">
@@ -14,7 +14,7 @@
 						<a target="_blank" href="{url:/site/products/id/$item['goods_id']}">
 							<img alt="{$item['name']}" src="{url:/pic/thumb/img/$item[img]/w/180/h/180}">
 							<p class="goods_title"><span>{$item['name']}</span></p>
-							<p class="goods_sell_price">{$item['point']}积分</p>
+							<p class="goods_sell_price">{$item['point']}{echo:ILang::get('积分')}</p>
 							<p class="goods_market_price">￥{$item['sell_price']}</p>
 						</a>
 					</li>
@@ -24,11 +24,11 @@
 
 				{else:}
 				<p class="no_tip">
-					对不起，没有找到相关商品
+					{echo:ILang::get('对不起，没有找到相关商品')}
 				</p>
 				{/if}
 			</section>
 			<!-- 商品列表 -->
 		</section>
 	</section>
-</div>	
+</div>

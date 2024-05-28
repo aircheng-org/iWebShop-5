@@ -1,0 +1,105 @@
+{js:fileUpload}
+<div id="pageInfo" data-title="评论商品"></div>
+<form method="post" action="{url:/site/comment_add}">
+<input type="hidden" name="id" value="{$this->comment['id']}" />
+<!-- 评价商品 -->
+<section class="comment_goods">
+	<h3>{$this->goods['name']}</h3>
+	<div class="point_star">
+		<strong>商品评级：</strong>
+		<label>
+			<i class="fa fa-star on"></i>
+			<i class="fa fa-star on"></i>
+			<i class="fa fa-star on"></i>
+			<i class="fa fa-star on"></i>
+			<i class="fa fa-star on"></i>
+		</label>
+		<input type="hidden" name="point" value="5">
+	</div>
+	<div class="input_li">
+		<strong class="input_item">我的评价</strong>
+		<textarea name="contents" id="contents" class="input_textarea"></textarea>
+	</div>
+
+	<div class="input_li">
+        <strong class="input_item">上传图片：</strong>
+        <input type='hidden' name="_imgList" value="" />
+        <input id="fileUpload" class="input_file" type="file" accept="image/*" name="_goodsFile" data-url="{url:/ucenter/comment_img_upload}" />
+
+        <div id="thumbnails" class="input_li"></div>
+
+        <!--图片模板-->
+        <script type='text/html' id='picTemplate'>
+        <div class="pic" style='float:left;'>
+            <img class="img-thumbnail" style="width:50px;height:50px;border:1px solid #ccc;margin-right:6px;" src="<%=webroot(picRoot)%>" alt="<%=picRoot%>" />
+            <p style="text-align:center;">
+                <a href='javascript:;' onclick="$(this).parents('.pic').remove();">删除</a>
+            </p>
+        </div>
+        </script>
+    </div>
+</section>
+<input id="goSubmit" type="submit" class="none">
+<footer id="viewport_bottom">
+	<div class="btn_bottom">
+		<label class="btn_submit" for="goSubmit">提交评价</label>
+	</div>
+</footer>
+</form>
+<script>
+$(function(){
+	// 隐藏底部导航
+	hideNav();
+	// 切换星星
+	$(".point_star").on('click', 'i', function(){
+		var t = $(this),i = t.index()+1;
+		$("input[name='point']").val(i);
+		$(".point_star i").each(function(index){
+			if (index<i) {
+				$(this).addClass('on');
+			}else{
+				$(this).removeClass('on');
+			}
+		});
+	});
+})
+
+//jquery图片上传
+$('[name="_goodsFile"]').fileupload({
+    dataType: 'json',
+    done: function (e, data)
+    {
+    	if(data.result && data.result.flag == 1)
+    	{
+    	    var picJson = data.result;
+        	var picHtml = template.render('picTemplate',{'picRoot':picJson.img});
+        	$('#thumbnails').append(picHtml);
+    	}
+    	else
+    	{
+    		alert(data.result.error);
+    	}
+    },
+    add:function(e, data)
+    {
+        if($('#thumbnails .img-thumbnail').length >= 5)
+        {
+             alert("最多上传5张图片");
+             return false;
+        }
+        data.submit();
+    }
+});
+
+//合并图片地址信息
+$("form").submit(function()
+{
+    var goodsPhoto = [];
+    $('#thumbnails .img-thumbnail').each(function(){
+        goodsPhoto.push(this.alt);
+    });
+
+    $('input[name="_imgList"]').val(goodsPhoto.join(','));
+    return true;
+});
+</script>

@@ -1,0 +1,28 @@
+<div id="pageInfo" data-title="我的积分"></div>
+
+<section class="integral_list">
+    {set:$queryPointLog = Api::run('getUcenterPointLog')}
+    {foreach:items = $queryPointLog->find()}
+    <dl>
+        <dt>
+            <time>{echo:substr($item['datetime'],0,10)}</time>
+            <strong>积分：</strong><em>{$item['value']}分</em>
+        </dt>
+        <dd>
+            <strong>说明：</strong>{$item['intro']}
+        </dd>
+    </dl>
+    {/foreach}
+</section>
+{$queryPointLog->getPageBar()}
+
+{if:!$items}
+<section class="no_tip">暂无记录</section>
+{/if}
+
+<script>
+$(function(){
+    // 隐藏底部导航
+    hideNav();
+})
+</script>

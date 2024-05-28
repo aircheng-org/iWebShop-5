@@ -4,7 +4,7 @@
 {set:$breadGuide = goods_class::catRecursion($category);}
 <div class="bigweb">
 	<section class="breadcrumb">
-		<span>您当前的位置：</span> <a href="{url:}">首页</a> >
+		<span>{echo:ILang::get('您当前的位置')}：</span> <a href="{url:}">{echo:ILang::get('首页')}</a> >
 		{foreach:items=$breadGuide}
 		<a href='{url:/site/pro_list/cat/$item['id']}'>{$item['name']}</a> >
 		{/foreach}
@@ -30,11 +30,11 @@
 		<!--图片放大镜-->
 		<section class="goods_info">
 			<h1 class="goods_info_title">{$name}</h1>
-			<div class="goods_info_num">商品编号：<span id="data_goodsNo">{echo:$goods_no?$goods_no:$id}</span></div>
+			<div class="goods_info_num">{echo:ILang::get('商品编号')}：<span id="data_goodsNo">{echo:$goods_no?$goods_no:$id}</span></div>
 			<!--基本信息区域-->
 			<ul class="goods_ul">
 				<li>
-					{if:isset($brand)}品牌：{$brand}{/if}
+					{if:isset($brand)}{echo:ILang::get('品牌')}：{$brand}{/if}
 				</li>
 
 				<!--活动页面-->
@@ -45,45 +45,44 @@
 				<!--普通正常-->
 				{if:$promo == ''}
 					{if:$group_price}
-					<li>会员价：<em class="price">￥<span id="data_groupPrice">{$group_price}</span></em></li>
-					<li>原售价：￥<del id="data_sellPrice">{$sell_price}</del></li>
+					<li>{echo:ILang::get('会员价')}：<em class="price">￥<span id="data_groupPrice">{$group_price}</span></em></li>
+					<li>{echo:ILang::get('原售价')}：￥<del id="data_sellPrice">{$sell_price}</del></li>
 					{else:}
-					<li>销售价：<em class="price">￥<span id="data_sellPrice">{$sell_price}</span></em></li>
+					<li>{echo:ILang::get('销售价')}：<em class="price">￥<span id="data_sellPrice">{$sell_price}</span></em></li>
 					{/if}
 				{/if}
 
-				<li>市场价：￥<del id="data_marketPrice">{$market_price}</del></li>
+				<li>{echo:ILang::get('市场价')}：￥<del id="data_marketPrice">{$market_price}</del></li>
 
 				<li>
-					库存：现货 <span id="data_storeNums">{$store_nums} </span>
+					{echo:ILang::get('库存')}：{echo:ILang::get('现货')} <span id="data_storeNums">{$store_nums} </span>
 					<span class="favorite" onclick="favorite_add_ajax({$id},this);">
 						<i class="fa fa-heart"></i>
-						收藏此商品
+						{echo:ILang::get('收藏此商品')}
 					</span>
 				</li>
     			<li>
-    			    销量：{$sale}
+    			    {echo:ILang::get('销量')}：{$sale}
     			</li>
 				<li>
 					<div class="star_box">
-						<strong class="item">顾客评分：</strong>
+						<strong class="item">{echo:ILang::get('顾客评分')}：</strong>
 						<span class="star star_{echo:Common::gradeWidth($grade,$comments)}"></span>
-						<u>(已有{$comments}人评价)</u>
+						<u>({$comments} {echo:ILang::get('评价')})</u>
 					</div>
 				</li>
 
 				{if:$point > 0}
-				<li>送积分：单件送{$point}分</li>
+				<li>{echo:ILang::get('送积分')}：{$point}积分</li>
 				{/if}
 
                 {if:goods_class::isDelivery($type)}
 				<li>
-					至
-					<a class="sel_area blue" href="javascript:;" name="localArea">当前地区</a>：
+					<a class="sel_area blue" href="javascript:;" name="localArea">{echo:ILang::get('当前地区')}</a>：
 					<span id="deliveInfo"></span>
 					<div class="area_box">
 						<ul>
-							<li><a data-code="1" href="#J_PostageTableCont"><strong>全部</strong></a></li>
+							<li><a data-code="1" href="#J_PostageTableCont"><strong>{echo:ILang::get('全部')}</strong></a></li>
 							{foreach:items=Api::run('getAreasListTop')}
 							<li><a href="javascript:void(0);" name="areaSelectButton" value="{$item['area_id']}">{$item['area_name']}</a></li>
 							{/foreach}
@@ -94,9 +93,9 @@
 
 				<!--商家信息 开始-->
 				{if:isset($seller)}
-				<li>商家：<a class="orange" href="{url:/site/home/id/$seller_id}">{$seller['true_name']}</a></li>
-				<li>联系电话：{$seller['phone']}</li>
-				<li>所在地：{echo:join(' ',area::name($seller['province'],$seller['city'],$seller['area']))}</li>
+				<li>{echo:ILang::get('商家')}：<a class="orange" href="{url:/site/home/id/$seller_id}">{$seller['true_name']}</a></li>
+				<li>{echo:ILang::get('联系电话')}：{$seller['phone']}</li>
+				<li>{echo:ILang::get('所在地')}：{echo:join(' ',area::name($seller['province'],$seller['city'],$seller['area']))}</li>
 				<li>{set:plugin::trigger("onServiceButton",$seller['id'])}</li>
 				{/if}
 				<!--商家信息 结束-->
@@ -104,7 +103,7 @@
 			<!--购买区域-->
 			<div class="good_info_buy">
 			{if:$store_nums <= 0}
-				该商品已售完，不能购买，您可以看看其它商品！(<a href="{url:/simple/arrival/goods_id/$id}" class="orange">到货通知</a>)
+				{echo:ILang::get('该商品已售完')}(<a href="{url:/simple/arrival/goods_id/$id}" class="orange">{echo:ILang::get('到货通知')}</a>)
 			{else:}
 				{if:$spec_array}
 				<!--商品规格选择 开始-->
@@ -138,7 +137,7 @@
 				{/if}
 
 				<dl>
-					<dt>购买数量：</dt>
+					<dt>{echo:ILang::get('购买数量')}：</dt>
 					<dd>
 						<div class="goods_resize">
 							<span class="reduce" id="buyReduceButton">─</span>
@@ -150,11 +149,11 @@
 
 				<div class="btn_submit_buy" id="buyNowButton">
 					<i class="fa fa-shopping-cart"></i>
-					<span>立即购买</span>
+					<span>{echo:ILang::get('立即购买')}</span>
 				</div>
 				<div class="btn_add_cart" id="joinCarButton">
 					<i class="fa fa-cart-plus"></i>
-					<span>加入购物车</span>
+					<span>{echo:ILang::get('加入购物车')}</span>
 				</div>
 			{/if}
 			</div>
@@ -166,33 +165,33 @@
 		<section class="products_main">
 			<!-- 详情目录 -->
 			<div class="goods_tab" name="showButton">
-				<label class="current">商品详情</label>
-				<label>顾客评价({$comments})</label>
-				<label>购买记录</label>
-				<label>购买前咨询</label>
-				<label>网友讨论圈</label>
+				<label class="current">{echo:ILang::get('商品详情')}</label>
+				<label>{echo:ILang::get('顾客评价')}({$comments})</label>
+				<label>{echo:ILang::get('购买记录')}</label>
+				<label>{echo:ILang::get('购买前咨询')}</label>
+				<label>{echo:ILang::get('网友讨论圈')}</label>
 			</div>
 			<!-- 详情目录 -->
 			<div class="goods_con" name="showBox">
 				<!-- 商品详情 start -->
 				<div>
 					<ul class="goods_infos">
-						<li>商品名称：{$name}</li>
+						<li>{echo:ILang::get('商品名称')}：{$name}</li>
 
 						{if:isset($brand) && $brand}
-						<li>品牌：{$brand}</li>
+						<li>{echo:ILang::get('品牌')}：{$brand}</li>
 						{/if}
 
 						{if:isset($weight) && $weight}
-						<li>商品毛重：<label id="data_weight">{$weight}</label></li>
+						<li>{echo:ILang::get('商品毛重')}：<label id="data_weight">{$weight}</label></li>
 						{/if}
 
 						{if:isset($unit) && $unit}
-						<li>单位：{$unit}</li>
+						<li>{echo:ILang::get('单位')}：{$unit}</li>
 						{/if}
 
 						{if:isset($up_time) && $up_time}
-						<li>上架时间：{$up_time}</li>
+						<li>{echo:ILang::get('上架时间')}：{$up_time}</li>
 						{/if}
 
 						{if:($attribute)}
@@ -203,7 +202,7 @@
 					</ul>
 					{if:isset($content) && $content}
 					<article class="article_content">
-						<h3>产品描述：</h3>
+						<h3>{echo:ILang::get('产品描述')}：</h3>
 						{$content}
 					</article>
 					{/if}
@@ -223,7 +222,7 @@
 						<div class="desc">
 							<time><%=comment_time%></time>
 							<div class="star_box">
-								<strong class="item">评分：</strong>
+								<strong class="item">{echo:ILang::get('评分')}：</strong>
 								<span class="star star_<%=point%>"></span>
 							</div>
 
@@ -236,9 +235,9 @@
     						</p>
     						<%}%>
 
-							<p class="contents"><strong>评价：</strong><span><%=contents%></span></p>
+							<p class="contents"><strong>{echo:ILang::get('评价')}：</strong><span><%=contents%></span></p>
 							<%if(recontents){%>
-							<p class="recontents"><strong>回复：</strong><span><%=recontents%></span></p>
+							<p class="recontents"><strong>{echo:ILang::get('回复')}：</strong><span><%=recontents%></span></p>
 							<%}%>
 						</div>
 					</div>
@@ -251,11 +250,11 @@
 					<table>
 						<thead>
 							<tr>
-								<th>购买人</th>
-								<th>出价</th>
-								<th>数量</th>
-								<th>购买时间</th>
-								<th>状态</th>
+								<th>{echo:ILang::get('购买人')}</th>
+								<th>{echo:ILang::get('出价')}</th>
+								<th>{echo:ILang::get('数量')}</th>
+								<th>{echo:ILang::get('购买时间')}</th>
+								<th>{echo:ILang::get('状态')}</th>
 							</tr>
 						</thead>
 						<tbody class="dashed" id="historyBox"></tbody>
@@ -263,11 +262,11 @@
 					<!--购买历史js模板-->
 					<script type='text/html' id='historyRowTemplate'>
 					<tr>
-						<td><strong><%=username?username:'游客'%></strong></td>
+						<td><strong><%=username?username:'{echo:ILang::get('游客')}'%></strong></td>
 						<td><em><%=goods_price%></em></td>
 						<td><u><%=goods_nums%></u></td>
 						<td><time><%=completion_time%></time></td>
-						<td><span>成交</span></td>
+						<td><span>{echo:ILang::get('成交')}</span></td>
 					</tr>
 					</script>
 				</div>
@@ -275,7 +274,7 @@
 
 				<!-- 购买前咨询 start -->
 				<div class="none ask_list ">
-					<a class="ask_btn" href="{url:/site/consult/id/$id}">我要咨询</a>
+					<a class="ask_btn" href="{url:/site/consult/id/$id}">{echo:ILang::get('我要咨询')}</a>
 					<div id='referBox'></div>
 					<!--购买咨询JS模板-->
 					<script type='text/html' id='referRowTemplate'>
@@ -287,7 +286,7 @@
 						<div class="desc">
 							<header>
 								<i class="fa fa-comment-alt"></i>
-								<strong>咨询内容：</strong>
+								<strong>{echo:ILang::get('咨询内容')}：</strong>
 								<time><%=time%></time>
 							</header>
 							<section><%=question%></section>
@@ -295,7 +294,7 @@
 							<div class="answer">
 								<header>
 									<i class="fa fa-comments-alt"></i>
-									<strong>商家回复：</strong>
+									<strong>{echo:ILang::get('商家回复')}：</strong>
 									<time><%=reply_time%></time>
 								</header>
 								<section><%=answer%></section>
@@ -309,7 +308,7 @@
 
 				<!-- 网友讨论圈 start -->
 				<div class="none discussion_list">
-					<a class="ask_btn" name="discussButton">发表话题</a>
+					<a class="ask_btn" name="discussButton">{echo:ILang::get('发表话题')}</a>
 					<div id='discussBox'></div>
 					<!--讨论JS模板-->
 					<script type='text/html' id='discussRowTemplate'>
@@ -321,19 +320,19 @@
 					</script>
 					<section class="discuss_form none" id="discussTable">
 						<dl>
-							<dt>讨论内容：</dt>
+							<dt>{echo:ILang::get('讨论内容')}：</dt>
 							<dd><textarea class="input_textarea" id="discussContent" pattern="required" alt="请填写内容"></textarea></dd>
 						</dl>
 						<dl>
-							<dt>验证码：</dt>
+							<dt>{echo:ILang::get('验证码')}：</dt>
 							<dd>
-								<input type='text' class='input_text w100' name='captcha' pattern='^\w{5}$' alt='填写下面图片所示的字符' />
+								<input type='text' class='input_text w100' name='captcha' pattern='^\w{5}$' />
 								<img src='{url:/site/getCaptcha}' id='captchaImg' onclick="changeCaptcha()" />
 							</dd>
 						</dl>
 						<dl>
 							<dt></dt>
-							<dd><input class="input_submit" type="submit" name="sendDiscussButton" value="发表" /></dd>
+							<dd><input class="input_submit" type="submit" name="sendDiscussButton" value="{echo:ILang::get('发表')}" /></dd>
 						</dl>
 					</section>
 				</div>
@@ -345,7 +344,7 @@
 		<aside class="products_bar">
 			{if:Api::run('getProrule',$seller_id)}
 			<nav class="products_bar_box">
-				<h3 class="products_bar_box_head">促销活动</h3>
+				<h3 class="products_bar_box_head">{echo:ILang::get('促销活动')}</h3>
 				<ul class="products_bar_sales">
 					{foreach:items=Api::run('getProrule',$seller_id)}
 					<li>{$item['info']}</li>
@@ -354,7 +353,7 @@
 			</nav>
 			{/if}
 			<div class="products_bar_box">
-				<h3 class="products_bar_box_head">热卖排行</h3>
+				<h3 class="products_bar_box_head">{echo:ILang::get('热卖排行')}</h3>
 				<ul class="products_bar_hot">
 					{foreach:items=Api::run('getCommendHot', 8)}
 					<li>

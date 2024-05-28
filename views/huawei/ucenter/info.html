@@ -1,13 +1,13 @@
 {js:areaSelect}
 {js:my97date}
 <header class="uc_head">
-	<h3>个人资料</h3>
+	<h3>{echo:ILang::get('个人资料')}</h3>
 </header>
 
 <section class="user_form">
 	<form action='{url:/ucenter/info_edit_act}' method='post' name='user_info'>
 		<dl>
-			<dt>头像：</dt>
+			<dt>{echo:ILang::get('头像')}：</dt>
 			<dd>
 				<div class="user_ico">
 					<img id="user_ico_img" onclick="$('#userIcoFile').trigger('click');" src="{url:$userData['head_ico']}" onerror="this.src='{skin:image/user_ico.gif}'">
@@ -15,28 +15,28 @@
 			</dd>
 		</dl>
 		<dl>
-			<dt>会员组：</dt>
+			<dt>{echo:ILang::get('会员组')}：</dt>
 			<dd>{$userData['group_name']}</dd>
 		</dl>
 		<dl>
-			<dt>姓名：</dt>
+			<dt>{echo:ILang::get('姓名')}：</dt>
 			<dd><input class="input_text" type="text" name="true_name" alt='请填写真实姓名' /></dd>
 		</dl>
 		<dl>
-			<dt>性别：</dt>
+			<dt>{echo:ILang::get('性别')}：</dt>
 			<dd>
-				<label><input type='radio' name='sex' value='1' />男</label>
-				<label><input type='radio' name='sex' value='2' checked=checked />女</label>
+				<label><input type='radio' name='sex' value='1' />{echo:ILang::get('男')}</label>
+				<label><input type='radio' name='sex' value='2' checked=checked />{echo:ILang::get('女')}</label>
 			</dd>
 		</dl>
 		<dl>
-			<dt>出生日期：</dt>
+			<dt>{echo:ILang::get('出生日期')}：</dt>
 			<dd>
 				<input type="text" name="birthday" class="input_text Wdate" pattern='date' empty onFocus="WdatePicker()" />
 			</dd>
 		</dl>
 		<dl>
-			<dt>所在地区：</dt>
+			<dt>{echo:ILang::get('所在地区')}：</dt>
 			<dd>
 				<select class="input_select" name="province" child="city,area"></select>
 				<select class="input_select" name="city" child="area"></select>
@@ -44,34 +44,34 @@
 			</dd>
 		</dl>
 		<dl>
-			<dt>联系地址：</dt>
+			<dt>{echo:ILang::get('联系地址')}：</dt>
 			<dd><input type='text' class='input_text' name='contact_addr' alt='请填写联系地址' /></dd>
 		</dl>
 		<dl>
-			<dt>手机号码：</dt>
+			<dt>{echo:ILang::get('手机号码')}：</dt>
 			<dd><input class="input_text" type="text" name='mobile' pattern='mobi' empty alt='请填写正确的手机号码' /></dd>
 		</dl>
 		<dl>
-			<dt>邮箱：</dt>
+			<dt>{echo:ILang::get('邮箱')}：</dt>
 			<dd>
 				<input type='text' class='input_text' name='email' pattern='email' empty alt='请填写正确的邮箱地址' />
 			</dd>
 		</dl>
 		<dl>
-			<dt>邮编：</dt>
+			<dt>{echo:ILang::get('邮编')}：</dt>
 			<dd><input type='text' class='input_text' name='zip' pattern='zip' empty alt='请填写正确的邮政编码' /></dd>
 		</dl>
 		<dl>
-			<dt>固定电话：</dt>
+			<dt>{echo:ILang::get('固定电话')}：</dt>
 			<dd><input class="input_text" type="text" name='telephone' pattern='phone' empty alt='请填写正确的固定电话' /></dd>
 		</dl>
 		<dl>
-			<dt>QQ：</dt>
+			<dt>{echo:ILang::get('QQ')}：</dt>
 			<dd><input class="input_text" type="text" name='qq' pattern='qq' empty alt='请填写正确的QQ号' /></dd>
 		</dl>
 		<dl>
 			<dt></dt>
-			<dd><input class="input_submit" type="submit" value="保存修改" /></dd>
+			<dd><input class="input_submit" type="submit" value="{echo:ILang::get('保存修改')}" /></dd>
 		</dl>
 	</form>
 </section>

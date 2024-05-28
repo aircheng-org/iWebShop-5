@@ -179,15 +179,17 @@
 							<table class="table">
 								<thead>
 									<tr>
-										<td>购买成功增加积分</td><td>排序</td><td>计件单位显示</td><td>购买成功增加经验值</td>
+										<td>购买成功增加积分</td><td>排序</td><td>计件单位显示</td><td>购买成功增加经验值</td><td>最小购买数量</td><td>最大购买数量</td>
 									</tr>
 								</thead>
 								<tbody>
 									<tr>
-										<td><input class="form-control" name="point" type="text" pattern="int" value="0"/></td>
-										<td><input class="form-control" name="sort" type="text" pattern="int" value="99"/></td>
+										<td><input class="form-control" name="point" type="number" pattern="int" value="0"/></td>
+										<td><input class="form-control" name="sort" type="number" pattern="int" value="99"/></td>
 										<td><input class="form-control" name="unit" type="text" value="件"/></td>
-										<td><input class="form-control" name="exp" type="text" pattern="int" value="0"/></td>
+										<td><input class="form-control" name="exp" type="number" pattern="int" value="0"/></td>
+										<td><input class="form-control" name="min_buy_num" type="number" pattern="int" value="1"/></td>
+										<td><input class="form-control" name="max_buy_num" type="number" pattern="int" value="99"/></td>
 									</tr>
 								</tbody>
 							</table>

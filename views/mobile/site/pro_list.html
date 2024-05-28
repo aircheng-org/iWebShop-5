@@ -1,0 +1,40 @@
+{set:$breadGuide = goods_class::catRecursion($this->catId)}
+{set:$goodsObj = search_goods::find(array('category_extend' => $this->childId),20);$resultData = $goodsObj->find()}
+<div id="pageInfo" data-title="{$this->catRow['name']}"></div>
+
+{if:$resultData}
+<aside class="goods_sort">
+	{foreach:items=search_goods::getOrderType()}
+	<a class="sort_btn" href='javascript:searchObj.link({"order":"{$key}"});' id="filter-order{$key}">{$item} <i class="fa fa-angle-down" id="filter-by{$key}"></i></a>
+	{/foreach}
+</aside>
+<section class="goods_list">
+	<ul>
+		{foreach:items=$resultData}
+		<li>
+			<a href="{url:/site/products/id/$item['id']}">
+				<i class="photo"><img class="goods_photo" data-src="{url:/pic/thumb/img/$item[img]/w/200/h/200}" alt="{$item['name']}"></i>
+				<h3 class="name"><strong>{$item['name']}</strong></h3>
+				<del class="old_price">￥{$item['market_price']}</del>
+				<em class="price">￥{$item['sell_price']}</em>
+			</a>
+		</li>
+		{/foreach}
+	</ul>
+</section>
+{$goodsObj->getPageBar()}
+{else:}
+<section class="no_tip">商品进货中，请稍后关注上架情况</section>
+{/if}
+
+<script>
+$(function(){
+	// 隐藏底部导航
+	hideNav();
+});
+</script>
+
+<script type='text/javascript' src='{webroot:public/javascript/searchFilter.js}'></script>
+<script type='text/javascript'>
+var searchObj = new searchFilter({"lightClassName":"on","descClassName":"fa-angle-down","ascClassName":"fa-angle-up"});
+</script>

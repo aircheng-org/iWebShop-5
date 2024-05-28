@@ -333,7 +333,27 @@ class Market extends IController implements adminAuthorization
 		{
 			$promotionObj = new IModel('promotion');
 			$data = $promotionObj->getObj($id);
-			$data['award_value'] = str_replace(',',';',$data['award_value']);
+
+			//礼品模式
+			if($data['award_type'] == 5)
+			{
+				$goodsList  = [];
+				$awardArray = JSON::decode($data['award_value']);
+				if($awardArray && is_array($awardArray))
+				{
+					$goodsDB = new IModel('goods');
+					foreach($awardArray as $goodsId => $goodsNum)
+					{
+						$goodsRow = $goodsDB->getObj($goodsId,'name,sell_price,img');
+						$goodsList[] = ["id" => $goodsId,"num" => $goodsNum,"name" => $goodsRow['name'],"img" => $goodsRow['img'],"sell_price" => $goodsRow['sell_price']];
+					}
+				}
+				$this->goodsList = $goodsList;
+			}
+			else
+			{
+				$data['award_value'] = str_replace(',',';',$data['award_value']);
+			}
 			$this->promotionRow  = $data;
 		}
 		$this->redirect('pro_rule_edit');
@@ -362,6 +382,14 @@ class Market extends IController implements adminAuthorization
 			'award_value'=> $award_value,
 		);
 
+		//如果是礼品模式要拼接json格式
+		if($dataArray['award_type'] == 5)
+		{
+			$gift_id = IFilter::act(IReq::get('gift_id'),'int');
+			$gift_num = IFilter::act(IReq::get('gift_num'),'int');
+			$award_value = JSON::encode(array_combine($gift_id,$gift_num));
+			$dataArray['award_value'] = $award_value;
+		}
 		$promotionObj->setData($dataArray);
 
 		if($id)
@@ -1555,7 +1583,7 @@ class Market extends IController implements adminAuthorization
 				$tranResult = $transferObj->run($sendData);
 				if(is_array($tranResult) && isset($tranResult['result_code']) && $tranResult['result_code'] == 'SUCCESS')
 				{
-					$PayNo = $tranResult['payment_no'];
+					$payNo = $tranResult['payment_no'];
 				}
 				else
 				{
@@ -1568,7 +1596,7 @@ class Market extends IController implements adminAuthorization
 			//人工线下
 			case "offline":
 			{
-				$PayNo = '88888888';
+				$payNo = '88888888';
 			}
 			break;
 		}
@@ -1589,7 +1617,7 @@ class Market extends IController implements adminAuthorization
 				'amount'     => $result['countFee'],
 				'way'        => $type,
 				'bill_no'    => $billNo,
-				'payment_no' => $PayNo,
+				'payment_no' => $payNo,
 			]);
 			$billId = $billDB->add();
 
@@ -1603,5 +1631,258 @@ class Market extends IController implements adminAuthorization
 		}
 
 		die('总共：'.count($sellerIds).'个; 成功：'.count($payList).'个; '.$error);
+	}
+
+	//分账结算方式
+	public function account_sharing()
+	{
+		set_time_limit(0);
+		ini_set("max_execution_time",0);
+		$sellerIds = IFilter::act(IReq::get('seller_ids'),'int');
+		$type = IFilter::act(IReq::get('type'));
+
+		if(!$sellerIds)
+		{
+			die('没有选择要结算的商家');
+		}
+
+		//汇总结果写入到bill表里面
+		$totalResult = ['success' => 0,'fail' => 0,'reason' => '','payment_no' => []];
+
+		$sellerDB = new IModel('seller');
+		$orderDB  = new IModel('order');
+		$oauthUserDB = new IModel('oauth_user');
+
+		//循环选中分账结算的商家(第一层循环)
+		foreach($sellerIds as $seller_id)
+		{
+			$sellerRow = $sellerDB->getObj($seller_id,'wechat_mchid,true_name');
+			if(!$sellerRow || !$sellerRow['wechat_mchid'])
+			{
+				$totalResult['fail']++;
+				$totalResult['reason'] .= $sellerRow['true_name'].'没有设置微信商户号。';
+				continue;
+			}
+
+			$billNo       = 'F'.Order_Class::createOrderNum();
+			$orderIdArray = [];
+			$sub_mchid    = $sellerRow['wechat_mchid'];
+
+			$orderGoodsQuery = CountSum::getSellerGoodsFeeQuery($seller_id,0);
+			$listData = $orderGoodsQuery->find();
+
+			//每个商家结算数据
+			$totalData = [
+				'orderAmountPrice' => 0,
+				'refundFee'        => 0,
+				'commissionFee'    => 0,
+				'orgCountFee'      => 0,
+				'countFee'         => 0,
+				'platformFee'      => 0,
+				'commission'       => 0,
+				'orderNum'         => 0,
+				'order_ids'        => [],
+				'orderNoList'      => [],
+				'deliveryFee'      => 0,
+			];
+
+			//循环某个商家的订单(第二层循环)
+			foreach($listData as $item)
+			{
+				$result = CountSum::countSellerOrderFee([$item]);
+
+				$result['order_id'] = current($result['order_ids']);
+				$orderRow = $orderDB->getObj($result['order_id'],'trade_no,order_no,pay_type');
+
+				$result['trade_no']  = $orderRow['trade_no'];
+				$result['order_no']  = $orderRow['order_no'];
+				$result['seller_id'] = $seller_id;
+				$result['sub_mchid'] = $sub_mchid;
+				$result['detail']    = [];
+				$orderIdArray[]      = $result['order_id'];
+
+				//存在用户推介分销
+				if($result['commissionFee'] > 0)
+				{
+					$commDisDB = new IModel('commission_distribution');
+					$commList = $commDisDB->query('order_id = '.$result['order_id'].' and is_pay = 0');
+					if($commList)
+					{
+						foreach($commList as $v)
+						{
+							$oauthRow = $oauthUserDB->getObj('user_id = '.$v['user_id'],'openid,openid_mini');
+							if(!$oauthRow)
+							{
+								$totalResult['fail']++;
+								$totalResult['reason'] .= '用户ID:'.$v['user_id'].'没有绑定微信登录，需要登录小程序。';
+								continue 3;
+							}
+
+							$openid = $oauthRow['openid_mini'] ? $oauthRow['openid_mini'] : $oauthRow['openid'];
+
+							if(!$openid)
+							{
+								$totalResult['fail']++;
+								$totalResult['reason'] .= '用户ID:'.$v['user_id'].'没有绑定微信登录openid';
+								continue 3;
+							}
+
+							$result['detail'][] = [
+								"type"    => "user",
+								"user_id" => $v['user_id'],
+								"amount"  => $v['commission_profit_amount'],
+								"openid"  => $openid,
+							];
+						}
+					}
+				}
+
+				//平台手续费
+				$payFee = $result['commission'] - $result['platformFee'];
+				if($payFee < 0)
+				{
+					$totalResult['fail']++;
+					$totalResult['reason'] .= '订单：'.$result['order_no'].',平台的营销金额超出范围。';
+					continue 2;
+				}
+
+				if($payFee > 0)
+				{
+					$result['detail'][] = [
+						"type"      => "seller",
+						"seller_id" => 0,
+						"amount"    => $payFee,
+						"mchid"     => "",
+					];
+				}
+
+				//微信收付通分账
+				if($type == "wechatSharing")
+				{
+					$sharingObj = new wechatSharing();
+
+					/**
+					 * ["order_id" => 分账订单ID,"order_no" => "分账订单号","trade_no" => "订单流水交易号",sub_mchid" => "出资方商户号","seller_id" => 出资方商家ID,"detail" => [["type" => "seller","seller_id" => "分账商家ID","amount" => "分账金额","mchid" => 商户号],["type" => "user","user_id" => "分账用户ID","amount" => "分账金额","openid" => "用户openid"]]
+					 */
+					$shareResult = $sharingObj->run($result);//接口内部会根据$result中的detail是否为空决定是分账还是直接解冻
+
+					if(!$shareResult || !isset($shareResult['state']))
+					{
+						$totalResult['fail']++;
+						$totalResult['reason'] .= "分账返回异常：".var_export($shareResult,true);
+						continue 2;
+					}
+
+					//延迟3s
+					sleep(3);
+
+					//查询分账结果
+					$getSharingResult = $sharingObj->sharingGet($shareResult['out_order_no'],$shareResult['sub_mchid'],$shareResult['transaction_id']);
+					$totalResult['payment_no'][] = $shareResult['order_id'];
+
+					//存在分账方,根据返回结果更新商城对应的各个关系表
+					if(isset($getSharingResult['receivers']) && $getSharingResult['receivers'])
+					{
+						//循环分账接收方(第三层循环)
+						foreach($getSharingResult['receivers'] as $data)
+						{
+							//分账成功
+							if($data['result'] == 'SUCCESS')
+							{
+								switch($data['type'])
+								{
+									case "PERSONAL_OPENID":
+									{
+										foreach($result['detail'] as $arr)
+										{
+											if($arr['type'] == 'user' && $data['receiver_account'] == $arr['openid'])
+											{
+												$commDisDB->setData(['is_pay' => 1]);
+												$commDisDB->update('order_id = '.$result['order_id'].' and user_id = '.$arr['user_id']);
+											}
+										}
+									}
+									break;
+
+									case "MERCHANT_ID":
+									{
+										foreach($result['detail'] as $arr)
+										{
+											if($arr['type'] == 'seller' && $shareResult['platform'] == $data['receiver_account'])
+											{
+												$orderDB->setData(['is_checkout' => 1]);
+												$orderDB->update($result['order_id']);
+											}
+										}
+									}
+									break;
+								}
+							}
+							//分账失败
+							else if(isset($data['fail_reason']) && $data['fail_reason'])
+							{
+								$totalResult['fail']++;
+								$totalResult['reason'] .= "账号(".$data['receiver_account']."):".$data['fail_reason']."。";
+								continue 3;
+							}
+							//未知其他问题
+							else
+							{
+								$totalResult['fail']++;
+								$totalResult['reason'] .= "账号(".$data['receiver_account']."):".var_export($data,true)."。";
+								continue 3;
+							}
+						}
+					}
+					//无分账方直接解冻
+					else if(isset($getSharingResult['status']) && $getSharingResult['status'] != 'FINISHED')
+					{
+						$totalResult['fail']++;
+						$totalResult['reason'] .= "完结分账异常：".var_export($getSharingResult,true);
+						continue 2;
+					}
+				}
+
+				//统计商家订单的各项数据
+				foreach($result as $key => $dataItem)
+				{
+					if(isset($totalData[$key]) && is_numeric($dataItem))
+					{
+						if(is_numeric($dataItem))
+						{
+							$totalData[$key] += $dataItem;
+						}
+
+						if(is_array($dataItem))
+						{
+							$totalData[$key] = array_merge($totalData[$key],$dataItem);
+						}
+					}
+				}
+			}
+
+			//生成结算货款单子
+			$billDB = new IModel('bill');
+			$billDB->setData([
+				'seller_id'  => $result['seller_id'],
+				'pay_time'   => ITime::getDateTime(),
+				'admin_id'   => $this->admin['admin_id'],
+				'log'        => AccountLog::sellerBillTemplate($totalData),
+				'order_ids'  => join(",",$orderIdArray),
+				'amount'     => $totalData['countFee'],
+				'way'        => $type,
+				'bill_no'    => $billNo,
+				'payment_no' => join(",",$totalData['payment_no']),
+			]);
+			$billId = $billDB->add();
+			$totalResult['success']++;
+		}
+
+		$returnMsg = "分账成功数量：".$totalResult['success']."; 失败数量：".$totalResult['fail'].";";
+		if($totalResult['reason'])
+		{
+			$returnMsg .= "原因：".$totalResult['reason'];
+		}
+		die($returnMsg);
 	}
 }

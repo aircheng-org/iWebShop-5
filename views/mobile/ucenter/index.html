@@ -1,0 +1,43 @@
+<div id="pageInfo" data-title="个人中心"></div>
+<section class="user_main_info">
+    <ol>
+    	<li><img id="user_ico_img" src="{url:$this->user['head_ico']}" onclick="$('#userIcoFile').trigger('click');" style="width:90px;" onerror="this.src='{skin:image/user_ico.jpg}'" /></li>
+        <li>用户名：{$this->user['username']}</li>
+        <li>经验值：<em>{$user['exp']}</em></li>
+        <li>积分数：<em>{$user['point']}</em></li>
+        <li>优惠券：<em>{$propData['prop_num']} 张</em></li>
+        <li>预付款：<em>￥{$user['balance']}</em></li>
+        <li>订单量：<em>{$statistics['num']} 笔</em></li>
+    </ol>
+</section>
+<nav class="user_main_nav">
+    <h3>
+        <i class="fa fa-user"></i>
+        个人中心
+    </h3>
+    <ul>
+        {foreach:items=menuUcenter::init()}
+        {foreach:items=$item key=$moreKey item=$moreValue}
+        <li><a href="{url:$moreKey}"><i class="{echo:isset(menuUcenter::$ico[$moreValue])?menuUcenter::$ico[$moreValue]:'fa fa-question'}"></i>{$moreValue}<u class="fa fa-chevron-right"></u></a></li>
+        {/foreach}
+        {/foreach}
+    </ul>
+</nav>
+<a href="{url:/simple/logout}" class="home_main_logout">退出登录</a>
+
+{js:fileUpload}
+<input id="userIcoFile" style="display:none;" type="file" accept="image/*" name="userIcoFile" data-url="{url:/ucenter/user_ico_upload}" />
+<script>
+$(function() {
+    // 设置首页导航为当前
+    $(".nav_user").addClass('on');
+})
+
+//jquery图片上传
+$('#userIcoFile').fileupload({
+    dataType: 'json',
+    done: function (e, data)
+    {
+        data.result && data.result.flag == 1 ? $('#user_ico_img').attr('src',data.result.img) : alert(data.result.error);
+    }
+});</script>

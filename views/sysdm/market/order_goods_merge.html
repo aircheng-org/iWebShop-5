@@ -44,6 +44,7 @@
 				<span class="sr-only"></span>
 			</button>
 			<ul class="dropdown-menu" role="menu">
+				<li><a href="javascript:confirm('使用微信收付通进行分账？',function(){accountSharing('wechatSharing')});"><i class="fa fa-weixin"></i>微信收付通分账</a></li>
 				<li><a href="javascript:confirm('直接转账给商家绑定的微信么？',function(){payCountFee('wechatBalance')});"><i class="fa fa-weixin"></i>微信转账</a></li>
 				<li><a href="javascript:confirm('已经通过人工线下结算货款么？',function(){payCountFee('offline')});"><i class="fa fa-money"></i>人工线下</a></li>
 			</ul>
@@ -114,6 +115,33 @@ function payCountFee(type)
 	loadding('处理中...');
 
 	$.get("{url:/market/pay_countfee}",{"seller_ids[]":seller_ids,"type":type},function(text)
+	{
+		unloadding();
+		art.dialog.alert(text,function()
+		{
+			window.setTimeout(function(){window.location.reload();});
+		});
+	});
+}
+
+//分账结算
+function accountSharing(type)
+{
+	var seller_ids = [];
+	$('[name="seller_id[]"]:checked').each(function()
+	{
+		seller_ids.push(this.value);
+	});
+
+	if(seller_ids.length == 0)
+	{
+		alert('请选择要结算的商家');
+		return;
+	}
+
+	loadding('处理中...');
+
+	$.get("{url:/market/account_sharing}",{"seller_ids[]":seller_ids,"type":type},function(text)
 	{
 		unloadding();
 		art.dialog.alert(text,function()

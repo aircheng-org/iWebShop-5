@@ -1,0 +1,22 @@
+{set:$articleList = $queryArticle->find()}
+
+<div id="pageInfo" data-title="{if:$catRow}{$catRow['name']}{else:}最新资讯{/if}"></div>
+
+<section class="home_news_list">
+    <ul>
+        {foreach:items = $articleList}
+        <li>
+            <time>{echo:date('m/d',strtotime($item['create_time']))}</time>
+            <a href="{url:/site/article_detail/id/$item['id']}">{$item['title']}</a>
+        </li>
+        {/foreach}
+    </ul>
+    {$queryArticle->getPageBar()}
+</section>
+
+<script>
+$(function(){
+    // 隐藏底部导航
+    hideNav();
+});
+</script>

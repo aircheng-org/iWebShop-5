@@ -3,9 +3,9 @@
 	<!--品牌展示-->
     {if:search_goods::$brandSearch}
 	<dl>
-		<dt><div>品牌:</div></dt>
+		<dt><div>{echo:ILang::get('品牌')}:</div></dt>
 		<dd>
-			<a class="current" href="javascript:searchObj.link({'brand':''});" id='filter-brand'>不限</a>
+			<a class="current" href="javascript:searchObj.link({'brand':''});" id='filter-brand'>{echo:ILang::get('不限')}</a>
 			{foreach:items=search_goods::$brandSearch}
 			<a href="javascript:searchObj.link({'brand':{$item['id']}});" id='filter-brand{$item['id']}'>{$item['name']}</a>
 			{/foreach}
@@ -18,7 +18,7 @@
 	<dl>
 		<dt><div>{$item['name']}:</div></dt>
 		<dd>
-			<a class="current" href="javascript:searchObj.link({'attr[{$item["id"]}]':''});" id="filter-attr{$item['id']}">不限</a>
+			<a class="current" href="javascript:searchObj.link({'attr[{$item["id"]}]':''});" id="filter-attr{$item['id']}">{echo:ILang::get('不限')}</a>
 			{foreach:items=$item['value'] item=$attr}
 			<a href="javascript:searchObj.link({'attr[{$item["id"]}]':'{$attr}'});" id="filter-attr{$item['id']}{$attr}">{$attr}</a>
 			{/foreach}
@@ -29,16 +29,16 @@
 	<!--商品价格-->
 	{if:search_goods::$priceSearch}
 	<dl>
-		<dt><div>价格:</div></dt>
+		<dt><div>{echo:ILang::get('价格')}:</div></dt>
 		<dd>
-			<a class="current" href="javascript:searchObj.link({'min_price':'','max_price':''});" id="filter-price">不限</a>
+			<a class="current" href="javascript:searchObj.link({'min_price':'','max_price':''});" id="filter-price">{echo:ILang::get('不限')}</a>
 			{foreach:items=search_goods::$priceSearch}
 			{set:$priceZone = explode('-',$item)}
 			<a href="javascript:searchObj.link({'min_price':'{$priceZone[0]}','max_price':'{$priceZone[1]}'});" id="filter-price{$item}">{$item}</a>
 			{/foreach}
 			<p class="condition">
-				<input type="text" name="min_price"> 至 <input type="text" name="max_price"> 元
-				<button onclick="searchObj.link({'min_price':$('[name="min_price"]').val(),'max_price':$('[name="max_price"]').val()});">确定</button>
+				<input type="text" name="min_price"> - <input type="text" name="max_price"> ￥
+				<button onclick="searchObj.link({'min_price':$('[name="min_price"]').val(),'max_price':$('[name="max_price"]').val()});">{echo:ILang::get('确定')}</button>
 			</p>
 		</dd>
 	</dl>
@@ -49,7 +49,7 @@
 
 <!--商品排序展示-->
 <section class="goods_sort">
-	<h3><div>排序:</div></h3>
+	<h3><div>{echo:ILang::get('排序')}:</div></h3>
 	<ul>
 		{foreach:items=search_goods::getOrderType()}
 		<li id="filter-order{$key}">

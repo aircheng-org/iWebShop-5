@@ -1,70 +1,69 @@
 {js:areaSelect}
 
-
 <section class="web">
 	<header class="login_header">
-		<h3>申请加盟商户</h3>
-		<p>加入我们的电商平台，成为我们的供应商，一起共创美好未来</p>
+		<h3>{echo:ILang::get('申请加盟商户')}</h3>
+		<p>{echo:ILang::get('加入我们的电商平台，成为我们的供应商，一起共创美好未来')}</p>
 	</header>
 	<section class="reg_box">
 		<form action="{url:/simple/seller_reg}" method="post" enctype='multipart/form-data' name="sellerForm">
 			<dl>
-				<dt>登陆用户名：</dt>
+				<dt>{echo:ILang::get('登陆用户名')}：</dt>
 				<dd>
-					<input class="input_text" name="seller_name" type="text" value="" pattern="required" alt="用户名不能为空">
-					<span>* 用户名称（必填）</span>
+					<input class="input_text" name="seller_name" type="text" value="" pattern="required" >
+					<span>* {echo:ILang::get('用户名称')}</span>
 				</dd>
 			</dl>
 			<dl>
-				<dt>密码：</dt>
+				<dt>{echo:ILang::get('密码')}：</dt>
 				<dd>
 					<input class="input_text" name="password" type="password" bind='repassword' pattern="required">
-					<span>* 登录密码</span>
+					<span>* {echo:ILang::get('登录密码')}</span>
 				</dd>
 			</dl>
 			<dl>
-				<dt>确认密码：</dt>
+				<dt>{echo:ILang::get('确认密码')}：</dt>
 				<dd>
 					<input class="input_text" name="repassword" type="password" bind='password' pattern="required">
-					<span>* 重复确认密码</span>
+					<span>* {echo:ILang::get('重复确认密码')}</span>
 				</dd>
 			</dl>
 			<dl>
-				<dt>商户真实全称：</dt>
+				<dt>{echo:ILang::get('商户真实全称')}：</dt>
 				<dd>
 					<input class="input_text" name="true_name" type="text" value="" pattern="required">
-					<span>* 公司真实全称</span>
+					<span>* {echo:ILang::get('公司真实全称')}</span>
 				</dd>
 			</dl>
 			<dl>
-				<dt>商户资质材料：</dt>
+				<dt>{echo:ILang::get('商户资质材料')}：</dt>
 				<dd>
 					<input type='file' name='paper_img'>
 				</dd>
 			</dl>
 			<dl>
-				<dt>固定电话：</dt>
+				<dt>{echo:ILang::get('固定电话')}：</dt>
 				<dd>
 					<input type="text" class="input_text" name="phone" pattern="phone">
-					<span>* 固定电话联系方式，如：010-88888888</span>
+					<span>* {echo:ILang::get('固定电话联系方式')}</span>
 				</dd>
 			</dl>
 			<dl>
-				<dt>手机号码：</dt>
+				<dt>{echo:ILang::get('手机号码')}：</dt>
 				<dd>
 					<input type="text" class="input_text" name="mobile" pattern="mobi">
-					<span>* 移动电话联系方式：如：13000000000</span>
+					<span>* {echo:ILang::get('移动电话联系方式')}</span>
 				</dd>
 			</dl>
 			<dl>
-				<dt>邮箱：</dt>
+				<dt>{echo:ILang::get('邮箱')}：</dt>
 				<dd>
 					<input type="text" class="input_text" name="email" pattern="email">
-					<span>* 电子邮箱联系方式：如：aircheng@163.com</span>
+					<span>* {echo:ILang::get('电子邮箱联系方式')}</span>
 				</dd>
 			</dl>
 			<dl>
-				<dt>地区：</dt>
+				<dt>{echo:ILang::get('地区')}：</dt>
 				<dd>
 					<select class="input_select" name="province" child="city,area"></select>
 					<select class="input_select" name="city" child="area"></select>
@@ -72,29 +71,27 @@
 				</dd>
 			</dl>
 			<dl>
-				<dt>详细地址：</dt>
+				<dt>{echo:ILang::get('详细地址')}：</dt>
 				<dd>
 					<input class="input_text" name="address" type="text" empty value="">
 				</dd>
 			</dl>
 			<dl>
-				<dt>企业官网：</dt>
+				<dt>{echo:ILang::get('企业官网')}：</dt>
 				<dd>
 					<input class="input_text" name="home_url" type="text" pattern="url" empty value="">
-					<span>填写完整的网址，如：http://www.aircheng.com</span>
+					<span>{echo:ILang::get('填写完整的网址')}</span>
 				</dd>
 			</dl>
 			<dl>
 				<dt></dt>
 				<dd>
-					<input class="input_submit" type="submit" value="申请加盟">
+					<input class="input_submit" type="submit" value="{echo:ILang::get('申请加盟')}">
 				</dd>
 			</dl>
 		</form>
 	</section>
 </section>
-
-
 
 <script>
 var areaInstance = new areaSelect('province');

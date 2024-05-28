@@ -1083,7 +1083,7 @@ return array(
     'getListRule'=>array(
         'query'=>array(
             'name'  => 'promotion',
-            'where' => "type in (0,5,6) and seller_id = ".(isset(IWeb::$app->getController()->seller['seller_id']) ? IWeb::$app->getController()->seller['seller_id'] : 0),
+            'where' => "type in (0,5,6,7) and seller_id = ".(isset(IWeb::$app->getController()->seller['seller_id']) ? IWeb::$app->getController()->seller['seller_id'] : 0),
             'page'  => IReq::get('page') ? IReq::get('page') : 1,
         )
     ),

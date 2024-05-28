@@ -72,8 +72,7 @@ function sendMessage()
 		'ok':function(iframeWin, topWin)
 		{
 			var iframeObj = $(iframeWin.document);
-			iframeWin.kindEditorObj.sync();
-			iframeObj.find('form').submit();
+			iframeObj.find('form').first().submit();
 			return false;
 		}
 	});

@@ -1,0 +1,22 @@
+{set:$queryNotice = Api::run('getNoticeList')}
+
+<div id="pageInfo" data-title="商城公告"></div>
+
+<section class="home_news_list">
+    <ul>
+        {foreach:items = $queryNotice->find()}
+        <li>
+            <time>{echo:date('m/d',strtotime($item['time']))}</time>
+            <a href="{url:/site/notice_detail/id/$item['id']}">{$item['title']}</a>
+        </li>
+        {/foreach}
+    </ul>
+    {$queryNotice->getPageBar()}
+</section>
+
+<script>
+$(function(){
+    // 隐藏底部导航
+    hideNav();
+});
+</script>

@@ -1,0 +1,55 @@
+<div id="pageInfo" data-title="我的退款" data-goback="{url:/ucenter/index}"></div>
+<section class="us_tab">
+    <ul>
+        <li class="on">我的退款</li>
+        <li><a href="{url:/ucenter/exchange}">我的换货</a></li>
+        <li><a href="{url:/ucenter/fix}">我的维修</a></li>
+    </ul>
+</section>
+<section class="refunds_list">
+	<ul>
+	    {set:$queryRefundmentDocList = Api::run('getRefundmentDocList')}
+		{foreach:items = $queryRefundmentDocList->find()}
+		<li>
+			<i class="bg_blue">
+				{echo:Order_Class::refundmentText($item['pay_status'])}
+			</i>
+			<strong>订单号：</strong>
+			<em onclick="gourl('{url:/ucenter/refunds_detail/id/$item['id']}')">{$item['order_no']}</em>
+			<p>
+				<strong>申请内容：</strong>
+				{$item['content']}
+			</p>
+			<p>
+				<strong>申请时间：</strong>
+				{$item['time']}
+			</p>
+			{if:$item['dispose_idea']}
+			<p>
+				<strong>商家回复：</strong>
+				{$item['dispose_idea']}
+			</p>
+			{/if}
+
+			{if:$item['pay_status']==0}
+			<div class="btn btn_s btn_fa" onclick="delModel({link:'{url:/ucenter/refunds_del/id/$item['id']}'})">取消申请</div>
+			{else:}
+			<a href="{url:/ucenter/refunds_detail/id/$item['id']}"><div class="btn btn_s btn_fa">查看详情</div></a>
+			{/if}
+		</li>
+		{/foreach}
+	</ul>
+</section>
+{$queryRefundmentDocList->getPageBar()}
+
+{if:!$items}
+<section class="no_tip">暂无信息</section>
+{/if}
+
+<script>
+//DOM加载完毕
+$(function(){
+	// 隐藏底部导航
+	hideNav();
+})
+</script>

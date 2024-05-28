@@ -43,7 +43,7 @@ class APIOther
 				//如果是微信小程序，必须用小程序专用支付
 				else if(IClient::isMini() == true)
 				{
-					$where .= " and class_name in ( 'mini_wechat','balance' ) ";
+					$where .= " and class_name in ('mini_combine_wechat','mini_wechat','balance' ) ";
 				}
 				else
 				{

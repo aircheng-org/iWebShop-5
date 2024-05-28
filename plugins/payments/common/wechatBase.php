@@ -171,12 +171,42 @@ abstract class wechatBase extends paymentPlugin
 		$json = $AesUtilObj->decryptToString($cipherArray['resource']['associated_data'], $cipherArray['resource']['nonce'], $cipherArray['resource']['ciphertext']);
 		$result = JSON::decode($json);
 
+		//日志记录
+	    $logObj = new IFileLog('wechat_server_callback/'.date('Y-m-d').'.log');
+	    $logObj->write(['支付接口ID' => $paymentId,'原始数据' => $ciphertext,'解密数据' => $json]);
+
 		if(!$result)
 		{
 			throw new IException("异步支付回调解密json出现问题:".$json);
 		}
 
-		if(isset($result['trade_state']) && $result['trade_state'] == 'SUCCESS')
+		//合单支付情况
+		if(isset($result['sub_orders']) && $result['sub_orders'])
+		{
+			$orderNo = strstr($result['combine_out_trade_no'],"_",true);
+			$orderNo = $orderNo ? $orderNo : $result['combine_out_trade_no'];
+			$money   = 0;
+
+			foreach($result['sub_orders'] as $item)
+			{
+				if(isset($item['trade_state']) && $item['trade_state'] == 'SUCCESS')
+				{
+					$money += $item['amount']['total_amount'];
+				}
+
+				//记录回执流水号
+				if(isset($item['transaction_id']) && $item['transaction_id'])
+				{
+					$orderDB = new IModel('order');
+					$orderDB->setData(['trade_no' => $item['transaction_id']]);
+					$orderDB->update('order_no = "'.$item['out_trade_no'].'"');
+				}
+			}
+			$money = $money/100;
+			return true;
+		}
+		//普通支付情况
+		else if(isset($result['trade_state']) && $result['trade_state'] == 'SUCCESS')
 		{
 			$orderNo = strstr($result['out_trade_no'],"_",true);
 			$orderNo = $orderNo ? $orderNo : $result['out_trade_no'];
@@ -285,6 +315,72 @@ abstract class wechatBase extends paymentPlugin
 		return $result;
 	}
 
+	/**
+	 * @brief 执行退款接口
+	 * @param array $payment 退款信息接口
+	 */
+	public function doCombineRefund($payment)
+	{
+		$this->certificates();
+		$config = $this->config();
+		$key    = $config['key'];
+		$url    = '/v3/ecommerce/refunds/apply';
+
+		$data = [];
+
+        //基本参数
+		$mchid    = $config['mch_id'];
+		$sellerDB = new IModel('seller');
+		$orderDB  = new IModel('order');
+		$orderRow = $orderDB->getObj('order_no = "'.$payment['M_OrderNO'].'"','seller_id');
+		if(!$orderRow)
+		{
+			return '退款的订单信息不存在';
+		}
+
+		if($orderRow['seller_id'] > 0)
+		{
+			$sellerRow= $sellerDB->getObj($orderRow['seller_id'],'wechat_mchid,true_name');
+			if($sellerRow)
+			{
+				if($sellerRow['wechat_mchid'])
+				{
+					$mchid = $sellerRow['wechat_mchid'];
+				}
+				else
+				{
+					return '退款的商户 '.$sellerRow['true_name'].'没有设置微信商户号';
+				}
+			}
+		}
+
+		$data['sub_mchid']      = $mchid;
+		$data['sp_appid']       = $config['appid'];
+		$data['transaction_id'] = $payment['M_TransactionId'];
+		$data['out_refund_no']  = $payment['M_RefundNo'];
+		$data['amount']         = ['refund' => $payment['M_Refundfee']*100, 'total' => $payment['M_Amount']*100, 'currency' => 'CNY'];
+		if(isset($payment['M_REASON']) && $payment['M_REASON'])
+		{
+			$data['reason'] = $payment['M_REASON'];
+		}
+
+        $result = $this->curlSubmit($url,$data);
+        if(is_array($result) && $result)
+        {
+			if(isset($result['refund_id']) && $result['refund_id'])
+			{
+				$this->recordRefundTradeNo($payment['M_RefundId'],$result['refund_id']);
+				return true;
+			}
+
+			if(isset($result) && $result['message'])
+			{
+				return $result['message'];
+			}
+        }
+		return $result;
+	}
+
 	//获取支付接口的配置参数信息
 	public function config()
 	{
@@ -303,6 +399,63 @@ abstract class wechatBase extends paymentPlugin
 			}
 		}
 		return payment::getConfigParam($this->paymentId);
+	}
+
+	//上传文件
+	public function uploadFile($filename)
+	{
+		$url = '/v3/merchant/media/upload';
+		$binContent = file_get_contents($filename);//二进制图片内容
+		$meta = [
+			'filename' => basename($filename),
+			'sha256'   => hash_file('sha256', $filename),
+		];
+
+		$config    = $this->config();
+		$mchid     = $config['mch_id'];
+		$serial_no = $config['serial_no'];
+		$time      = time();
+		$nonce_str = rand(100000,999999);
+		$boundary  = uniqid();
+		$mime_type = "image/".pathinfo($filename,PATHINFO_EXTENSION);
+
+		//发起请求 所有请求都要带 authorization 参数，属于标准
+		$signature = $this->sign(["POST",$url,$time,$nonce_str,json_encode($meta)]);
+		$authorization = 'WECHATPAY2-SHA256-RSA2048 mchid="'.$mchid.'",nonce_str="'.$nonce_str.'",signature="'.$signature.'",timestamp="'.$time.'",serial_no="'.$serial_no.'"';
+		$header = ['User-Agent: iWebShop', 'Accept: application/json', 'Content-Type: multipart/form-data;boundary='.$boundary, 'Authorization: '.$authorization];
+
+		$body = "--{$boundary}\r\n";
+		$body.= 'Content-Disposition: form-data; name="meta"'."\r\n";
+		$body.= 'Content-Type: application/json'."\r\n";
+		$body.= "\r\n";
+		$body.= json_encode($meta)."\r\n";
+		$body.= "--{$boundary}\r\n";
+		$body.= 'Content-Disposition: form-data; name="file"; filename="'.$meta['filename'].'"'."\r\n";
+		$body.= 'Content-Type: '.$mime_type.';'."\r\n";
+		$body.= "\r\n";
+		$body.= $binContent."\r\n";
+		$body.= "--{$boundary}--\r\n";
+
+		//发起请求
+		$ch = curl_init(self::APIURL.$url);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+		curl_setopt($ch, CURLOPT_POST, 1);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
+		curl_setopt($ch, CURLOPT_HEADER, false);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+		curl_setopt($ch, CURLOPT_TIMEOUT, 50);
+
+		$response = curl_exec($ch);
+		$result = JSON::decode($response);
+		if($result && isset($result['media_id']))
+		{
+			return ['media_id' => $result['media_id']];
+		}
+
+		throw new IException($response);
 	}
 }
 

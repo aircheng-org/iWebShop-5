@@ -24,7 +24,7 @@
 			<col width="70px" />
 			<col width="90px" />
 			<col width="110px"/>
-			<col width="80px" />
+			<col width="120px" />
 		</colgroup>
 		<caption>
 			<form name="searchseller" action="{url:/}" method="get" class="pull-right form-inline">
@@ -92,6 +92,9 @@
 				<td title="{$item['create_time']}">{$item['create_time']}</td>
 				<td>
 					<a href="{url:/member/seller_edit/id/$item['id']}"><i class='operator fa fa-edit'></i></a>
+					{if:class_exists('wechatSharing')}
+					<a href="{url:/wechatSharing/mch_apply/seller_id/$item['id']}" target="_blank" title="注册微信商户"><i class='operator fa fa-weixin'></i></a>
+					{/if}
 					<a onclick="delModel({link:'{url:/member/seller_del/id/$item[id]}'})"><i class='operator fa fa-close'></i></a>
 				</td>
 			</tr>

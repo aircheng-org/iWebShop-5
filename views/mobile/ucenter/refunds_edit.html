@@ -1,0 +1,113 @@
+{js:fileUpload}
+<div id="pageInfo" data-title="售后申请"></div>
+<form action="{url:/ucenter/refunds_update}" method="post">
+	<input type="hidden" name="order_id" value="{$this->orderRow['id']}" />
+	<section class="refunds_edit">
+		<div class="base">
+			<strong>订单号：</strong>
+			<span>{$this->orderRow['order_no']}</span><br>
+		</div>
+		<div class="input_li goods">
+			{foreach:items=Api::run('getOrderGoodsListByGoodsid',array('#order_id#',$this->orderRow['id'])) item=$good}
+			{set:$good_info = JSON::decode($good['goods_array'])}
+			{set:$refundsApplyNums = Order_Class::refundsApplyNums($good)}
+			{if:$refundsApplyNums}
+			<label class="input_radio block">
+				<input type="checkbox" name="order_goods_id[{$key}]" value="{$good['id']}" checked="checked">
+				<span>{$good_info['name']}{if:$good_info['value']}{$good_info['value']}{/if} × {$good['goods_nums']}件</span>
+			</label>
+
+			<span class="num-box">
+				数量：
+				<a href="javascript:numsReduce('nums{$good['id']}');" class='opt'>-</a>
+				<input class='input' value="{$refundsApplyNums}" type="text" name="refunds_nums[{$key}]" id="nums{$good['id']}" max="{$refundsApplyNums}" onchange="numUpdate('nums{$good['id']}');" />
+				<a href="javascript:numsAdd('nums{$good['id']}')" class='opt'>+</a>
+			</span>
+			{/if}
+			{/foreach}
+		</div>
+		<div class="input_li goods">
+	        <label class="input_radio"><input class="radio" type="radio" name="type" value="refunds" checked="checked" /><span>退货</span></label>
+
+	        {if:goods_class::isDelivery($this->orderRow['goods_type'])}
+	        <label class="input_radio"><input class="radio" type="radio" name="type" value="exchange" /><span>换货</span></label>
+	        <label class="input_radio"><input class="radio" type="radio" name="type" value="fix" /><span>维修</span></label>
+		    {/if}
+		</div>
+		<div class="input_li note">
+		    <textarea name="content" id="content" class="input_textarea" pattern="required" placeholder="请将问题描述写到这里..."></textarea>
+		</div>
+		<div class="input_li">
+		    <input type='hidden' name="_imgList" value="" />
+			<input id="fileUpload" type="file" accept="image/*" name="_goodsFile" data-url="{url:/ucenter/refunds_img_upload}" />
+        </div>
+
+        <div class="input_li">
+            <div id="thumbnails"></div>
+
+            <!--图片模板-->
+            <script type='text/html' id='picTemplate'>
+            <div class="pic" style='float:left;'>
+                <img class="img-thumbnail" style="width:52px;height:52px;border:1px solid #ccc;margin-right:4px;" src="<%=webroot(picRoot)%>" alt="<%=picRoot%>" />
+                <p style="text-align:center;">
+                    <a href='javascript:;' onclick="$(this).parents('.pic').remove();">删除</a>
+                </p>
+            </div>
+            </script>
+		</div>
+	</section>
+	<input id="goSubmit" type="submit" class="none">
+	<footer id="viewport_bottom">
+		<div class="btn_bottom">
+			<div class="btn_tab">
+				<label class="btn_tab_submit blue" for="goSubmit">提交售后申请</label>
+			</div>
+		</div>
+	</footer>
+</form>
+
+<script type="text/javascript">
+$(function(){
+	// 隐藏底部导航
+	hideNav();
+})
+
+//jquery图片上传
+$('[name="_goodsFile"]').fileupload({
+    dataType: 'json',
+    done: function (e, data)
+    {
+    	if(data.result && data.result.flag == 1)
+    	{
+    	    var picJson = data.result;
+        	var picHtml = template.render('picTemplate',{'picRoot':picJson.img});
+        	$('#thumbnails').append(picHtml);
+    	}
+    	else
+    	{
+    		alert(data.result.error);
+    	}
+    },
+    add:function(e, data)
+    {
+        if($('#thumbnails .img-thumbnail').length >= 5)
+        {
+             alert("最多上传5张图片");
+             return false;
+        }
+        data.submit();
+    }
+});
+
+//合并图片地址信息
+$("form").submit(function()
+{
+    var goodsPhoto = [];
+    $('#thumbnails .img-thumbnail').each(function(){
+        goodsPhoto.push(this.alt);
+    });
+
+    $('input[name="_imgList"]').val(goodsPhoto.join(','));
+    return true;
+});
+</script>

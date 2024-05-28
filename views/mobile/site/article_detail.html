@@ -1,0 +1,23 @@
+
+<div id="pageInfo" data-title="资讯详情"></div>
+
+<section class="article_header">
+    <h1 class="title">{$this->articleRow['title']}</h1>
+    <div class="date">发布日期：{$this->articleRow['create_time']}</div>
+</section>
+<article class="article_detail">
+    {$this->articleRow['content']}
+</article>
+<script>
+$(function(){
+    // 隐藏底部导航
+    hideNav();
+    $(".article_detail").find('*').each(function(){
+        var t = $(this);
+        if (t.attr("style")){t.attr("style","")};
+        if (t.attr("width")){t.attr("width","")};
+        if (t.attr("height")){t.attr("height","")};
+        t.html(t.html().replace(/\&nbsp;/g,""));
+    });
+});
+</script>

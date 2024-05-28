@@ -1,0 +1,41 @@
+
+<div id="pageInfo" data-title="商品咨询"></div>
+
+<section class="consult_goods">
+	<img src="{url:/pic/thumb/img/$this->goodsRow['img']/w/400/h/400}" alt="{$this->goodsRow['name']}">
+	<a href="{url:/site/products/id/$this->goodsRow['id']}">{$this->goodsRow['name']}</a>
+</section>
+<section class="reg input_li">
+	<div class="form">
+		<form action='{url:/site/consult_act}' method='post' name='consult'>
+			<input type='hidden' name='goods_id' value='{$this->goodsRow['id']}' />
+			<ul>
+				<li>
+					<select name="type" class="input_select">
+						<option value="0">商品咨询</option>
+						<option value="1">库存及配送</option>
+						<option value="2">支付问题</option>
+						<option value="3">发票及保修</option>
+						<option value="4">促销及商品</option>
+					</select>
+				</li>
+				<li>
+					<textarea class='input_textarea'name="question" placeholder="请输入您的咨询" pattern='required'></textarea>
+				</li>
+				<li>
+					<input type='text' class='input_text input_captcha' placeholder="请输入验证码" name='captcha' pattern='^\w{5,10}$' alt='填写验证码' />
+					<img src='{url:/simple/getCaptcha}' class="captchaImg" id="captchaImg" onclick="changeCaptcha()" />
+				</li>
+				<li>
+					<input type="submit" class="input_submit" value="提交咨询">
+				</li>
+			</ul>
+		</form>
+	</div>
+</section>
+<script>
+$(function(){
+    // 隐藏底部导航
+    hideNav();
+});
+</script>

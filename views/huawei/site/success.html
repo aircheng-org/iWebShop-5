@@ -2,21 +2,19 @@
 <section class="prompt_page success">
 	<i class="ico"></i>
 	<article>
-
-		<strong>{echo:IReq::get('message') ? IFilter::act(IReq::get('message'),'text') : '操作成功！'}</strong><br>
-		您现在可以去：
+		<strong>{echo:IReq::get('message') ? IFilter::act(IReq::get('message'),'text') : ILang::get('操作成功')}</strong><br>
+		{echo:ILang::get('您现在可以去')}：
 
 		{set:$callback = plugin::trigger('getCallback')}
 		{if:$callback}
-		<a href="{url:$callback}">继续操作 >></a>
+		<a href="{url:$callback}">{echo:ILang::get('继续操作')} >></a>
 		{/if}
 
 		{if:$this->user['user_id']}
-		<a href="{url:/ucenter/index}">个人中心 >></a>
+		<a href="{url:/ucenter/index}">{echo:ILang::get('个人中心')} >></a>
 		{/if}
 
-		<a href="{url:/site/index}">网站首页 >></a>
-
+		<a href="{url:/site/index}">{echo:ILang::get('网站首页')} >></a>
 	</article>
 </section>
 

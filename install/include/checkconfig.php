@@ -40,10 +40,10 @@ class checkConfig
 	//检查php版本
 	public function c_phpVersion()
 	{
-		$is_pass = version_compare(phpversion(),$this->php_version);
-		if($is_pass < 0)
+		if(version_compare(phpversion(), '7.4.0') >= 0 || version_compare(phpversion(), '5.5.0') < 0)
 		{
 			self::$npass_must_num++;
+			$is_pass = -1;
 		}
 		return $is_pass < 0 ? false : true;
 	}

@@ -19,7 +19,7 @@
 <div class="home_feature">
 	<div class="feature_content">
 		<h4>
-			<a href="{url:/site/notice}">公 告</a>
+			<a href="{url:/site/notice}">{echo:ILang::get('公告')}</a>
 		</h4>
 		<div class="feature_title">
 			{foreach:items=Api::run('getAnnouncementList', 3)}
@@ -38,7 +38,7 @@
 	</ul>
 	<div class="feature_content">
 		<h4>
-			<a href="{url:/site/article}">资 讯</a>
+			<a href="{url:/site/article}">{echo:ILang::get('资讯')}</a>
 		</h4>
 		<div class="feature_title">
 			{foreach:items=Api::run('getArtList', 3)}
@@ -61,7 +61,7 @@
 <!--热卖商品-->
 <section class="hotsale">
 	<header class="home_layer_title">
-		<h3>热销单品</h3>
+		<h3>{echo:ILang::get('热销单品')}</h3>
 	</header>
 	<div class="container">
 		<div class="hot_banner">{echo:Ad::show("热销单品广告1_232*590(huawei)")}</div>
@@ -84,7 +84,7 @@
 <!-- 推荐商品 -->
 <section class="home_activity recommend">
 	<header class="home_layer_title">
-		<h3>推荐商品</h3>
+		<h3>{echo:ILang::get('推荐商品')}</h3>
 	</header>
 	<!-- 推荐商品的前进和后退，这里只有需要滚动的有 -->
 	<div class="control">
@@ -116,10 +116,10 @@
 {if:$tuanitems}
 <section class="home_activity group_buy">
 	<header class="home_layer_title">
-		<h3>团购商品</h3>
+		<h3>{echo:ILang::get('团购商品')}</h3>
 		<nav class="floor_nav">
 		</nav>
-		<a class="more" href="{url:/site/groupon}">更多></a>
+		<a class="more" href="{url:/site/groupon}">{echo:ILang::get('更多')}></a>
 	</header>
 	<div class="act_content">
 		<ul>
@@ -143,7 +143,7 @@
 {if:$panicbuying}
 <section class="home_activity panic_buy">
 	<header class="home_layer_title">
-		<h3>限时抢购</h3>
+		<h3>{echo:ILang::get('限时抢购')}</h3>
 	</header>
 	<!-- 推荐商品的前进和后退，这里只有需要滚动的有 -->
 	<div class="control">
@@ -159,10 +159,10 @@
 			<li>
 				<!-- 限时抢购-倒计时 -->
 				<div class="times">
-					<span>倒计时：</span>
-					<em id="cd_hour_{$item['p_id']}">{echo:floor($free_time/3600);}</em> 时
-					<em id='cd_minute_{$item['p_id']}'>{echo:floor(($free_time%3600)/60);}</em> 分
-					<i id='cd_second_{$item['p_id']}'>{echo:$free_time%60;}</i> 秒
+					<span>{echo:ILang::get('倒计时')}：</span>
+					<em id="cd_hour_{$item['p_id']}">{echo:floor($free_time/3600);}</em> {echo:ILang::get('时')}
+					<em id='cd_minute_{$item['p_id']}'>{echo:floor(($free_time%3600)/60);}</em> {echo:ILang::get('分')}
+					<i id='cd_second_{$item['p_id']}'>{echo:$free_time%60;}</i> {echo:ILang::get('秒')}
 				</div>
 				<!-- 限时抢购-倒计时 -->
 				<a title="{$item['name']}" href="{url:/site/products/id/$item['goods_id']}">
@@ -191,8 +191,8 @@
 {if:$assembleList}
 <section class="home_floor assemble">
 	<header class="home_layer_title">
-		<h3>拼团商品</h3>
-		<a class="more" href="{url:/site/assemble}">更多></a>
+		<h3>{echo:ILang::get('拼团商品')}</h3>
+		<a class="more" href="{url:/site/assemble}">{echo:ILang::get('更多')}></a>
 	</header>
 	<section class="floor_body">
 		<div class="floor_goods">
@@ -217,9 +217,9 @@
 {if:$pointData = Api::run('getCostPointList',5)}
 <section class="home_floor">
 	<header class="home_layer_title">
-		<h3>积分兑换</h3>
+		<h3>{echo:ILang::get('积分兑换')}</h3>
 		<nav class="floor_nav"></nav>
-		<a class="more" href="{url:/site/costpoint}">更多></a>
+		<a class="more" href="{url:/site/costpoint}">{echo:ILang::get('更多')}></a>
 	</header>
 	<section class="floor_body">
 		<div class="floor_goods">
@@ -230,7 +230,7 @@
 						<img class="floor_goods_img" src="{url:/pic/thumb/img/$item['img']/w/170/h/170}">
 						<h3 class="pro_title">{$item['name']}</h3>
 						<del>￥{$item['sell_price']}</del>
-						<p class="pro_price">{$item['point']}积分</p>
+						<p class="pro_price">{$item['point']}{echo:ILang::get('积分')}</p>
 					</a>
 				</li>
 				{/foreach}
@@ -252,7 +252,7 @@
 				{/foreach}
 			</ul>
 		</nav>
-		<a class="more" href="{url:/site/pro_list/cat/$first[id]}">更多></a>
+		<a class="more" href="{url:/site/pro_list/cat/$first[id]}">{echo:ILang::get('更多')}></a>
 	</header>
 	<section class="floor_body">
 		<div class="floor_goods">

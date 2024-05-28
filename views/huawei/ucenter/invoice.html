@@ -1,5 +1,5 @@
 <header class="uc_head">
-	<h3>发票管理</h3>
+	<h3>{echo:ILang::get('发票管理')}</h3>
 </header>
 
 <section class="uc_table">
@@ -12,10 +12,10 @@
     	</colgroup>
 		<thead>
 			<tr>
-        		<th>单位名称</th>
-        		<th>纳税人识别码</th>
-        		<th>发票类型</th>
-        		<th>操作</th>
+        		<th>{echo:ILang::get('单位名称')}</th>
+        		<th>{echo:ILang::get('纳税人识别码')}</th>
+        		<th>{echo:ILang::get('发票类型')}</th>
+        		<th>{echo:ILang::get('操作')}</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -35,12 +35,12 @@
 </section>
 
 {if:!$items}
-<section class="no_tip">暂无数据</section>
+<section class="no_tip">{echo:ILang::get('暂无数据')}</section>
 {/if}
 
 <div class="new_address_btn" onclick="edit();">
 	<i class="fa fa-map-marker"></i>
-	<span>新增发票</span>
+	<span>{echo:ILang::get('新增发票')}</span>
 </div>
 <script type='text/javascript'>
 function edit(taxId)
@@ -48,12 +48,12 @@ function edit(taxId)
 	art.dialog.open(creatUrl("block/invoice/id/"+taxId),
 	{
 		"id":"taxWindow",
-		"title":"发票编辑",
+		"title":"{echo:ILang::get('发票编辑')}",
 		"ok":function(iframeWin, topWin){
 			var formObject = iframeWin.document.forms[0];
 			if(formObject.onsubmit() === false)
 			{
-				alert("请正确填写各项信息");
+				alert("{echo:ILang::get('请正确填写各项信息')}");
 				return false;
 			}
 			$.getJSON(formObject.action,$(formObject).serialize(),function(content){
@@ -66,9 +66,9 @@ function edit(taxId)
 			});
 			return false;
 		},
-		"okVal":"提交",
+		"okVal":"{echo:ILang::get('提交')}",
 		"cancel":true,
-		"cancelVal":"取消",
+		"cancelVal":"{echo:ILang::get('取消')}",
 	});
 }
 </script>

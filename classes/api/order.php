@@ -93,6 +93,11 @@ class APIOrder
 	//获取批量合并付款订单
 	public function getBatchOrder($tradeNo)
 	{
+		if(!$tradeNo)
+		{
+			return [];
+		}
+
 		$orderDB = new IModel('order');
 		$orderList = $orderDB->query('trade_no = "'.$tradeNo.'"','order_no','id desc');
 		if(count($orderList) >= 2)

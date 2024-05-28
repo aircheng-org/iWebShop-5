@@ -1,0 +1,103 @@
+<div id="pageInfo" data-title="我的建议"></div>
+<section class="us_tab">
+	<ul>
+		<li class="on">我的建议</li>
+		<li>发表建议</li>
+	</ul>
+</section>
+<section class="uc_con">
+	<div class="uc_con_box">
+		<section class="complain_list">
+			<ul>
+				{set:$querySuggestionList = Api::run('getUcenterSuggestion')}
+				{foreach:items = $querySuggestionList->find()}
+				<script>var item{$key} = {echo:JSON::encode($item)};</script>
+				<li onclick='show_msg(item{$key})'>
+					<time>{$item['time']}</time>
+					<i>
+						{if:$item['re_content']!=''}
+						已回复
+						{else:}
+						未回复
+						{/if}
+					</i>
+					<u><strong>{$item['title']}</strong></u>
+				</li>
+				{/foreach}
+			</ul>
+			{$querySuggestionList->getPageBar()}
+
+			{if:!$items}
+			<section class="no_tip">暂无记录</section>
+			{/if}
+		</section>
+
+		<div id="content"></div>
+		<script type='text/html' id='complainTemplate'>
+        <div class='complain'>
+            <div class='close' onclick='$("#content").empty();'></div>
+            <article>
+                <h2>建议内容：</h2>
+                <div class="article"><%=item.content%></div>
+                <p><%=item.time%></p>
+            </article>
+
+            <div class='re_complain'>
+                <h2>回复内容：</h2>
+                <div class='article'>
+                    <%if(item.re_content){%><%=item.re_content%><p><%=item.re_time%></p><%}else{%>请耐心等待...<%}%>
+                </div>
+            </div>
+        </div>
+		</script>
+	</div>
+	<div class="uc_con_box none">
+		<form action="{url:/ucenter/complain_edit}" method="post">
+		<section class="login input_li">
+			<ul>
+				<li>
+					<input type="text" name='title' class="input_text" placeholder="建议标题" pattern='required' initmsg="" alt="标题不能为空">
+				</li>
+				<li>
+					<textarea name='content' class="input_textarea" placeholder="建议内容" pattern='required' alt=''></textarea>
+				</li>
+			</ul>
+		</section>
+		<input id="goSubmit" type="submit" class="none">
+		<footer id="viewport_bottom">
+			<div class="btn_bottom none">
+				<div class="btn_tab">
+					<label class="btn_tab_submit blue" for="goSubmit">确认提交</label>
+				</div>
+			</div>
+		</footer>
+		</form>
+	</div>
+</section>
+
+<script>
+//显示内容
+function show_msg(obj)
+{
+    var complainTemplate = template.render('complainTemplate',{"item":obj});
+    $('#content').html(complainTemplate);
+}
+$(function(){
+	// 隐藏底部导航
+	hideNav();
+	// 简易选项卡切换JS
+	var $tab = $(".us_tab");
+	var $con = $(".uc_con"),
+		$conBox = $con.children('.uc_con_box');
+	$tab.on('click', 'li',function(){
+		var t = $(this),i = t.index();
+		t.addClass('on').siblings('li').removeClass('on');
+		$conBox.eq(i).removeClass('none').siblings('.uc_con_box').addClass('none');
+		if (i === 0) {
+			$('.btn_bottom').addClass('none');
+		} else {
+			$('.btn_bottom').removeClass('none');
+		}
+	});
+})
+</script>

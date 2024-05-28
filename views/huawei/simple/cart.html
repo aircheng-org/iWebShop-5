@@ -1,10 +1,10 @@
 <script type='text/javascript' src="{webroot:public/javascript/cart.js}"></script>
 <section class="breadcrumb">
-	<span>您当前的位置：</span> <a href="{url:}">首页</a> » 购物车
+	<span>{echo:ILang::get('您当前的位置')}：</span> <a href="{url:}">{echo:ILang::get('首页')}</a> » {echo:ILang::get('购物车')}
 </section>
 <section class="web">
 	<div id="cart_prompt" class="cart_prompts none">
-		<strong>恭喜，您的订单已经满足了以下优惠活动！</strong>
+		<strong>{echo:ILang::get('恭喜，您的订单已经满足了以下优惠活动')}！</strong>
 		<ol id="cart_prompt_box"></ol>
 	</div>
 	<!--促销规则模板-->
@@ -13,7 +13,7 @@
 	</script>
 
 	<section class="cart_table">
-		<h3><i class="fa fa-shopping-cart"></i>查看购物车</h3>
+		<h3><i class="fa fa-shopping-cart"></i>{echo:ILang::get('查看购物车')}</h3>
 		<table>
 			<colgroup>
 				<col width="30px">
@@ -27,7 +27,7 @@
 				<col width="120px">
 			</colgroup>
 			<thead>
-				<tr><th><input type="checkbox" name="_selectCartGoods" onchange="selectAll('selectCartGoods');" /></th><th>图片</th><th>商品名称</th><th>赠送积分</th><th>单价</th><th>优惠</th><th>数量</th><th>小计</th><th>操作</th></tr>
+				<tr><th><input type="checkbox" name="_selectCartGoods" onchange="selectAll('selectCartGoods');" /></th><th>{echo:ILang::get('图片')}</th><th>{echo:ILang::get('商品名称')}</th><th>{echo:ILang::get('赠送积分')}</th><th>{echo:ILang::get('单价')}</th><th>{echo:ILang::get('优惠')}</th><th>{echo:ILang::get('数量')}</th><th>{echo:ILang::get('小计')}</th><th>{echo:ILang::get('操作')}</th></tr>
 			</thead>
 			<tbody>
 				{foreach:items = $this->goodsList key=$goodsKey}
@@ -48,7 +48,7 @@
 					</td>
 					<td>{$item['point']}</td>
 					<td><em>￥{$item['sell_price']}</em></td>
-					<td>减￥{$item['reduce']}</td>
+					<td>{echo:ILang::get('优惠')} ￥{$item['reduce']}</td>
 					<td>
 						<div class="goods_resize">
 							<span class="reduce" onclick='cart_reduce(item{$goodsKey});'>─</span>
@@ -57,32 +57,32 @@
 						</div>
 					</td>
 					<td><em>￥<span id="sum_{$item['goods_id']}_{$item['product_id']}">{$item['sum']}</span></em></td>
-					<td><a href="javascript:void(0);" onclick='removeCartByJSON(item{$goodsKey})'>删除</a></td>
+					<td><a href="javascript:void(0);" onclick='removeCartByJSON(item{$goodsKey})'>{echo:ILang::get('删除')}</a></td>
 				</tr>
 				{/foreach}
 
 				<tr>
 					<td colspan="9" class="stats">
-						<span>商品总重量：<b id='weight'>{$this->weight}</b></span><br>
-						<span>商品总金额：￥<b id='origin_price'>{$this->sum}</b> - 商品优惠：￥<b id='discount_price'>{$this->reduce}</b> - 促销活动优惠：￥<b id='promotion_price'>{$this->proReduce}</b></span><br>
-						金额总计（不含运费）：￥<em id='sum_price'>{$this->final_sum}</em>
+						<span>{echo:ILang::get('商品总重量')}：<b id='weight'>{$this->weight}</b></span><br>
+						<span>{echo:ILang::get('商品总金额')}：￥<b id='origin_price'>{$this->sum}</b> - {echo:ILang::get('商品优惠')}：￥<b id='discount_price'>{$this->reduce}</b> - {echo:ILang::get('促销活动优惠')}：￥<b id='promotion_price'>{$this->proReduce}</b></span><br>
+						{echo:ILang::get('金额总计（不含运费）')}：￥<em id='sum_price'>{$this->final_sum}</em>
 					</td>
 				</tr>
 			</tbody>
 		</table>
 		<div class="cart_btn">
-			<div class="clear_cart_btn" onclick="delModel({msg:'确定要清空购物车么？',link:'{url:/simple/clearCart}'});">
+			<div class="clear_cart_btn" onclick="delModel({msg:'{echo:ILang::get('确定要清空购物车么')}？',link:'{url:/simple/clearCart}'});">
 				<i class="fa fa-remove"></i>
-				<span>清空购物车</span>
+				<span>{echo:ILang::get('清空购物车')}</span>
 			</div>
 			<div class="go_back_btn" onclick="window.history.go(-1);">
 				<i class="fa fa-reply"></i>
-				<span>继续购物</span>
+				<span>{echo:ILang::get('继续购物')}</span>
 			</div>
 			{if:$this->goodsList}
 			<a class="gopay_btn" href="{url:/simple/cart2}">
 				<i class="fa fa-credit-card"></i>
-				<span>去结算</span>
+				<span>{echo:ILang::get('去结算')}</span>
 			</a>
 			{/if}
 		</div>

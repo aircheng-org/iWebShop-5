@@ -1,0 +1,41 @@
+<div id="pageInfo" data-title="商品评价"></div>
+
+<section class="evaluation_list">
+    <ul>
+        {set:$queryEvaluationList = Api::run('getUcenterEvaluation')}
+        {foreach:items = $queryEvaluationList->find()}
+        <li>
+			<i>
+				<img src="{url:$item['img']}" alt="{$item['name']}">
+				<div class="info">
+					<h3>{$item['name']}</h3>
+					{if:$item['value']}
+					<span>规格：{$item['value']}</span>
+					{/if}
+				</div>
+			</i>
+            {if:$item['status'] == 0}
+            <div class="btn btn_s btn_pink" onclick="gourl('{url:/site/comments/id/$item['id']}')">
+                发表评价
+            </div>
+            {else:}
+            <p>
+                <strong>我的评论：</strong>{$item['contents']}
+            </p>
+            {/if}
+        </li>
+        {/foreach}
+    </ul>
+</section>
+{$queryEvaluationList->getPageBar()}
+
+{if:!$items}
+<section class="no_tip">暂无记录</section>
+{/if}
+
+<script>
+$(function(){
+    // 隐藏底部导航
+    hideNav();
+})
+</script>

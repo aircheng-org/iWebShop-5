@@ -996,7 +996,7 @@ class System extends IController implements adminAuthorization
      * */
 	function freight_del()
     {
-    	$id = IReq::get('id');
+    	$id = IFilter::act(IReq::get('id'),'int');
 		if($id)
 		{
 			$obj = new IModel('freight_company');

@@ -1,0 +1,29 @@
+<div id="pageInfo" data-goback="{url:/ucenter/order}" data-title="我的订单"></div>
+
+<section class="user_order">
+    {set:$queryOrderList = Api::run('getOrderList')}
+	<ul class="aui-list">
+		{foreach:items = $queryOrderList->find()}
+		<li class="aui-list-item">
+			<div class="aui-list-item-inner aui-list-item-arrow">
+				<div class="aui-list-item-title">
+					<a href="{url:/ucenter/order_detail/id/$item['id']}">订单号: {$item['order_no']}</a>
+				</div>
+				<div class="aui-list-item-right">
+					<a href="{url:/ucenter/order_detail/id/$item['id']}">{echo:Order_Class::orderStatusText(Order_Class::getOrderStatus($item))}</a>
+				</div>
+			</div>
+		</li>
+        {/foreach}
+	</ul>
+	{$queryOrderList->getPageBar()}
+
+	{if:!$items}
+    <div class="no_tip">暂无数据</div>
+    {/if}
+</section>
+<script>
+$(function(){
+	hideNav()
+})
+</script>

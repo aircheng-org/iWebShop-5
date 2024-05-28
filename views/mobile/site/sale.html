@@ -1,0 +1,35 @@
+
+<div id="pageInfo" data-title="特价商品"></div>
+
+{set:$saleList = Api::run('getSaleList')}
+{if:$saleList}
+{foreach:items=$saleList item=$promRow}
+
+<h3 class="home_h3">{$promRow['name']}</h3>
+<section class="goods_list">
+	<ul>
+		{foreach:items=$promRow['goodsList']}
+		<li>
+			<a href="{url:/site/products/id/$item['id']}">
+				<i class="photo"><img class="goods_photo" src="{url:/pic/thumb/img/$item[img]/w/200/h/200}" alt="{$item['name']}"></i>
+				<h3 class="name"><strong>{$item['name']}</strong></h3>
+				<del class="old_price">￥{$item['market_price']}</del>
+				<em class="price">￥{$item['sell_price']}</em>
+			</a>
+		</li>
+		{/foreach}
+	</ul>
+</section>
+
+{/foreach}
+{else:}
+<div class="no_tip">当前暂无数据</div>
+{/if}
+
+
+<script>
+$(function(){
+	// 隐藏底部导航
+	hideNav();
+});
+</script>

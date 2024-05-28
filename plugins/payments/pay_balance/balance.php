@@ -39,9 +39,6 @@ class balance extends paymentPlugin
 	 */
     public function getSendData($payment)
     {
-    	$partnerId  = $payment['M_PartnerId'];
-    	$partnerKey = $payment['M_PartnerKey'];
-
 		$return['attach']     = $payment['M_BatchOrderNO'];
 		$return['total_fee']  = $payment['M_Amount'];
 		$return['order_no']   = $payment['M_OrderNO'];
@@ -55,7 +52,7 @@ class balance extends paymentPlugin
 		}
 
 		$encryptKey = isset(IWeb::$app->config['encryptKey']) ? IWeb::$app->config['encryptKey'] : 'iwebshop';
-		$urlStr .= $partnerKey . $encryptKey;
+		$urlStr .= $encryptKey;
 		$return['sign'] = md5($urlStr);
 
         return $return;
@@ -66,8 +63,6 @@ class balance extends paymentPlugin
 	 */
     public function callback($ExternalData,&$paymentId,&$money,&$message,&$orderNo)
     {
-        $partnerKey = Payment::getConfigParam($paymentId,'M_PartnerKey');
-
     	if(stripos($ExternalData['order_no'],'recharge') !== false)
     	{
         	$message = '预存款支付方式不能用于在线充值';
@@ -92,7 +87,7 @@ class balance extends paymentPlugin
         }
 
         $encryptKey = isset(IWeb::$app->config['encryptKey']) ? IWeb::$app->config['encryptKey'] : 'iwebshop';
-        $testStr = join('&',$temp).'&'.$partnerKey.$encryptKey;
+        $testStr = join('&',$temp).'&'.$encryptKey;
 
         $orderNo = $ExternalData['order_no'];
         $money   = $ExternalData['total_fee'];

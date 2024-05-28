@@ -1,10 +1,10 @@
 <div class="uc_head">
-	<label><span><a href="{url:/ucenter/evaluation}">未评价</a></span></label><label class="current"><span>已评价</span></label>
+	<label><span><a href="{url:/ucenter/evaluation}">{echo:ILang::get('未评价')}</a></span></label><label class="current"><span>{echo:ILang::get('已评价')}</span></label>
 </div>
 <section class="uc_table">
 	<table width="100%" cellpadding="0" cellspacing="0">
 		<thead>
-			<tr><th>商品名称</th><th>订单编号</th><th>评论时间</th><th>评分</th><th>评价</th></tr>
+			<tr><th>{echo:ILang::get('商品名称')}</th><th>{echo:ILang::get('订单编号')}</th><th>{echo:ILang::get('评论时间')}</th><th>{echo:ILang::get('评分')}</th><th>{echo:ILang::get('评价')}</th></tr>
 		</thead>
 		<tbody>
 		    {set:$queryEvaluationList = Api::run('getUcenterEvaluation',1)}
@@ -14,7 +14,7 @@
 				<td>{$item['order_no']}</td>
 				<td>{$item['comment_time']}</td>
 				<td>{$item['point']}</td>
-				<td><span class="green bold">已评价</span></td>
+				<td><span class="green bold">{echo:ILang::get('已评价')}</span></td>
 			</tr>
 			{/foreach}
 		</tbody>
@@ -22,7 +22,7 @@
 </section>
 
 {if:!$items}
-<section class="no_tip">暂无数据</section>
+<section class="no_tip">{echo:ILang::get('暂无数据')}</section>
 {/if}
 
 {$queryEvaluationList->getPageBar()}

@@ -1,10 +1,10 @@
 <div class="bigweb">
 	<section class="breadcrumb">
-		<span>您当前的位置：</span> <a href="{url:}">首页</a> > {if:$catRow}{$catRow['name']}{else:}最新资讯{/if}
+		<span>{echo:ILang::get('您当前的位置')}：</span> <a href="{url:}">{echo:ILang::get('首页')}</a> > {if:$catRow}{$catRow['name']}{else:}{echo:ILang::get('最新资讯')}{/if}
 	</section>
 	<section class="web">
 		<section class="article_main">
-			<h2 class="main_head">{if:$catRow}{$catRow['name']}{else:}最新资讯{/if}</h2>
+			<h2 class="main_head">{if:$catRow}{$catRow['name']}{else:}{echo:ILang::get('最新资讯')}{/if}</h2>
 			<div class="article_list">
 				<ul>
 					{foreach:items = $queryArticle->find()}
@@ -21,7 +21,7 @@
 		<aside class="article_bar">
 			<!-- 资讯分类 -->
 			<nav class="news_article_box">
-				<h3 class="news_article_box_head">资讯分类</h3>
+				<h3 class="news_article_box_head">{echo:ILang::get('资讯分类')}</h3>
 				<ul class="news_article_infor">
 					{foreach:items=Api::run('getArticleCategoryList',10)}
 					<li><a title="{$item['name']}" href="{url:/site/article/id/$item['id']}">{$item['name']}</a></li>
@@ -30,7 +30,7 @@
 			</nav>
 			<!-- 资讯分类 -->
 			<div class="products_bar_box">
-				<h3 class="products_bar_box_head">热卖排行</h3>
+				<h3 class="products_bar_box_head">{echo:ILang::get('热卖排行')}</h3>
 				<ul class="products_bar_hot">
 					{foreach:items=Api::run('getCommendHot', 8)}
 					<li>

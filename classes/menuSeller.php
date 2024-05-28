@@ -25,7 +25,7 @@ class menuSeller
 			"/seller/goods_edit" => "添加普通商品",
             "/seller/goods_edit/type/code" => "添加服务类商品",
             "/seller/goods_edit/type/download" => "添加下载类商品",
-            '/seller/goods_edit/type/preorder' => '添加时间类商品',
+            "/seller/goods_edit/type/preorder" => "添加时间类商品",
 			"/seller/share_list" => "平台共享商品",
 			"/seller/refer_list" => "商品咨询",
 			"/seller/comment_list" => "商品评价",

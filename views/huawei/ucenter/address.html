@@ -1,17 +1,17 @@
 <header class="uc_head">
-	<h3>地址管理</h3>
+	<h3>{echo:ILang::get('地址管理')}</h3>
 </header>
 
 <section class="uc_table">
 	<table>
 		<thead>
 			<tr>
-				<th width="120">收货人</th>
-				<th width="200">所在地区</th>
-				<th>街道地址</th>
-				<th width="100">电话/手机</th>
-				<th width="60">邮编</th>
-				<th width="250">操作</th>
+				<th width="120">{echo:ILang::get('收货人')}</th>
+				<th width="200">{echo:ILang::get('所在地区')}</th>
+				<th>{echo:ILang::get('街道地址')}</th>
+				<th width="100">{echo:ILang::get('电话/手机')}</th>
+				<th width="60">{echo:ILang::get('邮编')}</th>
+				<th width="250">{echo:ILang::get('操作')}</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -31,9 +31,9 @@
 						<i class="fa fa-remove" style="font-size: 16px;"></i>
 					</a>|
 					{if:$item['is_default']==1}
-					<a class="striking" href="{url:/ucenter/address_default/id/$item['id']/is_default/0}">取消默认</a>
+					<a class="striking" href="{url:/ucenter/address_default/id/$item['id']/is_default/0}">{echo:ILang::get('取消默认')}</a>
 					{else:}
-					<a href="{url:/ucenter/address_default/id/$item['id']/is_default/1}">设为默认</a>
+					<a href="{url:/ucenter/address_default/id/$item['id']/is_default/1}">{echo:ILang::get('设为默认')}</a>
 					{/if}
 				</td>
 				<!-- 个人中心表格操作 -->
@@ -44,12 +44,12 @@
 </section>
 
 {if:!$items}
-<section class="no_tip">暂无数据</section>
+<section class="no_tip">{echo:ILang::get('暂无数据')}</section>
 {/if}
 
 <div class="new_address_btn" onclick="editAddress();">
 	<i class="fa fa-map-marker"></i>
-	<span>添加新地址</span>
+	<span>{echo:ILang::get('添加新地址')}</span>
 </div>
 
 <script type='text/javascript'>
@@ -59,12 +59,12 @@ function editAddress(addressId)
 	art.dialog.open(creatUrl("block/address/id/"+addressId),
 	{
 		"id":"addressWindow",
-		"title":"收货地址",
+		"title":"{echo:ILang::get('收货地址')}",
 		"ok":function(iframeWin, topWin){
 			var formObject = iframeWin.document.forms[0];
 			if(formObject.onsubmit() === false)
 			{
-				alert("请正确填写各项信息");
+				alert("{echo:ILang::get('请正确填写各项信息')}");
 				return false;
 			}
 			$.getJSON(formObject.action,$(formObject).serialize(),function(content){
@@ -77,9 +77,9 @@ function editAddress(addressId)
 			});
 			return false;
 		},
-		"okVal":"提交",
+		"okVal":"{echo:ILang::get('提交')}",
 		"cancel":true,
-		"cancelVal":"取消",
+		"cancelVal":"{echo:ILang::get('取消')}",
 	});
 }
 </script>

@@ -1,0 +1,53 @@
+<div id="pageInfo" data-title="我的预付款"></div>
+<div class="my_account">
+    <div class="wallet">
+        <div>
+            <ul class="aui-list">
+                <li class="aui-list-item">
+                    <div class="aui-list-item-inner">
+                        <div class="aui-list-item-title">账户预付款（元）</div>
+                    </div>
+                </li>
+                <li class="aui-list-item">
+                    <div class="aui-list-item-inner">
+                        <div class="aui-list-item-title">￥{$this->memberRow['balance']}</div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <section class="account_list">
+        <ul class="aui-list">
+            {set:$queryAccountLogList = Api::run('getUcenterAccoutLog')}
+            {foreach:items = $queryAccountLogList->find()}
+            <li class="aui-list-item">
+                <div class="aui-list-item-inner">
+                    <div class="aui-list-item-title">
+                        <span>{$item['note']}</span>
+                        <span>{echo:substr($item['time'],0,10)}</span>
+                    </div>
+                </div>
+            </li>
+            {/foreach}
+        </ul>
+    </section>
+    {$queryAccountLogList->getPageBar()}
+</div>
+
+{if:!$items}
+<section class="no_tip">暂无记录</section>
+{/if}
+
+<footer id="viewport_bottom">
+	<div class="btn_bottom">
+		<a href="{url:/ucenter/withdraw}" class="btn_submit">申请提现</a>
+	</div>
+</footer>
+
+<script>
+$(function(){
+    // 隐藏底部导航
+    hideNav();
+})
+</script>

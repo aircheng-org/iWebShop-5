@@ -21,6 +21,9 @@ class ProRule
 	//商品总金额
 	private $sum;
 
+	//订单总积分
+	private $point;
+
 	//用户组
 	private $user_group = null;
 
@@ -39,19 +42,31 @@ class ProRule
 	//商家ID
 	private $seller_id = 0;
 
+	//活动前缀文字
+	private $preText = [0 => "购物满￥X",7 => "订单积分满X",6 => "在线充值满￥X"];
+
 	/**
 	 * @brief 构造函数 初始化商品金额
 	 * @param float $sum       商品金额
 	 * @param int   $seller_id 商家ID
+	 * @param int   $point     订单总积分
 	 */
-	public function __construct($sum = 0,$seller_id = 0)
+	public function __construct($sum = 0,$seller_id = 0,$point = 0)
 	{
 		//商品金额必须为数字
 		if(!is_numeric($sum))
 		{
 			IError::show(403,'order sum must a num');
 		}
+
+		//订单总积分必须为数字
+		if(!is_numeric($point))
+		{
+			IError::show(403,'order point must a num');
+		}
+
 		$this->sum       = $sum;
+		$this->point     = $point;
 		$this->seller_id = IFilter::act($seller_id,'int');
 	}
 
@@ -119,7 +134,7 @@ class ProRule
 		foreach($allInfo as $key => $val)
 		{
 			$explain[$key]['plan'] = $hostTag.$val['name'];
-			$explain[$key]['info'] = $this->typeExplain($val['award_type'],$val['condition'],$val['award_value']);
+			$explain[$key]['info'] = $this->typeExplain($val['award_type'],$val['condition'],$val['award_value'],$val['type']);
 		}
 		return $explain;
 	}
@@ -129,27 +144,29 @@ class ProRule
 	 * @param int 类型id值
 	 * @param string 满足条件
 	 * @param string 奖励数据
+	 * @param string 活动类型
 	 * @return string 类型说明
 	 */
-	private function typeExplain($awardType,$condition,$awardValue)
+	private function typeExplain($awardType,$condition,$awardValue,$type = 0)
 	{
+		$promoPre = isset($this->preText[$type]) ? $this->preText[$type] : "";
 		switch($awardType)
 		{
 			case "1":
 			{
-				return '购物满￥'.$condition.' 优惠￥'.$awardValue;
+				return str_replace("X",$condition,$promoPre).'优惠￥'.$awardValue;
 			}
 			break;
 
 			case "2":
 			{
-				return '购物满￥'.$condition.' 优惠'.$awardValue.'%';
+				return str_replace("X",$condition,$promoPre).'优惠'.$awardValue.'%';
 			}
 			break;
 
 			case "3":
 			{
-				return '购物满￥'.$condition.' 增加'.$awardValue.'积分';
+				return str_replace("X",$condition,$promoPre).'增加'.$awardValue.'积分';
 			}
 			break;
 
@@ -158,13 +175,22 @@ class ProRule
 				$ticketObj = new IModel('ticket');
 				$where     = 'id = '.$awardValue;
 				$ticketRow = $ticketObj->getObj($where);
-				return '购物满￥'.$condition.' 立得￥'.$ticketRow['value'].'优惠券';
+				return str_replace("X",$condition,$promoPre).'立得￥'.$ticketRow['value'].'优惠券';
 			}
 			break;
 
 			case "5":
 			{
-				return '购物满￥'.$condition.' 送赠品';
+				$result = str_replace("X",$condition,$promoPre).'送礼品：';
+				$awardArray = JSON::decode($awardValue);
+				foreach($awardArray as $goodsId => $goodsNum)
+				{
+					$goodsDB = new IModel('goods');
+					$goodsRow = $goodsDB->getObj($goodsId,'name');
+
+					$result .= '【'.$goodsRow['name'].' x'.$goodsNum.'】';
+				}
+				return $result;
 			}
 			break;
 
@@ -172,24 +198,24 @@ class ProRule
 			{
 				if($awardValue)
 				{
-					return '购物满￥'.$condition.' 部分地区免运费';
+					return str_replace("X",$condition,$promoPre).'部分地区免运费';
 				}
 				else
 				{
-					return '购物满￥'.$condition.' 免运费';
+					return str_replace("X",$condition,$promoPre).'免运费';
 				}
 			}
 			break;
 
 			case "8":
 			{
-				return '购物满￥'.$condition.' 立加'.$awardValue.'经验';
+				return str_replace("X",$condition,$promoPre).'立加'.$awardValue.'经验';
 			}
 			break;
 
 			case "10":
 		    {
-		        return '在线充值满￥'.$condition.' 赠送预存款￥'.$awardValue;
+		        return str_replace("X",$condition,$promoPre).'赠送预存款￥'.$awardValue;
 		    }
 		    break;
 
@@ -228,25 +254,53 @@ class ProRule
 	{
 		$datetime = ITime::getDateTime();
 		$proObj   = new IModel('promotion');
-		$where    = '`condition` between 0 and '.$this->sum.' and type = 0 and is_close = 0 and start_time <= "'.$datetime.'" and end_time >= "'.$datetime.'" and seller_id = '.$this->seller_id;
 
-		//奖励类别分析
-		if($award_type != null)
+		$proSumList = [];
+		if($this->sum > 0)
 		{
-			$where.=' and award_type in ('.$award_type.')';
+			$where = '`condition` between 0 and '.$this->sum.' and type = 0 and is_close = 0 and start_time <= "'.$datetime.'" and end_time >= "'.$datetime.'" and seller_id = '.$this->seller_id;
+
+			//奖励类别分析
+			if($award_type != null)
+			{
+				$where.=' and award_type in ('.$award_type.')';
+			}
+
+			//用户组
+			if($this->user_group)
+			{
+				$where.=' and (user_group = "" or FIND_IN_SET('.$this->user_group.',user_group))';
+			}
+			else
+			{
+				$where.=' and user_group = "" ';
+			}
+			$proSumList = $proObj->query($where,'*','CAST( `condition` as signed ) desc');
 		}
 
-		//用户组
-		if($this->user_group)
+		$proPointList = [];
+		if($this->point > 0)
 		{
-			$where.=' and (user_group = "" or FIND_IN_SET('.$this->user_group.',user_group))';
+			$where = '`condition` between 0 and '.$this->point.' and type = 7 and is_close = 0 and start_time <= "'.$datetime.'" and end_time >= "'.$datetime.'" and seller_id = '.$this->seller_id;
+
+			//奖励类别分析
+			if($award_type != null)
+			{
+				$where.=' and award_type in ('.$award_type.')';
+			}
+
+			//用户组
+			if($this->user_group)
+			{
+				$where.=' and (user_group = "" or FIND_IN_SET('.$this->user_group.',user_group))';
+			}
+			else
+			{
+				$where.=' and user_group = "" ';
+			}
+			$proPointList = $proObj->query($where,'*','CAST( `condition` as signed ) desc');
 		}
-		else
-		{
-			$where.=' and user_group = "" ';
-		}
-		$proList = $proObj->query($where,'*','CAST( `condition` as signed ) desc');
-		return $proList;
+		return array_merge($proSumList,$proPointList);
 	}
 
 	/**
@@ -285,8 +339,10 @@ class ProRule
 	/**
 	 * @brief 赠品促销规则奖励操作
 	 * @param array 赠品促销规则奖励信息
+	 * @param int user_id 用户ID
+	 * @param int order_id 订单ID
 	 */
-	private function giftAction($giftArray,$user_id)
+	private function giftAction($giftArray,$user_id,$order_id = null)
 	{
 		$giftInfo = '';
 		foreach($giftArray as $key => $val)
@@ -328,6 +384,34 @@ class ProRule
 				case "8":
 				{
 					plugin::trigger('expUpdate',$user_id,$award_value);
+				}
+				break;
+
+				//赠送礼品
+				case "5":
+				{
+					if($order_id)
+					{
+						$goodsDB = new IModel('goods');
+						$orderGoodsDB = new IModel('order_goods');
+						$awardArray = JSON::decode($val['award_value']);
+						foreach($awardArray as $goodsId => $goodsNum)
+						{
+							$goodsRow = $goodsDB->getObj($goodsId,'sell_price,name,img,weight,seller_id,goods_no');
+							$orderGoodsDB->setData([
+								'order_id' => $order_id,
+								'goods_id' => $goodsId,
+								'img'      => $goodsRow['img'],
+								'goods_price' => $goodsRow['sell_price'],
+								'real_price'  => 0,
+								'goods_nums' => $goodsNum,
+								'goods_weight' => $goodsRow['weight'],
+								'seller_id' => $goodsRow['seller_id'],
+								'goods_array' => JSON::encode(["name" => $goodsRow['name'],"goodsno" => $goodsRow['goods_no'],"value" => ""]),
+							]);
+							$orderGoodsDB->add();
+						}
+					}
 				}
 				break;
 			}
@@ -387,10 +471,10 @@ class ProRule
 	}
 
 	//根据ID奖励执行
-	public function setAwardByIds($ids,$user_id)
+	public function setAwardByIds($ids,$user_id,$order_id = null)
 	{
 		$giftArray = $this->getPromotionByIds($ids);
-		return $this->giftAction($giftArray,$user_id);
+		return $this->giftAction($giftArray,$user_id,$order_id);
 	}
 
 	//获取新用户注册促销的活动内容
@@ -459,7 +543,7 @@ class ProRule
                     {
                         // 赠送预存款
                         $log = new AccountLog();
-                        $note = $this->typeExplain($award_type, $val['condition'], $award_value);
+                        $note = $this->typeExplain($award_type, $val['condition'], $award_value,$val['type']);
                         $logConfig = array(
                             'user_id' => $user_id,
                             'event' => 'recharge_award',

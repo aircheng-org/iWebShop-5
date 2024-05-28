@@ -367,6 +367,12 @@ class Payment
 				return "人工线下";
 			}
 			break;
+
+			case "wechatSharing":
+			{
+				return '微信收付通分账';
+			}
+			break;
 		}
 		return '未知';
 	}

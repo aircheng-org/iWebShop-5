@@ -176,7 +176,7 @@ class Order_Class
 					if($orderRow['type'] == '' && $orderRow['prorule_ids'])
 					{
 				    	$proObj = new ProRule();
-				    	$awardText = $proObj->setAwardByIds($orderRow['prorule_ids'],$user_id);
+				    	$awardText = $proObj->setAwardByIds($orderRow['prorule_ids'],$user_id,$orderRow['id']);
 				    	if($awardText)
 				    	{
 					    	$orderObj->setData(array('note' => "concat(note,'".$awardText."')"));

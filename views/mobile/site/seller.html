@@ -1,0 +1,27 @@
+<div id="pageInfo" data-title="全部商家"></div>
+
+{set:$queryObj=Api::run('getSellerList');$resultData=$queryObj->find()}
+{if:$resultData}
+<section class="seller_list">
+    <ul>
+        {foreach:items=$resultData}
+        <li>
+            <a href="{url:/site/home/id/$item['id']}">
+                <strong>{$item['true_name']}</strong>
+				<img src="{url:$item['logo']}" onerror="this.src='http://www.aircheng.com/images/public/default_logo.png'" />
+                <div class="star_box">评价：<em class="star star_{echo:statistics::gradeSeller($item['id'])}"></em></div>
+                <div>销量：<em>{echo:statistics::sellCountSeller($item['id'])}</em> 件</div>
+                <div>{echo:join(' ',area::name($item['province'],$item['city'],$item['area']))}</div>
+            </a>
+        </li>
+        {/foreach}
+    </ul>
+    {$queryObj->getPageBar()}
+</section>
+{/if}
+<script>
+$(function(){
+    // 隐藏底部导航
+    hideNav();
+});
+</script>
