@@ -73,7 +73,7 @@ class Site extends IController
 
 			//COOKIE中增加记录搜索历史
 			$searchHistory = ICookie::get('searchHistory');
-			$searchHistory = $searchHistory ? $searchHistory : [];
+			$searchHistory = $searchHistory ? JSON::decode($searchHistory) : [];
 			$searchHistory[] = $this->word;
 			ICookie::set('searchHistory',JSON::encode(array_unique($searchHistory)));
 		}
