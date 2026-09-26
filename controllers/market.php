@@ -62,6 +62,7 @@ class Market extends IController implements adminAuthorization
 			$this->ticket_id = $ticket_id;
 			$this->redirect('ticket_more_list',false);
 			Util::showMessage('请选择要修改的id值');
+			return;
 		}
 	}
 
@@ -189,7 +190,7 @@ class Market extends IController implements adminAuthorization
 			{
 				$this->redirect('ticket_list',false);
 				Util::showMessage('无法删除优惠券，其下还有已发放的优惠券');
-				exit;
+				return;
 			}
 
 			$where = "id = {$id} ";
@@ -280,7 +281,7 @@ class Market extends IController implements adminAuthorization
 			{
 				$this->redirect('ticket_list',false);
 				Util::showMessage('实体优惠券数量为0张，无法备份');
-				exit;
+				return;
 			}
 
 			$where.= ' and `condition` in("'.$id_num_str.'")';
@@ -498,6 +499,7 @@ class Market extends IController implements adminAuthorization
 			$this->promotionRow = $dataArray;
 			$this->redirect('pro_speed_edit',false);
 			Util::showMessage('请添加促销的商品，并为商品填写价格');
+			return;
 		}
 
 		$proObj = new IModel('promotion');
@@ -622,6 +624,7 @@ class Market extends IController implements adminAuthorization
 			$this->regimentRow = $dataArray;
 			$this->redirect('regiment_edit',false);
 			Util::showMessage('请选择要关联的商品');
+			return;
 		}
 
 		$regimentObj = new IModel('regiment');
@@ -664,6 +667,7 @@ class Market extends IController implements adminAuthorization
 		{
 			$this->redirect('regiment_list',false);
 			Util::showMessage('请选择要删除的id值');
+			return;
 		}
 	}
 
@@ -741,7 +745,7 @@ class Market extends IController implements adminAuthorization
 		if($id)
 		{
 			$billDB = new IModel('bill');
-			$billDB->del('id = '.$id);
+			$billDB->del('id = '.$id.' and status = 2');
 		}
 
 		$this->redirect('bill_list');
@@ -1030,6 +1034,7 @@ class Market extends IController implements adminAuthorization
 		{
 			$this->redirect('sale_list',false);
 			Util::showMessage('请选择要删除的id值');
+			return;
 		}
 	}
 
@@ -1124,6 +1129,7 @@ class Market extends IController implements adminAuthorization
         {
             $this->redirect('cost_point_list',false);
             Util::showMessage('请选择要删除的id值');
+			return;
         }
     }
 
@@ -1132,6 +1138,11 @@ class Market extends IController implements adminAuthorization
     */
     function bill_list()
     {
+		//查询是否有转账失败的
+		$billDB = new IModel('bill');
+		$billRow = $billDB->getObj('status = -1','count(*) as num');
+		$this->errorNum = $billRow ? $billRow['num'] : 0;
+
         $search = IFilter::act(IReq::get('search'),'strict');
         $where = Util::search($search);
         $page  = IReq::get('page') ? IFilter::act(IReq::get('page'),'int') : 1;
@@ -1288,6 +1299,7 @@ class Market extends IController implements adminAuthorization
 			$this->assembleRow = $dataArray;
 			$this->redirect('assemble_edit',false);
 			Util::showMessage('请选择要关联的商品');
+			return;
 		}
 
 		$assembleObj = new IModel('assemble');
@@ -1518,17 +1530,40 @@ class Market extends IController implements adminAuthorization
 			die('没有选择要结算的商家');
 		}
 
-		//1，拼装数据
-		$billNo = 'B'.Order_Class::createOrderNum();
-		$payList = [];
+		//拼装数据
 		$sellerDB = new IModel('seller');
+		$sellerDB->autocommit(false);
+
 		$error = '';
+		$successNum = 0;
 
 		foreach($sellerIds as $seller_id)
 		{
 			$orderGoodsQuery = CountSum::getSellerGoodsFeeQuery($seller_id,0);
 			$result          = CountSum::countSellerOrderFee($orderGoodsQuery->find());//在$result拼装数据最后送到转账接口里面
 			$result['seller_id'] = $seller_id;
+			$status = 0;//状态:0待处理,1进行中,2已完成,-1未完成;
+
+			//生成结算货款单子
+			$orderIdsString = join(',',$result['order_ids']);
+			$billDB = new IModel('bill');
+			$billDB->setData([
+				'seller_id'  => $seller_id,
+				'pay_time'   => ITime::getDateTime(),
+				'admin_id'   => $this->admin['admin_id'],
+				'log'        => AccountLog::sellerBillTemplate($result),
+				'order_ids'  => $orderIdsString,
+				'amount'     => $result['countFee'],
+				'way'        => $type,
+				'status'     => 0,
+			]);
+			$billId = $billDB->add();
+			$billNo = "B".$billId;
+
+			//更新订单结算状态
+			$orderDB = new IModel('order');
+			$orderDB->setData(['is_checkout' => 1]);
+			$orderDB->update('id in ('.$orderIdsString.')');
 
 			switch($type)
 			{
@@ -1550,7 +1585,32 @@ class Market extends IController implements adminAuthorization
 					else
 					{
 						$error .= "商家ID：[".$seller_id."] 没有绑定微信";
+						$sellerDB->rollback();
+
 						continue 2;
+					}
+
+					//调用转账接口
+					include_once(dirname(__FILE__)."/../plugins/transfer/wechatBalance.php");
+					$sendData = [
+						'transferNo'  => $billNo,
+						'transferName'=> '商户结算',
+						'name'        => $result['name'],
+						'amount'      => $result['amount'],
+						'openid'      => $result['openid'],
+						'platform'    => 'wechat',
+					];
+					$transferObj = new wechatBalance();
+					$tranResult = $transferObj->run($sendData);
+					if(is_array($tranResult) && isset($tranResult['result_code']) && $tranResult['result_code'] == 'SUCCESS')
+					{
+						$payNo  = $tranResult['payment_no'];
+						$status = 1;
+					}
+					else
+					{
+						$error .= $tranResult;
+						$sellerDB->rollback();
 					}
 				}
 				break;
@@ -1558,79 +1618,27 @@ class Market extends IController implements adminAuthorization
 				//人工线下
 				case "offline":
 				{
-
+					$payNo = '88888888';
+					$status = 2;
 				}
 				break;
 			}
 
-			//待结算提现单
-			$payList[] = $result;
-		}
-
-		//2,调用接口转账
-		switch($type)
-		{
-			//微信余额
-			case "wechatBalance":
+			if($status > 0)
 			{
-				include_once(dirname(__FILE__)."/../plugins/transfer/wechatBalance.php");
-				$sendData = [
-					'transferNo'  => $billNo,
-					'transferName'=> '商家货款结算',
-					'detail'      => $payList,
-				];
-				$transferObj = new wechatBalance();
-				$tranResult = $transferObj->run($sendData);
-				if(is_array($tranResult) && isset($tranResult['result_code']) && $tranResult['result_code'] == 'SUCCESS')
-				{
-					$payNo = $tranResult['payment_no'];
-				}
-				else
-				{
-					$payList = [];
-					$error .= $tranResult;
-				}
-			}
-			break;
+				$successNum++;
 
-			//人工线下
-			case "offline":
-			{
-				$payNo = '88888888';
+				$billDB->setData(['status' => $status,'payment_no' => $payNo]);
+				$billDB->update($billId);
+
+				$sellerDB->commit();
+
+				//事件发送
+				plugin::trigger('sellerOrderfeeFinish',$billId);
 			}
-			break;
 		}
 
-		//3,后续处理
-		foreach($payList as $result)
-		{
-			$orderIdsString = join(',',$result['order_ids']);
-
-			//生成结算货款单子
-			$billDB = new IModel('bill');
-			$billDB->setData([
-				'seller_id'  => $result['seller_id'],
-				'pay_time'   => ITime::getDateTime(),
-				'admin_id'   => $this->admin['admin_id'],
-				'log'        => AccountLog::sellerBillTemplate($result),
-				'order_ids'  => $orderIdsString,
-				'amount'     => $result['countFee'],
-				'way'        => $type,
-				'bill_no'    => $billNo,
-				'payment_no' => $payNo,
-			]);
-			$billId = $billDB->add();
-
-			//更新订单结算状态
-			$orderDB = new IModel('order');
-			$orderDB->setData(['is_checkout' => 1]);
-			$orderDB->update('id in ('.$orderIdsString.')');
-
-			//事件发送
-			plugin::trigger('onSellerOrderfeeFinish',$billId);
-		}
-
-		die('总共：'.count($sellerIds).'个; 成功：'.count($payList).'个; '.$error);
+		die('总共：'.count($sellerIds).'个; 成功：'.$successNum.'个; '.$error);
 	}
 
 	//分账结算方式
@@ -1664,7 +1672,6 @@ class Market extends IController implements adminAuthorization
 				continue;
 			}
 
-			$billNo       = 'F'.Order_Class::createOrderNum();
 			$orderIdArray = [];
 			$sub_mchid    = $sellerRow['wechat_mchid'];
 
@@ -1871,7 +1878,6 @@ class Market extends IController implements adminAuthorization
 				'order_ids'  => join(",",$orderIdArray),
 				'amount'     => $totalData['countFee'],
 				'way'        => $type,
-				'bill_no'    => $billNo,
 				'payment_no' => join(",",$totalData['payment_no']),
 			]);
 			$billId = $billDB->add();
@@ -1884,5 +1890,68 @@ class Market extends IController implements adminAuthorization
 			$returnMsg .= "原因：".$totalResult['reason'];
 		}
 		die($returnMsg);
+	}
+
+	//再次结算商家货款
+	public function pay_countfee_again()
+	{
+		$billId = IFilter::act(IReq::get('id'),'int');
+
+		$billObj = new IModel('bill');
+		$billRow = $billObj->getObj('id = '.$billId.' and status = -1');
+		if($billRow)
+		{
+			$billNo = "B".$billId;
+			$seller_id = $billRow['seller_id'];
+			$sellerOpenidRelationDB = new IModel('seller_openid_relation');
+
+			//商家有绑定的openid参数
+			$relationRow = $sellerOpenidRelationDB->getObj('seller_id = '.$seller_id);
+			if($relationRow && $relationRow['openid'])
+			{
+				$sellerDB = new IModel('seller');
+				$sellerRow = $sellerDB->getObj($seller_id,'account');
+				$result = [
+					'amount' => $billRow['amount'] - $billRow['received_amount'],
+					'name'   => $sellerRow['account'],
+					'openid' => $relationRow['openid'],
+				];
+
+				//调用转账接口
+				include_once(dirname(__FILE__)."/../plugins/transfer/wechatBalance.php");
+				$sendData = [
+					'transferNo'  => $billNo,
+					'transferName'=> '商户结算',
+					'name'        => $result['name'],
+					'amount'      => $result['amount'],
+					'openid'      => $result['openid'],
+					'platform'    => 'wechat',
+				];
+				$transferObj = new wechatBalance();
+				$tranResult = $transferObj->run($sendData);
+				if(is_array($tranResult) && isset($tranResult['result_code']) && $tranResult['result_code'] == 'SUCCESS')
+				{
+					$billObj->setData(['status' => 1]);
+					$billObj->update('id = '.$billId.' and status = -1');
+
+					//事件发送
+					plugin::trigger('sellerOrderfeeFinish',$billId);
+
+					echo 'success';
+				}
+				else
+				{
+					echo $tranResult;
+				}
+			}
+			else
+			{
+				echo "商家ID：[".$seller_id."] 没有绑定微信";
+			}
+		}
+		else
+		{
+			echo '货款单状态不正确';
+		}
 	}
 }

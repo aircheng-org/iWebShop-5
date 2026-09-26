@@ -16,7 +16,7 @@ class freight_facade
 	//物流接口实例
 	private static $instance = null;
 
-	//使用的物流接口 \plugins\freight\类文件
+	//使用的物流接口,kdniao:快递鸟; kuaidi100:快递100;
 	private static $freightInterface = 'kuaidi100';
 
 	/**
@@ -63,15 +63,26 @@ class freight_facade
 		}
 
 		//类库路径
-		$basePath = IWeb::$app->getBasePath().'plugins/freight/'.self::$freightInterface.'.php';
-		if(is_file($basePath))
+		$basePath = IWeb::$app->getBasePath().'plugins/freight/';
+		switch(self::$freightInterface)
 		{
-		    include($basePath);
-    		self::$instance = new self::$freightInterface();
-    		if(self::$instance)
-    		{
-    			return self::$instance;
-    		}
+			case "kdniao":
+			{
+				include($basePath.'kdniao.php');
+				self::$instance = new kdniao();
+			}
+			break;
+
+			default:
+			{
+				include($basePath.'kuaidi100.php');
+				self::$instance = new kuaidi100();
+			}
+		}
+
+		if(self::$instance)
+		{
+			return self::$instance;
 		}
 
 		throw new IException("未获取到物流接口");

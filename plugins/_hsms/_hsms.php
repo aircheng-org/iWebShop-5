@@ -132,7 +132,7 @@ class _hsms extends pluginBase
         plugin::reg("onlineRechargeFinish",$this,"onlineRechargeFinish");
 
 		//商家货款结算
-		plugin::reg("onSellerOrderfeeFinish",$this,"onSellerOrderfeeFinish");
+		plugin::reg("sellerOrderfeeFinish",$this,"sellerOrderfeeFinish");
 
 		//用户预存款更新
 		plugin::reg("updateBalance",$this,"updateBalance");
@@ -535,7 +535,7 @@ class _hsms extends pluginBase
             ];
         }
         //同意
-        else if($row['status'] == '2')
+        else
         {
             $data = [
                 "提现审核成功",
@@ -684,7 +684,7 @@ class _hsms extends pluginBase
     }
 
 	//商家货款结算[商家接受]
-	public function onSellerOrderfeeFinish($billId)
+	public function sellerOrderfeeFinish($billId)
 	{
 		$billDB = new IModel('bill');
 		$billRow = $billDB->getObj($billId);
@@ -694,7 +694,7 @@ class _hsms extends pluginBase
 	        "您的订单货款已结算",
 	        "支付方式：".$billRow['way'],
 			"结算金额：￥".$billRow['amount'],
-			"付款单号：".$billRow['bill_no'],
+			"付款单ID：#".$billId,
 	        "请登录您的商家后台查看详情",
 	    ];
         $mobile = $this->getMobileBySeller($billRow['seller_id']);

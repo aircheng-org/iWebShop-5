@@ -53,7 +53,7 @@ class Menu
 			    '/goods/goods_rate_list'	=>	'单品手续费',
 			    '/goods/category_rate_list'	=>	'分类手续费',
 				'/market/order_goods_merge' => '待结算货款',
-				'/market/bill_list' => '已结算货款',
+				'/market/bill_list' => '结算货款单',
 				'/market/order_goods_list' => '货款明细列表',
 			),
 			'信息处理' => array(

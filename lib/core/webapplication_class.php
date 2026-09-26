@@ -88,7 +88,7 @@ class IWebApplication extends IApplication
     {
     	$ctrlId     = $ctrlId ? $ctrlId : $this->defaultController;
     	$ctrlObject = null;
-    	$ctrlFile   = $this->basePath."controllers/".$ctrlId.".php";
+    	$ctrlFile   = $this->basePath."controllers/".basename($ctrlId).".php";
 
     	if(is_file($ctrlFile) && include_once($ctrlFile))
     	{

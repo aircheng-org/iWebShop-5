@@ -144,6 +144,11 @@ class paypal extends paymentPlugin
     }
 
 	/**
+	 * @see paymentplugin::doRefund()
+	 */
+	public function doRefund($paymentInfo){}
+
+	/**
 	 * @param 获取配置参数
 	 */
 	public function configParam()

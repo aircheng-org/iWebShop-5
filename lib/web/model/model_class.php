@@ -417,6 +417,38 @@ class IModel
 	}
 
 	/**
+	 * @brief 表里面的全部字段
+	 * @return array
+	 */
+	public function columns()
+	{
+		$sql = "SHOW COLUMNS FROM `".$this->tableName."`;";
+		return $this->db->query($sql);
+	}
+
+	/**
+	 * @brief 增加字段
+	 * @param $info string 字段信息和约束，比如：status TINYINT DEFAULT 1
+	 * @return boolean
+	 */
+	public function addColumn($info)
+	{
+		$sql = "ALTER TABLE `".$this->tableName."` ADD COLUMN ".$info.";";
+		return $this->db->query($sql);
+	}
+
+	/**
+	 * @brief 删除字段
+	 * @param $colName string 字段名称
+	 * @return boolean
+	 */
+	public function dropColumn($colName)
+	{
+		$sql = "ALTER TABLE `".$this->tableName."` DROP COLUMN ".$colName.";";
+		return $this->db->query($sql);
+	}
+
+	/**
 	 * @brief replace into操作当主键存在update，否则add
 	 * @return boolean
 	 */

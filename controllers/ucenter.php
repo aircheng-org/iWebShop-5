@@ -405,6 +405,7 @@ class Ucenter extends IController implements userAuthorization
         	{
 	        	$this->redirect('refunds',false);
 	        	Util::showMessage(ILang::get('没有找到要退款的商品'));
+				return;
         	}
         	$this->redirect('refunds_detail');
         }
@@ -412,6 +413,7 @@ class Ucenter extends IController implements userAuthorization
         {
         	$this->redirect('refunds',false);
         	Util::showMessage(ILang::get('退款信息不存在'));
+			return;
         }
     }
     /**
@@ -594,7 +596,7 @@ class Ucenter extends IController implements userAuthorization
     {
     	$user_id   = $this->user['user_id'];
 
-    	$memberObj = new IModel('member','balance');
+    	$memberObj = new IModel('member');
     	$where     = 'user_id = '.$user_id;
     	$this->memberRow = $memberObj->getObj($where);
     	$this->redirect('withdraw');
@@ -615,15 +617,20 @@ class Ucenter extends IController implements userAuthorization
 			'time'   => ITime::getDateTime(),
     	);
 
-		$mixAmount = $this->_siteConfig->low_withdraw ? $this->_siteConfig->low_withdraw : 1;
+		$mixAmount = $this->_siteConfig->low_withdraw  ? $this->_siteConfig->low_withdraw : 1;
+		$maxAmount = $this->_siteConfig->high_withdraw ? $this->_siteConfig->high_withdraw : 2000;
 		$memberObj = new IModel('member');
 		$where     = 'user_id = '.$user_id;
-		$memberRow = $memberObj->getObj($where,'balance');
+		$memberRow = $memberObj->getObj($where);
 
 		$withdrawDB = new IModel('withdraw');
 
 		//提现金额范围
-		if($amount <= $mixAmount)
+		if($amount > $maxAmount)
+		{
+			$message = ILang::get('提现的金额必须小于').':￥'.$maxAmount;
+		}
+		else if($amount <= $mixAmount)
 		{
 			$message = ILang::get('提现的金额必须大于').':￥'.$mixAmount;
 		}
@@ -633,7 +640,7 @@ class Ucenter extends IController implements userAuthorization
 		}
 		else if($withdrawDB->getObj('user_id = '.$this->user['user_id'].' and status in (0,1)'))
 		{
-		    $message = ILang::get('您已经提交申请请耐心等待');
+		    $message = ILang::get('当前已有提现申请，不能重复提交');
 		}
 		else
 		{
@@ -649,7 +656,7 @@ class Ucenter extends IController implements userAuthorization
 
 		if($message)
 		{
-			$this->memberRow = array('balance' => $memberRow['balance']);
+			$this->memberRow = $memberRow;
 			$this->withdrawRow = $dataArray;
 			$this->redirect('withdraw',false);
 			Util::showMessage($message);
@@ -1045,6 +1052,7 @@ class Ucenter extends IController implements userAuthorization
         	{
 	        	$this->redirect('exchange',false);
 	        	Util::showMessage(ILang::get('没有找到申请售后的商品'));
+				return;
         	}
         	$this->redirect('exchange_detail');
         }
@@ -1086,6 +1094,7 @@ class Ucenter extends IController implements userAuthorization
         	{
 	        	$this->redirect('fix',false);
 	        	Util::showMessage(ILang::get('没有找到申请售后的商品'));
+				return;
         	}
         	$this->redirect('fix_detail');
         }

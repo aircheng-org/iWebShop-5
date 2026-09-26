@@ -102,6 +102,8 @@ class Captcha
 
         /** Transformations */
         $this->WaveImage();
+        $this->addNoise(); // 添加噪点
+
         if ($this->blur && function_exists('imagefilter'))
 		{
             imagefilter($this->im, IMG_FILTER_GAUSSIAN_BLUR);
@@ -120,6 +122,25 @@ class Captcha
         /** Output */
         $this->WriteImage();
         $this->Cleanup();
+    }
+
+    // 添加随机噪点
+    protected function addNoise()
+    {
+        for ($i = 0; $i < 200; $i++) {
+            $color = imagecolorallocate(
+                $this->im,
+                rand(0, 255),
+                rand(0, 255),
+                rand(0, 255)
+            );
+            imagesetpixel(
+                $this->im,
+                rand(0, $this->width*$this->scale),
+                rand(0, $this->height*$this->scale),
+                $color
+            );
+        }
     }
 
     /**
@@ -154,6 +175,24 @@ class Captcha
                 $this->shadowColor[0],
                 $this->shadowColor[1],
                 $this->shadowColor[2]
+            );
+        }
+
+        // 添加干扰线
+        for ($i = 0; $i < 10; $i++) {
+            $color = imagecolorallocate(
+                $this->im,
+                rand(0, 255),
+                rand(0, 255),
+                rand(0, 255)
+            );
+            imageline(
+                $this->im,
+                rand(0, $this->width*$this->scale),
+                rand(0, $this->height*$this->scale),
+                rand(0, $this->width*$this->scale),
+                rand(0, $this->height*$this->scale),
+                $color
             );
         }
     }
@@ -313,5 +352,4 @@ class Captcha
         imagedestroy($this->im);
     }
 }
-
 ?>

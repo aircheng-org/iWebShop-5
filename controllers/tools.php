@@ -288,6 +288,7 @@ class Tools extends IController implements adminAuthorization
 			$this->articleRow = $dataArray;
 			$this->redirect('article_edit',false);
 			Util::showMessage('请选择分类');
+			return;
 		}
 		$articleObj->setData($dataArray);
 
@@ -329,6 +330,7 @@ class Tools extends IController implements adminAuthorization
 			$this->articleRow = $dataArray;
 			$this->redirect('article_edit',false);
 			Util::showMessage('插入数据时发生错误');
+			return;
 		}
 
 		$this->redirect('article_list');
@@ -469,6 +471,7 @@ class Tools extends IController implements adminAuthorization
 					);
 					$this->redirect('article_cat_edit',false);
 					Util::showMessage('不能该节点移动到其子节点的位置上');
+					return;
 				}
 				else
 				{
@@ -555,6 +558,7 @@ class Tools extends IController implements adminAuthorization
 			$message = isset($message) ? $message : '删除失败';
 			$this->redirect('article_cat_list',false);
 			Util::showMessage($message);
+			return;
 		}
 		else
 		{
@@ -587,6 +591,7 @@ class Tools extends IController implements adminAuthorization
 		{
 			$this->redirect('ad_position_list',false);
 			Util::showMessage('请选择要删除的广告位');
+			return;
 		}
 	}
 
@@ -935,6 +940,7 @@ class Tools extends IController implements adminAuthorization
 		{
 			$this->redirect('keyword_list',false);
 			Util::showMessage('请选择要同步的关键词');
+			return;
 		}
 
 		$keywordObj = new IModel('keyword');
@@ -995,6 +1001,7 @@ class Tools extends IController implements adminAuthorization
 		{
 			$this->redirect("search_list",false);
 			Util::showMessage('请选择要删除的数据');
+			return;
 		}
 		$this->redirect("search_list");
 	}

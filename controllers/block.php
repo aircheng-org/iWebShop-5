@@ -801,4 +801,68 @@ class Block extends IController
 		}
 		die(JSON::encode(['status' => 'success','data' => $result['preorder'],'amount' => $result['final_sum']]));
 	}
+
+	//转账回调
+	public function transfer_callback()
+	{
+		$name = IFilter::act(IReq::get('_id'));
+		switch($name)
+		{
+			//商家转账
+			case "wechatBalance":
+			{
+				$callbackData = "";
+				$paymentId = "";
+				$money = "";
+				$message = "";
+				$orderNo = "";
+
+				include_once(dirname(__FILE__)."/../plugins/transfer/wechatBalance.php");
+				$transferObj = new wechatBalance();
+				$transferObj->serverCallback($callbackData,$paymentId,$money,$message,$orderNo);
+			}
+			break;
+		}
+	}
+
+	//微信提现页面
+	public function withdrawal()
+	{
+		$id  = IFilter::act(IReq::get('id'));
+		$mod = IFilter::act(IReq::get('mod'));
+
+		switch($mod)
+		{
+			//用户余额提现
+			case "user_balance":
+			{
+				$cache = new ICache('file');
+				$data = $cache->get('T'.$id);
+			}
+			break;
+
+			//商家货款提现
+			case "seller_product":
+			{
+				$cache = new ICache('file');
+				$data  = [];
+				$idArray = explode(",",$id);
+				foreach($idArray as $idValue)
+				{
+					$json = $cache->get('B'.$idValue);
+					$dataArray = JSON::decode($json);
+					if($dataArray)
+					{
+						$data = array_merge($data,$dataArray);
+					}
+				}
+				$data = JSON::encode($data);
+			}
+			break;
+		}
+
+		$data = isset($data) && $data ? $data : "{}";
+		$this->setRenderData(["data" => $data,"mod" => $mod]);
+		$this->redirect('withdrawal');
+	}
 }

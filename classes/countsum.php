@@ -12,6 +12,12 @@
  */
 class CountSum
 {
+	//是否管理员后台操作
+	public $is_admin = false;
+
+	//自定义的商品价格：以商品ID_货品ID为键名，值为价格，比如：[435_333 => 44.00 , 33_0 => 32.10]
+	public $custom_goods_price = [];
+
 	//用户ID
 	public $user_id = 0;
 
@@ -26,6 +32,9 @@ class CountSum
 
 	//online:线上计算; offline:线下计算。主要是解决管理员手动添加订单的线下形式
 	public $method = 'online';
+
+	//账单状态文字:0待处理,1进行中,2已完成,-1未完成;
+	public static $billStatusText = ['0' => '待处理','1' => '进行中','2' => '已完成','-1' => '未完成'];
 
 	/**
 	 * 构造函数
@@ -208,7 +217,8 @@ class CountSum
             }
         }
 
-    	if($goodsCount === 1)
+		//是单品且非管理员后台添加
+    	if($goodsCount === 1 && $this->is_admin == false)
     	{
     	    $goodsInfo = current($buyInfo);
     	    if(count($goodsInfo['id']) == 1)
@@ -386,6 +396,11 @@ class CountSum
 	    			}
 
 	    			$goodsList[$key]['reduce'] = $groupPrice === null ? 0 : round($val['sell_price'] - $groupPrice,2);
+					if($this->is_admin == true && $this->custom_goods_price && isset($this->custom_goods_price[$val['goods_id'].'_'.$val['product_id']]))
+					{
+						$goodsList[$key]['reduce'] = round($val['sell_price'] - $this->custom_goods_price[$val['goods_id'].'_'.$val['product_id']],2);
+					}
+
 	    			$goodsList[$key]['count']  = $buyInfo['goods']['data'][$val['goods_id']]['count'];
 	    			$current_sum_all           = $val['sell_price']         * $goodsList[$key]['count'];
 	    			$current_reduce_all        = $goodsList[$key]['reduce'] * $goodsList[$key]['count'];
@@ -477,6 +492,11 @@ class CountSum
 	    			}
 
 					$productList[$key]['reduce'] = $groupPrice === null ? 0 : round($val['sell_price'] - $groupPrice,2);
+					if($this->is_admin == true && $this->custom_goods_price && isset($this->custom_goods_price[$val['goods_id'].'_'.$val['product_id']]))
+					{
+						$productList[$key]['reduce'] = round($val['sell_price'] - $this->custom_goods_price[$val['goods_id'].'_'.$val['product_id']],2);
+					}
+
 	    			$productList[$key]['count']  = $buyInfo['product']['data'][$val['product_id']]['count'];
 	    			$current_sum_all             = $val['sell_price']           * $productList[$key]['count'];
 	    			$current_reduce_all          = $productList[$key]['reduce'] * $productList[$key]['count'];

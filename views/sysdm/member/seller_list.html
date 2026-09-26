@@ -95,7 +95,7 @@
 					{if:class_exists('wechatSharing')}
 					<a href="{url:/wechatSharing/mch_apply/seller_id/$item['id']}" target="_blank" title="注册微信商户"><i class='operator fa fa-weixin'></i></a>
 					{/if}
-					<a onclick="delModel({link:'{url:/member/seller_del/id/$item[id]}'})"><i class='operator fa fa-close'></i></a>
+					<a onclick="delModel({link:'{url:/member/seller_del/id/$item['id']}'})"><i class='operator fa fa-close'></i></a>
 				</td>
 			</tr>
 			{/foreach}

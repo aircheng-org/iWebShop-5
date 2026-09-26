@@ -23,7 +23,7 @@ class Message extends IController implements adminAuthorization
 		{
 			$this->redirect('registry_list',false);
 			Util::showMessage('请选择要删除的邮箱');
-			exit;
+			return;
 		}
 
 		if(is_array($ids))

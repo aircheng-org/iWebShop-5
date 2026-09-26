@@ -467,6 +467,7 @@ class Seller extends IController implements sellerAuthorization
 			$this->sellerRow = $_POST;
 			$this->redirect('seller_edit',false);
 			Util::showMessage($errorMsg);
+			return;
 		}
 
 		//待更新的数据
@@ -561,6 +562,7 @@ class Seller extends IController implements sellerAuthorization
 		{
 			$this->redirect('regiment_list',false);
 			Util::showMessage('请选择要删除的id值');
+			return;
 		}
 	}
 
@@ -601,6 +603,7 @@ class Seller extends IController implements sellerAuthorization
 				$this->regimentRow = $dataArray;
 				$this->redirect('regiment_edit',false);
 				Util::showMessage('请选择商户自己的商品');
+				return;
 			}
 
             $dataArray['img'] = $goodsRow['img'];
@@ -620,6 +623,7 @@ class Seller extends IController implements sellerAuthorization
 			$this->regimentRow = $dataArray;
 			$this->redirect('regiment_edit',false);
 			Util::showMessage('请选择要关联的商品');
+			return;
 		}
 
 		$regimentObj = new IModel('regiment');
@@ -1462,7 +1466,7 @@ class Seller extends IController implements sellerAuthorization
 			{
 				$this->category_list();
 				Util::showMessage('无法删除此分类，此分类下还有子分类，或者回收站内还留有子分类');
-				exit;
+				return;
 			}
 
 			if($tb_category->del('id = '.$category_id.' and seller_id = '.$this->seller['seller_id']))
@@ -1476,6 +1480,7 @@ class Seller extends IController implements sellerAuthorization
 				$this->category_list();
 				$msg = "没有找到相关分类记录！";
 				Util::showMessage($msg);
+				return;
 			}
 		}
 		else
@@ -1824,7 +1829,7 @@ class Seller extends IController implements sellerAuthorization
     //删除自提点
 	public function takeself_operate()
 	{
-		$id = IFilter::act(IReq::get('id'));
+		$id = IFilter::act(IReq::get('id'),'int');
         if(is_array($id))
         {
         	$id = join(',',$id);
@@ -1969,6 +1974,7 @@ class Seller extends IController implements sellerAuthorization
 				$this->assembleRow = $dataArray;
 				$this->redirect('assemble_edit',false);
 				Util::showMessage('请选择商户自己的商品');
+				return;
 			}
 
 			$dataArray['img'] = $goodsRow['img'];
@@ -1988,6 +1994,7 @@ class Seller extends IController implements sellerAuthorization
 			$this->assembleRow = $dataArray;
 			$this->redirect('assemble_edit',false);
 			Util::showMessage('请选择要关联的商品');
+			return;
 		}
 
 		$assembleObj = new IModel('assemble');
@@ -2046,9 +2053,9 @@ class Seller extends IController implements sellerAuthorization
     {
         $status    = IFilter::act(IReq::get('status'));
         $id        = IFilter::act(IReq::get('id'),'int');
-        $ticket_id = IFilter::act(IReq::get('ticket_id'));
+        $ticket_id = IFilter::act(IReq::get('ticket_id'),'int');
 
-        if($id && $status != null && $ticket_id != null)
+        if($id && $status != null && $ticket_id)
         {
             $ticketObj = new IModel('prop');
             if(is_array($id))
@@ -2214,7 +2221,7 @@ class Seller extends IController implements sellerAuthorization
             {
                 $this->redirect('ticket_list',false);
                 Util::showMessage('无法删除优惠券，其下还有正在使用的优惠券');
-                exit;
+                return;
             }
 
             $where = "id = {$id} and seller_id = ".$this->seller['seller_id'];
@@ -2297,7 +2304,7 @@ class Seller extends IController implements sellerAuthorization
             {
                 $this->redirect('ticket_list',false);
                 Util::showMessage('实体优惠券数量为0张，无法备份');
-                exit;
+                return;
             }
 
             $where.= ' and `condition` in("'.$id_num_str.'") and seller_id = '.$this->seller['seller_id'];

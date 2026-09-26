@@ -1311,6 +1311,7 @@ class Simple extends IController
 			$this->sellerRow = IFilter::act($_POST,'text');
 			$this->redirect('seller',false);
 			Util::showMessage($errorMsg);
+			return;
 		}
 
 		//待更新的数据

@@ -286,4 +286,24 @@ class IString
 
         return rtrim($rs, ' ');
     }
+
+	/**
+	 * 隐藏手机号码
+	 * @param string $phone 要隐藏的手机号码
+	 * @return string 隐藏后的手机号码
+	 */
+	public static function hidePhone($phone)
+	{
+		return substr($phone, 0, 3) . '****' . substr($phone, 7);
+	}
+
+	/**
+	 * 隐藏姓名
+	 * @param string $name 要隐藏的姓名
+	 * @return string 隐藏后的姓名
+	 */
+	public static function hideLastName($name)
+	{
+		return mb_substr($name, 0, 1, 'UTF-8') . str_repeat('*', mb_strlen($name, 'UTF-8') - 1);
+	}
 }

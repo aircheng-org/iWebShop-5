@@ -152,7 +152,7 @@ class System extends IController implements adminAuthorization
         		$this->redirect('delivery',false);
         	}
         	Util::showMessage('请选择要操作的选项');
-        	exit;
+        	return;
         }
 
 		$delivery     =  new IModel('delivery');
@@ -509,6 +509,7 @@ class System extends IController implements adminAuthorization
 		{
 			$this->redirect('admin_list',false);
 			Util::showMessage('不允许删除系统初始化管理员');
+			return;
 		}
 
 		//是否为回收站操作
@@ -541,6 +542,7 @@ class System extends IController implements adminAuthorization
 				$this->redirect('admin_recycle',false);
 
 			Util::showMessage('请选择要操作的管理员ID');
+			return;
 		}
 	}
 
@@ -579,6 +581,7 @@ class System extends IController implements adminAuthorization
 				$this->redirect('role_recycle',false);
 
 			Util::showMessage('请选择要操作的角色ID');
+			return;
 		}
 	}
 
@@ -695,7 +698,7 @@ class System extends IController implements adminAuthorization
 			);
 			$this->redirect('right_edit',false);
 			Util::showMessage('权限码不能为空');
-			exit;
+			return;
 		}
 
 		$dataArray = array(
@@ -1082,7 +1085,8 @@ class System extends IController implements adminAuthorization
     	if($id == 0)
     	{
     		$this->redirect('oauth_list',false);
-    		Util::showMessage('请选择要修改的登录平台');exit;
+    		Util::showMessage('请选择要修改的登录平台');
+			return;
     	}
 
     	$oauthDBObj = new IModel('oauth');
@@ -1090,7 +1094,8 @@ class System extends IController implements adminAuthorization
 		if(!$oauthRow)
 		{
     		$this->redirect('oauth_list',false);
-    		Util::showMessage('请选择要修改的登录平台');exit;
+    		Util::showMessage('请选择要修改的登录平台');
+			return;
 		}
 
 		//获取字段数据
@@ -1108,7 +1113,8 @@ class System extends IController implements adminAuthorization
     	if($id == 0)
     	{
     		$this->redirect('oauth_list',false);
-    		Util::showMessage('请选择要修改的登录平台');exit;
+    		Util::showMessage('请选择要修改的登录平台');
+			return;
     	}
 
     	$oauthDBObj = new IModel('oauth');
@@ -1116,7 +1122,8 @@ class System extends IController implements adminAuthorization
 		if(!$oauthRow)
 		{
     		$this->redirect('oauth_list',false);
-    		Util::showMessage('请选择要修改的登录平台');exit;
+    		Util::showMessage('请选择要修改的登录平台');
+			return;
 		}
 
 		$dataArray = array(

@@ -16,7 +16,7 @@ class menuSeller
 			"/seller/index" => "管理首页",
 			"/seller/account" => "销售额统计",
 			"/seller/order_goods_list" => "货款明细列表",
-			"/seller/bill_list" => "已结算货款",
+			"/seller/bill_list" => "结算货款单",
 		),
 
 		"商品模块" => array(

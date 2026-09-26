@@ -1,3 +1,4 @@
+{js:artTemplate}
 <div class="breadcrumbs" id="breadcrumbs">
 	<ul class="breadcrumb">
 		<li>
@@ -32,6 +33,9 @@
             <a class="btn btn-default" onclick="delModel({'form':'group_list',msg:'确定要删除选中的记录吗？'})">
                 <i class="fa fa-close"></i>批量删除
             </a>
+			<a class="btn btn-default" onclick="priceImportShow()">
+				<i class="fa fa-file-excel-o"></i>导入会员价
+			</a>
 		</caption>
 		<thead>
 			<tr>
@@ -62,3 +66,37 @@
 	</table>
 </div>
 </form>
+
+<!--商品excel导入模板-->
+<script id="priceImportTemplate" type="text/html">
+<form name="priceImportForm" action="{url:/member/price_import}" method="post" enctype="multipart/form-data">
+	<div class="bg-yellow tips">
+		<ol>
+			<li>文件格式：xlsx</li>
+			<li>表头共四列：商品货号,商品名称,会员组名称,会员组价格</li>
+			<li>正式数据从第二行开始</li>
+		</ol>
+	</div>
+	<hr/>
+	<input type='file' name='price_csv'  />
+</form>
+</script>
+
+<script>
+//会员价导入
+function priceImportShow()
+{
+	var templateHtml = template.render('priceImportTemplate');
+	art.dialog(
+	{
+		okVal:"开始导入",
+		content: templateHtml,
+		ok:function(iframeWin)
+		{
+			var formObj = iframeWin.document.forms['priceImportForm'];
+			formObj.submit();
+			loadding('正在导入请稍候......');
+		}
+	});
+}
+</script>

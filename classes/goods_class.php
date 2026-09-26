@@ -160,7 +160,6 @@ class goods_class
 		$defaultKey = array_search(min($postData['_sell_price']),$postData['_sell_price']);
 
 		//赋值goods表默认数据
-		$goodsUpdateData['name']         = IFilter::act($goodsUpdateData['name'],'text');
 		$goodsUpdateData['goods_no']     = isset($postData['_goods_no'][$defaultKey])     ? IFilter::act($postData['_goods_no'][$defaultKey])             : '';
 		$goodsUpdateData['market_price'] = isset($postData['_market_price'][$defaultKey]) ? IFilter::act($postData['_market_price'][$defaultKey],'float') : 0;
 		$goodsUpdateData['sell_price']   = isset($postData['_sell_price'][$defaultKey])   ? IFilter::act($postData['_sell_price'][$defaultKey],'float')   : 0;

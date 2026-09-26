@@ -12,19 +12,8 @@ class Update extends IController
 		set_time_limit(0);
 
 		$sql = array(
-			"alter table `{pre}order_goods` add column `refunds_nums` smallint(5) NOT NULL default '0' COMMENT '退款数量';",
-			"alter table `{pre}refundment_doc` add column `order_goods_nums` text COMMENT '退款数量集合';",
-			"alter table `{pre}exchange_doc` add column `order_goods_nums` text COMMENT '退款数量集合';",
-			"alter table `{pre}fix_doc` add column `order_goods_nums` text COMMENT '退款数量集合';",
-
-			"alter table `{pre}seller` add column `x` decimal(16,11) default NULL COMMENT '商家坐标X';",
-			"alter table `{pre}seller` add column `y` decimal(16,11) default NULL COMMENT '商家坐标Y';",
-
-			"alter table `{pre}withdraw` add column `finish_time` datetime NULL COMMENT '完成时间';",
-			"alter table `{pre}withdraw` add column `pay_no` varchar(50) NULL COMMENT '转账回执单号';",
-			"alter table `{pre}withdraw` add column `way` varchar(50) NULL COMMENT '转账方式';",
-
-			"ALTER TABLE `{pre}withdraw` DROP `is_del`;",
+			"alter table `{pre}bill` add column `received_amount` decimal(15,2) NOT NULL default '0.00' COMMENT '已收到金额';",
+			"alter table `{pre}bill` add column `status` tinyint(1) NOT NULL default '0' COMMENT '状态:0待处理,1进行中,2已完成,-1未完成';",
 		);
 
 		foreach($sql as $key => $val)
@@ -35,7 +24,7 @@ class Update extends IController
         //清空runtime缓存
 		$runtimePath = IWeb::$app->getBasePath().'runtime';
 		$result      = IFile::clearDir($runtimePath);
-		die("升级成功!! V5.10版本");
+		die("升级成功!! V5.16版本");
 	}
 
 	public function _c($sql)

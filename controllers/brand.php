@@ -145,7 +145,7 @@ class Brand extends IController implements adminAuthorization
 		$tb_brand = new IModel('brand');
 
 		//判断品牌重复问题
-		if($tb_brand->getObj('name = "'.$name.'"'))
+		if($tb_brand->getObj('name = "'.$name.'" and id != '.$brand_id))
 		{
 		    IError::show('品牌名称 '.$name.' 重复');
 		}

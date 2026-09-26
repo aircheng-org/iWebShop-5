@@ -470,9 +470,16 @@ class Site extends IController
 			exit;
 		}
 
+		//拼接规格数据
+		$jsonConditionArray = [];
+		foreach($specJSON as $specItem)
+		{
+			$jsonConditionArray[] = " JSON_SEARCH(`spec_array`, 'one', '".$specItem['value']."', NULL, '$[*].value') IS NOT NULL ";
+		}
+
 		//获取货品数据
 		$tb_products = new IModel('products');
-		$procducts_info = $tb_products->getObj("goods_id = ".$goods_id." and spec_array = '".IFilter::act(htmlspecialchars_decode(JSON::encode($specJSON)))."'");
+		$procducts_info = $tb_products->getObj("goods_id = ".$goods_id." and (".join(" and ",$jsonConditionArray).")");
 
 		//匹配到货品数据
 		if(!$procducts_info)

@@ -58,7 +58,7 @@
 			</thead>
 
 			<tbody>
-                {set:$queryObj=Api::run('getListByWithdraw',array('status'=>'0,1'));$resultData=$queryObj->find()}
+                {set:$queryObj=Api::run('getListByWithdraw',array('status'=>'0'));$resultData=$queryObj->find()}
                 {foreach:items=$resultData}
 				<tr>
 					<td><input type="checkbox" name="id[]" value="{$item['id']}" /></td>

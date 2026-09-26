@@ -1619,7 +1619,7 @@ CREATE TABLE `{pre}withdraw` (
   `re_note` varchar(255) default NULL COMMENT '回复备注信息',
   PRIMARY KEY  (`id`),
   index (`user_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='提现记录';
+) ENGINE=InnoDB AUTO_INCREMENT=1000 DEFAULT CHARSET=utf8 COMMENT='提现记录';
 
 ------------------------------------------------------------
 
@@ -1629,7 +1629,6 @@ CREATE TABLE `{pre}withdraw` (
 DROP TABLE IF EXISTS `{pre}bill`;
 CREATE TABLE `{pre}bill` (
   `id` int(11) unsigned NOT NULL auto_increment,
-  `bill_no` varchar(255) NOT NULL COMMENT '付款单号B2021010101010000',
   `payment_no` varchar(255) DEFAULT NULL COMMENT '支付平台回执单号',
   `seller_id` int(11) unsigned NOT NULL COMMENT '商家ID',
   `pay_time` datetime DEFAULT NULL COMMENT '支付结算时间',
@@ -1638,11 +1637,13 @@ CREATE TABLE `{pre}bill` (
   `order_ids` text COMMENT 'order表主键ID，结算的ID',
   `amount` decimal(15,2) NOT NULL default '0.00' COMMENT '结算的金额',
   `way` varchar(255) NOT NULL COMMENT '结算方式:wechat,offline',
+  `received_amount` decimal(15,2) NOT NULL default '0.00' COMMENT '已收到金额',
+  `status` tinyint(1) NOT NULL default '0' COMMENT '状态:0待处理,1进行中,2已完成,-1未完成',
   `_hash` int(11) unsigned NOT NULL COMMENT '预留散列字段',
   PRIMARY KEY  (`id`,`_hash`),
-  index (`bill_no`),
+  index (`status`),
   index (`seller_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='商家货款结算单表';
+) ENGINE=InnoDB AUTO_INCREMENT=1000 DEFAULT CHARSET=utf8 COMMENT='商家货款结算单表';
 
 --
 -- 导出表中的数据 `{pre}takeself`
@@ -1757,7 +1758,7 @@ CREATE TABLE `{pre}seller` (
   `x` decimal(16,11) default NULL COMMENT '商家坐标X',
   `y` decimal(16,11) default NULL COMMENT '商家坐标Y',
   `wechat_mchid` varchar(255) NOT NULL default '' COMMENT '微信商户号',
-  `wechat_mch_apply` json default NULL COMMENT '微信商户申请的JSON数据',
+  `wechat_mch_apply` text COMMENT '微信商户申请的JSON数据',
   `_hash` int(11) unsigned NOT NULL COMMENT '预留散列字段',
   UNIQUE KEY `seller_name` (`seller_name`,`_hash`),
   PRIMARY KEY  (`id`,`_hash`),
@@ -1941,13 +1942,14 @@ CREATE TABLE `{pre}cost_point` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(20) NOT NULL COMMENT '活动名称',
   `sort` smallint(5) NOT NULL COMMENT '顺序',
-  `goods_id` int(11) NOT NULL COMMENT '商品id',
+  `goods_id` int(11) unsigned NOT NULL COMMENT '商品id',
   `point` int(11) NOT NULL COMMENT '所需要的积分',
   `is_close` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否关闭 0:否 1:是',
   `user_group` text COMMENT '允许参与活动的用户组,all表示所有用户组',
   `seller_id` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '商家ID',
   `_hash` int(11) unsigned NOT NULL COMMENT '预留散列字段',
-  PRIMARY KEY (`id`,`_hash`)
+  PRIMARY KEY (`id`,`_hash`),
+  index (`goods_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='商品积分兑换表';
 
 -- --------------------------------------------------------
@@ -49815,6 +49817,7 @@ INSERT INTO `{pre}right` VALUES (NULL, '[会员]会员修改组', 'member@change
 INSERT INTO `{pre}right` VALUES (NULL, '[会员]会员回收站', 'member@member_del,member@member_restore,member@recycling', 0);
 INSERT INTO `{pre}right` VALUES (NULL, '[会员]会员预付款操作', 'member@member_balance,member@member_recharge', 0);
 INSERT INTO `{pre}right` VALUES (NULL, '[会员]会员组列表', 'member@group_list', 0);
+INSERT INTO `{pre}right` VALUES (NULL, '[会员]会员组价格导入', 'member@price_import', 0);
 INSERT INTO `{pre}right` VALUES (NULL, '[会员]会员组添加修改', 'member@group_edit,member@group_save', 0);
 INSERT INTO `{pre}right` VALUES (NULL, '[会员]会员组删除', 'member@group_del', 0);
 INSERT INTO `{pre}right` VALUES (NULL, '[会员]会员预存款提现', 'member@withdraw_list,member@pay_countfee,member@withdraw_del,member@withdraw_detail', 0);
@@ -49972,7 +49975,6 @@ INSERT INTO `{pre}payment` VALUES (NULL, '网银在线', 1, 'chinabank', '网银
 INSERT INTO `{pre}payment` VALUES (NULL, '中国银联', 1, 'unionpay', '中国银联unionpay平台接口。费率相对较低，而且支持银行数量最广泛，注意：商户的 <签名证书>和<密码加密证书>都必须放置到商城根目录下的 "/plugins/payments/pay_unionpay/key" 目录中。<a href="https://open.unionpay.com/ajweb/index" target="_blank">立即申请</a>', '/payments/logos/pay_unionpay.png',1, 99, NULL,NULL,1);
 INSERT INTO `{pre}payment` VALUES (NULL, '中国银联手机支付', 1, 'wap_unionpay', '中国银联unionpay手机网站支付接口。费率相对较低，而且支持银行数量最广泛，注意：商户的 <签名证书>和<密码加密证书>都必须放置到商城根目录下的 "/plugins/payments/pay_wap_unionpay/key" 目录中。<a href="https://open.unionpay.com/ajweb/index" target="_blank">立即申请</a>', '/payments/logos/pay_wap_unionpay.jpg',1, 99, NULL,NULL,2);
 INSERT INTO `{pre}payment` VALUES (NULL, '中国银联B2B企业支付', 1, 'b2b_unionpay', '中国银联unionpay企业对公付款接口。费率相对较低，而且支持银行数量最广泛，注意：商户的 <签名证书>和<密码加密证书>都必须放置到商城根目录下的 "/plugins/payments/pay_b2b_unionpay/key" 目录中。<a href="https://open.unionpay.com/ajweb/index" target="_blank">立即申请</a>', '/payments/logos/pay_b2b_unionpay.jpg',1, 99, NULL,NULL,1);
-INSERT INTO `{pre}payment` VALUES (NULL, '腾讯财付通', 1, 'tenpay', '财付通是腾讯公司创办的中国领先的在线支付平台，致力于为互联网用户和企业提供安全、便捷、专业的在线支付服务。 <a href="https://www.tenpay.com/v2/" target="_blank">立即申请</a>','/payments/logos/pay_tenpay.gif', 1, 99, NULL,NULL,1);
 INSERT INTO `{pre}payment` VALUES (NULL, '快钱', 1, 'bill99', '快钱是国内领先的独立第三方支付企业，旨在为各类企业及个人提供安全、便捷和保密的支付清算与账务服务。 <a href="https://www.99bill.com/" target="_blank">立即申请</a>', '/payments/logos/pay_99bill.gif', 1, 99, NULL,NULL,1);
 INSERT INTO `{pre}payment` VALUES (NULL, '快钱手机支付', 1, 'wap_bill99', '快钱是国内领先的独立第三方支付企业，旨在为各类企业及个人提供安全、便捷和保密的支付清算与账务服务。 <a href="https://www.99bill.com/" target="_blank">立即申请</a>', '/payments/logos/pay_wap_99bill.jpg', 1, 99, NULL,NULL,2);
 INSERT INTO `{pre}payment` VALUES (NULL, '电脑网站支付', 1, 'pc_alipay', '支付宝电脑网站支付，用户通过支付宝PC网站收银台完成支付，交易款项即时给到商户支付宝账户。<a href="https://openhome.alipay.com" target="_blank">立即申请</a>', '/payments/logos/pay_pc_alipay.png', 1, 99, NULL,NULL,1);

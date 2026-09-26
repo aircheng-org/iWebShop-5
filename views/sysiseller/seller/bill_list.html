@@ -6,19 +6,23 @@
 		<div class="card-body">
 			<table class="table">
 				<colgroup>
-					<col width="180px" />
-					<col width="160px" />
+					<col width="120px" />
 					<col />
+					<col width="160px" />
+					<col width="120px" />
+					<col width="120px" />
 					<col width="120px" />
 					<col width="120px" />
 				</colgroup>
 
 				<thead>
 					<tr>
-						<th>付款单号</th>
+						<th>货款单ID</th>
 						<th>结算时间</th>
-						<th>结算金额</th>
+						<th>应转账金额</th>
+						<th>已收到金额</th>
 						<th>结算方式</th>
+						<th>状态</th>
 						<th>操作</th>
 					</tr>
 				</thead>
@@ -28,10 +32,12 @@
 					{set:$queryObj=Api::run('getListBySellerBill')}
 					{foreach:items=$queryObj->find()}
 					<tr>
-						<td>{$item['bill_no']}</td>
+						<td>{$item['id']}</td>
 						<td>{$item['pay_time']}</td>
-						<td>{$item['amount']}</td>
+						<td>{$item['amount']}元</td>
+						<td>{$item['received_amount']}元</td>
 						<td>{echo:payment::transferWay($item['way'])}</td>
+						<td>{echo:CountSum::$billStatusText[$item['status']]}</td>
 						<td>
 							<a href="{url:/seller/order_goods_list/bill_id/$item['id']}" title="订单明细">
 								<i class='fa fa-list fa-lg'></i>

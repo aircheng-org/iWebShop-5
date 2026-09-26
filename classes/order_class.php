@@ -405,13 +405,22 @@ class Order_Class
 
 	/**
 	 * @brief 获取订单扩展数据资料
-	 * @param $order_id int 订单的id
+	 * @param $order_id int 订单的id | string 订单order_no
 	 * @param $user_id int 用户id
 	 * @return array()
 	 */
 	public function getOrderShow($order_id,$user_id = 0,$seller_id = 0)
 	{
-		$where = 'id = '.$order_id;
+		//判断参数是order_no订单号
+		if(strlen($order_id) >= 18)
+		{
+			$where = 'order_no = "'.$order_id.'"';
+		}
+		else
+		{
+			$where = 'id = '.$order_id;
+		}
+
 		if($user_id !== 0)
 		{
 			$where .= ' and user_id = '.$user_id;

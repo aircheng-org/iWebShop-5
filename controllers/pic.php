@@ -182,7 +182,7 @@ class Pic extends IController
     //生成二维码
 	public function qrcode()
 	{
-	    $data = IFilter::act(IReq::get('data'));
+	    $data = IReq::get('data');
 	    $size = IFilter::act(IReq::get('size'),'int');
 	    if($data)
 	    {

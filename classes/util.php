@@ -22,7 +22,6 @@ class Util
 	public static function showMessage($message)
 	{
 		echo '<script type="text/javascript">typeof(tips) == "function" ? tips("'.$message.'") : alert("'.$message.'");</script>';
-		exit;
 	}
 
 	//字符串拼接

@@ -27,6 +27,11 @@ class chinabank extends paymentPlugin
 	}
 
 	/**
+	 * @see paymentplugin::doRefund()
+	 */
+	public function doRefund($paymentInfo){}
+
+	/**
 	 * @see paymentplugin::notifyStop()
 	 */
 	public function notifyStop()

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>待提现列表</title>
+	<!-- Bootstrap 5 CSS -->
+	<link href="//cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.8/css/bootstrap.min.css" rel="stylesheet">
+	<!-- Bootstrap Icons -->
+	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.13.1/font/bootstrap-icons.min.css">
+	<!-- Vue3.5 Icons -->
+	<script src="//cdnjs.cloudflare.com/ajax/libs/vue/3.5.21/vue.global.prod.min.js"></script>
+	{js:jquery}
+	<style>
+		body {
+			background-color: #f8f9fa;
+		}
+		.withdrawal-card {
+			border-radius: 12px;
+			box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+			transition: transform 0.2s;
+		}
+		.withdrawal-card:hover {
+			transform: translateY(-2px);
+		}
+		.status-pending {
+			color: #ffc107;
+		}
+		.status-success {
+			color: #198754;
+		}
+		.status-failed {
+			color: #dc3545;
+		}
+		.btn-claim {
+			background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+			border: none;
+			border-radius: 20px;
+			padding: 5px 15px;
+		}
+	</style>
+</head>
+
+<body>
+<div class="container py-4" id="app">
+	<div class="d-flex justify-content-between align-items-center mb-2">
+		<h1 class="h4 fw-bold">尽快提现到微信零钱</h1>
+		<span>剩余：{{dataLength}}笔</span>
+	</div>
+
+	<div class="list-group gap-3">
+		<!-- 待领取 -->
+		<div v-for="(item,index) in data" class="list-group-item p-3 withdrawal-card bg-white">
+			<div class="d-flex justify-content-between align-items-center mb-2">
+				<span class="badge bg-warning bg-opacity-10 text-warning">待领取</span>
+				<small class="text-muted">{{formatDatetime(item.create_time)}}</small>
+			</div>
+
+			<h6 class="mb-2">微信零钱</h6>
+			<p><small class="text-muted">系统单号：{{item.out_bill_no}}</small></p>
+			<p><small class="text-muted">转账单号：{{item.transfer_bill_no}}</small></p>
+			<div class="d-flex justify-content-between">
+				<h5 class="mb-1 text-success">¥ {{item.amount}}</h5>
+				<div class="text-end">
+					<button class="btn btn-claim btn-sm text-white" @click='take(index)'>立即领取</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div v-if="!data || dataLength == 0" class="alert alert-warning">当前没有待领取的零钱</div>
+
+	<div class="d-flex justify-content-between">
+		<button class="btn btn-primary w-100 mt-3" onclick="window.history.go(-1)">返回上一级</button>
+		<button class="btn btn-success w-100 mt-3 ms-4" onclick="window.location.href='{url:/seller/bill_list}'" v-if="mod == 'seller_product' && dataLength == 0">查看账单列表</button>
+		<button class="btn btn-success w-100 mt-3 ms-4" onclick="window.location.href='{url:/ucenter/account_log}'" v-if="mod == 'user_balance' && dataLength == 0">查看交易列表</button>
+	</div>
+</div>
+
+<script>
+//创建vue应用
+const {createApp,ref,reactive,computed} = Vue
+createApp({
+setup()
+{
+	//提现数据集合
+	const data = reactive({echo:$data});
+
+	//当前模式 user_balance , seller_product
+	const mod = "{echo:$mod}"
+
+	//返回数据数量
+	const dataLength = computed(() =>
+	{
+		return Object.keys(data).length;
+	})
+
+	//领取金额
+	const take = (index) =>
+	{
+		let obj = data[index]
+		if(typeof wx == 'undefined')
+		{
+			alert("请用微信打开此页面");
+			return;
+		}
+
+		wx.miniProgram.getEnv(function(res)
+		{
+			//小程序环境
+			if(res.miniprogram)
+			{
+				let mchId   = obj.mchid
+				let package = encodeURIComponent(obj.package_info)
+				let redirectUrl = encodeURIComponent("{echo:IUrl::getUrl()}")
+				wx.miniProgram.navigateTo({"url":"withdraw?mchId="+mchId+"&package="+package+"&redirectUrl="+redirectUrl})
+			}
+			//微信公众号环境
+			else
+			{
+				let mchId   = obj.mchid
+				let package = obj.package_info
+				let appid   = obj.appid
+
+				WeixinJSBridge.invoke('requestMerchantTransfer',
+				{
+					mchId: mchId,
+					appId: appid,
+					package: package
+				},
+
+				function(res)
+				{
+					// res.err_msg将在页面展示成功后返回应用时返回success，并不代表付款成功
+					if (res.err_msg === 'requestMerchantTransfer:ok')
+					{
+						delete(data[index])
+					}
+				})
+			}
+		})
+	}
+
+	//时间处理
+	const formatDatetime = (createTime) =>
+	{
+		const date = new Date(createTime);
+
+		// 获取各时间组件并补零
+		const year = date.getFullYear();
+		const month = String(date.getMonth() + 1).padStart(2, '0');
+		const day = String(date.getDate()).padStart(2, '0');
+		const hours = String(date.getHours()).padStart(2, '0');
+		const minutes = String(date.getMinutes()).padStart(2, '0');
+		const seconds = String(date.getSeconds()).padStart(2, '0');
+
+		// 组合成标准格式
+		return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+	}
+
+	//返回数据
+	return {data,take,formatDatetime,dataLength,mod}
+}
+}).mount('#app')
+</script>
+</body>
+</html>

@@ -95,7 +95,7 @@
 				<td title="{echo:htmlspecialchars($item['true_name'])}">{$item['true_name']}</td>
 				<td>{if:$item['sex']=='1'}男{else:}女{/if}</td>
 				<td title="{echo:htmlspecialchars($item['email'])}">{$item['email']}</td>
-				<td title="{$item['balance']}">{$item['balance']}</td>
+				<td title="{$item['balance']}"><a href="javascript:accountLog({$item['user_id']});">{$item['balance']}</a></td>
 				<td title="{$item['point']}">{$item['point']}</td>
 				<td title="{echo:Common::userStatusText($item['status'])}">{echo:Common::userStatusText($item['status'])}</td>
 				<td title="{$item['time']}">{$item['time']}</td>
@@ -154,6 +154,19 @@ function balance_add()
 	    	},'json');
 	    	return false;
 		}
+	});
+}
+
+//查看余额日志
+function accountLog(user_id)
+{
+	let url = "{url:/block/account_log/user_id/@user_id@}";
+	url = url.replace("@user_id@",user_id);
+
+	art.dialog.open(url,{
+	    title: '余额记录',
+	    height:'80%',
+	    width:'70%'
 	});
 }
 

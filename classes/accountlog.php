@@ -43,12 +43,13 @@ class AccountLog
 	public  $error    = "";//错误信息
 
 	private $allow_event = array(
-		'recharge'=> 1,//充值到预存款
-		'withdraw'=> 2,//从预存款提现
-		'pay'     => 3,//从预存款支付
-		'drawback'=> 4,//退款到预存款
-		'commission_withdraw'=> 5,//佣金提现到预存款
-	    'recharge_award'=> 6,//充值奖励
+		'recharge'=> 1,//充值到预存款(增加)
+		'withdraw'=> 2,//从预存款提现(减少)
+		'pay'     => 3,//从预存款支付(减少)
+		'drawback'=> 4,//退款到预存款(增加)
+		'commission_withdraw'=> 5,//佣金提现到预存款(增加)
+	    'recharge_award'=> 6,//充值奖励(增加)
+		'withdraw_timeout' => 7,//提现超时（比如用户24小时没有收款）(增加)
 	);
 
 	private static $event_text = array(
@@ -58,6 +59,7 @@ class AccountLog
 		4 => "退款",
 		5 => "分销佣金",
 	    6 => "充值奖励",
+		7 => "提现超时",
 	);
 
 	//用户预存款资金用途
@@ -97,7 +99,7 @@ class AccountLog
 			$this->amount = abs(round($config['num'],2));
 
 			//金额正负值处理
-			if(in_array($this->allow_event[$this->event],array(2,3)))
+			if(in_array($this->allow_event[$this->event],[2,3]))
 			{
 				$this->amount = '-'.abs($this->amount);
 			}
@@ -312,6 +314,20 @@ class AccountLog
 					$note .= "管理员[{$this->admin['admin_name']}]";
 				}
 				$note .= "给用户[{$this->user['username']}]佣金提现，金额：{$this->amount}元，关联订单ID[{$this->config['commission_order_id']}]";
+			}
+			break;
+
+			//充值奖励
+			case 'recharge_award':
+			{
+				$note .= "用户[{$this->user['username']}]充值奖励，金额：{$this->amount}元";
+			}
+			break;
+
+			//提现超时（比如用户24小时没有收款）
+			case 'withdraw_timeout':
+			{
+				$note .= "用户[{$this->user['username']}]确认收款超时，退还金额：{$this->amount}元";
 			}
 			break;
 

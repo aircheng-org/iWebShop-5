@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title></title>
+	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+	<link rel="stylesheet" href="{webroot:public/css/twitter-bootstrap/3.3.7/css/bootstrap.min.css}">
+</head>
+{set:$user_id = IFilter::act(IReq::get('user_id'),'int')}
+<body>
+	<div class="container">
+		<table class="table">
+			<colgroup>
+				<col width="200px">
+				<col width="120px">
+				<col width="100px">
+				<col width="100px">
+				<col >
+			</colgroup>
+
+			<tr><th>时间</th><th>事件</th><th>金额</th><th>余额</th><th>备注</th></tr>
+			{query:name=account_log where=user_id eq $user_id order=time desc}
+			<tr>
+				<td>{$item['time']}</td>
+				<td>{echo:AccountLog::eventText($item['event'])}</td>
+				<td>{$item['amount']}</td>
+				<td>{$item['amount_log']}</td>
+				<td>{$item['note']}</td>
+			</tr>
+			{/query}
+		</table>
+	</div>
+</body>
+</html>

@@ -71,20 +71,17 @@
 					<input type='hidden' name='product_id[]' value='<%=item.product_id%>' />
 					<td>
 						<%=item.name?item.name:"商品不存在"%>
+
 						<%if(item.spec_array){%>
 							<span class="text-orange">
 							<%var spec_array = typeof item.spec_array == 'string' ? JSON().parse(item.spec_array) : item.spec_array;%>
 							<%for(var index in spec_array){%>
 								<%var value = spec_array[index]%>
-								<%=value['name']%>:
-								<%if(value['type'] == 1){%>
-									<%=value['value']%>
-								<%}else{%>
-									<img src="{echo:IUrl::creatUrl()}<%=value['value']%>" width="35px" height="35px" />
-								<%}%>
+								<%=value['name']%>:<%=value['value']%>
 							<%}%>
 							</span>
 						<%}%>
+
 						<%if(item.products_no){%>
 							【<%=item.products_no%>】
 						<%}%>
@@ -93,7 +90,7 @@
 							【<%=item.goods_no%>】
 						<%}%>
 					</td>
-					<td><%=item.real_price%></td>
+					<td><input class="form-control" name="real_price[]" value="<%=item.real_price%>" /></td>
 					<td><input class="form-control" name="goods_nums[]" value="<%=item.goods_nums ? item.goods_nums : 1%>" /></td>
 					<td>
 						<a onclick="$(this).parent().parent().remove();">

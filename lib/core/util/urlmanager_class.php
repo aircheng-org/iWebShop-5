@@ -52,7 +52,7 @@ class IUrl
 			'action'    => self::UrlActionName,
 		);
 
-		$result = isset($arr[$key]) ? IFilter::act( IReq::get($arr[$key]) , "%\w+%" ) : '';
+		$result = isset($arr[$key]) ? IReq::get($arr[$key]) : '';
 		return is_array($result) ? current($result) : $result;
 	}
 

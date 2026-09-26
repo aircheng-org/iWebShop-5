@@ -31,7 +31,7 @@ class Member extends IController implements adminAuthorization
 			{
 				$this->member_list();
 				Util::showMessage("没有找到相关记录！");
-				exit;
+				return;
 			}
 		}
 		$this->setRenderData(array('userData' => $userData));
@@ -103,6 +103,7 @@ class Member extends IController implements adminAuthorization
 			$this->setRenderData(array('userData' => $_POST));
 			$this->redirect('member_edit',false);
 			Util::showMessage($errorMsg);
+			return;
 		}
 
 		$member = array(
@@ -342,7 +343,7 @@ class Member extends IController implements adminAuthorization
 			$this->setRenderData($data);
 			$this->redirect('group_edit',false);
 			Util::showMessage($errorMsg);
-			exit;
+			return;
 		}
 		$tb_user_group = new IModel("user_group");
 		$tb_user_group->setData($group);
@@ -512,20 +513,36 @@ class Member extends IController implements adminAuthorization
 			die('没有选择要转款的用户');
 		}
 
-		//1，拼装数据
-		$billNo      = 'T'.Order_Class::createOrderNum();
-		$withdrawList= [];
+		//拼装数据
 		$withdrawObj = new IModel('withdraw');
 		$memberDB    = new IModel('member');
 		$error       = '';
+		$successNum  = 0;
 
 		foreach($ids as $id)
 		{
-			$withdrawRow = $withdrawObj->getObj($id);//在$withdrawRow拼装数据最后送到转账接口里面
+			$billNo = 'T'.$id;
+			$status = -1;//提现更新状态 -1:失败; 1:处理中; 2:成功;
+			$withdrawRow = $withdrawObj->getObj($id);
 			$memberRow   = $memberDB->getObj('user_id = '.$withdrawRow['user_id'],'balance');
 			if($memberRow['balance'] < $withdrawRow['amount'])
 			{
 				$error .= $withdrawRow['name'].'预存款余额不足';
+				continue;
+			}
+
+			//提现金额范围
+			$mixAmount = $this->_siteConfig->low_withdraw  ? $this->_siteConfig->low_withdraw  : 1;
+			$maxAmount = $this->_siteConfig->high_withdraw ? $this->_siteConfig->high_withdraw : 2000;
+			if($withdrawRow['amount'] > $maxAmount)
+			{
+				$error .= '提现的金额必须小于: ￥'.$maxAmount;
+				continue;
+			}
+
+			if($withdrawRow['amount'] <= $mixAmount)
+			{
+				$error .= '提现的金额必须大于: ￥'.$mixAmount;
 				continue;
 			}
 
@@ -540,13 +557,35 @@ class Member extends IController implements adminAuthorization
 					$relationRow = $oauthUserDB->getObj('user_id = '.$withdrawRow['user_id']);
 					if($relationRow && ($relationRow['openid'] || $relationRow['openid_mini']))
 					{
-						$openid = $relationRow['openid'] ? $relationRow['openid'] : $relationRow['openid_mini'];
-						$withdrawRow['openid'] = $openid;
+						$platform = $relationRow['openid_mini'] ? "wechat_mini"               : "wechat";
+						$openid   = $relationRow['openid_mini'] ? $relationRow['openid_mini'] : $relationRow['openid'];
 					}
 					else
 					{
-						$error .= "用户ID：[".$withdrawRow['name']."] 没有绑定微信";
+						$error .= "用户：[".$withdrawRow['name']."] 没有绑定微信";
 						continue 2;
+					}
+
+					//加载商户转账接口
+					include_once(dirname(__FILE__)."/../plugins/transfer/wechatBalance.php");
+					$sendData = [
+						'transferNo'  => $billNo,
+						'transferName'=> '用户提现',
+						'name'        => $withdrawRow['name'],
+						'amount'      => $withdrawRow['amount'],
+						'openid'      => $openid,
+						'platform'    => $platform,
+					];
+					$transferObj = new wechatBalance();
+					$tranResult = $transferObj->run($sendData);
+					if(is_array($tranResult) && isset($tranResult['result_code']) && $tranResult['result_code'] == 'SUCCESS')
+					{
+						$payNo = $tranResult['payment_no'];
+						$status = 1;
+					}
+					else
+					{
+						$error .= $tranResult;
 					}
 				}
 				break;
@@ -554,77 +593,43 @@ class Member extends IController implements adminAuthorization
 				//人工线下
 				case "offline":
 				{
-
+					$payNo = '88888888';
+					$status = 2;
 				}
 				break;
 			}
 
-			//待结算提现单
-			$withdrawList[] = $withdrawRow;
-		}
-
-		//2,调用接口转账
-		switch($type)
-		{
-			//微信余额
-			case "wechatBalance":
+			if($status > 0)
 			{
-				include_once(dirname(__FILE__)."/../plugins/transfer/wechatBalance.php");
-				$sendData = [
-					'transferNo'  => $billNo,
-					'transferName'=> '用户提现',
-					'detail'      => $withdrawList,
+				//用户预存款进行的操作记入account_log表
+				$log    = new AccountLog();
+				$config = [
+					'user_id'  => $withdrawRow['user_id'],
+					'admin_id' => $this->admin['admin_id'],
+					'event'    => "withdraw",
+					'num'      => $withdrawRow['amount'],
+					'way'      => AccountLog::way($type),
 				];
-				$transferObj = new wechatBalance();
-				$tranResult = $transferObj->run($sendData);
-				if(is_array($tranResult) && isset($tranResult['result_code']) && $tranResult['result_code'] == 'SUCCESS')
+				$result = $log->write($config);
+				if($result == false)
 				{
-					$PayNo = $tranResult['payment_no'];
+					$error .= "危险：微信转账成功，但是用户".$withdrawRow['name']."没有扣款。".$result->error;
 				}
 				else
 				{
-					$withdrawList = [];
-					$error .= $tranResult;
+					//更新提现状态
+					$withdrawObj->setData(['way' => $config['way'],'status' => $status,'pay_no' => $payNo,'finish_time' => ITime::getDateTime()]);
+					$withdrawObj->update($withdrawRow['id']);
+
+					//发送事件
+					plugin::trigger('withdrawStatusUpdate',$withdrawRow['id']);
 				}
-			}
-			break;
 
-			//人工线下
-			case "offline":
-			{
-				$PayNo = '88888888';
-			}
-			break;
-		}
-
-		//3,后续处理
-		foreach($withdrawList as $withdrawRow)
-		{
-			//用户预存款进行的操作记入account_log表
-			$log    = new AccountLog();
-			$config = [
-				'user_id'  => $withdrawRow['user_id'],
-				'admin_id' => $this->admin['admin_id'],
-				'event'    => "withdraw",
-				'num'      => $withdrawRow['amount'],
-				'way'      => AccountLog::way($type),
-			];
-			$result = $log->write($config);
-			if($result == false)
-			{
-				$error .= "危险：微信转账成功，但是用户".$withdrawRow['name']."没有扣款。".$result->error;
-			}
-			else
-			{
-				$withdrawObj->setData(['way' => $config['way'],'status' => 2,'pay_no' => $PayNo,'finish_time' => ITime::getDateTime()]);
-				$withdrawObj->update($withdrawRow['id']);
-
-				//发送事件
-				plugin::trigger('withdrawStatusUpdate',$withdrawRow['id']);
+				$successNum++;
 			}
 		}
 
-		die('总共：'.count($ids).'个; 成功：'.count($withdrawList).'个; '.$error);
+		die('总共：'.count($ids).'个; 成功：'.$successNum.'个; '.$error);
 	}
 
 	//[提现管理] 修改提现申请的状态
@@ -730,6 +735,7 @@ class Member extends IController implements adminAuthorization
 			$this->sellerRow = $_POST;
 			$this->redirect('seller_edit',false);
 			Util::showMessage($errorMsg);
+			return;
 		}
 
 		//待更新的数据
@@ -900,5 +906,121 @@ class Member extends IController implements adminAuthorization
 		$memberDB = new IModel('member');
 		$memberDB->setData(['group_id' => $group_id]);
 		$memberDB->update('user_id = '.$user_id);
+	}
+
+	//商品会员价导入
+	public function price_import()
+	{
+		//附件上传$_FILE
+		if($_FILES && isset($_FILES['price_csv']) && $_FILES['price_csv']['error'] == 0)
+		{
+			//处理上传
+			$uploadInstance = new IUpload(9999999, ['xlsx']);
+			$uploadDir      = 'upload/excel/price_import/' . date('Y-m-d');
+			$uploadInstance->setDir($uploadDir);
+			$result = $uploadInstance->execute();
+			$result = current($result['price_csv']);
+			if(isset($result['error']) && $result['error'] != '上传成功')
+			{
+				$this->redirect('/member/group_list/_msg/'.$result['error']);
+				return;
+			}
+
+			//解析内容
+			$PHPReader = new PHPExcel_Reader_Excel2007();
+			$PHPExcel  = $PHPReader->load($result['fileSrc']);
+			$sheet     = $PHPExcel->getActiveSheet();
+
+			$sheetInfo = $sheet->getHighestRowAndColumn();
+			if($sheetInfo['column'] != 'D')
+			{
+				$this->redirect('/goods/goods_list/_msg/表格列必须到D列');
+				return;
+			}
+
+			$userGroupDB = new IModel('user_group');
+			$groupPriceDB = new IModel('group_price');
+			$goodsDB = new IModel('goods');
+			$productsDB = new IModel('products');
+
+			$startIndex= 'A2';
+			$endIndex  = 'D'.$sheet->getHighestRow();
+			$contentArray = $sheet->rangeToArray($startIndex.':'.$endIndex);
+			$success = 0; //成功数量
+			foreach($contentArray as $key => $cols)
+			{
+				$cols = array_map(function($param){
+					return trim(trim($param),'"');
+				},$cols);
+
+				//判断数据是否存在空
+				$cols = array_filter($cols);
+				if(count($cols) != 4)
+				{
+					$this->redirect('/member/group_list/_msg/第'.($key+1).'行数据不全');
+					return;
+				}
+
+				//判断会员组是否存在
+				$userGroupRow = $userGroupDB->getObj('group_name = "'.IFilter::addSlash($cols[2]).'"','id');
+				if(!$userGroupRow)
+				{
+					$this->redirect('/member/group_list/_msg/会员组:'.($cols[2]).'不存在');
+					return;
+				}
+				$group_id = $userGroupRow['id'];
+
+				//判断商品是否存在
+				$goods_id   = null;
+				$product_id = null;
+				$goodsList = $goodsDB->query('name = "'.$cols[1].'"','id,spec_array');
+				if(!$goodsList)
+				{
+					$this->redirect('/member/group_list/_msg/商品:'.($cols[1]).'不存在');
+					return;
+				}
+
+				foreach($goodsList as $item)
+				{
+					$goods_id = $item['id'];
+
+					//有规格
+					if($item['spec_array'] && $item['spec_array'] != '[]')
+					{
+						$productsRow = $productsDB->getObj('goods_id = '.$goods_id.' and products_no = "'.IFilter::addSlash($cols[0]).'"','id');
+						if(!$productsRow)
+						{
+							$this->redirect('/member/group_list/_msg/货号:'.($cols[0]).'不存在');
+							return;
+						}
+
+						$product_id = $productsRow['id'];
+
+						//清理数据
+						$groupPriceDB->del("group_id = ".$group_id." and goods_id = ".$goods_id." and product_id = ".$product_id);
+					}
+					else
+					{
+						//清理数据
+						$groupPriceDB->del("group_id = ".$group_id." and goods_id = ".$goods_id);
+					}
+
+					$groupPriceDB->setData([
+						"goods_id" => $goods_id,
+						"product_id" => $product_id,
+						"group_id" => $group_id,
+						"price" => $cols[3],
+					]);
+					$groupPriceDB->add();
+					$success++;
+				}
+			}
+
+			$this->redirect('/member/group_list/_msg/共更新完成'.$success.'条记录');
+		}
+		else
+		{
+			$this->redirect('/goods/goods_list/_msg/未选择上传文件');
+		}
 	}
 }

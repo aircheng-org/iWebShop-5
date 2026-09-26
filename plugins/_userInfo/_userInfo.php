@@ -57,6 +57,91 @@ class _userInfo extends pluginBase
 
 		//注册成功后处理
 		plugin::reg('userRegFinish',$this,'userRegFinishCallback');
+
+		//登录个人中心判断是否有提现
+		plugin::reg("onFinishView@ucenter@index,onFinishView@ucenter@withdraw",$this,"withdrawal");
+
+		//登录商户中心判断是否有提现
+		plugin::reg("onFinishView@seller@index,onFinishView@seller@bill_list",$this,"billtake");
+	}
+
+	//判断是否有提现
+	public function withdrawal()
+	{
+		$user_id = self::controller()->user['user_id'];
+		$withdrawDB = new IModel('withdraw');
+		$withdrawRow= $withdrawDB->getObj('user_id = '.$user_id.' and status = 1','id');
+		if(!$withdrawRow)
+		{
+			return;
+		}
+
+		$cache = new ICache('file');
+		$data = $cache->get('T'.$withdrawRow['id']);
+		if($withdrawRow && $data)
+		{
+			$anyone   = current(JSON::decode($data));
+			$platform = isset($anyone['platform']) ? $anyone['platform'] : "wechat_mini";
+
+			$id = $withdrawRow['id'];
+			$url= IUrl::creatUrl('/block/withdrawal?mod=user_balance&id='.$id);
+
+echo <<< OEF
+<script type="text/javascript">
+if(typeof wx !== 'undefined')
+{
+	let platform = "{$platform}"
+	wx.miniProgram.getEnv(function(res)
+	{
+		//小程序环境
+		if(res.miniprogram)
+		{
+			if(platform == 'wechat_mini')
+			{
+				window.location.href="{$url}"
+			}
+		}
+		//微信公众号环境
+		else
+		{
+			if(platform == 'wechat')
+			{
+				window.location.href="{$url}"
+			}
+		}
+	})
+}
+</script>
+OEF;
+		}
+	}
+
+	//判断是否有货款账单
+	public function billtake()
+	{
+		$seller_id = self::controller()->seller['seller_id'];
+		$billDB = new IModel('bill');
+		$billList= $billDB->query('seller_id = '.$seller_id.' and status = 1','id');
+		if(!$billList)
+		{
+			return;
+		}
+
+		$ids = [];
+		foreach($billList as $item)
+		{
+			$ids[] = $item['id'];
+		}
+		$url = IUrl::creatUrl('/block/withdrawal?mod=seller_product&id='.join(",",$ids));
+
+echo <<< OEF
+<script type="text/javascript">
+if(typeof wx !== 'undefined')
+{
+	window.location.href="{$url}"
+}
+</script>
+OEF;
 	}
 
 	//注册用户初始化
@@ -122,11 +207,11 @@ class _userInfo extends pluginBase
     		return '密码格式不正确,请输入6-32个字符';
     	}
 
-    	$password = md5($password);
+    	$passwordMD5 = md5($password);
 
-		if($userRow = _authorization::isValidUser($login_info,$password))
+		if($userRow = _authorization::isValidUser($login_info,$passwordMD5))
 		{
-			$this->userLoginCallback($userRow);
+			$this->userLoginCallback($userRow,$password);
 
 			//记住帐号
 			if($remember == 1)
@@ -264,7 +349,7 @@ class _userInfo extends pluginBase
 		$memberObj->add();
 
 		//通知事件用户注册完毕
-		plugin::trigger("userRegFinish",$userArray);
+		plugin::trigger("userRegFinish",array_merge($userArray,$memberArray),$repassword);
 
 		//邮箱激活帐号
 		if($reg_option == 1)
@@ -278,7 +363,7 @@ class _userInfo extends pluginBase
 			ISafe::clear('code'.$mobile);
 		}
 
-		$this->userLoginCallback($userArray);
+		$this->userLoginCallback(array_merge($userArray,$memberArray),$repassword);
 		return $userArray;
 	}
 
@@ -322,8 +407,9 @@ class _userInfo extends pluginBase
 	/**
 	 * @brief 用户登录
 	 * @param array $userRow 用户信息登录
+	 * @param string $password 密码原文
 	 */
-	public function userLoginCallback($userRow)
+	public function userLoginCallback($userRow,$password = '')
 	{
 		//用户私密数据
 		ISafe::set('user_id',$userRow['id']);
@@ -348,6 +434,9 @@ class _userInfo extends pluginBase
 		//会员组更新
 		$this->expUpdate($userRow['id']);
 		$memberObj->update($where);
+
+		//通知事件用户登录完毕
+		plugin::trigger("userLoginFinish",$userRow,$password);
 	}
 
 

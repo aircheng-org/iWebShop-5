@@ -289,13 +289,18 @@ abstract class wechatBase extends paymentPlugin
         //基本参数
 		$data['transaction_id'] = $payment['M_TransactionId'];
 		$data['out_refund_no']  = $payment['M_RefundNo'];
-		$data['amount']         = ['refund' => $payment['M_Refundfee']*100, 'total' => $payment['M_Amount']*100, 'currency' => 'CNY'];
+		$data['amount']         = ['refund' => round($payment['M_Refundfee']*100), 'total' => round($payment['M_Amount']*100), 'currency' => 'CNY'];
 		if(isset($payment['M_REASON']) && $payment['M_REASON'])
 		{
 			$data['reason'] = $payment['M_REASON'];
 		}
 
         $result = $this->curlSubmit($url,$data);
+
+		//日志记录
+	    $logObj = new IFileLog('refunds_send/'.date('Y-m-d').'.log');
+	    $logObj->write(['原始数据' => var_export($payment,true),'发送数据' => var_export($data,true),'结果' => var_export($result,true)]);
+
         if(is_array($result) && $result)
         {
 			if(isset($result['status']) && in_array($result['status'],['PROCESSING','SUCCESS']))

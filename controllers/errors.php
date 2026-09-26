@@ -52,4 +52,11 @@ class Errors extends IController
 		$data = IFilter::act($data);
 		$this->redirect($this->sence().'/message/'.$data);
 	}
+
+	//页面异常
+	public function error()
+	{
+		http_response_code(404);
+		$this->redirect('error');
+	}
 }

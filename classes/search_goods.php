@@ -110,7 +110,8 @@ class search_goods
 						$wordLikeOrder = array();
 
 						//进行分词
-						if(IString::getStrLen($defaultWhere['search']) >= 4 || IString::getStrLen($defaultWhere['search']) <= 100)
+						$searchWordsLength = IString::getStrLen($defaultWhere['search']);
+						if($searchWordsLength >= 4 && $searchWordsLength <= 10)
 						{
 							$wordData = plugin::trigger("onSearchGoodsWordsPart",$defaultWhere['search']);
 							if(isset($wordData['data']) && count($wordData['data']) >= 1)

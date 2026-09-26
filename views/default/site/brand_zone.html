@@ -6,7 +6,7 @@
 			<div class="content">
 			  <ul class="ranklist" id="ranklist">
 			  	{foreach:items=Api::run('getGoodsListBrandSum',array('#brandid#',$brandId),10)}
-			  	<li><span>{echo:intval($key+1)}</span><a href="{url:/site/products/id/$item[id]}"><img src="{url:/pic/thumb/img/$item[img]/w/58/h/58}" width="58px" height="58px" /></a><a href="{url:/site/products/id/$item[id]}">{$item['name']}</a><b>￥{$item['sell_price']}</b></li>
+			  	<li><span>{echo:intval($key+1)}</span><a href="{url:/site/products/id/$item['id']}"><img src="{url:/pic/thumb/img/$item['img']/w/58/h/58}" width="58px" height="58px" /></a><a href="{url:/site/products/id/$item[id]}">{$item['name']}</a><b>￥{$item['sell_price']}</b></li>
 			  	{/foreach}
 			  </ul>
 			</div>

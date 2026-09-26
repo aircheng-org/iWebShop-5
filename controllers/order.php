@@ -552,9 +552,11 @@ class Order extends IController implements adminAuthorization
 		$goodsId   = IFilter::act(IReq::get('goods_id'));
 		$productId = IFilter::act(IReq::get('product_id'));
 		$num       = IFilter::act(IReq::get('goods_nums'));
+		$real_price= IFilter::act(IReq::get('real_price'));
 
 		$goodsArray  = array();
 		$productArray= array();
+		$customRealPrice = []; //根据商品ID和货品ID的组合做键名记录的管理员自定义的价格
 		if($goodsId)
 		{
 	    	foreach($goodsId as $key => $goods_id)
@@ -566,6 +568,7 @@ class Order extends IController implements adminAuthorization
 
 	    		$pid = $productId[$key];
 	    		$nVal= $num[$key];
+				$customRealPrice[$goods_id.'_'.intval($pid)] = $real_price[$key];
 
 	    		if($pid > 0)
 	    		{
@@ -584,7 +587,10 @@ class Order extends IController implements adminAuthorization
 		}
 
 		//开始算账
-		$countSumObj  = new CountSum($dataArray['user_id']);
+		$countSumObj = new CountSum($dataArray['user_id']);
+		$countSumObj->is_admin = true;
+		$countSumObj->custom_goods_price = $customRealPrice;
+
 		$cartObj      = new Cart();
 		$countSumObj->method = 'offline';
 		$goodsResult  = $countSumObj->goodsCount($cartObj->cartFormat(array("goods" => $goodsArray,"product" => $productArray)));
@@ -1083,6 +1089,7 @@ class Order extends IController implements adminAuthorization
 		{
 			$this->redirect('print_template',false);
 			Util::showMessage('保存购物清单模板失败！');
+			return;
 		}
 		//保存 配货单模板
 		$ifile_pick = new IFile($path."/pick_template.html",'w');
@@ -1090,6 +1097,7 @@ class Order extends IController implements adminAuthorization
 		{
 			$this->redirect('print_template',false);
 			Util::showMessage('保存配货单模板失败！');
+			return;
 		}
 		$this->setRenderData(array('where'=>''));
 		$this->redirect('order_list');
@@ -1343,12 +1351,13 @@ class Order extends IController implements adminAuthorization
 			$strGoods   = "";
 			foreach($orderGoods as $good)
 			{
-				$strGoods .= "商品编号：".$good['goodsno']." 商品名称：".$good['name']." 商品数量：".$good['goods_nums'];
+				$strGoods .= "[商品编号]：".$good['goodsno']." [商品名称]：".$good['name']." [商品数量]：".$good['goods_nums'];
 				if ( isset($good['value']) && $good['value'] )
 				{
-					$strGoods .= " 规格：".$good['value'];
+					$strGoods .= " [规格]：".$good['value'];
 				}
 				$strGoods .= ";";
+				$strGoods .= "\n";
 			}
 
 			$refundRow = $refundDB->getObj('pay_status = 2 and order_id = '.$val['id'],"SUM(`amount`) as refund_amount");

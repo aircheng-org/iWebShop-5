@@ -98,6 +98,7 @@ class Goods extends IController implements adminAuthorization
 	    		{
 	    			$this->redirect('model_list',false);
 	    			Util::showMessage("无法删除此模型，请确认该模型下以及回收站内都无商品");
+					return;
 	    		}
 
 	    		//初始化Model表类对象
@@ -256,11 +257,13 @@ class Goods extends IController implements adminAuthorization
 		else
 		{
 			Util::showMessage('请选择要操作的数据');
+			return;
 		}
 
 		if(IClient::isAjax() == false)
 		{
-			$this->redirect("goods_list");
+			$lastUrl = IUrl::getRefRoute(true);
+			$this->redirect(stripos($lastUrl,'goods_list') ? $lastUrl : 'goods_list');
 		}
 	}
 	/**
@@ -307,6 +310,7 @@ class Goods extends IController implements adminAuthorization
 		else
 		{
 			Util::showMessage('请选择要删除的数据');
+			return;
 		}
 		$this->redirect("goods_recycle_list");
 	}
@@ -447,11 +451,11 @@ class Goods extends IController implements adminAuthorization
 	public function goods_import()
 	{
 		//附件上传$_FILE
-		if ($_FILES && isset($_FILES['goods_csv']))
+		if ($_FILES && isset($_FILES['goods_csv']) && $_FILES['goods_csv']['error'] == 0)
 		{
 			//处理上传
 			$uploadInstance = new IUpload(9999999, ['xlsx']);
-			$uploadDir      = 'upload/excel/' . date('Y-m-d');
+			$uploadDir      = 'upload/excel/goods_import/' . date('Y-m-d');
 			$uploadInstance->setDir($uploadDir);
 			$result = $uploadInstance->execute();
 			$result = current($result['goods_csv']);
@@ -526,7 +530,7 @@ class Goods extends IController implements adminAuthorization
 						'spec_array' => JSON::encode($specArray),
 					];
 
-					$productRow = $productDB->getObj('products_no = "'.$cols[0].'"','id,goods_id');
+					$productRow = $productDB->getObj('products_no = "'.IFilter::addSlash($cols[0]).'"','id,goods_id');
 
 					//1,如果货品存在则直接更新货品
 					if($productRow)
@@ -538,7 +542,7 @@ class Goods extends IController implements adminAuthorization
 					else
 					{
 						//根据名称判断商品是否存在
-						$goodsRow = $goodsDB->getObj('name="'.$cols[1].'"','id');
+						$goodsRow = $goodsDB->getObj('name="'.IFilter::addSlash($cols[1]).'"','id');
 
 						//2,如果商品存在则新增货品到其名下
 						if($goodsRow)
@@ -554,13 +558,14 @@ class Goods extends IController implements adminAuthorization
 							//商品数据更新
 							$goodsData = [
 								'goods_no' => $cols[0],
-								'name' => IFilter::act($cols[1]),
+								'name' => trim($cols[1]),
 								'sell_price'  => $cols[2],
 								'market_price' => $cols[3],
 								'cost_price' => $cols[4],
 								'weight' => $cols[6],
 								'store_nums' => $cols[8],
 								'create_time' => ITime::getDateTime(),
+								'is_del' => 0,
 							];
 							$goodsDB->setData($goodsData);
 							$gid = $goodsDB->add();
@@ -577,15 +582,16 @@ class Goods extends IController implements adminAuthorization
 					//商品数据
 					$goodsData = [
 						'goods_no' => $cols[0],
-						'name' => IFilter::act($cols[1]),
+						'name' => trim($cols[1]),
 						'sell_price'  => $cols[2],
 						'market_price' => $cols[3],
 						'cost_price' => $cols[4],
 						'weight' => $cols[6],
 						'store_nums' => $cols[8],
+						'is_del' => 0,
 					];
 
-					$goodsRow = $goodsDB->getObj('goods_no = "'.$cols[0].'"','id');
+					$goodsRow = $goodsDB->getObj('goods_no = "'.IFilter::addSlash($cols[0]).'"','id');
 
 					//1,商品更新
 					if($goodsRow)
@@ -678,7 +684,7 @@ class Goods extends IController implements adminAuthorization
 						}
 					}
 				}
-				$updateData = ['spec_array' => JSON::encode($goodsSpec)];
+				$updateData = ['spec_array' => JSON::encode($goodsSpec),'is_del' => 0];
 
 				//更新商家所属商家
 				$sellerName = $goodsSellerRelation[$goodsId];
@@ -710,7 +716,7 @@ class Goods extends IController implements adminAuthorization
 							$goodsPhotoRelationDB->del('goods_id = '.$goodsId);
 
 							//重新排序目录按照名称
-							asort($tempDirs);
+							sort($tempDirs);
 							foreach($tempDirs as $dir)
 							{
 								$md5 = md5_file($mainPath.$dir);
@@ -738,15 +744,27 @@ class Goods extends IController implements adminAuthorization
 					if(is_dir($detailPath))
 					{
 						$dirRes = opendir($detailPath);
+						$tempDirs = [];
 						while(false !== ($dir = readdir($dirRes)))
 						{
 							if($dir[0] == "." || (stripos($dir,'.jpg') === false && stripos($dir,'.png') === false))
 							{
 								continue;
 							}
-							$web = $detailPathWeb.$dir;
-							$content .= "<img src='".$web."' class='product-detail' />";
+							$tempDirs[] = $dir;
 						}
+
+						if($tempDirs)
+						{
+							//重新排序目录按照名称
+							sort($tempDirs);
+							foreach($tempDirs as $dir)
+							{
+    							$web = $detailPathWeb.$dir;
+    							$content .= "<img src='".$web."' class='product-detail' />";
+							}
+						}
+
 						//设置商品详情
 						if($content)
 						{
@@ -930,7 +948,7 @@ class Goods extends IController implements adminAuthorization
 			{
 				$this->category_list();
 				Util::showMessage('无法删除此分类，此分类下还有子分类，或者回收站内还留有子分类');
-				exit;
+				return;
 			}
 
 			if($tb_category->del('id in ('.$category_id.')'))
@@ -1519,6 +1537,7 @@ class Goods extends IController implements adminAuthorization
 	        $this->goodsRateRow = $dataArray;
 	        $this->redirect('goods_rate_edit', false);
 	        Util::showMessage('请选择商品');
+			return;
 	    }
 
 	    if (0 > $goods_rate || 100 < $goods_rate)
@@ -1526,6 +1545,7 @@ class Goods extends IController implements adminAuthorization
 	        $this->goodsRateRow = $dataArray;
 	        $this->redirect('goods_rate_edit', false);
 	        Util::showMessage('单品手续费请填写0~100的数字');
+			return;
 	    }
 
 	    $goodsRateObj = new IModel('goods_rate');
@@ -1604,6 +1624,7 @@ class Goods extends IController implements adminAuthorization
 	        $this->categoryRateRow = $dataArray;
 	        $this->redirect('category_rate_edit', false);
 	        Util::showMessage('请选择分类');
+			return;
 	    }
 
 	    if (0 > $category_rate || 100 < $category_rate)
@@ -1611,6 +1632,7 @@ class Goods extends IController implements adminAuthorization
 	        $this->categoryRateRow = $dataArray;
 	        $this->redirect('category_rate_edit', false);
 	        Util::showMessage('分类手续费请填写0~100的数字');
+			return;
 	    }
 
 	    $categoryRateObj = new IModel('category_rate');
@@ -1761,5 +1783,114 @@ class Goods extends IController implements adminAuthorization
         }
 
         die('<script type="text/javascript">parent.artDialogCallback();</script>');
+	}
+
+	//商品分类excel导出
+	public function category_report()
+	{
+		//构建 Excel table;
+		$reportObj = new report('category');
+		$titleArray = ["分类ID(禁止修改)","分类名称","父分类ID","排序(数越小越靠前)","是否显示(0:隐藏;1:显示;)"];
+		$reportObj->setTitle($titleArray);
+
+		$categoryDB = new IModel('category');
+		$categoryList = $categoryDB->query("id > 0");
+		foreach($categoryList as $k => $val)
+		{
+			$insertData = [
+				$val['id'],
+				$val['name'],
+				$val['parent_id'],
+				$val['sort'],
+				$val['visibility'],
+			];
+			$reportObj->setData($insertData);
+		}
+		$reportObj->toDownload();
+	}
+
+	/**
+	 * 商品分类excel导入
+	 * 1,分类ID; 2,分类名称; 3,父分类ID; 4,排序; 5,是否显示;
+	 */
+	public function category_import()
+	{
+		//附件上传$_FILE
+		if ($_FILES && isset($_FILES['category_csv']) && $_FILES['category_csv']['error'] == 0)
+		{
+			//处理上传
+			$uploadInstance = new IUpload(9999999, ['xlsx']);
+			$uploadDir      = 'upload/excel/category_import/' . date('Y-m-d');
+			$uploadInstance->setDir($uploadDir);
+			$result = $uploadInstance->execute();
+			$result = current($result['category_csv']);
+			if(isset($result['error']) && $result['error'] != '上传成功')
+			{
+				$this->redirect('/goods/category_list/_msg/'.$result['error']);
+				return;
+			}
+
+			$successCount = 0; //成功数量
+
+			$categoryDB = new IModel('category');
+			$categoryExtendDB = new IModel('category_extend');
+
+			//解析内容
+			$PHPReader = new PHPExcel_Reader_Excel2007();
+			$PHPExcel  = $PHPReader->load($result['fileSrc']);
+			$sheet     = $PHPExcel->getActiveSheet();
+			$startIndex= 'A2';
+			$endIndex  = 'E'.$sheet->getHighestRow();
+
+			$contentArray = $sheet->rangeToArray($startIndex.':'.$endIndex);
+			$updateIds = [];//更新全部ID
+			foreach($contentArray as $cols)
+			{
+				if(count($cols) != 5)
+				{
+					die('数据字段不正确无法对应');
+				}
+
+				$cols = array_map(function($param){
+					return trim(trim($param),'"');
+				},$cols);
+
+				if(!$cols[0] || !$cols[1])
+				{
+					continue;
+				}
+
+				$updateIds[] = $cols[0];
+				$data = [
+					'name'       => $cols[1],
+					'parent_id'  => intval($cols[2]),
+					'sort'       => intval($cols[3]),
+					'visibility' => intval($cols[4]),
+				];
+
+				//更新分类字段
+				if($categoryDB->getObj('id = '.$cols[0]))
+				{
+					$categoryDB->setData($data);
+					$categoryDB->update('id = '.$cols[0]);
+				}
+				//添加分类
+				else
+				{
+					$data['id'] = $cols[0];
+					$categoryDB->setData($data);
+					$categoryDB->add();
+				}
+
+				$successCount++;
+			}
+			//多余的要删除的分类
+			$categoryDB->del('id not in ('.join(",",$updateIds).')');
+			$this->redirect('/goods/category_list/_msg/共更新完成'.$successCount.'条记录');
+		}
+		else
+		{
+			$this->redirect('/goods/goods_list/_msg/未选择上传文件');
+		}
 	}
 }

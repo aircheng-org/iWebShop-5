@@ -30,6 +30,9 @@
 			<button class="btn btn-default" type="button" name="_goodsCategoryButton">
 				<i class='fa fa-cogs'></i> 批量设置
 			</button>
+			<button class="btn btn-default" type="button" onclick="importExcel()">
+				<i class='fa fa-cloud-upload'></i> 导入Excel
+			</button>
 			{set:plugin::trigger('goodsCategoryWidget',array("name" => "parent_id","callback" => "setCat"))}
 		</caption>
 		<thead>
@@ -60,6 +63,22 @@
 	</table>
 </div>
 </form>
+
+<!--分类excel导入模板-->
+<script id="importExcelTemplate" type="text/html">
+<div class="alert alert-info">
+	<p class="text-red">导入Excel会自动删除原有全部分类，操作之前要先进行导出Excel操作。</p>
+	<p>务必要先从系统中导出Excel，然后修改文件数据后再上传更新。</p>
+	<p>
+		<a class="btn btn-success" type="button" href="{url:/goods/category_report}" target="_blank">
+			<i class='fa fa-cloud-download'></i> 导出Excel
+		</a>
+	</p>
+</div>
+<form name="importExcelForm" action="{url:/goods/category_import}" method="post" enctype="multipart/form-data">
+	<input type='file' name='category_csv'  />
+</form>
+</script>
 
 <script language="javascript">
 //折叠展示
@@ -139,6 +158,23 @@ function setCat(catData)
 		else
 		{
 			alert('更新失败，当前分类不能设置到其子分类下');
+		}
+	});
+}
+
+//导入excel
+function importExcel()
+{
+	var templateHtml = template.render('importExcelTemplate');
+	art.dialog(
+	{
+		okVal:"开始导入",
+		content: templateHtml,
+		ok:function(iframeWin)
+		{
+			var formObj = iframeWin.document.forms['importExcelForm'];
+			formObj.submit();
+			loadding('正在导入请稍候......');
 		}
 	});
 }

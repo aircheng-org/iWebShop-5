@@ -31,6 +31,9 @@ class report
 	//字符串类型的列数
 	public $dataStringCols = [];
 
+	//图片类型的列数
+	public $dataImageCols = [];
+
 	//构造函数
 	public function __construct($fileName = '')
 	{
@@ -42,6 +45,27 @@ class report
 	public function setFileName($fileName)
 	{
 		$this->fileName = $fileName;
+	}
+
+	/**
+	 * @brief 写入合并标题操作
+	 * @param $title string 标题
+	 * @param $num   int 数量
+	 */
+	public function setMergeTitle($title,$num)
+	{
+		$this->phpexcel->getActiveSheet()->mergeCellsByColumnAndRow(0,1,$num-1,1);
+		$this->phpexcel->getActiveSheet()->setCellValueByColumnAndRow(0,1,$title);
+
+		//调整css样式
+		$styleArray = [
+			'alignment' => [
+				'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+				'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
+			]
+		];
+		$this->phpexcel->getActiveSheet()->getStyle("A1")->applyFromArray($styleArray);
+		$this->phpexcel->getActiveSheet()->getRowDimension(1)->setRowHeight(30);
 	}
 
 	/**
@@ -62,17 +86,47 @@ class report
 	 */
 	public function setData($data = array())
 	{
-		$lastNum = $this->phpexcel->getActiveSheet(0)->getHighestRow()+1;
+		$lastNum = $this->phpexcel->getActiveSheet()->getHighestRow()+1;
 		foreach($data as $indexNum => $col)
 		{
+			//根据行列数字求出来单元格的位置（A9）
+			$positon = strtoupper(chr(97 + $indexNum)) . $lastNum;
+
+			//字符串类型
 			if($this->dataStringCols && in_array($indexNum,$this->dataStringCols))
 			{
+				$col = $col ? $col : "-";
 				$this->phpexcel->getActiveSheet()->setCellValueExplicitByColumnAndRow($indexNum,$lastNum,$col);
+				$this->phpexcel->getActiveSheet()->getColumnDimensionByColumn($indexNum)->setWidth(20);
+			}
+			//图片类型
+			else if($this->dataImageCols && in_array($indexNum,$this->dataImageCols))
+			{
+				$drawing = new PHPExcel_Worksheet_Drawing();
+				$drawing->setPath($col);
+				$drawing->setHeight(65); // 设置图片高度
+				$drawing->setWidth(65);  // 设置图片宽度
+				$drawing->setOffsetX(5);
+				$drawing->setCoordinates($positon);
+				$drawing->setWorksheet($this->phpexcel->getActiveSheet());
+
+				//设置行的高度
+				$this->phpexcel->getActiveSheet()->getRowDimension($lastNum)->setRowHeight(75);
+				$this->phpexcel->getActiveSheet()->getColumnDimensionByColumn($indexNum)->setWidth(15);
 			}
 			else
 			{
 				$this->phpexcel->getActiveSheet()->setCellValueByColumnAndRow($indexNum,$lastNum,$col);
 			}
+
+			//调整css样式
+			$styleArray = [
+				'alignment' => [
+					'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_LEFT,
+					'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
+				]
+			];
+			$this->phpexcel->getActiveSheet()->getStyle($positon)->applyFromArray($styleArray);
 		}
 	}
 
@@ -82,7 +136,7 @@ class report
 	 */
 	public function setTail($data = array())
 	{
-		$lastNum = $this->phpexcel->getActiveSheet(0)->getHighestRow()+1;
+		$lastNum = $this->phpexcel->getActiveSheet()->getHighestRow()+1;
 		foreach($data as $indexNum => $col)
 		{
 			$this->phpexcel->getActiveSheet()->setCellValueByColumnAndRow($indexNum,$lastNum,$col);

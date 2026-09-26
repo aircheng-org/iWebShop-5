@@ -8,16 +8,23 @@
 		<li>
 			<a href="#">商户数据统计</a>
 		</li>
-		<li class="active">已结算货款</li>
+		<li class="active">结算货款单</li>
 	</ul>
 </div>
 
 <div class="content">
+
+	{if:$this->errorNum > 0}
+	<div class="alert alert-warning">注意：有 {$this->errorNum} 个货款单未完成转账！</div>
+	{/if}
+
 	<table class="table list-table">
 		<colgroup>
-			<col width="120px" />
+			<col width="110px" />
 			<col />
 			<col width="150px" />
+			<col width="120px" />
+			<col width="120px" />
 			<col width="120px" />
 			<col width="120px" />
 			<col width="100px" />
@@ -46,6 +53,14 @@
 					{/query}
 				</select>
 
+				<select class="form-control" name="search[status=]">
+					<option value="">选择状态</option>
+					<option value="-1">未完成</option>
+					<option value="0">待处理</option>
+					<option value="1">进行中</option>
+					<option value="2">已完成</option>
+				</select>
+
 				<button class="btn btn-default" type="button" onclick="submitForm('bill_list');">
                     <i class="fa fa-search"></i> 搜索
                 </button>
@@ -54,11 +69,13 @@
 
 		<thead>
 			<tr>
-				<th>付款单号</th>
+				<th>货款单ID</th>
 				<th>商户</th>
 				<th>结算时间</th>
-				<th>结算金额</th>
+				<th>应转账金额</th>
+				<th>已收到金额</th>
 				<th>结算方式</th>
+				<th>状态</th>
 				<th>操作人</th>
 				<th>操作</th>
 			</tr>
@@ -67,20 +84,30 @@
 		<tbody>
             {foreach:items=$this->query->find()}
 			<tr>
-				<td>{$item['bill_no']}</td>
+				<td>{$item['id']}</td>
 				<td>{$item['true_name']}</td>
 				<td>{$item['pay_time']}</td>
 				<td>{$item['amount']}</td>
+				<td>{$item['received_amount']}</td>
 				<td>{echo:payment::transferWay($item['way'])}</td>
+				<td name="status{$item['status']}" id="bill{$item['id']}">{echo:CountSum::$billStatusText[$item['status']]}</td>
 				<td>{$item['admin_name']}</td>
 				<td>
 					<a href="{url:/market/order_goods_list/bill_id/$item['id']}" title="订单明细">
 						<i class='operator fa fa-list'></i>
 					</a>
 
-					<a href="javascript:delModel({link:'{url:/market/bill_del/id/$item['id']}'})">
+					{if:$item['status'] == 2}
+					<a title="删除" href="javascript:delModel({link:'{url:/market/bill_del/id/$item['id']}'})">
 						<i class='operator fa fa-close'></i>
 					</a>
+					{/if}
+
+					{if:$item['status'] == -1}
+					<a title="再次转账" href="javascript:void(0)" onclick="confirm('确定要再次转账么？',() => {again('{$item['id']}')})">
+						<i class='operator fa fa-undo'></i>
+					</a>
+					{/if}
 
 					<a href="{url:/market/bill_report/id/$item['id']}" title="导出报表">
 						<i class="operator fa fa-file-excel-o"></i>
@@ -106,5 +133,30 @@ function submitForm(action)
 {
 	$('[name="action"]').val(action);
 	formSubmit("searchBill");
+}
+
+//设置状态颜色
+$('[name="status-1"]').addClass('text-red');
+$('[name="status1"]').addClass('text-orange');
+
+//再次转账
+function again(id)
+{
+	loadding('处理中...');
+
+	$.get("{url:/market/pay_countfee_again}",{"id":id},(text) =>
+	{
+		unloadding();
+		if(text == 'success')
+		{
+			tips('转账成功');
+			$('#bill'+id).html('进行中');
+			return;
+		}
+		else
+		{
+			alert(text);
+		}
+	});
 }
 </script>

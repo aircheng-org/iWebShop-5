@@ -59,6 +59,7 @@ class SystemSeller extends IController
 		{
 			$this->redirect('index',false);
 			Util::showMessage($message);
+			return;
 		}
 	}
 
