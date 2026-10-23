@@ -55,11 +55,13 @@ class PHPExcel_Writer_Excel2007_StringTable extends PHPExcel_Writer_Excel2007_Wr
             foreach ($pSheet->getCellCollection() as $cellID) {
                 $cell = $pSheet->getCell($cellID);
                 $cellValue = $cell->getValue();
+                // 注意：数据类型判断要放在 isset($aFlippedStringTable[$cellValue]) 之前，
+                // 否则数组键会用数值下标，PHP 8.1 起浮点数做键会提示「精度丢失」
                 if (!is_object($cellValue) &&
                     ($cellValue !== null) &&
                     $cellValue !== '' &&
-                    !isset($aFlippedStringTable[$cellValue]) &&
-                    ($cell->getDataType() == PHPExcel_Cell_DataType::TYPE_STRING || $cell->getDataType() == PHPExcel_Cell_DataType::TYPE_STRING2 || $cell->getDataType() == PHPExcel_Cell_DataType::TYPE_NULL)) {
+                    ($cell->getDataType() == PHPExcel_Cell_DataType::TYPE_STRING || $cell->getDataType() == PHPExcel_Cell_DataType::TYPE_STRING2 || $cell->getDataType() == PHPExcel_Cell_DataType::TYPE_NULL) &&
+                    !isset($aFlippedStringTable[$cellValue])) {
                         $aStringTable[] = $cellValue;
                         $aFlippedStringTable[$cellValue] = true;
                 } elseif ($cellValue instanceof PHPExcel_RichText &&

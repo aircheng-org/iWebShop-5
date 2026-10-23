@@ -129,14 +129,12 @@ class ICrypt
 	 */
 	public static function simpleEncode($string, $skey = 'iWebShop')
 	{
-	    $strArr   = str_split(base64_encode($string));
-	    $strCount = count($strArr);
-	    foreach(str_split($skey) as $key => $value)
-	    {
-	        $key < $strCount && $strArr[$key].=$value;
-	    }
-	    return str_replace(array('=', '+', '/'), array('O0O0O', 'o000o', 'oo00o'), join('', $strArr));
+	    $key = substr(hash('sha256', $skey, true), 0, 16);
+	    $iv  = openssl_random_pseudo_bytes(16);
+	    $encrypted = openssl_encrypt($string, 'AES-128-CBC', $key, OPENSSL_RAW_DATA, $iv);
+	    return str_replace(array('=', '+', '/'), array('O0O0O', 'o000o', 'oo00o'),  base64_encode($iv . $encrypted));
 	}
+
 	/**
 	 * @brief  简单解密算法
 	 * @param  String  $string  要处理的字符串
@@ -145,13 +143,16 @@ class ICrypt
 	 */
 	public static function simpleDecode($string, $skey = 'iWebShop')
 	{
-	    $strArr   = str_split(str_replace(array('O0O0O', 'o000o', 'oo00o'), array('=', '+', '/'), $string), 2);
-	    $strCount = count($strArr);
-	    foreach(str_split($skey) as $key => $value)
-	    {
-	        $key <= $strCount && isset($strArr[$key]) && isset($strArr[$key][1]) && $strArr[$key][1] === $value && $strArr[$key] = $strArr[$key][0];
-	    }
-	    return base64_decode(join('', $strArr));
+	    $key = substr(hash('sha256', $skey, true), 0, 16);
+        $mod4 = strlen($string) % 4;
+        if ($mod4)
+        {
+            $string .= str_repeat('=', 4 - $mod4);
+        }
+	    $string = base64_decode(str_replace(array('O0O0O', 'o000o', 'oo00o'), array('=', '+', '/'), $string));
+        $iv = substr($string, 0, 16);
+        $ciphertext = substr($string, 16);
+        return openssl_decrypt($ciphertext, 'AES-128-CBC', $key, OPENSSL_RAW_DATA, $iv);
 	}
 
 	/**

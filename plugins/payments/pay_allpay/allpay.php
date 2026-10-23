@@ -209,12 +209,6 @@ class allpay extends paymentPlugin
 		//去掉最后一个&字符
 		$arg = trim($arg,'&');
 
-		//如果存在转义字符，那么去掉转义
-		if(function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc())
-		{
-			$arg = stripslashes($arg);
-		}
-
 		return $arg;
 	}
 

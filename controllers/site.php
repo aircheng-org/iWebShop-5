@@ -347,7 +347,7 @@ class Site extends IController
 		//商品是否参加营销活动
 		if($goods_info['promo'] && $goods_info['active_id'])
 		{
-			$activeObj    = new Active($goods_info['promo'],$goods_info['active_id'],$this->user['user_id'],$goods_id);
+			$activeObj    = new Active($goods_info['promo'],$goods_info['active_id'],($this->user['user_id'] ?? 0),$goods_id);
 			$activeResult = $activeObj->data();
 			if(is_string($activeResult))
 			{
@@ -425,7 +425,7 @@ class Site extends IController
 		$_captcha = ISafe::get('captcha');
 		$return   = array('isError' => true , 'message' => '');
 
-		if(!$this->user['user_id'])
+		if(!$this->user)
 		{
 			$return['message'] = ILang::get('请先登录系统');
 		}
@@ -474,7 +474,7 @@ class Site extends IController
 		$jsonConditionArray = [];
 		foreach($specJSON as $specItem)
 		{
-			$jsonConditionArray[] = " JSON_SEARCH(`spec_array`, 'one', '".$specItem['value']."', NULL, '$[*].value') IS NOT NULL ";
+			$jsonConditionArray[] = " JSON_SEARCH(`spec_array`, 'one', '".IFilter::act($specItem['value'])."', NULL, '$[*].value') IS NOT NULL ";
 		}
 
 		//获取货品数据
@@ -644,7 +644,7 @@ class Site extends IController
 			IError::show(403,ILang::get('传递的参数不完整'));
 		}
 
-		if(!isset($this->user['user_id']) || $this->user['user_id']==null )
+		if(!$this->user)
 		{
 			IError::show(403,ILang::get('登录后才允许评论'));
 		}
@@ -679,7 +679,7 @@ class Site extends IController
 			IError::show(403,ILang::get('填写完整的评论内容'));
 		}
 
-		if(!isset($this->user['user_id']) || !$this->user['user_id'])
+		if(!$this->user)
 		{
 			IError::show(403,ILang::get('未登录用户不能评论'));
 		}

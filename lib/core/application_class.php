@@ -118,8 +118,8 @@ abstract class IApplication
     		{
     			ini_set("display_errors","on");
     			IException::setDebugMode(true);
-    			error_reporting(E_ALL | E_STRICT);
-    			set_error_handler("IException::phpError" ,E_ALL | E_STRICT );
+    			error_reporting(E_ALL);
+    			set_error_handler("IException::phpError" ,E_ALL);
     		}
     		break;
 
@@ -129,7 +129,7 @@ abstract class IApplication
     			ini_set("display_errors","off");
     			IException::setDebugMode(false);
     			error_reporting(0);
-    			set_error_handler("IException::phpError" ,E_ALL | E_STRICT );
+    			set_error_handler("IException::phpError" ,E_ALL);
     		}
     	}
 		set_exception_handler("IException::phpException");

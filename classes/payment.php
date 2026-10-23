@@ -153,7 +153,7 @@ class Payment
 				$orderGoodsList = $orderGoodsDB->query('order_id = '.$order_id);
 				foreach($orderGoodsList as $key => $val)
 				{
-					if(!goods_class::checkStore($val['goods_nums'],$val['goods_id'],$val['product_id']))
+					if(!goods_class::checkStore($val['goods_nums'],$val['goods_id'],$val['product_id']) && IReq::get('is_offline') != 1)
 					{
 						IError::show(403,'商品库存不足无法支付，请重新下单');
 					}
@@ -184,6 +184,9 @@ class Payment
 			$payment['M_Amount']    = $M_Amount;
 			$payment['M_BatchOrderNO'] = join("_",$M_OrderNO);
 
+			$goodsArray = JSON::decode($val['goods_array']);
+			$payment['M_GoodsName'] = $goodsArray['name'];
+
 			//用户信息
 			$payment['P_Mobile']    = $orderRow['mobile'];
 			$payment['P_Name']      = $orderRow['accept_name'];
@@ -196,7 +199,7 @@ class Payment
 		}
 		else if($type == 'recharge')
 		{
-			if(IWeb::$app->getController()->user['user_id'] == null)
+			if(!IWeb::$app->getController()->user)
 			{
 				IError::show(403,'请登录系统');
 			}
@@ -221,6 +224,7 @@ class Payment
 			$payment['M_OrderNO'] = 'recharge'.$reData['recharge_no'];
 			$payment['M_OrderId'] = $r_id;
 			$payment['M_Amount']  = $reData['account'];
+			$payment['M_GoodsName']= "在线充值";
 		}
 
 		$siteConfigObj = new Config("site_config");

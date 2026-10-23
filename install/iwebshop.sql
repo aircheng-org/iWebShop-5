@@ -1200,7 +1200,7 @@ CREATE TABLE `{pre}promotion` (
   `sort` smallint(5) NOT NULL COMMENT '顺序',
   `condition` text NOT NULL COMMENT '活动生效条件 当type=0<促销规则消费额度>,当type=1<限时抢购商品ID>,type=2<特价商品分类ID>,type=3<特价商品ID>,type=4<特价商品品牌ID>,type=5<无意义>,type=6<充值金额>',
   `type` tinyint(1) NOT NULL default '0' COMMENT '活动类型 0:购物车促销规则 1:商品限时抢购 2:商品分类特价 3:商品单品特价 4:商品品牌特价 5:新用户注册促销规则 6:在线充值活动 7:订单获得积分数',
-  `award_value` varchar(255) default NULL COMMENT '奖励值 type=0,5,7<奖励值,包邮排除省份>,type=1<抢购价格>,type=2,3,4<特价折扣>,type=6<充值奖励预存款>',
+  `award_value` varchar(255) default NULL COMMENT '获取的奖励值 type=0,5,7<减免金额或者折扣,包邮排除省份>,type=1<抢购价格>,type=2,3,4<特价折扣>,type=6<充值奖励>',
   `name` varchar(255) NOT NULL COMMENT '活动名称',
   `intro` text COMMENT '活动介绍',
   `award_type` tinyint(1) NOT NULL default '0' COMMENT '奖励方式:0商品限时抢购 1减金额 2奖励折扣 3赠送积分 4赠送优惠券 5赠送赠品 6免运费 7商品特价 8赠送经验',
@@ -49979,6 +49979,7 @@ INSERT INTO `{pre}payment` VALUES (NULL, '快钱', 1, 'bill99', '快钱是国内
 INSERT INTO `{pre}payment` VALUES (NULL, '快钱手机支付', 1, 'wap_bill99', '快钱是国内领先的独立第三方支付企业，旨在为各类企业及个人提供安全、便捷和保密的支付清算与账务服务。 <a href="https://www.99bill.com/" target="_blank">立即申请</a>', '/payments/logos/pay_wap_99bill.jpg', 1, 99, NULL,NULL,2);
 INSERT INTO `{pre}payment` VALUES (NULL, '电脑网站支付', 1, 'pc_alipay', '支付宝电脑网站支付，用户通过支付宝PC网站收银台完成支付，交易款项即时给到商户支付宝账户。<a href="https://openhome.alipay.com" target="_blank">立即申请</a>', '/payments/logos/pay_pc_alipay.png', 1, 99, NULL,NULL,1);
 INSERT INTO `{pre}payment` VALUES (NULL, '手机网站支付', 1, 'mobile_alipay', '支付宝手机网站支付，商户在网页中调用支付宝提供的网页支付接口调起支付宝客户端内的支付模块，通过网页跳转到支付宝中完成支付。<a href="https://openhome.alipay.com" target="_blank">立即申请</a>', '/payments/logos/pay_mobile_alipay.png', 1, 99, NULL,NULL,2);
+INSERT INTO `{pre}payment` VALUES (NULL, '经营码支付', 1, 'precreate_alipay', '支付宝经营码支付，商户在网页中调用支付宝提供的支付模块，通过网页跳转到支付宝中完成支付。<a href="https://openhome.alipay.com" target="_blank">立即申请</a>', '/payments/logos/pay_precreate_alipay.png', 1, 99, NULL,NULL,3);
 INSERT INTO `{pre}payment` VALUES (NULL, '贝宝', 1, 'paypal', '是全球最大的在线支付平台，同时也是目前全球贸易网上支付标准。<a href="https://www.paypal.com/" target="_blank">立即申请</a>', '/payments/logos/pay_paypal.gif', 1, 99, NULL,NULL,1);
 INSERT INTO `{pre}payment` VALUES (NULL, '微信公众号支付', 1, 'wap_wechat', '微信公众号里商城专用支付接口。必须在微信客户端中使用<a href="https://mp.weixin.qq.com/cgi-bin/registermidpage?action=index" target="_blank">立即申请</a>', '/payments/logos/pay_wap_wechat.png', 1, 99, NULL,NULL,2);
 INSERT INTO `{pre}payment` VALUES (NULL, '微信扫码支付', 1, 'scan_wechat', '微信二维码支付接口，适合PC电脑支付<a href="https://mp.weixin.qq.com/cgi-bin/registermidpage?action=index" target="_blank">立即申请</a>', '/payments/logos/pay_scan_wechat.png', 1, 99, NULL,NULL,1);
@@ -49988,6 +49989,9 @@ INSERT INTO `{pre}payment` VALUES (NULL, '微信小程序支付', 1, 'mini_wecha
 INSERT INTO `{pre}payment` VALUES (NULL, '线下转账', 2, 'offline', '线下转账结算，通过银行柜台，电汇等方式付款', '/payments/logos/pay_offline.gif', 1, 99, NULL,NULL,3);
 INSERT INTO `{pre}payment` VALUES (NULL, '偶可贝', 1, 'allpay', '偶可贝跨境在线收款服务，支持支付宝，财付通，银联 <a href="https://www.allpayx.com" target="_blank">立即申请</a>', '/payments/logos/pay_allpay.jpg', 1, 99, NULL,NULL,1);
 INSERT INTO `{pre}payment` VALUES (NULL, 'Stripe', 1, 'stripe', '国际支付接口，数百万各种规模的商家——从初创公司到大型企业——都在使用 Stripe 的软件和 API 进行收款、发送提现及管理线上业务。 <a href="https://www.stripe.com" target="_blank">立即申请</a>', '/payments/logos/pay_stripe.jpg', 1, 99, NULL,NULL,3);
+INSERT INTO `{pre}payment` VALUES (NULL, '易支付(支付宝)', 1, 'epay_alipay', '国内使用最多的支付平台大都支持个人或者个体收款,支付宝接口', '/payments/logos/pay_epay.jpg', 1, 99, NULL,NULL,3);
+INSERT INTO `{pre}payment` VALUES (NULL, '易支付(微信)', 1, 'epay_wechat', '国内使用最多的支付平台大都支持个人或者个体收款,微信接口', '/payments/logos/pay_epay.jpg', 1, 99, NULL,NULL,3);
+INSERT INTO `{pre}payment` VALUES (NULL, '易支付(银联)', 1, 'epay_bank', '国内使用最多的支付平台大都支持个人或者个体收款,银联接口', '/payments/logos/pay_epay.jpg', 1, 99, NULL,NULL,3);
 
 --
 -- 建立外键关系

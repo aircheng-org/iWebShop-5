@@ -37,6 +37,14 @@ class PHPExcel_Shared_OLE_PPS_Root extends PHPExcel_Shared_OLE_PPS
     protected $tempDirectory = null;
 
     /**
+     * 以下属性原代码直接动态赋值，PHP 8.2 会给出弃用提示，这里显式声明
+     */
+    protected $_tempDir = null;
+    protected $_BIG_BLOCK_SIZE = null;
+    protected $_SMALL_BLOCK_SIZE = null;
+    protected $_FILEH_ = null;
+
+    /**
      * @param integer $time_1st A timestamp
      * @param integer $time_2nd A timestamp
      */

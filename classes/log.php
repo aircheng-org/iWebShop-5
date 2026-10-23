@@ -36,7 +36,7 @@ class Log
 
 		foreach($logInfo[$type]['cols'] as $key => $val)
 		{
-			$content[$val] = isset($logs[$val]) ? $logs[$val] : isset($logs[$key]) ? $logs[$key] : '';
+			$content[$val] = isset($logs[$val]) ? $logs[$val] : (isset($logs[$key]) ? $logs[$key] : '');
 		}
 
 		$logObj = new IModel($tableName);

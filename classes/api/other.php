@@ -12,8 +12,13 @@ class APIOther
 	//获取促销规则
 	public function getProrule($seller_id = 0)
 	{
+		$group_id   = ISafe::get('group_id');
 		$seller_id  = IFilter::act($seller_id,'int');
 		$proRuleObj = new ProRule(999999999,$seller_id);
+		if($group_id)
+		{
+			$proRuleObj->setUserGroup($group_id);
+		}
 		$proRuleObj->isGiftOnce = false;
 		$proRuleObj->isCashOnce = false;
 		return $proRuleObj->getInfo();
@@ -22,10 +27,9 @@ class APIOther
 	//获取支付方式
 	public function getPaymentList()
 	{
-		$user_id = IWeb::$app->getController()->user['user_id'];
 		$where = 'status = 0';
 
-		if(!$user_id)
+		if(!IWeb::$app->getController()->user)
 		{
 			$where .= " and class_name != 'balance' ";
 		}
@@ -186,10 +190,10 @@ class APIOther
 	}
 
     //获取商家优惠券
-    public function getFreeTicketList($seller_id = '',$goods_id = '')
+    public function getFreeTicketList($seller_id = '',$goods_id = '',$isIncludePlatform = true)
     {
         $where = 'point = 0 and NOW() BETWEEN start_time and end_time';
-        $where.= $seller_id === '' ? '' : ' and seller_id = '.$seller_id;
+        $where.= $seller_id === '' ? '' : ($isIncludePlatform ? ' and seller_id in (0,'.$seller_id.') ' : ' and seller_id = '.$seller_id);
 		if($goods_id)
 		{
 			$goodsDB = new IModel('goods');

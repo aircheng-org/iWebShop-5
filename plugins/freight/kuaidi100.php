@@ -30,7 +30,7 @@ class kuaidi100 implements freight_inter
 		if(!$data)
 		{
 			$deliveryDB = new IModel('delivery_doc');
-			$deliveryRow = $deliveryDB->getObj('delivery_code = "'.$LogisticCode.'"','time');
+			$deliveryRow = $deliveryDB->getObj('delivery_code = "'.$LogisticCode.'"','time,mobile');
 			$topData = ['time' => $deliveryRow['time'],'context' => '包裹正在等待揽收'];
 
 			//参数设置
@@ -40,12 +40,12 @@ class kuaidi100 implements freight_inter
 			$param = [
 				'com' => $ShipperCode,// 快递公司编码
 				'num' => $LogisticCode, // 快递单号
-				'phone' => '',        // 手机号
+				'phone' => $deliveryRow['mobile'],// 手机号
 				'from' => '',         // 出发地城市
 				'to' => '',           // 目的地城市
 				'resultv2' => '1',    // 开启行政区域解析
 				'show' => '0',        // 返回格式：0：json格式（默认），1：xml，2：html，3：text
-				'order' => 'desc'     // 返回结果排序:desc降序（默认）,asc 升序
+				'order' => 'desc',    // 返回结果排序:desc降序（默认）,asc 升序
 			];
 
 			//请求参数
@@ -77,7 +77,7 @@ class kuaidi100 implements freight_inter
 
 			//记录缓存
 			array_push($data['data'],$topData);
-			if($data['state'] == 3)
+			if(isset($data['state']) && $data['state'] == 3)
 			{
 				$cacheObj->set($LogisticCode,$data);
 			}

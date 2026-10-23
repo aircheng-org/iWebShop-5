@@ -90,6 +90,13 @@ class IException extends Exception
 	 */
 	public static function phpError($errno,$errstr,$errfile = false,$errline = false,$errcontext = false)
 	{
+		// PHP 8 之后 deprecation 大量来自第三方库里「null 传参、动态属性」这类历史写法，
+		// 每条请求能刷几十上百行，把真正的错误埋掉；这里直接跳过，等库升级时再统一处理
+		if($errno === E_DEPRECATED || $errno === E_USER_DEPRECATED)
+		{
+			return true;
+		}
+
 		$traceData      = array();
 		$traceDataArray = debug_backtrace(false);
 		array_shift($traceDataArray);

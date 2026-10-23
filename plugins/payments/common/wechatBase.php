@@ -292,7 +292,7 @@ abstract class wechatBase extends paymentPlugin
 		$data['amount']         = ['refund' => round($payment['M_Refundfee']*100), 'total' => round($payment['M_Amount']*100), 'currency' => 'CNY'];
 		if(isset($payment['M_REASON']) && $payment['M_REASON'])
 		{
-			$data['reason'] = $payment['M_REASON'];
+			$data['reason'] = IString::substr($payment['M_REASON'],75);
 		}
 
         $result = $this->curlSubmit($url,$data);

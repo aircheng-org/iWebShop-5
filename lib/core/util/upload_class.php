@@ -93,7 +93,7 @@ class IUpload
     private function getIniPostMaxSize()
     {
     	$maxSize = trim(self::getMaxSize());
-	    $unit    = strtolower($maxSize{strlen($maxSize)-1});
+	    $unit    = strtolower($maxSize[strlen($maxSize)-1]);
 	    $maxSize = intval($maxSize);
 	    $step    = 0;
 	    switch($unit)

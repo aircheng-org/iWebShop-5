@@ -175,7 +175,7 @@ class SaeTOAuthV2 {
 	 *  - 当$type为token时： array('refresh_token'=>...)
 	 * @return array
 	 */
-	function getAccessToken( $type = 'code', $keys ) {
+	function getAccessToken( $type, $keys ) {
 		$params = array();
 		$params['client_id'] = $this->client_id;
 		$params['client_secret'] = $this->client_secret;
@@ -446,7 +446,7 @@ class SaeTOAuthV2 {
 
 		foreach ($params as $parameter => $value) {
 
-			if( in_array($parameter, array('pic', 'image')) && $value{0} == '@' ) {
+			if( in_array($parameter, array('pic', 'image')) && $value[0] == '@' ) {
 				$url = ltrim( $value, '@' );
 				$content = file_get_contents( $url );
 				$array = explode( '?', basename( $url ) );

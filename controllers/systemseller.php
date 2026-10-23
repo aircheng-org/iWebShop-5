@@ -29,7 +29,7 @@ class SystemSeller extends IController
         else
 		{
 			$sellerObj = new IModel('seller');
-			$sellerRow = $sellerObj->getObj('seller_name = "'.$seller_name.'" or mobile = "'.$seller_name.'" and is_del = 0 and is_lock = 0');
+			$sellerRow = $sellerObj->getObj('(seller_name = "'.$seller_name.'" or mobile = "'.$seller_name.'") and is_del = 0 and is_lock = 0');
 			if($sellerRow && ($sellerRow['password'] == md5($password)))
 			{
 				$dataArray = array(

@@ -532,11 +532,15 @@ class Ucenter extends IController implements userAuthorization
     }
 
     //[个人资料]展示 单页
-    function info()
+    function info($message = "")
     {
     	$userData = Api::run('getMemberInfo');
     	$this->setRenderData(array('userData' => $userData));
-    	$this->redirect('info');
+    	$this->redirect('info',false);
+		if($message)
+		{
+			Util::showMessage($message);
+		}
     }
 
     //[个人资料] 修改 [动作]
@@ -588,7 +592,7 @@ class Ucenter extends IController implements userAuthorization
 
     	$memberObj->setData($dataArray);
     	$memberObj->update($where);
-    	$this->info();
+    	$this->info("保存成功");
     }
 
     //[账户预存款] 展示[单页]
@@ -934,8 +938,16 @@ class Ucenter extends IController implements userAuthorization
 		}
 
 		//支付成功结果
-		plugin::trigger('setCallback','/ucenter/order');
-		$this->redirect('/site/success/message/'.urlencode(ILang::get('支付成功')));
+		$success_url = IReq::get('success_url');
+		if($success_url)
+		{
+			$this->redirect($success_url);
+		}
+		else
+		{
+			plugin::trigger('setCallback','/ucenter/order');
+			$this->redirect('/site/success/message/'.urlencode(ILang::get('支付成功')));
+		}
     }
 
     //发票删除

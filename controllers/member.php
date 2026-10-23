@@ -432,7 +432,7 @@ class Member extends IController implements adminAuthorization
 				$logObj->write('operation',array("管理员:".$this->admin['admin_name'],"删除了用户","被删除的用户ID为：".$ids));
 			}
 		}
-		$this->redirect('member_list');
+		$this->redirect('recycling');
 	}
 
 	/**
@@ -524,6 +524,13 @@ class Member extends IController implements adminAuthorization
 			$billNo = 'T'.$id;
 			$status = -1;//提现更新状态 -1:失败; 1:处理中; 2:成功;
 			$withdrawRow = $withdrawObj->getObj($id);
+
+			if(!$withdrawRow)
+			{
+				$error .= '#'.$id.',提现单数据不存在';
+				continue;
+			}
+
 			$memberRow   = $memberDB->getObj('user_id = '.$withdrawRow['user_id'],'balance');
 			if($memberRow['balance'] < $withdrawRow['amount'])
 			{

@@ -138,7 +138,7 @@ class PHPExcel_Worksheet_ColumnIterator implements Iterator
     /**
      * Rewind the iterator to the starting column
      */
-    public function rewind()
+    public function rewind(): void
     {
         $this->position = $this->startColumn;
     }
@@ -148,7 +148,7 @@ class PHPExcel_Worksheet_ColumnIterator implements Iterator
      *
      * @return PHPExcel_Worksheet_Column
      */
-    public function current()
+    public function current(): mixed
     {
         return new PHPExcel_Worksheet_Column($this->subject, PHPExcel_Cell::stringFromColumnIndex($this->position));
     }
@@ -158,7 +158,7 @@ class PHPExcel_Worksheet_ColumnIterator implements Iterator
      *
      * @return string
      */
-    public function key()
+    public function key(): mixed
     {
         return PHPExcel_Cell::stringFromColumnIndex($this->position);
     }
@@ -166,7 +166,7 @@ class PHPExcel_Worksheet_ColumnIterator implements Iterator
     /**
      * Set the iterator to its next value
      */
-    public function next()
+    public function next(): void
     {
         ++$this->position;
     }
@@ -194,7 +194,7 @@ class PHPExcel_Worksheet_ColumnIterator implements Iterator
      *
      * @return boolean
      */
-    public function valid()
+    public function valid(): bool
     {
         return $this->position <= $this->endColumn;
     }

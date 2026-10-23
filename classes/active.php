@@ -48,7 +48,7 @@ class Active
 	 * @param $type string 商品：goods; 货品：product
 	 * @param $buy_num int 购买的数量；默认1
 	 */
-	public function __construct($promo,$active_id,$user_id = 0,$id,$type = "goods",$buy_num = 1)
+	public function __construct($promo,$active_id,$user_id,$id,$type = "goods",$buy_num = 1)
 	{
 		$this->promo     = $promo;
 		$this->active_id = $active_id;

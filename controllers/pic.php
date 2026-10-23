@@ -88,6 +88,11 @@ class Pic extends IController
 	//kindeditor所有附件上传包括单独图片上传
 	public function upload_json()
 	{
+		if(!ISafe::get('admin_id') || !ISafe::get('seller_id'))
+		{
+			die(JSON::encode(['uploaded' => false, 'error' => ['message' => '没有权限']]));
+		}
+
 		$upObj = new IUpload();
 		$upObj->setDir($this->app->config['upload'].'/detail/'.date("Ymd"));
 		$tempRes = $upObj->execute();

@@ -16,10 +16,11 @@
 		<colgroup>
 			<col width="35px" />
 			<col width="165px" />
+			<col width="100px" />
 			<col width="80px" />
 			<col width="80px" />
 			<col width="80px" />
-			<col width="80px" />
+			<col width="120px" />
 			<col width="120px" />
 			<col width="100px" />
 			<col />
@@ -77,6 +78,7 @@
 				<th>订单状态</th>
 				<th>打印</th>
 				<th>支付方式</th>
+				<th>订单金额</th>
 				<th>用户名</th>
 				<th>下单时间</th>
 				<th>操作</th>
@@ -98,6 +100,7 @@
 					<a href="{url:/order/expresswaybill_template/id/$item['id']}" target="_blank"><span class="badge bg-blue" title="发货和快递单打印">递</span></a>
 				</td>
 				<td>{$item['payment_name']}</td>
+				<td>{$item['order_amount']}</td>
 				<td>
 					{if:$item['user_id'] == 0}
 					游客

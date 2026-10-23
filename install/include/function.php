@@ -11,9 +11,11 @@ function check_mysql()
 	{
 		$hostArray  = explode(":",$db_host);
 		$hostPort   = isset($hostArray[1]) ? $hostArray[1] : ini_get("mysqli.default_port");
-		$mysql_link = new mysqli($hostArray[0],$db_user,$db_pwd,NULL,$hostPort);
-		if($mysql_link && $mysql_link->connect_error == NULL)
+
+		try
 		{
+			$mysql_link = new mysqli($hostArray[0],$db_user,$db_pwd,NULL,$hostPort);
+
 			//检查max_allowed_packet必须大于1MB
 			$sqlData = $mysql_link->query("select @@max_allowed_packet")->fetch_array(MYSQLI_ASSOC);
 			$sqlData = current($sqlData);
@@ -24,7 +26,10 @@ function check_mysql()
 
 			die('success');
 		}
-		die($mysql_link->connect_error);
+		catch(mysqli_sql_exception $e)
+		{
+			die($e->getMessage());
+		}
 	}
 	die('数据库连接失败');
 }
@@ -69,17 +74,17 @@ function parseSQL($fileName,$mysql_link)
 				case '--' :
 				case '//' :
 				{
-					continue;
+					continue 2;
 				}
 
 				case '/*':
 				{
 					if(substr($lstr,-5) == "*/;\r\n" || substr($lstr,-4) == "*/\r\n")
-						continue;
+						continue 2;
 					else
 					{
 						skipComment($fhandle);
-						continue;
+						continue 2;
 					}
 				}
 
@@ -288,7 +293,7 @@ IWeb::createWebApp($config)->run();
 //输出json数据
 function showProgress($return_info)
 {
-	echo '<script type="text/javascript">parent.update_progress('.JSON::encode($return_info).');</script>';
+	echo '<script type="text/javascript">parent.update_progress('.json_encode($return_info).');</script>';
 	flush();
 	if($return_info['isError'] == true)
 	{

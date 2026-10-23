@@ -238,7 +238,7 @@ class IPaging
 	{
 		//URL参数是否存在
 		$baseUrl = $url ? $url  : $this->getPageBarUrl();
-		$baseUrl = IFilter::act($baseUrl,'text');
+		$baseUrl = str_replace(["'",'"'],"",IFilter::act($baseUrl,'text'));
 		$flag    = $url ? false : true;
 
 		//HTML内容拼接开始
@@ -294,7 +294,7 @@ class IPaging
 	{
 		//URL参数是否存在
 		$baseUrl = $url ? $url  : $this->getPageBarUrl();
-		$baseUrl = IFilter::act($baseUrl,'text');
+		$baseUrl = str_replace(["'",'"'],"",IFilter::act($baseUrl,'text'));
 		$flag    = $url ? false : true;
 
 		//HTML内容拼接开始

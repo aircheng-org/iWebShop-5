@@ -221,7 +221,7 @@ class System extends IController implements adminAuthorization
         //启用默认费用
         $open_default = IFilter::act(IReq::get('open_default'),'int');
         //支持的配送地区ID
-        $area_groupid = serialize(IReq::get('area_groupid'));
+        $area_groupid = serialize(array_filter(IReq::get('area_groupid')));
         //配送地址对应的首重价格
         $firstprice = serialize(IReq::get('firstprice'));
         //配送地区对应的续重价格
@@ -289,20 +289,45 @@ class System extends IController implements adminAuthorization
     function payment_edit()
     {
         $payment_id = IFilter::act(IReq::get("id"),'int');
-        $paymentRow = array();
-        $paymentObj = new IModel('payment');
-    	$paymentRow = $paymentObj->getObj("id = ".$payment_id);
-    	if($paymentRow)
-    	{
-	        $this->paymentRow = $paymentRow;
-	        $this->redirect('payment_edit');
-    	}
+        $this->paymentRow = [];
 
-        if(!$paymentRow)
-        {
-        	IError::show(403,"支付方式不存在");
-        }
+		if($payment_id)
+		{
+			$paymentObj = new IModel('payment');
+			$paymentRow = $paymentObj->getObj("id = ".$payment_id);
+			if($paymentRow)
+			{
+				$this->paymentRow = $paymentRow;
+
+				$this->paymentInstance = Payment::createPaymentInstance($this->paymentRow['id']);
+				$this->paramData = JSON::decode($this->paymentRow['config_param']);
+			}
+		}
+
+		$this->redirect('payment_edit');
     }
+
+	/**
+	 * @brief 删除支付方式
+	 */
+	function payment_del()
+	{
+		$payment_id = IFilter::act(IReq::get("id"),'int');
+
+		//禁止删除
+		if($payment_id <= 18)
+		{
+			IError::show(403,'此支付方式不允许删除');
+		}
+
+		$db = new IModel('payment');
+		$db->del($payment_id);
+
+        //日志记录
+		$logObj = new log('db');
+		$logObj->write('operation',array("管理员:".$this->admin['admin_name'],"删除了支付方式",'支付方式ID为：'.$payment_id));
+		$this->redirect('payment_list');
+	}
 
  	/**
      * @brief 更新支付方式插件
@@ -312,19 +337,30 @@ class System extends IController implements adminAuthorization
     	//获取Post数据
     	$payment_id    = IFilter::act(IReq::get("id"),'int');
     	$name          = IFilter::act(IReq::get("name"));
+		$class_name    = IFilter::act(IReq::get("class_name"));
         $order         = IFilter::act(IReq::get("order"),'int');
         $note          = IFilter::act(IReq::get('note'),'text');
         $status        = IFilter::act(IReq::get('status'),'int');
         $client_type   = IFilter::act(IReq::get('client_type'),'int');
-        $config_param  = array();
+        $config_param  = null;
 
-        $paymentInstance = Payment::createPaymentInstance($payment_id);
-        $configParam     = $paymentInstance->configParam();
-        foreach($configParam as $key => $val)
-        {
-			$config_param[$key] = IFilter::act(IReq::get($key));
-        }
-        $config_param = IFilter::act(JSON::encode($config_param));
+		//判断是否接口是否存在
+		$classPath = IWeb::$app->getBasePath().'plugins/payments/pay_'.$class_name.'/'.$class_name.'.php';
+		if(!is_file($classPath))
+		{
+			IError::show('支付接口文件不存在');
+		}
+
+		if($payment_id)
+		{
+			$paymentInstance = Payment::createPaymentInstance($payment_id);
+			$configParam     = $paymentInstance->configParam();
+			foreach($configParam as $key => $val)
+			{
+				$config_param[$key] = IFilter::act(IReq::get($key));
+			}
+			$config_param = IFilter::act(JSON::encode($config_param));
+		}
 
         $updateData = array(
         	'name'          => $name,
@@ -333,18 +369,42 @@ class System extends IController implements adminAuthorization
         	'status'        => $status,
         	'config_param'  => $config_param,
         	'client_type'   => $client_type,
+			'class_name'    => $class_name,
         );
+
+		//新增匹配logo
+		if(!$payment_id)
+		{
+			$updateData['logo'] = '/payments/logos/pay_'.$class_name.'.jpg';
+		}
 
         $paymentDB = new IModel('payment');
         $paymentDB->setData($updateData);
-        $paymentDB->update('id = '.$payment_id);
+
+		if($payment_id)
+		{
+			$paymentDB->update('id = '.$payment_id);
+		}
+		else
+		{
+			$paymentDB->add();
+		}
 
         //日志记录
 		$logObj = new log('db');
-		$logObj->write('operation',array("管理员:".$this->admin['admin_name'],"修改了支付方式",'修改的支付方式为：'.$name));
+
+		if($payment_id)
+		{
+			$logObj->write('operation',array("管理员:".$this->admin['admin_name'],"修改了支付方式",'修改的支付方式为：'.$name));
+		}
+		else
+		{
+			$logObj->write('operation',array("管理员:".$this->admin['admin_name'],"添加了支付方式",'添加的支付方式为：'.$name));
+		}
 
 		$this->redirect('payment_list');
     }
+
 	//[网站管理][站点设置]保存
 	function save_conf()
 	{

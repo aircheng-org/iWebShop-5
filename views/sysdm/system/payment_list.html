@@ -17,8 +17,12 @@
 			<col width="160px">
 			<col />
 			<col width="80px">
-			<col width="50px">
+			<col width="80px">
 		</colgroup>
+
+		<caption>
+            <a class="btn btn-default" href="{url:/system/payment_edit}"><i class="fa fa-plus"></i>添加</a>
+		</caption>
 
 		<thead>
 			<tr>
@@ -44,7 +48,11 @@
 					{/if}
 				</td>
 				<td>
+					{if:$item['id']>18}
 					<a href="{url:/system/payment_edit/id/$item['id']}"><i class='operator fa fa-edit'></i></a>
+					{/if}
+
+					<a href="{url:/system/payment_del/id/$item['id']}"><i class='operator fa fa-remove'></i></a>
 				</td>
 			</tr>
 			{/foreach}

@@ -46,13 +46,13 @@ class orderTip extends pluginBase
     public function tipNewOrderShow()
     {
     	//管理员登录
-        if (IWeb::$app->getController()->admin['admin_id'] != null)
+        if (IWeb::$app->getController()->admin)
         {
             $this->seller_id = 0;
             $ajaxUrl = IUrl::creatUrl('/plugins/getNewOrder');
         }
         //供应商登录
-        elseif (IWeb::$app->getController()->seller['seller_id'] != null)
+        elseif (IWeb::$app->getController()->seller)
         {
             $this->seller_id = IWeb::$app->getController()->seller['seller_id'];
             $ajaxUrl = IUrl::creatUrl('/seller/getNewOrder');
@@ -86,12 +86,12 @@ class orderTip extends pluginBase
         if($orderRow)
         {
 			//管理员登录
-	        if (IWeb::$app->getController()->admin['admin_id'] != null)
+	        if (IWeb::$app->getController()->admin)
 	        {
 	            $orderShowUrl = IUrl::creatUrl('/order/order_show/id/' . $orderRow['id']);
 	        }
 	        //供应商登录
-	        elseif(IWeb::$app->getController()->seller['seller_id'] != null)
+	        elseif(IWeb::$app->getController()->seller)
 	        {
 	            $orderShowUrl = IUrl::creatUrl('/seller/order_show/id/' . $orderRow['id']);
 	        }
@@ -100,7 +100,7 @@ class orderTip extends pluginBase
             $text  = "订单号：<a href='" . $orderShowUrl . "'>{$orderRow['order_no']}</a>" . "<br />";
             $text .= "订单金额：{$orderRow['order_amount']}" . "<br />";
             $text .= "订单状态：{$os[$orderRow['pay_status']]}" . "<br />";
-            die(JSON::encode(array('text' => $text, 'jumpUrl' => $orderShowUrl)));
+            die(JSON::encode(['order_amount' => $orderRow['order_amount'],'text' => $text, 'jumpUrl' => $orderShowUrl]));
         }
     }
 }

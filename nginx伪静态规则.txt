@@ -1,5 +1,15 @@
+# 首先保护特定目录，不允许通过index.php路由访问
+location ~^/(views|backup|upload|runtime|install)/ {
+    # 这些目录下的文件必须实际存在
+    try_files $uri =404;
+    # 可以添加额外的安全头
+    add_header X-Protected-Directory true;
+}
+
+# 伪静态处理
 location / {
-    if (!-e $request_filename) {
-        rewrite ^(.*)$ /index.php/$1;
-    }
+	if (!-e $request_filename) {
+	   rewrite ^(.*)$ /index.php/$1 last;
+	   break;
+	}
 }

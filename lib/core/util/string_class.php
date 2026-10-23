@@ -43,12 +43,12 @@ class IString
 		{
 			while($byte < $strlength)
 			{
-				if(ord($str{$byte}) >= 224)
+				if(ord($str[$byte]) >= 224)
 				{
 					$byte += 3;
 					$amount++;
 				}
-				else if(ord($str{$byte}) >= 192)
+				else if(ord($str[$byte]) >= 192)
 				{
 					$byte += 2;
 					$amount++;
@@ -72,7 +72,7 @@ class IString
 		{
 			while($byte < $strlength)
 			{
-				if(ord($str{$byte}) > 160)
+				if(ord($str[$byte]) > 160)
 				{
 					$byte += 2;
 					$amount++;
@@ -166,12 +166,12 @@ class IString
 		{
 			while($byte < $strlength)
 			{
-				if(ord($str{$byte}) >= 224)
+				if(ord($str[$byte]) >= 224)
 				{
 					$byte += 3;
 					$amount++;
 				}
-				else if(ord($str{$byte}) >= 192)
+				else if(ord($str[$byte]) >= 192)
 				{
 					$byte += 2;
 					$amount++;
@@ -189,7 +189,7 @@ class IString
 		{
 			while($byte < $strlength)
 			{
-				if(ord($str{$byte}) > 160)
+				if(ord($str[$byte]) > 160)
 				{
 					$byte += 2;
 					$amount++;

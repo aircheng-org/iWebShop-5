@@ -22,9 +22,9 @@ class APIOrder
 		$where       = 'id in ('.join(',',$idArray).')';
 
 		//如果不是管理员的权限，则强制增加seller_id的判断条件，防止越权查看订单信息
-		if(!IWeb::$app->getController()->admin['admin_id'])
+		if(!IWeb::$app->getController()->admin)
 		{
-			$where .= ' and seller_id = '.IWeb::$app->getController()->seller['seller_id'];
+			$where .= ' and seller_id = '.(IWeb::$app->getController()->seller['seller_id'] ?? 0);
 		}
 		$orderList = $orderObj->query($where);
 

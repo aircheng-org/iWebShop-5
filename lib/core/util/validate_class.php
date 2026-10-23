@@ -90,6 +90,11 @@ class IValidate
     {
 		return (bool)preg_match("!^1[3|4|5|6|7|8|9][0-9]\d{4,8}$!",$str);
     }
+	//别名：mobi
+	public static function mobile($str='')
+	{
+		return self::mobi($str);
+	}
     /**
      * @brief Url地址验证
      * @param string $str 要检测的Url地址字符串

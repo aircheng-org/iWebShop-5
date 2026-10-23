@@ -3,7 +3,7 @@
 class checkConfig
 {
 	//安装需求
-	private $php_version     = '5.5.0';
+	private $php_version     = '8.0.0';
 	private $must_extension  = array('mysqli','gd','xml','session','iconv');
 	private $recom_extension = array('zip','curl','OpenSSL','mbstring','sockets');
 	private $writeable_dir   = array('config/config.php','config/site_config.php','config/plugin_config.php','install','backup','index.php','upload','runtime');
@@ -40,12 +40,14 @@ class checkConfig
 	//检查php版本
 	public function c_phpVersion()
 	{
-		if(version_compare(phpversion(), '7.4.0') >= 0 || version_compare(phpversion(), '5.5.0') < 0)
+		//PHP 8.0 起才能运行，PHP 9 尚未适配
+		$is_pass = true;
+		if(version_compare(phpversion(), '8.0.0') < 0 || version_compare(phpversion(), '9.0.0') >= 0)
 		{
 			self::$npass_must_num++;
-			$is_pass = -1;
+			$is_pass = false;
 		}
-		return $is_pass < 0 ? false : true;
+		return $is_pass;
 	}
 
 	//获取程序所需的php版本号

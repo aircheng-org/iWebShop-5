@@ -90,6 +90,9 @@ class Block extends IController
 	public function doPay()
 	{
 		//获得相关参数
+		$success_url= IReq::get('success_url'); //自定义正确地址
+		$fail_url   = IReq::get('fail_url'); //自定义错误地址
+
 		$order_id   = IReq::get('order_id');
 		$recharge   = IReq::get('recharge');
 		$payment_id = IFilter::act(IReq::get('payment_id'),'int');
@@ -152,6 +155,17 @@ class Block extends IController
 		else
 		{
 			IError::show(403,ILang::get('发生支付错误'));
+		}
+
+		//自定义跳转地址
+		if($success_url)
+		{
+			$sendData['success_url'] = $success_url;
+		}
+
+		if($fail_url)
+		{
+			$sendData['fail_url'] = $fail_url;
 		}
 
 		$paymentInstance->doPay($sendData);
@@ -352,7 +366,7 @@ class Block extends IController
 		//登录用户
 		$isError = false;
 		$message = ILang::get('添加成功');
-		if($this->user['user_id'])
+		if($this->user)
 		{
 		    ticket::bindByUser($propRow['id'],$this->user['user_id']);
 		}
@@ -534,7 +548,7 @@ class Block extends IController
 	//收货地址弹出框
     public function address()
     {
-    	$user_id = $this->user['user_id'];
+    	$user_id = ($this->user['user_id'] ?? 0);
     	$id      = IFilter::act(IReq::get('id'),'int');
     	if($user_id)
     	{
@@ -563,7 +577,7 @@ class Block extends IController
 		$zip         = IFilter::act(IReq::get('zip'));
 		$telphone    = IFilter::act(IReq::get('telphone'));
 		$mobile      = IFilter::act(IReq::get('mobile'));
-        $user_id     = $this->user['user_id'];
+        $user_id     = ($this->user['user_id'] ?? 0);
 
 		//整合的数据
         $sqlData = array(
@@ -622,7 +636,7 @@ class Block extends IController
     {
         $goodsInfo= IFilter::act(IReq::get('goodsInfo'));
 		$propData = [];
-		$user_id  = $this->user['user_id'];
+		$user_id  = ($this->user['user_id'] ?? 0);
 
 		//获取优惠券
 		if($user_id)
@@ -662,7 +676,7 @@ class Block extends IController
 	//发票管理页面
     public function invoice()
     {
-    	$user_id = $this->user['user_id'];
+    	$user_id = ($this->user['user_id'] ?? 0);
     	$id      = IFilter::act(IReq::get('id'),'int');
     	if($user_id)
     	{
@@ -690,7 +704,7 @@ class Block extends IController
 		$bankname     = IFilter::act(IReq::get('bankname'));
 		$bankno       = IFilter::act(IReq::get('bankno'));
 		$type         = IFilter::act(IReq::get('type'));
-        $user_id      = $this->user['user_id'];
+        $user_id      = ($this->user['user_id'] ?? 0);
 
 		//整合的数据
         $sqlData = array(
@@ -790,7 +804,7 @@ class Block extends IController
 	    }
 
 		//游客的user_id默认为0
-    	$user_id = ($this->user['user_id'] == null) ? 0 : $this->user['user_id'];
+    	$user_id = ($this->user['user_id'] ?? 0);
 
 		//计算商品
 		$countSumObj = new CountSum($user_id);

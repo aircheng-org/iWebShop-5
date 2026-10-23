@@ -237,7 +237,7 @@ class Cart
 
 		//已经登录用户采用db策略
 		$cartDBData = array();
-		$user_id    = IWeb::$app->getController()->user['user_id'];
+		$user_id    = (int) (IWeb::$app->getController()->user['user_id'] ?? 0);
 		if($user_id)
 		{
 			$cartDB  = new IModel('goods_car');
@@ -321,7 +321,7 @@ class Cart
 		else
 		{
 			//1,清空db
-			$user_id = IWeb::$app->getController()->user['user_id'];
+			$user_id = (int) (IWeb::$app->getController()->user['user_id'] ?? 0);
 			if($user_id)
 			{
 				$cartDB  = new IModel('goods_car');
@@ -343,7 +343,7 @@ class Cart
 		$goodsInfo = $this->encode($goodsInfo);
 
 		//1,用户存在写入db
-		$user_id = IWeb::$app->getController()->user['user_id'];
+		$user_id = (int) (IWeb::$app->getController()->user['user_id'] ?? 0);
 		if($user_id)
 		{
 			$cartDB = new IModel('goods_car');
@@ -487,7 +487,7 @@ class Cart
 	public function setUnselected($data)
 	{
 		//1,用户存在写入db
-		$user_id = IWeb::$app->getController()->user['user_id'];
+		$user_id = (int) (IWeb::$app->getController()->user['user_id'] ?? 0);
 		if($user_id)
 		{
 			$cartDB = new IModel('goods_car');
@@ -520,7 +520,7 @@ class Cart
 
 		//已经登录用户采用db策略
 		$cartDBData = array();
-		$user_id    = IWeb::$app->getController()->user['user_id'];
+		$user_id    = (int) (IWeb::$app->getController()->user['user_id'] ?? 0);
 		if($user_id)
 		{
 			$cartDB  = new IModel('goods_car');

@@ -1,29 +1,49 @@
 {js:dialog}
 <script>
 //播放音乐函数
-function playSound()
+function playSound(order_amount)
 {
-    var borswer = window.navigator.userAgent.toLowerCase();
-    if (borswer.indexOf("ie") >= 0)
-    {
-        var strEmbed = '<embed name="embedPlay" src="{$mp3}" autostart="true" hidden="true" loop="false"></embed>';
-        if ($("body").find("embed").length <= 0)
-        {
-            $("body").append(strEmbed);
-        }
-        var embed = document.embedPlay;
-        embed.volume = 100;
-    }
-    else
-    {
-        var strAudio = "<audio id='audioPlay' src='{$mp3}' hidden='true'>";
-        if ($("body").find("audio").length <= 0)
-        {
-            $("body").append(strAudio);
-        }
-        var audio = document.getElementById("audioPlay");
-        audio.play();
-    }
+	const synth   = window.speechSynthesis
+	let utterance = null;
+
+	if(synth)
+	{
+		//语言文字
+		let text = "订单收款到账 " +order_amount+ "元";
+
+		// 创建语音实例
+		utterance = new SpeechSynthesisUtterance(text);
+		utterance.lang = 'zh-CN'; // 设置中文
+		utterance.rate = 1.0; // 语速（0.1-10）
+		utterance.pitch = 1.0; // 音调（0-2）
+		utterance.volume = 1.0; // 音量（0-1）
+
+		synth.speak(utterance);
+	}
+	else
+	{
+		var borswer = window.navigator.userAgent.toLowerCase();
+		if (borswer.indexOf("ie") >= 0)
+		{
+			var strEmbed = '<embed name="embedPlay" src="{$mp3}" autostart="true" hidden="true" loop="false"></embed>';
+			if ($("body").find("embed").length <= 0)
+			{
+				$("body").append(strEmbed);
+			}
+			var embed = document.embedPlay;
+			embed.volume = 100;
+		}
+		else
+		{
+			var strAudio = "<audio id='audioPlay' src='{$mp3}' hidden='true'>";
+			if ($("body").find("audio").length <= 0)
+			{
+				$("body").append(strAudio);
+			}
+			var audio = document.getElementById("audioPlay");
+			audio.play();
+		}
+	}
 }
 
 setInterval('refreshQuery()', {$loopTime});
@@ -51,7 +71,7 @@ function refreshQuery()
             init: function ()
             {
             	//播放音乐
-                playSound();
+                playSound(json.order_amount);
             },
             ok: function ()
             {

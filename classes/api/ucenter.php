@@ -12,7 +12,7 @@ class APIUcenter
     ///用户中心-账户预存款
     public function getUcenterAccoutLog($userid = '')
     {
-        $userid = $userid ? IFilter::act($userid,'int') : IWeb::$app->getController()->user['user_id'];
+        $userid = $userid ? IFilter::act($userid,'int') : (IWeb::$app->getController()->user['user_id'] ?? 0);
         $page   = IReq::get('page') ? IFilter::act(IReq::get('page'),'int') : 1;
         $query  = new IQuery('account_log');
         $query->where = "user_id = ".$userid;
@@ -23,7 +23,7 @@ class APIUcenter
     //用户中心-我的建议
     public function getUcenterSuggestion($userid = '')
     {
-        $userid = $userid ? IFilter::act($userid,'int') : IWeb::$app->getController()->user['user_id'];
+        $userid = $userid ? IFilter::act($userid,'int') : (IWeb::$app->getController()->user['user_id'] ?? 0);
         $page   = IReq::get('page') ? IFilter::act(IReq::get('page'),'int') : 1;
         $query  = new IQuery('suggestion');
         $query->where="user_id = ".$userid;
@@ -34,7 +34,7 @@ class APIUcenter
     //用户中心-商品讨论
     public function getUcenterConsult($userid = '')
     {
-        $userid = $userid ? IFilter::act($userid,'int') : IWeb::$app->getController()->user['user_id'];
+        $userid = $userid ? IFilter::act($userid,'int') : (IWeb::$app->getController()->user['user_id'] ?? 0);
         $page   = IReq::get('page') ? IFilter::act(IReq::get('page'),'int') : 1;
         $query  = new IQuery('refer as r');
         $query->join   = "join goods as go on r.goods_id = go.id ";
@@ -47,7 +47,7 @@ class APIUcenter
     //用户中心-商品评价
     public function getUcenterEvaluation($status = '',$userid = '')
     {
-        $userid = $userid ? IFilter::act($userid,'int') : IWeb::$app->getController()->user['user_id'];
+        $userid = $userid ? IFilter::act($userid,'int') : (IWeb::$app->getController()->user['user_id'] ?? 0);
         $status = IFilter::act($status,'int');
         $page   = IReq::get('page') ? IFilter::act(IReq::get('page'),'int') : 1;
         $where  = "c.user_id = {$userid}";
@@ -73,7 +73,7 @@ class APIUcenter
     //用户中心-用户信息
     public function getMemberInfo($userid = '')
     {
-        $userid = $userid ? $userid : IWeb::$app->getController()->user['user_id'];
+        $userid = $userid ? $userid : (IWeb::$app->getController()->user['user_id'] ?? 0);
         $userid = IFilter::act($userid,'int');
         $tb_member = new IModel('member as m,user as u');
         $info = $tb_member->getObj("m.user_id = u.id and m.user_id=".$userid);
@@ -92,7 +92,7 @@ class APIUcenter
     //用户中心-个人主页统计
     public function getMemberTongJi($userid = '')
     {
-        $userid = $userid ? IFilter::act($userid,'int') : IWeb::$app->getController()->user['user_id'];
+        $userid = $userid ? IFilter::act($userid,'int') : (IWeb::$app->getController()->user['user_id'] ?? 0);
         $result = array();
 
         $query = new IQuery('order');
@@ -111,7 +111,7 @@ class APIUcenter
     //用户中心-优惠券统计
     public function getPropTongJi()
     {
-        $user_id     = IWeb::$app->getController()->user['user_id'];
+        $user_id     = (IWeb::$app->getController()->user['user_id'] ?? 0);
         $member_info = Api::run('getMemberInfo',$user_id);
         $propIds     = trim($member_info['prop'],',');
         $propIds     = $propIds ? $propIds : 0;
@@ -125,7 +125,7 @@ class APIUcenter
     //用户中心-积分列表
     public function getUcenterPointLog($userid = '')
     {
-        $userid     = $userid ? IFilter::act($userid,'int') : IWeb::$app->getController()->user['user_id'];
+        $userid     = $userid ? IFilter::act($userid,'int') : (IWeb::$app->getController()->user['user_id'] ?? 0);
         $page       = IReq::get('page') ? IFilter::act(IReq::get('page'),'int') : 1;
         $query      = new IQuery('point_log');
         $query->where  = "user_id = ".$userid;
@@ -138,7 +138,7 @@ class APIUcenter
     {
         $page   = IReq::get('page') ? IFilter::act(IReq::get('page'),'int') : 1;
 
-        $msgObj = new Mess(IWeb::$app->getController()->user['user_id']);
+        $msgObj = new Mess((IWeb::$app->getController()->user['user_id'] ?? 0));
         $msgIds = $msgObj->getAllMsgIds();
         $msgIds = $msgIds ? $msgIds : 0;
 
@@ -152,7 +152,7 @@ class APIUcenter
     //用户中心-订单列表
     public function getOrderList($userid = '')
     {
-        $userid = $userid ? IFilter::act($userid,'int') : IWeb::$app->getController()->user['user_id'];
+        $userid = $userid ? IFilter::act($userid,'int') : (IWeb::$app->getController()->user['user_id'] ?? 0);
         $page   = IReq::get('page') ? IFilter::act(IReq::get('page'),'int') : 1;
         $query  = new IQuery('order');
         $query->where = "user_id =".$userid." and if_del= 0";
@@ -164,7 +164,7 @@ class APIUcenter
     public function getPropList()
     {
         $page        = IReq::get('page') ? IFilter::act(IReq::get('page'),'int') : 1;
-        $user_id     = IWeb::$app->getController()->user['user_id'];
+        $user_id     = (IWeb::$app->getController()->user['user_id'] ?? 0);
         $member_info = Api::run('getMemberInfo',$user_id);
         $propIds     = trim($member_info['prop'],',');
         $propIds     = $propIds ? $propIds : 0;
@@ -179,7 +179,7 @@ class APIUcenter
     //用户中心-退款记录
     public function getRefundmentDocList($userid = '')
     {
-        $userid = $userid ? IFilter::act($userid,'int') : IWeb::$app->getController()->user['user_id'];
+        $userid = $userid ? IFilter::act($userid,'int') : (IWeb::$app->getController()->user['user_id'] ?? 0);
         $page   = IReq::get('page') ? IFilter::act(IReq::get('page'),'int') : 1;
         $query  = new IQuery('refundment_doc');
         $query->where = "user_id = ".$userid." and if_del = 0";
@@ -190,7 +190,7 @@ class APIUcenter
     //用户中心-提现记录
     public function getWithdrawList($userid = '')
     {
-        $userid = $userid ? IFilter::act($userid,'int') : IWeb::$app->getController()->user['user_id'];
+        $userid = $userid ? IFilter::act($userid,'int') : (IWeb::$app->getController()->user['user_id'] ?? 0);
         $page   = IReq::get('page') ? IFilter::act(IReq::get('page'),'int') : 1;
         $query  = new IQuery('withdraw');
         $query->where = "user_id = ".$userid;
@@ -203,7 +203,7 @@ class APIUcenter
     public function getFavorite($cat = '')
     {
         //获取收藏夹信息
-        $userid = IWeb::$app->getController()->user['user_id'];
+        $userid = (IWeb::$app->getController()->user['user_id'] ?? 0);
         $page   = IReq::get('page') ? IFilter::act(IReq::get('page'),'int') : 1;
         $cat_id = IFilter::act($cat,'int');
 
@@ -222,7 +222,7 @@ class APIUcenter
     //[发票管理]获取发票列表
     public function getInvoiceListByUserId($userid = '')
     {
-        $userid = $userid ? IFilter::act($userid,'int') : IWeb::$app->getController()->user['user_id'];
+        $userid = $userid ? IFilter::act($userid,'int') : (IWeb::$app->getController()->user['user_id'] ?? 0);
         if($userid)
         {
             $model = new IModel('invoice');
@@ -239,7 +239,7 @@ class APIUcenter
     //用户中心-维修记录
     public function getFixDocList($userid = '')
     {
-        $userid = $userid ? IFilter::act($userid,'int') : IWeb::$app->getController()->user['user_id'];
+        $userid = $userid ? IFilter::act($userid,'int') : (IWeb::$app->getController()->user['user_id'] ?? 0);
         $page   = IReq::get('page') ? IFilter::act(IReq::get('page'),'int') : 1;
         $query  = new IQuery('fix_doc');
         $query->where = "user_id = ".$userid." and if_del = 0";
@@ -251,7 +251,7 @@ class APIUcenter
     //用户中心-换货记录
     public function getExchangeDocList($userid = '')
     {
-        $userid = $userid ? IFilter::act($userid,'int') : IWeb::$app->getController()->user['user_id'];
+        $userid = $userid ? IFilter::act($userid,'int') : (IWeb::$app->getController()->user['user_id'] ?? 0);
         $page   = IReq::get('page') ? IFilter::act(IReq::get('page'),'int') : 1;
         $query  = new IQuery('exchange_doc');
         $query->where = "user_id = ".$userid." and if_del = 0";

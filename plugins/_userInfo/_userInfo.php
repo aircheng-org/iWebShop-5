@@ -432,8 +432,11 @@ OEF;
 		$where     = 'user_id = '.$userRow["id"];
 
 		//会员组更新
-		$this->expUpdate($userRow['id']);
+		$group_id = $this->expUpdate($userRow['id']);
 		$memberObj->update($where);
+
+		//会员组保存
+		ISafe::set('group_id',$group_id);
 
 		//通知事件用户登录完毕
 		plugin::trigger("userLoginFinish",$userRow,$password);
@@ -522,7 +525,7 @@ OEF;
 		$memberObj->update('user_id = '.$user_id,'exp');
 
 		//根据经验值查询晋升的会员组
-		$memberRow = $memberObj->getObj('user_id = '.$user_id,'exp');
+		$memberRow = $memberObj->getObj('user_id = '.$user_id,'exp,group_id');
 		if(!$memberRow)
 		{
 		    return '用户信息不存在';
@@ -537,7 +540,7 @@ OEF;
 
 		$groupObj  = new IModel('user_group');
 		$groupRow  = $groupObj->query($memberRow['exp'].' between minexp and maxexp and maxexp > 0','id','discount asc',1);
-		$updateData = array('group_id' => 0);
+		$updateData = array('group_id' => $memberRow['group_id']);
 		if($groupRow && $groupRow = current($groupRow))
 		{
 			$updateData['group_id'] = $groupRow['id'];
@@ -546,10 +549,12 @@ OEF;
 		//如果是经验不减少则保留会员组
 		if($exp >= 0 && $updateData['group_id'] == 0)
 		{
-			return;
+			return $updateData['group_id'];
 		}
+
 		$memberObj->setData($updateData);
 		$memberObj->update('user_id = '.$user_id);
+		return $updateData['group_id'];
 	}
 
 	/**

@@ -554,7 +554,7 @@ return array(
     'getUcenterFavoriteByCatid'=>array(
         'query'=>array(
             'name'=>'favorite as f,category as c ',
-            'where'=>'f.user_id = '.IWeb::$app->getController()->user['user_id'].' and f.cat_id = c.id ',
+            'where'=>'f.user_id = '.(IWeb::$app->getController()->user['user_id'] ?? 0).' and f.cat_id = c.id ',
             'fields'=> 'count(*) as num,c.name,c.id ',
             'group'=> 'cat_id',
         )
@@ -579,7 +579,7 @@ return array(
     'getOrderListByUserid'=>array(
         'query'=>array(
             'name'  => 'order',
-            'where' => ' user_id = '.IWeb::$app->getController()->user['user_id'].' and if_del = 0 ',
+            'where' => ' user_id = '.(IWeb::$app->getController()->user['user_id'] ?? 0).' and if_del = 0 ',
             'order'=> 'id desc',
             'limit' => 6,
         )
@@ -816,7 +816,7 @@ return array(
             'name'   => 'refer as re',
             'fields' => "se.seller_name,a.admin_name,u.username,re.*,go.name",
             'join'   => "left join goods as go on go.id = re.goods_id left join user as u on u.id = re.user_id left join admin as a on a.id = re.admin_id left join seller as se on se.id = re.seller_id",
-            'where'  => "go.seller_id = ". IWeb::$app->getController()->seller['seller_id'],
+            'where'  => "go.seller_id = ". (IWeb::$app->getController()->seller['seller_id'] ?? 0),
             'order'  => 're.id desc',
             'page'   => IReq::get('page') ? IReq::get('page') : 1,
         )
@@ -1074,7 +1074,7 @@ return array(
     'getSellerListRule'=>array(
         'query'=>array(
             'name'  => 'promotion',
-            'where' => "type = 0 and seller_id = ".IWeb::$app->getController()->seller['seller_id'],
+            'where' => "type = 0 and seller_id = ".(IWeb::$app->getController()->seller['seller_id'] ?? 0),
             'page'  => IReq::get('page') ? IReq::get('page') : 1,
         )
     ),
@@ -1119,7 +1119,7 @@ return array(
     'getSellerListByRegiment'=>array(
         'query'=>array(
             'name'  => 'regiment',
-            'where' => 'seller_id = '.IWeb::$app->getController()->seller['seller_id'],
+            'where' => 'seller_id = '.(IWeb::$app->getController()->seller['seller_id'] ?? 0),
             'order' => 'sort asc',
             'page'  => IReq::get('page') ? IReq::get('page') : 1,
         )
@@ -1156,7 +1156,7 @@ return array(
     'getListBySellerBill'=>array(
         'query' => array(
             'name'  => 'bill',
-            'where' => "seller_id = ".IWeb::$app->getController()->seller['seller_id'],
+            'where' => "seller_id = ".(IWeb::$app->getController()->seller['seller_id'] ?? 0),
             'page'  => IReq::get('page') ? IReq::get('page') : 1,
         )
     ),
@@ -1291,7 +1291,7 @@ return array(
     'getSellerOrderGoodsRowByOrderId'=> array(
         'query' => array(
             'name'  => 'order_goods',
-            'where' => 'order_id in (#id#) and seller_id = '.IWeb::$app->getController()->seller['seller_id'],
+            'where' => 'order_id in (#id#) and seller_id = '.(IWeb::$app->getController()->seller['seller_id'] ?? 0),
         )
     ),
 
@@ -1373,7 +1373,7 @@ return array(
             'name'  => 'expresswaybill as e',
             'join'  => 'left join freight_company as fc on fc.freight_type = e.freight_type',
             'fields'=> 'e.*,fc.id as freight_id',
-            'where' => 'e.id = #id#'.(isset(IWeb::$app->getController()->admin['admin_id']) ? '' : ' and e.seller_id = '.IWeb::$app->getController()->seller['seller_id']),
+            'where' => 'e.id = #id#'.(isset(IWeb::$app->getController()->admin['admin_id']) ? '' : ' and e.seller_id = '.(IWeb::$app->getController()->seller['seller_id'] ?? 0)),
             'type'  => 'row',
         )
     ),
@@ -1729,7 +1729,7 @@ return array(
     'getSellerDeliveryExtendRowById'=>array(
         'query'=>array(
             'name'  =>'delivery_extend',
-            'where' =>'seller_id = '.IWeb::$app->getController()->seller['seller_id'].' and delivery_id = #delivery_id#',
+            'where' =>'seller_id = '.(IWeb::$app->getController()->seller['seller_id'] ?? 0).' and delivery_id = #delivery_id#',
             'type'  =>'row'
         )
     ),
@@ -2021,7 +2021,7 @@ return array(
     'getSellerListByAssemble'=>array(
         'query'=>array(
             'name'  => 'assemble',
-            'where' => 'seller_id = '.IWeb::$app->getController()->seller['seller_id'],
+            'where' => 'seller_id = '.(IWeb::$app->getController()->seller['seller_id'] ?? 0),
             'order' => 'sort asc',
             'page'  => IReq::get('page') ? IReq::get('page') : 1,
         )

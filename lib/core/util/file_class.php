@@ -76,24 +76,28 @@ class IFile
 	{
 		if($dir[0] != '.' && is_dir($dir) && is_writable($dir))
 		{
-			$dirRes = opendir($dir);
-			while( false !== ($fileName = readdir($dirRes)) )
+			$files = scandir($dir);
+			foreach($files as $fileName)
 			{
 				if($fileName[0] !== '.')
 				{
 					$fullpath = $dir.'/'.$fileName;
-					if(is_file($fullpath))
+
+					//判断资源是否存在
+					if(file_exists($fullpath))
 					{
-						self::unlink($fullpath);
-					}
-					else
-					{
-						self::clearDir($fullpath);
-						rmdir($fullpath);
+						if(is_file($fullpath))
+						{
+							self::unlink($fullpath);
+						}
+						else
+						{
+							self::clearDir($fullpath);
+							count(scandir($fullpath)) <= 2 ? rmdir($fullpath) : '';
+						}
 					}
 				}
 			}
-			closedir($dirRes);
 			return true;
 		}
 		else

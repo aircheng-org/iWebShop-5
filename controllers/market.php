@@ -355,6 +355,7 @@ class Market extends IController implements adminAuthorization
 			{
 				$data['award_value'] = str_replace(',',';',$data['award_value']);
 			}
+			$data['user_group']  = str_replace(",",";",$data['user_group']);
 			$this->promotionRow  = $data;
 		}
 		$this->redirect('pro_rule_edit');

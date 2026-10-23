@@ -41,9 +41,6 @@ class IMysqli extends IDB implements dbInter
 		  	//宽松的SQL执行
 		  	$this->linkRes->query("SET SESSION sql_mode = '' ");
 
-		  	//设置事务级别和日志方式
-		  	$this->linkRes->query("SET SESSION binlog_format='MIXED' ");
-
 		  	//设置时区东八区
 		  	if(IWeb::$app->config['timezone'] == 'Asia/Shanghai')
 		  	{

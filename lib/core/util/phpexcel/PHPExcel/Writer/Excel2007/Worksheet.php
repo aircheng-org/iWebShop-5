@@ -1114,7 +1114,8 @@ class PHPExcel_Writer_Excel2007_Worksheet extends PHPExcel_Writer_Excel2007_Writ
                         break;
                     case 'f':            // Formula
                         $attributes = $pCell->getFormulaAttributes();
-                        if ($attributes['t'] == 'array') {
+                        // getFormulaAttributes() 在未设置时返回 null，PHP 8 下直接取下标会告警
+                        if (is_array($attributes) && isset($attributes['t']) && $attributes['t'] == 'array') {
                             $objWriter->startElement('f');
                             $objWriter->writeAttribute('t', 'array');
                             $objWriter->writeAttribute('ref', $pCellAddress);

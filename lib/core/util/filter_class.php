@@ -218,11 +218,11 @@ class IFilter
 		$fileSize = filesize($file);
 		fseek($resource, 0);
 		// 读取文件的头部和尾部
-		if ($fileSize > 5000)
+		if ($fileSize > 10000)
 		{
-			$hexCode = fread($resource, 2000);
-			fseek($resource, $fileSize - 2000);
-			$hexCode .= fread($resource, 2000);
+			$hexCode = fread($resource, 3000);
+			fseek($resource, $fileSize - 3000);
+			$hexCode .= fread($resource, 3000);
 		}
 		// 读取文件的全部内容
 		else
@@ -231,7 +231,7 @@ class IFilter
 		}
 
 		fclose($resource);
-		if (preg_match('@(<script)|(<?php)|($_REQUEST)|($_POST)|(base64)@is', $hexCode))
+		if (preg_match('@(<script)|(<\?php)|(\$_REQUEST)|(\$_POST)|(base64_)|(eval\()|(shell_exec)|(set_time_limit)@is', $hexCode))
 		{
 			return false;
 		}
@@ -278,6 +278,9 @@ class IFilter
 	 */
 	public static function word($str)
 	{
+		// PHP 8 把 null 传给 stripos 会报 deprecation，这里统一按空串处理
+		$str = (string) $str;
+
 		$word = ["file://","select/*","select%","update/*","update%","delete/*","delete%","insert into","insert/*","insert%","updatexml","/**/","union("];
 		foreach($word as $val)
 		{
@@ -296,6 +299,9 @@ class IFilter
 	 */
 	public static function removeEmoji($str)
 	{
+		// PHP 8 里 null 传给 preg_replace_callback 会报 deprecation
+		$str = (string) $str;
+
 		$str = preg_replace_callback('/./u',function($match){
 			return strlen($match[0]) >= 4 ? '' : $match[0];
 		},$str);

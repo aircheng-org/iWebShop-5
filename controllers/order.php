@@ -345,7 +345,7 @@ class Order extends IController implements adminAuthorization
 		}
 		catch(exception $e)
 		{
-			$result = $e->getMessage();
+			$result = str_replace(["\r\n", "\r", "\n", " ", "\t"], '', $e->getMessage());
 		}
 
 		if(is_string($result))

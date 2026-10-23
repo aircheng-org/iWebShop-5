@@ -397,7 +397,7 @@ class ticket
 	public static function isPassByUser($ticketRow,$user_id)
 	{
 		$memberObj = new IModel('member');
-		$where     = 'user_id = '.$user_id;
+		$where     = 'user_id = '.intval($user_id);
 		$memberRow = $memberObj->getObj($where,'point,prop');
 
 		//积分判定

@@ -5,6 +5,11 @@
  * User: jiehua
  * Date: 16/3/30
  * Time: 下午3:25
+ *
+ * PHP 8 改造：mcrypt 扩展在 7.2 已移除，改用 openssl。
+ * 支付宝接口内容加密的约定是 AES-128-CBC + 16 字节全 0 的 IV + PKCS7 填充，
+ * 原来 mcrypt 版本虽然生成了随机 IV 但没传给 mcrypt_encrypt，实际生效的就是全 0 IV，
+ * 所以这里直接用零 IV，跟历史上发出去的密文完全兼容。
  */
 
 /**
@@ -13,13 +18,14 @@
  * @return string
  */
  function encrypt($str,$screct_key){
-	//AES, 128 模式加密数据 CBC
 	$screct_key = base64_decode($screct_key);
 	$str = trim($str);
 	$str = addPKCS7Padding($str);
-	$iv = mcrypt_create_iv(mcrypt_get_iv_size(MCRYPT_RIJNDAEL_128,MCRYPT_MODE_CBC),1);
-	$encrypt_str =  mcrypt_encrypt(MCRYPT_RIJNDAEL_128, $screct_key, $str, MCRYPT_MODE_CBC);
-	return base64_encode($encrypt_str);
+
+	$iv = str_repeat("\0", 16);
+	$encrypt_str = openssl_encrypt($str, 'aes-128-cbc', $screct_key, OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING, $iv);
+
+	return base64_encode((string) $encrypt_str);
 }
 
 /**
@@ -28,16 +34,28 @@
  * @return string
  */
  function decrypt($str,$screct_key){
-	//AES, 128 模式加密数据 CBC
 	$str = base64_decode($str);
 	$screct_key = base64_decode($screct_key);
-	$iv = mcrypt_create_iv(mcrypt_get_iv_size(MCRYPT_RIJNDAEL_128,MCRYPT_MODE_CBC),1);
-	$encrypt_str =  mcrypt_decrypt(MCRYPT_RIJNDAEL_128, $screct_key, $str, MCRYPT_MODE_CBC);
+
+	$blockSize = 16;
+	// 密文长度必须是块大小的整数倍，否则说明传进来的不是这段逻辑加密的数据
+	if(strlen($str) % $blockSize !== 0)
+	{
+		return '';
+	}
+
+	$iv = str_repeat("\0", 16);
+	$encrypt_str = openssl_decrypt($str, 'aes-128-cbc', $screct_key, OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING, $iv);
+
+	if($encrypt_str === false)
+	{
+		return '';
+	}
+
 	$encrypt_str = trim($encrypt_str);
-
 	$encrypt_str = stripPKSC7Padding($encrypt_str);
-	return $encrypt_str;
 
+	return $encrypt_str;
 }
 
 /**
@@ -47,7 +65,7 @@
  */
 function addPKCS7Padding($source){
 	$source = trim($source);
-	$block = mcrypt_get_block_size(MCRYPT_RIJNDAEL_128, MCRYPT_MODE_CBC);
+	$block  = 16;
 
 	$pad = $block - (strlen($source) % $block);
 	if ($pad <= $block) {

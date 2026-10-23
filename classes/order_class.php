@@ -232,6 +232,18 @@ class Order_Class
 
             switch($orderRow['goods_type'])
             {
+				//普通商品
+				case 'default':
+				{
+					//线下交货
+					if($orderRow['distribution'] == 0)
+					{
+						//自动设置发货
+						$isAutoSend = true;
+					}
+				}
+				break;
+
                 //服务验证码
                 case 'code':
                 {
@@ -952,7 +964,7 @@ class Order_Class
 	 	{
 	 		case "admin":
 	 		{
-	 			$sendor_id = IWeb::$app->getController()->admin['admin_id'];
+	 			$sendor_id = (IWeb::$app->getController()->admin['admin_id'] ?? 0);
 	 			$paramArray['admin_id'] = $sendor_id;
 
 	 			$adminDB = new IModel('admin');
@@ -964,7 +976,7 @@ class Order_Class
 
 	 		case "seller":
 	 		{
-	 			$sendor_id = IWeb::$app->getController()->seller['seller_id'];
+	 			$sendor_id = (IWeb::$app->getController()->seller['seller_id'] ?? 0);
 	 			$paramArray['seller_id'] = $sendor_id;
 
 	 			$sellerDB = new IModel('seller');
@@ -1053,16 +1065,6 @@ class Order_Class
     	//4,普通发货物流
     	else
     	{
-	    	//订单日志内容
-			$logArray = array(
-				'order_id' => $order_id,
-				'user'     => $sendorName,
-				'action'   => '发货',
-				'result'   => '成功',
-				'note'     => '订单【'.$order_no.'】由【'.$sendorSort.'】'.$sendorName.'发货',
-				'addtime'  => ITime::getDateTime(),
-			);
-
     	 	//如果存在物流公司和快递号则生成发货单
     	 	if($paramArray['freight_id'] && $paramArray['delivery_code'])
     	 	{
@@ -1079,6 +1081,25 @@ class Order_Class
         	 	//发货成功事件
         	 	plugin::trigger('orderSendDeliveryFinish',$deliveryId);
     	 	}
+			//商品线下交付
+			else if($orderRow['distribution'] == 0)
+			{
+				$orderUpdate['status'] = 5;
+
+        	 	//商品线下交付事件
+				sleep(3); //延迟时间防止微信支付状态修改后不能立刻同步到其订单系统中
+        	 	plugin::trigger('orderOfflineDeliveryFinish',$order_id);
+			}
+
+	    	//订单日志内容
+			$logArray = array(
+				'order_id' => $order_id,
+				'user'     => $sendorName,
+				'action'   => $orderRow['distribution'] == 0 ? '交货' : '发货',
+				'result'   => '成功',
+				'note'     => $orderRow['distribution'] == 0 ? '订单【'.$order_no.'】由线下交货' : '订单【'.$order_no.'】由【'.$sendorSort.'】'.$sendorName.'发货 '.$paramArray['delivery_code'],
+				'addtime'  => ITime::getDateTime(),
+			);
     	}
 
 		//订单日志记录

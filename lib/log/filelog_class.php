@@ -93,4 +93,13 @@ class IFileLog implements ILog
 	{
 		return is_file($this->path) ? file_get_contents($this->path) : '';
 	}
+
+	/**
+	 * @brief 读取日志成数组格式
+	 * @return array 日志内容
+	 */
+	public function readToList()
+	{
+		return is_file($this->path) ? file($this->path) : [];
+	}
 }

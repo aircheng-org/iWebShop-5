@@ -190,6 +190,8 @@ function productClass(goods_id,user_id,promo,active_id,type)
 	//初始化规格数据
 	this.initSpec = function()
 	{
+		let firstElement = []
+
 		//根据specId查询规格种类数量
 		_self.specCount = 0;
 		var tmpSpecId   = "";
@@ -199,6 +201,7 @@ function productClass(goods_id,user_id,promo,active_id,type)
 			{
 				_self.specCount++;
 				tmpSpecId = $(this).attr('specId');
+				firstElement.push($(this))
 			}
 		});
 
@@ -264,6 +267,12 @@ function productClass(goods_id,user_id,promo,active_id,type)
 				},'json');
 			}
 		});
+
+		//默认选中规格
+		for(let k in firstElement)
+		{
+			setTimeout(() => {firstElement[k].trigger('click')},300)
+		}
 	}
 
 	//检查购买数量是否合法

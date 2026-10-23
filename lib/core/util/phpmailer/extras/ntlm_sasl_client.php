@@ -20,15 +20,9 @@ class ntlm_sasl_client_class
 
     public function initialize(&$client)
     {
-        if (!function_exists($function = "mcrypt_encrypt")
-            || !function_exists($function = "mhash")
-        ) {
-            $extensions = array(
-                "mcrypt_encrypt" => "mcrypt",
-                "mhash" => "mhash"
-            );
-            $client->error = "the extension " . $extensions[$function] .
-                " required by the NTLM SASL client class is not available in this PHP configuration";
+        // PHP 7.2 起 mcrypt 移除、7.4 起 mhash 并入 hash，这里改为 openssl + hash 检测
+        if (!function_exists("openssl_encrypt") || !in_array("md4", hash_algos(), true)) {
+            $client->error = "the openssl extension and md4 hash algorithm required by the NTLM SASL client class are not available in this PHP configuration";
             return (0);
         }
         return (1);
@@ -66,10 +60,8 @@ class ntlm_sasl_client_class
     public function NTLMResponse($challenge, $password)
     {
         $unicode = $this->ASCIIToUnicode($password);
-        $md4 = mhash(MHASH_MD4, $unicode);
+        $md4 = hash("md4", $unicode, true);
         $padded = $md4 . str_repeat(chr(0), 21 - strlen($md4));
-        $iv_size = mcrypt_get_iv_size(MCRYPT_DES, MCRYPT_MODE_ECB);
-        $iv = mcrypt_create_iv($iv_size, MCRYPT_RAND);
         for ($response = "", $third = 0; $third < 21; $third += 7) {
             for ($packed = "", $p = $third; $p < $third + 7; $p++) {
                 $packed .= str_pad(decbin(ord(substr($padded, $p, 1))), 8, "0", STR_PAD_LEFT);
@@ -79,7 +71,7 @@ class ntlm_sasl_client_class
                 $b = $s . ((substr_count($s, "1") % 2) ? "0" : "1");
                 $key .= chr(bindec($b));
             }
-            $ciphertext = mcrypt_encrypt(MCRYPT_DES, $key, $challenge, MCRYPT_MODE_ECB, $iv);
+            $ciphertext = openssl_encrypt($challenge, "DES-ECB", $key, OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING);
             $response .= $ciphertext;
         }
         return $response;

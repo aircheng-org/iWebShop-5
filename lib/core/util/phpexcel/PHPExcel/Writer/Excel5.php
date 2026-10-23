@@ -70,6 +70,20 @@ class PHPExcel_Writer_Excel5 extends PHPExcel_Writer_Abstract implements PHPExce
     private $parser;
 
     /**
+     * 工作簿写入器（PHP 8.2 动态属性弃用提示，此处显式声明）
+     *
+     * @var PHPExcel_Writer_Excel5_Workbook
+     */
+    private $writerWorkbook;
+
+    /**
+     * 各工作表写入器集合（PHP 8.2 动态属性弃用提示，此处显式声明）
+     *
+     * @var array
+     */
+    private $writerWorksheets = array();
+
+    /**
      * Identifier clusters for drawings. Used in MSODRAWINGGROUP record.
      *
      * @var array

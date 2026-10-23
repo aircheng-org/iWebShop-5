@@ -179,11 +179,12 @@ class IModel
 	 * @brief 获取单条数据
 	 * @param string $where 查询条件
 	 * @param array or string $cols 查询字段,支持数组格式,如array('cols1','cols2')
+	 * @param array or string $orderBy 排序字段 DESC:倒序; ASC:正序;
 	 * @return array 查询结果
 	 */
-	public function getObj($where,$cols = '*')
+	public function getObj($where,$cols='*',$orderBy='')
 	{
-		$result = $this->query($where,$cols,'',1);
+		$result = $this->query($where,$cols,$orderBy,1);
 		if(empty($result))
 		{
 			return array();

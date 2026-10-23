@@ -222,7 +222,15 @@ class Goods extends IController implements adminAuthorization
 		{
 			die('请选择要删除的数据');
 		}
-		$this->redirect("goods_list");
+
+        if(isset($_SERVER['HTTP_REFERER']))
+        {
+            header("Location: " . $_SERVER['HTTP_REFERER']);
+        }
+        else
+        {
+            $this->redirect("goods_list");
+        }
 	}
 	/**
 	 * @brief 商品上下架
@@ -695,9 +703,15 @@ class Goods extends IController implements adminAuthorization
 				{
 					$imgsrc = $goodsImgRelation[$goodsId];
 
-					//导入商品主图
+					//导入商品主图(默认找main目录，如果没有则回退上一级)
 					$mainPath = $this->app->getBasePath().'upload/'.$imgsrc.'/main/';
 					$mainPathWeb = 'upload/'.$imgsrc.'/main/';
+					if(!is_dir($mainPath))
+					{
+						$mainPath = $this->app->getBasePath().'upload/'.$imgsrc.'/';
+						$mainPathWeb = 'upload/'.$imgsrc.'/';
+					}
+
 					if(is_dir($mainPath))
 					{
 						$dirRes = opendir($mainPath);
@@ -737,10 +751,16 @@ class Goods extends IController implements adminAuthorization
 						}
 					}
 
-					//导入商品详情图
+					//导入商品详情图(默认找detail目录，如果没有则回退上一级)
 					$content = '';
 					$detailPath = $this->app->getBasePath().'upload/'.$imgsrc.'/detail/';
 					$detailPathWeb = IUrl::creatUrl().'upload/'.$imgsrc.'/detail/';
+					if(!is_dir($detailPath))
+					{
+						$detailPath = $this->app->getBasePath().'upload/'.$imgsrc.'/';
+						$detailPathWeb = IUrl::creatUrl().'upload/'.$imgsrc.'/';
+					}
+
 					if(is_dir($detailPath))
 					{
 						$dirRes = opendir($detailPath);

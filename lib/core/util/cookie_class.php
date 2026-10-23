@@ -54,7 +54,8 @@ class ICookie
 			$value = serialize($value);
 		}
 		$value = ICrypt::encode($value , self::getKey());
-		return setCookie(self::$pre.$name,$value,$expire,$path,$domain,false,true);
+		// setcookie 在 PHP 8.1+ 不接受 null，统一转成字符串
+		return setCookie(self::$pre.$name,(string) $value,$expire,(string) $path,(string) $domain,false,true);
 	}
 
     /**

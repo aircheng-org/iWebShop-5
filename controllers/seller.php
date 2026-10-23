@@ -1173,7 +1173,9 @@ class Seller extends IController implements sellerAuthorization
 		{
 			$promotionObj = new IModel('promotion');
 			$where = 'id = '.$id.' and seller_id='.$this->seller['seller_id'];
-			$this->promotionRow = $promotionObj->getObj($where);
+			$data = $promotionObj->getObj($where);
+			$data['user_group'] = str_replace(",",";",$data['user_group']);
+			$this->promotionRow = $data;
 		}
 		$this->redirect('pro_rule_edit');
 	}
@@ -1183,15 +1185,8 @@ class Seller extends IController implements sellerAuthorization
 	{
 		$id           = IFilter::act(IReq::get('id'),'int');
 		$user_group   = IFilter::act(IReq::get('user_group','post'));
+		$user_group   = is_array($user_group) ? join(",",$user_group) : "";
 		$promotionObj = new IModel('promotion');
-		if(is_string($user_group))
-		{
-			$user_group_str = $user_group;
-		}
-		else
-		{
-			$user_group_str = ",".join(',',$user_group).",";
-		}
 
 		$dataArray = array(
 			'name'       => IFilter::act(IReq::get('name','post')),
@@ -1202,7 +1197,7 @@ class Seller extends IController implements sellerAuthorization
 			'intro'      => IFilter::act(IReq::get('intro','post')),
 			'award_type' => IFilter::act(IReq::get('award_type','post')),
 			'type'       => 0,
-			'user_group' => $user_group_str,
+			'user_group' => $user_group,
 			'award_value'=> IFilter::act(IReq::get('award_value','post')),
 			'seller_id'  => $this->seller['seller_id'],
 		);

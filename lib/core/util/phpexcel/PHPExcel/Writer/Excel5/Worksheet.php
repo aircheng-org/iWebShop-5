@@ -185,6 +185,20 @@ class PHPExcel_Writer_Excel5_Worksheet extends PHPExcel_Writer_Excel5_BIFFwriter
     private $escher;
 
     /**
+     * 是否预先计算公式（PHP 8.2 动态属性弃用提示，此处显式声明）
+     *
+     * @var bool
+     */
+    private $_preCalculateFormulas = true;
+
+    /**
+     * 是否打印标题行（PHP 8.2 动态属性弃用提示，此处显式声明）
+     *
+     * @var int
+     */
+    private $_print_headers = 0;
+
+    /**
      * Array of font hashes associated to FONT records index
      *
      * @var array
@@ -876,7 +890,7 @@ class PHPExcel_Writer_Excel5_Worksheet extends PHPExcel_Writer_Excel5_BIFFwriter
         $unknown    = 0x0000;            // Must be zero
 
         // Strip the '=' or '@' sign at the beginning of the formula string
-        if ($formula{0} == '=') {
+        if ($formula[0] == '=') {
             $formula = substr($formula, 1);
         } else {
             // Error handling

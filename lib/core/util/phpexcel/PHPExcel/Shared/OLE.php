@@ -285,7 +285,8 @@ class PHPExcel_Shared_OLE
                     $pps = new PHPExcel_Shared_OLE_PPS_File($name);
                     break;
                 default:
-                    continue;
+                    // PHP 7.3+ 下 switch 内 continue 会告警，这里显式跳过本条记录
+                    continue 2;
             }
             fseek($fh, 1, SEEK_CUR);
             $pps->Type    = $type;
@@ -443,7 +444,7 @@ class PHPExcel_Shared_OLE
     {
         $rawname = '';
         for ($i = 0; $i < strlen($ascii); ++$i) {
-            $rawname .= $ascii{$i} . "\x00";
+            $rawname .= $ascii[$i] . "\x00";
         }
         return $rawname;
     }
@@ -473,9 +474,10 @@ class PHPExcel_Shared_OLE
         // multiply just to make MS happy
         $big_date *= 10000000;
 
-        $high_part = floor($big_date / $factor);
+        // PHP 8.1 起浮点数隐式转整型会提示精度丢失，这里显式取整（与原截断行为一致）
+        $high_part = (int) floor($big_date / $factor);
         // lower 4 bytes
-        $low_part = floor((($big_date / $factor) - $high_part) * $factor);
+        $low_part = (int) floor((($big_date / $factor) - $high_part) * $factor);
 
         // Make HEX string
         $res = '';
@@ -483,12 +485,12 @@ class PHPExcel_Shared_OLE
         for ($i = 0; $i < 4; ++$i) {
             $hex = $low_part % 0x100;
             $res .= pack('c', $hex);
-            $low_part /= 0x100;
+            $low_part = (int) ($low_part / 0x100);
         }
         for ($i = 0; $i < 4; ++$i) {
             $hex = $high_part % 0x100;
             $res .= pack('c', $hex);
-            $high_part /= 0x100;
+            $high_part = (int) ($high_part / 0x100);
         }
         return $res;
     }

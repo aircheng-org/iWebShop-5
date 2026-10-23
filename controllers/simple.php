@@ -278,7 +278,7 @@ class Simple extends IController
 		$tourist   = IReq::get('tourist');//游客方式购物
 
     	//必须为登录用户
-    	if($tourist === null && $this->user['user_id'] == null)
+    	if($tourist === null && !$this->user)
     	{
     		if($id == 0 || $type == '')
     		{
@@ -292,7 +292,7 @@ class Simple extends IController
     	}
 
 		//游客的user_id默认为0
-    	$user_id = ($this->user['user_id'] == null) ? 0 : $this->user['user_id'];
+    	$user_id = ($this->user['user_id'] ?? 0);
 
 		//计算商品
 		$countSumObj = new CountSum($user_id);
@@ -405,7 +405,7 @@ class Simple extends IController
     	$startDate     = IFilter::act(IReq::get('start_date'),'date');
     	$endDate       = IFilter::act(IReq::get('end_date'),'date');
     	$dataArray     = [];
-    	$user_id       = ($this->user['user_id'] == null) ? 0 : $this->user['user_id'];
+    	$user_id       = ($this->user['user_id'] ?? 0);
 
 		//获取商品数据信息
 		$preorderDate= $startDate && $endDate ? [$startDate,$endDate] : [];
@@ -759,7 +759,7 @@ class Simple extends IController
     //到货通知处理动作
 	function arrival_notice()
 	{
-		$user_id  = $this->user['user_id'];
+		$user_id  = ($this->user['user_id'] ?? 0);
 		if(!$user_id)
 		{
 		    $this->redirect("/simple/login/_msg/".ILang::get('请先登录账号'));
@@ -960,7 +960,7 @@ class Simple extends IController
 		$tb = new IModel("find_password");
 		$addtime = time() - 3600*72;
 		$where  = " `hash`='$hash' AND addtime > $addtime ";
-		$where .= $this->user['user_id'] ? " and user_id = ".$this->user['user_id'] : "";
+		$where .= $this->user ? " and user_id = ".$this->user['user_id'] : "";
 
 		$row = $tb->getObj($where);
 		if(!$row)
@@ -992,7 +992,7 @@ class Simple extends IController
 		$tb = new IModel("find_password");
 		$addtime = time() - 3600*72;
 		$where  = " `hash`='$hash' AND addtime > $addtime ";
-		$where .= $this->user['user_id'] ? " and user_id = ".$this->user['user_id'] : "";
+		$where .= $this->user ? " and user_id = ".$this->user['user_id'] : "";
 
 		$row = $tb->getObj($where);
 		if(!$row)
@@ -1036,7 +1036,7 @@ class Simple extends IController
     	{
     		$message = ILang::get('商品id值不能为空');
     	}
-    	else if(!isset($this->user['user_id']) || !$this->user['user_id'])
+    	else if(!$this->user)
     	{
     		$message = ILang::get('请先登录');
     	}

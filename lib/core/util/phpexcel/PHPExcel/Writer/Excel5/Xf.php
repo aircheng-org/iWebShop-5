@@ -124,6 +124,15 @@ class PHPExcel_Writer_Excel5_Xf
     private $rightBorderColor;
 
     /**
+     * 对角线样式/颜色、关联样式对象（PHP 8.2 动态属性弃用提示，此处显式声明）
+     *
+     * @var mixed
+     */
+    private $_diag;
+    private $_diag_color;
+    private $_style;
+
+    /**
      * Constructor
      *
      * @access public
